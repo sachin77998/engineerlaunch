@@ -22,6 +22,10 @@ class Job extends Model
         'salary_currency',
         'job_type',
         'posting_source',
+        'source',
+        'external_job_id',
+        'deduplication_key',
+        'source_payload',
         'work_mode',
         'requirements',
         'responsibilities',
@@ -44,6 +48,7 @@ class Job extends Model
         'is_active' => 'boolean',
         'requirements' => 'array',
         'responsibilities' => 'array',
+        'source_payload' => 'array',
     ];
 
     /**

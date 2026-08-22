@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\TechnologyController;
+use App\Http\Controllers\Api\JobIngestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +49,7 @@ Route::prefix('technologies')->group(function () {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/ingestion/jobs', [JobIngestionController::class, 'store'])
+    ->middleware('throttle:60,1')
+    ->name('ingestion.jobs.store');

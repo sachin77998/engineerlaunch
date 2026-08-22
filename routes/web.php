@@ -23,11 +23,16 @@ Route::get('/', function () {
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
 
-Route::get('/learn', fn () => view('learning.index-v2', ['tracks' => config('learning')]))->name('learning.index');
+Route::get('/learn', fn () => view('learning.hub', ['tracks' => config('learning_tracks')]))->name('learning.index');
+Route::get('/learn/{track}', function (string $track) {
+    $tracks = config('learning_tracks');
+    abort_unless(isset($tracks[$track]), 404);
+    return view('learning.track', ['slug' => $track, 'track' => $tracks[$track]]);
+})->name('learning.track');
 Route::get('/learn/{track}/{module}', function (string $track, string $module) {
-    $tracks = config('learning');
-    abort_unless(isset($tracks[$track]['modules'][$module]), 404);
-    return view('learning.show', ['track' => $tracks[$track], 'module' => $tracks[$track]['modules'][$module]]);
+    $tracks = config('learning_tracks');
+    abort_unless(isset($tracks[$track]['topics'][$module]), 404);
+    return view('learning.questions', ['trackSlug' => $track, 'track' => $tracks[$track], 'module' => $tracks[$track]['topics'][$module]]);
 })->name('learning.show');
 Route::get('/about', fn () => view('about-dynamic', [
     'stats' => ['jobs' => \App\Models\Job::active()->count(), 'companies' => \App\Models\Company::active()->whereHas('activeJobs')->count()],

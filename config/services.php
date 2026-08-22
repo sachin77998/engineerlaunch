@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'job_ingestion' => [
+        'key' => env('JOB_INGESTION_KEY'),
+    ],
     'admin_email' => env('ADMIN_EMAIL'),
 
     /*
