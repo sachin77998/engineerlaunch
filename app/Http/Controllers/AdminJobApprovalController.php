@@ -1,0 +1,2 @@
+<?php
+namespace App\Http\Controllers;use App\Models\Job;class AdminJobApprovalController extends Controller{public function publish(Job $job){abort_unless($job->status==='pending',422,'Only pending jobs can be published.');$job->update(['status'=>'published','is_active'=>true,'published_at'=>now(),'posted_at'=>$job->posted_at??now()]);return back()->with('success','Job published.');}public function reject(Job $job){$job->update(['status'=>'rejected','is_active'=>false]);return back()->with('success','Job rejected.');}}

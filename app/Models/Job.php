@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Job extends Model
 {
@@ -13,7 +14,10 @@ class Job extends Model
 
     protected $fillable = [
         'company_id',
+        'employer_id',
+        'recruiter_company_id',
         'title',
+        'slug',
         'description',
         'location',
         'country',
@@ -39,6 +43,11 @@ class Job extends Model
         'scraped_at',
         'views',
         'is_active',
+        'status',
+        'is_confidential',
+        'vacancies',
+        'education',
+        'published_at',
     ];
 
     protected $casts = [
@@ -49,6 +58,8 @@ class Job extends Model
         'requirements' => 'array',
         'responsibilities' => 'array',
         'source_payload' => 'array',
+        'is_confidential' => 'boolean',
+        'published_at' => 'datetime',
     ];
 
     /**
@@ -74,6 +85,8 @@ class Job extends Model
     {
         return $this->belongsToMany(Technology::class, 'job_technology', 'job_id', 'technology_id');
     }
+
+    public function applications(): HasMany { return $this->hasMany(JobApplication::class); }
 
     /**
      * Scope to only active jobs
