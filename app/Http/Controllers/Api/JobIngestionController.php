@@ -12,10 +12,7 @@ class JobIngestionController extends Controller
     public function store(IngestJobsRequest $request): JsonResponse
     {
         $jobs = $request->validated('jobs');
-        foreach ($jobs as $job) {
-            ProcessIngestedJob::dispatch($job)->onQueue('ingestion');
-        }
-
+        foreach ($jobs as $job) {ProcessIngestedJob::dispatch($job)->onQueue('ingestion');}
         return response()->json(['accepted' => count($jobs), 'status' => 'queued'], 202);
     }
 }

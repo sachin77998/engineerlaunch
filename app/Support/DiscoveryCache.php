@@ -8,6 +8,11 @@ final class DiscoveryCache
 {
     public const TTL_SECONDS = 3600;
 
+    public static function ttl(): int
+    {
+        return (int) config('search.shared_cache_seconds', self::TTL_SECONDS);
+    }
+
     public static function key(string $scope, array $parameters = []): string
     {
         ksort($parameters);

@@ -1,0 +1,4 @@
+@extends('layouts.app')
+@section('title',$module['title'].' — '.config('platform.name'))
+@push('styles')<style>.questions-wrap{width:min(900px,calc(100% - 34px));margin:auto;padding:45px 0}.question-card{margin:16px 0;padding:24px;border:1px solid #e0e7f1;border-radius:15px;background:#fff}.question-card:target{border-color:#2563eb;box-shadow:0 8px 24px #2563eb14}</style>@endpush
+@section('content')<section class="hero-band"><div class="container"><a href="{{route('learning.track',$trackSlug)}}" style="color:#bfdbfe">← {{$track['title']}}</a><h1>{{$module['title']}}</h1></div></section><div class="questions-wrap">@foreach($module['questions'] as $question)<article class="question-card" id="question-{{$loop->iteration}}"><small>Question {{$loop->iteration}}</small><h2>{{$question}}</h2><p>Prepare a clear definition, practical example, trade-offs, and an implementation-oriented explanation.</p></article>@endforeach</div>@endsection

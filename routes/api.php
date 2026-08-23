@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\TechnologyController;
 use App\Http\Controllers\Api\JobIngestionController;
+use App\Http\Middleware\CacheDiscoveryResponses;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ use App\Http\Controllers\Api\JobIngestionController;
 */
 
 // Job Portal API Routes
-Route::prefix('jobs')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('jobs')->group(function () {
     Route::get('/', [JobController::class, 'index'])->name('jobs.index');
     Route::get('/recent', [JobController::class, 'recentJobs'])->name('jobs.recent');
     Route::get('/trending', [JobController::class, 'trending'])->name('jobs.trending');
@@ -29,7 +30,7 @@ Route::prefix('jobs')->group(function () {
     Route::get('/{id}', [JobController::class, 'show'])->name('jobs.show');
 });
 
-Route::prefix('companies')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('companies')->group(function () {
     Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
     Route::get('/countries', [CompanyController::class, 'countries'])->name('companies.countries');
     Route::get('/sectors', [CompanyController::class, 'sectors'])->name('companies.sectors');
@@ -38,7 +39,7 @@ Route::prefix('companies')->group(function () {
     Route::get('/{id}', [CompanyController::class, 'show'])->name('companies.show');
 });
 
-Route::prefix('technologies')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('technologies')->group(function () {
     Route::get('/', [TechnologyController::class, 'index'])->name('technologies.index');
     Route::get('/categories', [TechnologyController::class, 'categories'])->name('technologies.categories');
     Route::get('/trending', [TechnologyController::class, 'trending'])->name('technologies.trending');

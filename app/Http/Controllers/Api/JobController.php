@@ -10,23 +10,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Support\DiscoveryCache;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
-    /**
-     * Get role categories for job discovery filters.
-     */
     public function categories(): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => JobCategory::query()->orderBy('name')->get(),
-        ]);
+        return response()->json(['success' => true,'data' => JobCategory::query()->orderBy('name')->get(),]);
     }
-
-    /**
-     * Get all jobs with filters
-     */
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -47,38 +38,15 @@ class JobController extends Controller
             'salary_max' => ['nullable', 'numeric', 'gte:salary_min'],
             'sort_by' => ['nullable', 'in:posted_at,salary,views'],
             'sort_order' => ['nullable', 'in:asc,desc'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('search.max_results_per_page', 50)],
         ]);
-
         $query = Job::active()->with('company', 'categories', 'technologies');
-
-        // Filter by country
-        if ($request->has('country')) {
-            $query->country($request->get('country'));
-        }
-
-        // Filter by location
-        if ($request->has('location')) {
-            $query->location($request->get('location'));
-        }
-
-        // Filter by company
-        if ($request->has('company_id')) {
-            $query->company($request->get('company_id'));
-        }
-
-        // Filter by job type
-        if ($request->has('job_type')) {
-            $query->jobType($request->get('job_type'));
-        }
-
-        // Filter by experience level
-        if ($request->has('experience_level')) {
-            $query->experienceLevel($request->get('experience_level'));
-        }
-
-        if ($request->filled('experience_years')) {
-            $years = (int) $request->get('experience_years');
+        if ($request->has('country')) {$query->country($request->get('country'));}
+        if ($request->has('location')) {$query->location($request->get('location'));}
+        if ($request->has('company_id')) {$query->company($request->get('company_id'));}
+        if ($request->has('job_type')) {$query->jobType($request->get('job_type'));}
+        if ($request->has('experience_level')) {$query->experienceLevel($request->get('experience_level'));}
+        if ($request->filled('experience_years')) {$years = (int) $request->get('experience_years');
             $query->where(function ($experience) use ($years) {
                 $experience->whereNull('experience_min')->orWhere('experience_min', '<=', $years);
             })->where(function ($experience) use ($years) {
@@ -89,172 +57,52 @@ class JobController extends Controller
         foreach (['posting_source', 'work_mode', 'role_family'] as $filter) {
             if ($request->filled($filter)) $query->where($filter, $request->get($filter));
         }
-
-        if ($request->filled('posted_within_days')) {
-            $query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));
-        }
-
-        // Filter by technology
-        if ($request->has('technology_id')) {
-            $query->withTechnology($request->get('technology_id'));
-        }
-
-        // Filter by category
-        if ($request->has('category_id')) {
-            $query->withCategory($request->get('category_id'));
-        }
-
-        // Search by keyword
-        if ($request->has('q')) {
-            $query->search($request->get('q'));
-        }
-
-        // Filter by salary range
+        if ($request->filled('posted_within_days')) {$query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));}
+        if ($request->has('technology_id')) {$query->withTechnology($request->get('technology_id'));}
+        if ($request->has('category_id')) {$query->withCategory($request->get('category_id'));}
+        if ($request->has('q')) {$query->search($request->get('q'));}
         if ($request->filled('salary_min')) $query->where('salary_max', '>=', $request->get('salary_min'));
         if ($request->filled('salary_max')) $query->where('salary_min', '<=', $request->get('salary_max'));
-
-        // Sorting
         $sortBy = $validated['sort_by'] ?? 'posted_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
-        
-        if ($sortBy === 'posted_at') {
-            $query->orderBy('posted_at', $sortOrder);
-        } elseif ($sortBy === 'salary') {
-            $query->orderBy('salary_max', $sortOrder);
-        } elseif ($sortBy === 'views') {
-            $query->orderBy('views', $sortOrder);
-        }
-
-        // Pagination
-        $perPage = $validated['per_page'] ?? 15;
-        $jobs = Cache::remember(
-            DiscoveryCache::key('jobs.index', $request->query()),
-            DiscoveryCache::TTL_SECONDS,
-            fn () => $query->paginate($perPage)
-        );
-
-        return response()->json([
-            'success' => true,
-            'data' => $jobs->items(),
-            'pagination' => [
-                'total' => $jobs->total(),
-                'per_page' => $jobs->perPage(),
-                'current_page' => $jobs->currentPage(),
-                'last_page' => $jobs->lastPage(),
-                'from' => $jobs->firstItem(),
-                'to' => $jobs->lastItem(),
-            ],
-        ]);
+        if ($sortBy === 'posted_at') {$query->orderBy('posted_at', $sortOrder);} elseif ($sortBy === 'salary') {$query->orderBy('salary_max', $sortOrder);} elseif ($sortBy === 'views') {$query->orderBy('views', $sortOrder);}
+        $perPage = $validated['per_page'] ?? config('search.results_per_page', 20);
+        $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()),DiscoveryCache::ttl(),fn () => $query->paginate($perPage));
+        if ($request->filled('q') || $request->filled('location') || collect($validated)->except(['per_page','sort_by','sort_order'])->filter()->isNotEmpty()) {DB::table('search_logs')->insert(['user_id'=>$request->user()?->id,'session_id'=>hash_hmac('sha256',(string)$request->ip(),config('app.key')),'keyword'=>$validated['q']??null,'location'=>$validated['location']??null,'filters'=>json_encode(collect($validated)->except(['q','location','per_page'])->filter()->all()),'results_count'=>$jobs->total(),'created_at'=>now()]);}
+        return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),'from' => $jobs->firstItem(),'to' => $jobs->lastItem(),],]);
     }
-
-    /**
-     * Get single job details
-     */
     public function show($id): JsonResponse
     {
         $job = Job::active()->with('company', 'categories', 'technologies')->find($id);
-
         if (!$job) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Job not found',
-            ], 404);
-        }
-
-        // Increment view count
+            return response()->json(['success' => false,'message' => 'Job not found',], 404);}
         $job->incrementViews();
-
-        return response()->json([
-            'success' => true,
-            'data' => $job,
-        ]);
+        return response()->json(['success' => true,'data' => $job,]);
     }
-
-    /**
-     * Get jobs by company
-     */
     public function byCompany($companyId, Request $request): JsonResponse
     {
-        $query = Job::active()
-            ->where('company_id', $companyId)
-            ->with('company', 'categories', 'technologies');
-
-        // Apply other filters if needed
-        if ($request->has('q')) {
-            $query->search($request->get('q'));
-        }
-
+        $query = Job::active()->where('company_id', $companyId)->with('company', 'categories', 'technologies');
+        if ($request->has('q')) {$query->search($request->get('q'));}
         $perPage = $request->get('per_page', 15);
         $jobs = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $jobs->items(),
-            'pagination' => [
-                'total' => $jobs->total(),
-                'per_page' => $jobs->perPage(),
-                'current_page' => $jobs->currentPage(),
-                'last_page' => $jobs->lastPage(),
-            ],
-        ]);
+        return response()->json(['success' => true,'data' => $jobs->items(),
+            'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);
     }
-
-    /**
-     * Get recently posted jobs
-     */
     public function recentJobs(Request $request): JsonResponse
     {
         $days = $request->get('days', 7);
         $perPage = $request->get('per_page', 20);
-
-        $jobs = Job::active()
-            ->where('posted_at', '>=', now()->subDays($days))
-            ->with('company', 'categories', 'technologies')
-            ->newest()
-            ->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $jobs->items(),
-            'pagination' => [
-                'total' => $jobs->total(),
-                'per_page' => $jobs->perPage(),
-                'current_page' => $jobs->currentPage(),
-                'last_page' => $jobs->lastPage(),
-            ],
-        ]);
+        $jobs = Job::active()->where('posted_at', '>=', now()->subDays($days))->with('company', 'categories', 'technologies')->newest()->paginate($perPage);
+        return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);
     }
-
-    /**
-     * Get trending jobs by views
-     */
     public function trending(Request $request): JsonResponse
     {
         $perPage = $request->get('per_page', 20);
-
-        $jobs = Job::active()
-            ->with('company', 'categories', 'technologies')
-            ->orderBy('views', 'desc')
-            ->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $jobs->items(),
-            'pagination' => [
-                'total' => $jobs->total(),
-                'per_page' => $jobs->perPage(),
-                'current_page' => $jobs->currentPage(),
-                'last_page' => $jobs->lastPage(),
-            ],
-        ]);
-    }
-
-    /**
-     * Get job statistics
-     */
+        $jobs = Job::active()->with('company', 'categories', 'technologies')->orderBy('views', 'desc')->paginate($perPage);
+        return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);}
     public function stats(): JsonResponse
     {
-        $data = Cache::remember(DiscoveryCache::key('jobs.stats'), DiscoveryCache::TTL_SECONDS, fn () => [
+        $data = Cache::remember(DiscoveryCache::key('jobs.stats'), DiscoveryCache::ttl(), fn () => [
             'total_jobs' => Job::active()->count(),
             'total_companies' => \App\Models\Company::active()->whereHas('activeJobs')->count(),
             'total_technologies' => Technology::count(),
@@ -262,10 +110,6 @@ class JobController extends Controller
             'jobs_by_experience_level' => Job::active()->groupBy('experience_level')->selectRaw('experience_level, count(*) as count')->get(),
             'jobs_by_job_type' => Job::active()->groupBy('job_type')->selectRaw('job_type, count(*) as count')->get(),
         ]);
-
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-        ]);
+        return response()->json(['success' => true,'data' => $data,]);
     }
 }

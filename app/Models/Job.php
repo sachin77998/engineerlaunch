@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Job extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',
@@ -48,6 +49,11 @@ class Job extends Model
         'vacancies',
         'education',
         'published_at',
+        'category','role','job_level','state','relocation_allowed','hiring_urgency',
+        'specialization','primary_technology','salary_type','salary_period',
+        'additional_compensation','application_method','application_email',
+        'application_deadline','job_visibility','resume_required','cover_letter_required',
+        'portfolio_required','github_required','linkedin_required',
     ];
 
     protected $casts = [
@@ -60,6 +66,14 @@ class Job extends Model
         'source_payload' => 'array',
         'is_confidential' => 'boolean',
         'published_at' => 'datetime',
+        'application_deadline' => 'date',
+        'additional_compensation' => 'array',
+        'relocation_allowed' => 'boolean',
+        'resume_required' => 'boolean',
+        'cover_letter_required' => 'boolean',
+        'portfolio_required' => 'boolean',
+        'github_required' => 'boolean',
+        'linkedin_required' => 'boolean',
     ];
 
     /**
@@ -87,13 +101,16 @@ class Job extends Model
     }
 
     public function applications(): HasMany { return $this->hasMany(JobApplication::class); }
+    public function locations(): HasMany { return $this->hasMany(JobLocation::class); }
+    public function screeningQuestions(): HasMany { return $this->hasMany(JobScreeningQuestion::class)->orderBy('sort_order'); }
+    public function skills(): BelongsToMany { return $this->belongsToMany(Skill::class, 'job_skills')->withPivot('importance'); }
 
     /**
      * Scope to only active jobs
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->where(function ($q) {
+        return $query->where('is_active', true)->where('status', 'published')->where('job_visibility', 'public')->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }

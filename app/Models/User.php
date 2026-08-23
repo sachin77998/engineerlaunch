@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'role_code',
     ];
 
     /**
@@ -41,8 +42,11 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'role_code' => 'integer',
     ];
 
     public function employerProfile(){return $this->hasOne(EmployerProfile::class);}
     public function postedJobs(){return $this->hasMany(Job::class,'employer_id');}
+    public function candidateProfile(){return $this->hasOne(CandidateProfile::class);}
+    public function applications(){return $this->hasMany(JobApplication::class);}
 }
