@@ -5,6 +5,8 @@ services:
     plan: free
     healthCheckPath: /health
     envVars:
+      - key: VERIFICATION_OTP_DRIVER
+        value: testing
       - key: APP_NAME
         value: EngineerLaunch
       - key: APP_ENV

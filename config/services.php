@@ -25,6 +25,12 @@ return [
         'scheme' => 'https',
     ],
 
+    'verification_otp' => [
+        // Use "testing" for local/demo environments (fixed OTP 123456).
+        // Change to "mail" only after working production mail credentials exist.
+        'driver' => env('VERIFICATION_OTP_DRIVER', env('APP_ENV') === 'local' ? 'testing' : 'mail'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
