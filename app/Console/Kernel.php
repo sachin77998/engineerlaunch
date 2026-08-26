@@ -24,6 +24,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work database --queue=resume-processing --stop-when-empty --tries=2 --timeout=300')
             ->everyMinute()
             ->withoutOverlapping(15);
+        $schedule->command('premium:build-recommendations')
+            ->dailyAt('08:00')
+            ->withoutOverlapping(30);
     }
 
     /**

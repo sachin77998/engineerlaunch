@@ -1,1 +1,63 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Verify email</title><style>body{font:16px Inter,system-ui;background:#f5f7fb}.box{max-width:430px;margin:10vh auto;padding:30px;background:#fff;border-radius:14px}input{width:100%;padding:14px;font-size:24px;letter-spacing:8px;box-sizing:border-box}.btn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:8px;background:#2563eb;color:white}.error{color:#b42318}.warning{padding:12px 14px;border:1px solid #fde68a;border-radius:8px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.5}.warning strong{display:block;margin-bottom:3px;font-size:15px}.dev-code{font-size:20px;font-weight:800;letter-spacing:3px}</style></head><body><form class="box" method="post">@csrf<h1>Verify your email</h1>@if(session('mail_warning'))<div class="warning" role="alert"><strong>Email delivery unavailable</strong>{{ session('mail_warning') }}@if($devOtp)<div class="dev-code">{{ $devOtp }}</div>@endif</div>@else<p>Enter the six-digit code sent to {{ $email }}. It expires in 10 minutes.</p>@if($devOtp)<div class="warning"><strong>Local development OTP</strong><span class="dev-code">{{ $devOtp }}</span></div>@endif@endif @error('code')<p class="error">{{ $message }}</p>@enderror<input name="code" inputmode="numeric" maxlength="6" required autofocus><button class="btn">Verify and continue</button></form></body></html>
+@extends('layouts.app')
+
+@section('title', 'Verify Email — Ascendia')
+
+@section('content')
+<style>
+    .otp-page { min-height: 65vh; display: grid; place-items: center; padding: 64px 20px; background: #f5f7fb; }
+    .otp-card { width: 100%; max-width: 500px; padding: 32px; background: #fff; border: 1px solid #dbe3ef; border-radius: 16px; box-shadow: 0 18px 45px rgba(15, 35, 65, .10); }
+    .otp-card h1 { margin: 0 0 10px; color: #10213f; font-size: 32px; }
+    .otp-card p { color: #5f6f89; line-height: 1.6; }
+    .otp-input { width: 100%; padding: 14px; border: 1px solid #b7c4d8; border-radius: 8px; font-size: 24px; letter-spacing: 8px; text-align: center; }
+    .otp-alert { margin: 18px 0; padding: 12px 14px; border: 1px solid #fde68a; border-radius: 8px; background: #fffbeb; color: #92400e; }
+    .otp-code { display: block; margin-top: 5px; font-size: 22px; font-weight: 800; letter-spacing: 4px; }
+    .otp-error { margin: 12px 0; color: #b42318; }
+    .otp-submit { width: 100%; margin-top: 14px; }
+</style>
+
+<main class="otp-page">
+    <form id="otp-form" class="otp-card" method="POST" action="{{ route('otp.verify') }}">
+        @csrf
+        <h1>Verify your email</h1>
+        <p>Enter the six-digit verification code for <strong>{{ $email }}</strong>.</p>
+
+        @if (session('mail_warning'))
+            <div class="otp-alert" role="alert">
+                <strong>Local testing mode</strong>
+                <div>{{ session('mail_warning') }}</div>
+                @if ($devOtp)
+                    <span class="otp-code">{{ $devOtp }}</span>
+                @endif
+            </div>
+        @elseif ($devOtp)
+            <div class="otp-alert" role="alert">
+                <strong>Local development OTP</strong>
+                <span class="otp-code">{{ $devOtp }}</span>
+            </div>
+        @else
+            <p>The code expires in 10 minutes.</p>
+        @endif
+
+        @error('code')
+            <div class="otp-error" role="alert">{{ $message }}</div>
+        @enderror
+
+        <label for="code" class="form-label">Verification code</label>
+        <input id="code" class="form-control otp-input" name="code" inputmode="numeric"
+               autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"
+               value="{{ old('code', $devOtp ?? '') }}" required autofocus>
+
+        <button id="otp-submit" type="submit" class="btn btn-primary otp-submit">
+            Verify and continue
+        </button>
+    </form>
+</main>
+
+<script>
+    document.getElementById('otp-form').addEventListener('submit', function () {
+        const button = document.getElementById('otp-submit');
+        button.disabled = true;
+        button.textContent = 'Verifying…';
+    });
+</script>
+@endsection

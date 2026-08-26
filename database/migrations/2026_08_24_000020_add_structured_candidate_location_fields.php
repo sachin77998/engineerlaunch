@@ -1,0 +1,3 @@
+<?php
+use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
+return new class extends Migration{public function up():void{Schema::table('candidate_profiles',function(Blueprint $t){$t->string('phone_country_code',2)->nullable()->after('phone');$t->string('country_code',2)->nullable()->index();$t->string('state')->nullable()->index();$t->string('city')->nullable()->index();$t->string('salary_currency',3)->default('INR');});}public function down():void{Schema::table('candidate_profiles',fn(Blueprint $t)=>$t->dropColumn(['phone_country_code','country_code','state','city','salary_currency']));}};

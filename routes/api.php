@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\TechnologyController;
 use App\Http\Controllers\Api\JobIngestionController;
 use App\Http\Middleware\CacheDiscoveryResponses;
+use App\Http\Controllers\Api\OwnerAnalyticsController;
+use App\Http\Controllers\Api\RoleAuthController;
+use App\Http\Controllers\Api\SearchSuggestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +23,7 @@ use App\Http\Middleware\CacheDiscoveryResponses;
 */
 
 // Job Portal API Routes
-Route::middleware(CacheDiscoveryResponses::class)->prefix('jobs')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('jobs')->name('api.')->group(function () {
     Route::get('/', [JobController::class, 'index'])->name('jobs.index');
     Route::get('/recent', [JobController::class, 'recentJobs'])->name('jobs.recent');
     Route::get('/trending', [JobController::class, 'trending'])->name('jobs.trending');
@@ -30,7 +33,7 @@ Route::middleware(CacheDiscoveryResponses::class)->prefix('jobs')->group(functio
     Route::get('/{id}', [JobController::class, 'show'])->name('jobs.show');
 });
 
-Route::middleware(CacheDiscoveryResponses::class)->prefix('companies')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('companies')->name('api.')->group(function () {
     Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
     Route::get('/countries', [CompanyController::class, 'countries'])->name('companies.countries');
     Route::get('/sectors', [CompanyController::class, 'sectors'])->name('companies.sectors');
@@ -39,7 +42,7 @@ Route::middleware(CacheDiscoveryResponses::class)->prefix('companies')->group(fu
     Route::get('/{id}', [CompanyController::class, 'show'])->name('companies.show');
 });
 
-Route::middleware(CacheDiscoveryResponses::class)->prefix('technologies')->group(function () {
+Route::middleware(CacheDiscoveryResponses::class)->prefix('technologies')->name('api.')->group(function () {
     Route::get('/', [TechnologyController::class, 'index'])->name('technologies.index');
     Route::get('/categories', [TechnologyController::class, 'categories'])->name('technologies.categories');
     Route::get('/trending', [TechnologyController::class, 'trending'])->name('technologies.trending');
@@ -47,10 +50,26 @@ Route::middleware(CacheDiscoveryResponses::class)->prefix('technologies')->group
     Route::get('/{id}', [TechnologyController::class, 'show'])->name('technologies.show');
 });
 
+Route::get('/search/suggestions', SearchSuggestionController::class)
+    ->middleware(['throttle:60,1', CacheDiscoveryResponses::class])
+    ->name('api.search.suggestions');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
+    Route::post('/students/register', [RoleAuthController::class, 'studentRegister']);
+    Route::post('/employers/register', [RoleAuthController::class, 'employerRegister']);
+    Route::post('/{role}/login', [RoleAuthController::class, 'login'])->whereIn('role', ['student','employer','owner']);
+});
+Route::post('/auth/logout', [RoleAuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/auth/owners/register', [RoleAuthController::class, 'ownerRegister'])->middleware(['auth:sanctum','admin']);
+
 Route::post('/ingestion/jobs', [JobIngestionController::class, 'store'])
     ->middleware('throttle:60,1')
-    ->name('ingestion.jobs.store');
+    ->name('api.ingestion.jobs.store');
+
+Route::get('/owner/analytics', OwnerAnalyticsController::class)
+    ->middleware(['auth:sanctum', 'admin', 'throttle:60,1'])
+    ->name('api.owner.analytics');

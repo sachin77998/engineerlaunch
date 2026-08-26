@@ -25,11 +25,18 @@ class LearningController extends Controller
         abort_unless(isset($tracks[$track]['topics'][$module]), 404);
 
         if (($tracks[$track]['topics'][$module]['type'] ?? null) === 'tutorial') {
-            return view('learning.tutorials', [
+            $topic = $tracks[$track]['topics'][$module];
+            $lessonConfig = $topic['lessons_config'] ?? null;
+            $lessons = $lessonConfig
+                ? array_slice(config($lessonConfig, []), $topic['offset'] ?? 0, $topic['limit'] ?? null)
+                : array_merge(config('laravel_foundations', []), config('laravel_advanced', []));
+
+            return view($lessonConfig ? 'learning.spring-tutorials' : 'learning.tutorials', [
                 'trackSlug' => $track,
                 'track' => $tracks[$track],
-                'module' => $tracks[$track]['topics'][$module],
-                'lessons' => config('laravel_foundations', []),
+                'moduleSlug' => $module,
+                'module' => $topic,
+                'lessons' => $lessons,
             ]);
         }
 

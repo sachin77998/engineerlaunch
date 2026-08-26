@@ -39,4 +39,4 @@ RUN composer install \
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan optimize && (php artisan jobs:bootstrap-production &) && exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan optimize && (php artisan jobs:bootstrap-production --force &) && (php artisan schedule:work &) && exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]

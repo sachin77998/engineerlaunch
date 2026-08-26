@@ -1,0 +1,4 @@
+<?php
+namespace App\Http\Controllers;
+use App\Models\Company;use App\Services\GeographyService;use Illuminate\Http\JsonResponse;use Illuminate\Http\Request;use Illuminate\Support\Facades\Cache;
+class ProfileLookupController extends Controller{public function states(Request $r,GeographyService $geo):JsonResponse{$d=$r->validate(['country'=>'required|string|max:100']);return response()->json($geo->states($d['country']));}public function cities(Request $r,GeographyService $geo):JsonResponse{$d=$r->validate(['country'=>'required|string|max:100','state'=>'required|string|max:150']);return response()->json($geo->cities($d['country'],$d['state']));}public function companies(Request $r):JsonResponse{$q=trim((string)$r->query('q'));if(strlen($q)<2)return response()->json([]);return response()->json(Cache::remember('company-prefix:'.strtolower($q),3600,fn()=>Company::query()->where('name','like',$q.'%')->orderBy('name')->limit(20)->pluck('name')));}}

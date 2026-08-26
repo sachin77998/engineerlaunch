@@ -28,6 +28,7 @@ class JobController extends Controller
             'experience_level' => ['nullable', 'string', 'max:50'],
             'experience_years' => ['nullable', 'integer', 'min:0', 'max:60'],
             'posting_source' => ['nullable', 'in:official_company,recruitment_agency,job_board'],
+            'source' => ['nullable', 'in:employer,ats,career_page,api,feed,scraper'],
             'work_mode' => ['nullable', 'in:office,hybrid,remote,temporary_remote'],
             'role_family' => ['nullable', 'string', 'max:80'],
             'posted_within_days' => ['nullable', 'integer', 'min:1', 'max:365'],
@@ -54,7 +55,7 @@ class JobController extends Controller
             });
         }
 
-        foreach (['posting_source', 'work_mode', 'role_family'] as $filter) {
+        foreach (['posting_source', 'source', 'work_mode', 'role_family'] as $filter) {
             if ($request->filled($filter)) $query->where($filter, $request->get($filter));
         }
         if ($request->filled('posted_within_days')) {$query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));}

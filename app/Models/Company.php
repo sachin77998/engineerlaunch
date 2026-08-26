@@ -17,6 +17,7 @@ class Company extends Model
         'last_synced_at','country',
         'logo_url','industry','sector',
         'employee_count','company_type','is_active',
+        'company_email','phone_country_code','phone_number','organization_type','business_type',
     ];
 
     protected $casts = [
