@@ -4,6 +4,7 @@ $springLessons = require __DIR__.'/spring_boot_foundations.php';
 $springAdvancedLessons = require __DIR__.'/spring_boot_advanced.php';
 $reportingGitLessons = require __DIR__.'/reporting_git_lessons.php';
 $dsaFoundationLessons = require __DIR__.'/dsa_foundations.php';
+$dsaForLoopLessons = require __DIR__.'/dsa_for_loops.php';
 $javaInputOutputLessons = require __DIR__.'/java_input_output.php';
 
 return [
@@ -36,6 +37,7 @@ return [
         'architecture'=>['title'=>'Advanced Scalable Architecture','type'=>'tutorial','lessons_config'=>'spring_boot_advanced','offset'=>45,'limit'=>5,'questions'=>array_column(array_slice($springAdvancedLessons,45,5),'title')],
     ]],
     'dsa' => ['title'=>'Data Structures & Algorithms','icon'=>'DS','color'=>'#f97316','description'=>'Topic-wise interview problems selected from your supplied DSA curriculum.','topics'=>[
+        'for-loop-in-programing'=>['title'=>'For Loop in Programming','type'=>'tutorial','view'=>'learning.dsa-for-loop','lessons_config'=>'dsa_for_loops','offset'=>0,'limit'=>1,'questions'=>array_column($dsaForLoopLessons,'title')],
         'maths-recursion'=>['title'=>'Maths, Pattern and Recursion','type'=>'tutorial','lessons_config'=>'dsa_foundations','offset'=>0,'limit'=>12,'questions'=>array_column($dsaFoundationLessons,'title')],
         'array-string'=>['title'=>'Array and String','questions'=>['Check if Array is Sorted','Reverse Array','Rotate Array','Generate All Subarrays','Arrange Array by Sign','Best Time to Buy and Sell Stock','Leaders in an Array','Check Same Strings','Reverse a String','Longest Common Prefix']],
         'searching'=>['title'=>'Searching','questions'=>['Linear Search','Binary Search','First and Last Occurrence','Search in Rotated Sorted Array','Find Peak Element','Square Root Using Binary Search','Median of Two Sorted Arrays']],

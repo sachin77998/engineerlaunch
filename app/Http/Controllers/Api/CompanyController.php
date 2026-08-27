@@ -20,7 +20,7 @@ class CompanyController extends Controller
         if ($request->has('industry')) {$query->where('industry', $request->get('industry'));}
         if ($request->has('q')) {$query->where('name', 'LIKE', "%{$request->get('q')}%");}
         $query->withCount('activeJobs');
-        $perPage = $request->get('per_page', 20);
+        $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $companies = Cache::remember(
             DiscoveryCache::key('companies.index', $request->query()),
             DiscoveryCache::ttl(),
@@ -40,7 +40,7 @@ class CompanyController extends Controller
     }
     public function byCountry($country, Request $request): JsonResponse
     {
-        $companies = Company::active()->whereHas('activeJobs')->country($country)->withCount('activeJobs')->orderBy('name')->paginate($request->get('per_page', 20));
+        $companies = Company::active()->whereHas('activeJobs')->country($country)->withCount('activeJobs')->orderBy('name')->paginate(min(50, max(1, (int) $request->get('per_page', 50))));
         return response()->json(['success' => true,'data' => $companies->items(),
             'pagination' => ['total' => $companies->total(),'per_page' => $companies->perPage(),'current_page' => $companies->currentPage(),'last_page' => $companies->lastPage(),],
         ]);

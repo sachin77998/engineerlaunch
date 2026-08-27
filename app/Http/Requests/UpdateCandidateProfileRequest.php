@@ -32,7 +32,8 @@ class UpdateCandidateProfileRequest extends FormRequest
                     $fail('Enter a valid international phone number.');
                 }
             }],
-            'country_code' => ['nullable','string','size:2'], 'state' => ['nullable','string','max:150'], 'city' => ['nullable','string','max:150'],
+            'country_code' => ['nullable','string','size:2'], 'state' => ['nullable','string','max:150'], 'city' => ['nullable','string','max:150'], 'locality' => ['nullable','string','max:150'],
+            'job_search_status' => ['nullable',Rule::in(['actively_searching','preparing_for_interviews','appearing_for_interviews','received_job_offer','casually_exploring','not_looking'])],
             'address' => ['nullable','string','max:1000'], 'headline' => ['nullable','string','max:255'], 'bio' => ['nullable','string','max:3000'],
             'current_company' => ['nullable','string','max:150'], 'current_designation' => ['nullable','string','max:150'],
             'experience_years' => ['nullable','integer','min:0','max:60'], 'current_salary' => ['nullable','numeric','min:0'], 'expected_salary' => ['nullable','numeric','min:0'],

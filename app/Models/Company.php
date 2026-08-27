@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Company extends Model
 {
@@ -32,6 +33,10 @@ class Company extends Model
     public function activeJobs(): HasMany
     {
         return $this->jobs()->where('is_active', true);
+    }
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(CompanyCategory::class, 'company_category_company')->withTimestamps();
     }
     public function scopeActive($query)
     {

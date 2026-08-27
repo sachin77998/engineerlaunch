@@ -18,7 +18,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TechnologySeeder::class,
             JobCategorySeeder::class,
+            JobTitleSeeder::class,
             CompanySeeder::class,
+            CompanyCategorySeeder::class,
         ]);
 
         // Uncomment to create test users

@@ -31,7 +31,7 @@ class LearningController extends Controller
                 ? array_slice(config($lessonConfig, []), $topic['offset'] ?? 0, $topic['limit'] ?? null)
                 : array_merge(config('laravel_foundations', []), config('laravel_advanced', []));
 
-            return view($lessonConfig ? 'learning.spring-tutorials' : 'learning.tutorials', [
+            return view($topic['view'] ?? ($lessonConfig ? 'learning.spring-tutorials' : 'learning.tutorials'), [
                 'trackSlug' => $track,
                 'track' => $tracks[$track],
                 'moduleSlug' => $module,

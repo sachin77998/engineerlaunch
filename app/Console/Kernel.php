@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('jobs:dispatch-daily')
+        $schedule->command('jobs:dispatch-daily --triggered-by=scheduler')
             ->dailyAt('02:00')
             ->withoutOverlapping(180);
         $schedule->command('queue:work database --queue=ingestion --stop-when-empty --tries=3 --timeout=900')
@@ -26,6 +26,9 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping(15);
         $schedule->command('premium:build-recommendations')
             ->dailyAt('08:00')
+            ->withoutOverlapping(30);
+        $schedule->command('candidates:auto-apply')
+            ->dailyAt('08:15')
             ->withoutOverlapping(30);
     }
 

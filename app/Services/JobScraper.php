@@ -42,6 +42,7 @@ class JobScraper
             'jobs_added' => 0,
             'jobs_updated' => 0,
             'errors' => [],
+            'exception' => null,
         ];
 
         try {
@@ -78,6 +79,7 @@ class JobScraper
             DiscoveryCache::invalidate();
         } catch (\Exception $e) {
             $results['errors'][] = "Scraping failed: " . $e->getMessage();
+            $results['exception'] = $e;
         }
 
         return $results;

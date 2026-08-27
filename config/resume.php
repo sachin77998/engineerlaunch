@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'degrees' => [
+        'Secondary School Certificate', 'Higher Secondary Certificate',
+        'Diploma in Engineering', 'Advanced Diploma',
+        'Bachelor of Arts', 'Bachelor of Business Administration', 'Bachelor of Commerce',
+        'Bachelor of Computer Applications', 'Bachelor of Design', 'Bachelor of Education',
+        'Bachelor of Engineering', 'Bachelor of Laws', 'Bachelor of Pharmacy',
+        'Bachelor of Science', 'Bachelor of Technology', 'Bachelor of Medicine and Bachelor of Surgery',
+        'Master of Arts', 'Master of Business Administration - Business Analytics',
+        'Master of Business Administration - Finance', 'Master of Business Administration - Human Resources',
+        'Master of Business Administration - Information Technology', 'Master of Business Administration - Marketing',
+        'Master of Business Administration - Operations', 'Master of Commerce',
+        'Master of Computer Applications', 'Master of Education', 'Master of Engineering',
+        'Master of Laws', 'Master of Pharmacy', 'Master of Science', 'Master of Technology',
+        'Doctor of Medicine', 'Doctor of Philosophy', 'Postgraduate Diploma', 'Professional Certification',
+    ],
+    'link_types' => ['GitHub', 'LinkedIn', 'Portfolio / Personal Website', 'Project Demo', 'LeetCode', 'HackerRank', 'CodeChef', 'Codeforces'],
+    'notice_periods' => ['Immediate', '15 days', '30 days', '45 days', '60 days', '90 days', 'More than 90 days', 'Negotiable'],
+    'institutions' => [
+        'All India Institute of Medical Sciences', 'Amity University', 'Anna University',
+        'Banaras Hindu University', 'Birla Institute of Technology and Science, Pilani',
+        'Chandigarh University', 'Chitkara University', 'Delhi Technological University',
+        'Indian Institute of Management Ahmedabad', 'Indian Institute of Management Bangalore',
+        'Indian Institute of Management Calcutta', 'Indian Institute of Science',
+        'Indian Institute of Technology Bombay', 'Indian Institute of Technology Delhi',
+        'Indian Institute of Technology Guwahati', 'Indian Institute of Technology Kanpur',
+        'Indian Institute of Technology Kharagpur', 'Indian Institute of Technology Madras',
+        'Indian Institute of Technology Roorkee', 'Jawaharlal Nehru University',
+        'Lovely Professional University', 'Manipal Academy of Higher Education',
+        'National Institute of Technology Tiruchirappalli', 'Panjab University',
+        'Savitribai Phule Pune University', 'Thapar Institute of Engineering and Technology',
+        'University of Delhi', 'University of Hyderabad', 'Vellore Institute of Technology',
+    ],
+    'templates' => [
+        'ats-classic' => 'ATS Classic',
+        'executive-grey' => 'Executive Grey',
+        'modern-blue' => 'Modern Blue',
+    ],
+];

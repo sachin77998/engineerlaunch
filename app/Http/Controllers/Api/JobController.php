@@ -67,7 +67,7 @@ class JobController extends Controller
         $sortBy = $validated['sort_by'] ?? 'posted_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
         if ($sortBy === 'posted_at') {$query->orderBy('posted_at', $sortOrder);} elseif ($sortBy === 'salary') {$query->orderBy('salary_max', $sortOrder);} elseif ($sortBy === 'views') {$query->orderBy('views', $sortOrder);}
-        $perPage = $validated['per_page'] ?? config('search.results_per_page', 20);
+        $perPage = $validated['per_page'] ?? 50;
         $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()),DiscoveryCache::ttl(),fn () => $query->paginate($perPage));
         if ($request->filled('q') || $request->filled('location') || collect($validated)->except(['per_page','sort_by','sort_order'])->filter()->isNotEmpty()) {DB::table('search_logs')->insert(['user_id'=>$request->user()?->id,'session_id'=>hash_hmac('sha256',(string)$request->ip(),config('app.key')),'keyword'=>$validated['q']??null,'location'=>$validated['location']??null,'filters'=>json_encode(collect($validated)->except(['q','location','per_page'])->filter()->all()),'results_count'=>$jobs->total(),'created_at'=>now()]);}
         return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),'from' => $jobs->firstItem(),'to' => $jobs->lastItem(),],]);
@@ -84,7 +84,7 @@ class JobController extends Controller
     {
         $query = Job::active()->where('company_id', $companyId)->with('company', 'categories', 'technologies');
         if ($request->has('q')) {$query->search($request->get('q'));}
-        $perPage = $request->get('per_page', 15);
+        $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = $query->paginate($perPage);
         return response()->json(['success' => true,'data' => $jobs->items(),
             'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);
@@ -92,13 +92,13 @@ class JobController extends Controller
     public function recentJobs(Request $request): JsonResponse
     {
         $days = $request->get('days', 7);
-        $perPage = $request->get('per_page', 20);
+        $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = Job::active()->where('posted_at', '>=', now()->subDays($days))->with('company', 'categories', 'technologies')->newest()->paginate($perPage);
         return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);
     }
     public function trending(Request $request): JsonResponse
     {
-        $perPage = $request->get('per_page', 20);
+        $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = Job::active()->with('company', 'categories', 'technologies')->orderBy('views', 'desc')->paginate($perPage);
         return response()->json(['success' => true,'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],]);}
     public function stats(): JsonResponse

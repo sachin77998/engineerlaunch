@@ -635,6 +635,70 @@ pointer-events:auto
     color:#fff!important;
     white-space:nowrap
 }
+.nav-right .btn-outline-primary
+{
+    background:#fff!important;
+    border:1px solid #dbe4fd!important;
+    color:#2563eb!important;
+    box-shadow:none!important
+}
+.nav-right .btn-outline-primary:hover
+{
+    background:#eff4ff!important;
+    border-color:#bcd0fb!important;
+    color:#1d4ed8!important
+}
+.search-box
+{
+    max-width:780px;
+    padding:4px;
+    border-radius:16px;
+    box-shadow:0 8px 24px rgba(16,24,40,.08)
+}
+.search-box:focus-within
+{
+    box-shadow:0 8px 24px rgba(37,99,235,.15)
+}
+.hero-stats
+{
+    max-width:640px;
+    gap:12px
+}
+.hero-stats .stat
+{
+    flex:1 1 150px;
+    padding:14px 16px;
+    border:1px solid #eef1f6;
+    border-radius:12px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(16,24,40,.04)
+}
+#companies
+{
+    margin-top:0;
+    padding:48px 28px;
+    border-radius:18px;
+    background:#f8faff
+}
+#companies .section-header
+{
+    align-items:flex-start
+}
+@media(max-width:900px)
+{
+    .navbar{height:auto;min-height:72px;flex-wrap:wrap;padding:8px 20px}
+    .nav-links{order:3;width:100%;margin:7px 0 0;gap:18px;overflow-x:auto;padding:8px 0}
+    .nav-right{gap:8px}
+    .nav-right .btn{width:auto!important;min-width:104px}
+}
+@media(max-width:700px)
+{
+    .search-box{grid-template-columns:1fr;padding:8px}
+    .search-field{border-right:0;border-bottom:1px solid #e5eaf2}
+    .search-button{min-height:48px}
+    .hero-stats .stat{flex-basis:100%}
+    #companies{padding:32px 18px}
+}
 .filters
 {
     background:linear-gradient(180deg,#1769ff,#0f56d9);
@@ -717,6 +781,7 @@ pointer-events:auto
         <a href="/learn">Learning</a>
         <a href="/practice">Practice</a>
         <a href="/about">About Us</a>
+        <a href="{{route('resume.builder')}}">Resume Builder</a>
     </div>
     <div class="nav-right">@auth @if(auth()->user()->role_code===2||auth()->user()->role==='admin')
         <a href="/admin">
@@ -740,10 +805,10 @@ pointer-events:auto
         </a>
         @endif 
         @else
-        <a class="btn btn-primary" href="{{route('employer.login')}}">
+        <a class="btn btn-outline-primary" href="{{route('employer.login')}}">
             HR Login
         </a>
-        <a class="btn btn-primary" href="{{route('owner.login')}}">
+        <a class="btn btn-outline-primary" href="{{route('owner.login')}}">
             Owner Login
         </a>
         <a class="btn btn-primary signup" href="{{route('register')}}">
