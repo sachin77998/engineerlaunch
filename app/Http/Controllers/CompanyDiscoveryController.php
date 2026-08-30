@@ -19,8 +19,29 @@ class CompanyDiscoveryController extends Controller
             ->when($selected->isNotEmpty(),fn($q)=>$q->whereHas('categories',fn($c)=>$c->whereIn('company_categories.id',$selected)))
             ->when($filters['country']??null,fn($q,$countries)=>$q->whereIn('country',$countries))
             ->orderByDesc('active_jobs_count')->orderBy('name')->paginate(50)->withQueryString();
-        $taxonomies=Cache::remember('company-discovery:facets:v1',now()->addHour(),fn()=>CompanyCategory::where('is_active',true)->withCount(['companies'=>fn($q)=>$q->active()])->orderBy('sort_order')->get()->groupBy('taxonomy'));
-        $countries=Cache::remember('company-discovery:countries:v1',now()->addHour(),fn()=>Company::active()->whereNotNull('country')->selectRaw('country,count(*) companies_count')->groupBy('country')->orderByDesc('companies_count')->limit(50)->get());
-        return view('companies.index',compact('companies','taxonomies','countries','selected','category','filters'));
+        $taxonomies=Cache::remember('company-discovery:facets:v2',now()->addHour(),fn()=>CompanyCategory::where('is_active',true)
+            ->withCount(['companies'=>fn($q)=>$q->active()->whereHas('activeJobs')])
+            ->orderBy('sort_order')->get()->groupBy('taxonomy'));
+        $featuredCategories=collect($taxonomies->get('collection',collect()))
+            ->filter(fn($item)=>$item->companies_count>0)->take(10);
+        $countries=Cache::remember('company-discovery:countries:v2',now()->addHour(),fn()=>Company::active()->whereHas('activeJobs')->whereNotNull('country')->selectRaw('country,count(*) companies_count')->groupBy('country')->orderByDesc('companies_count')->limit(50)->get());
+        return view('companies.index',compact('companies','taxonomies','featuredCategories','countries','selected','category','filters'));
+    }
+
+    public function show(Request $request, Company $company): View
+    {
+        abort_unless($company->is_active, 404);
+        $filters = $request->validate(['department'=>'nullable|string|max:100','location'=>'nullable|string|max:120','experience'=>'nullable|in:entry,experienced']);
+        $base = $company->activeJobs();
+        $departments = (clone $base)->selectRaw("COALESCE(NULLIF(category, ''), 'Other') as label, COUNT(*) as jobs_count")->groupBy('label')->orderByDesc('jobs_count')->limit(12)->get();
+        $locations = (clone $base)->whereNotNull('location')->where('location','!=','')->selectRaw('location as label, COUNT(*) as jobs_count')->groupBy('location')->orderByDesc('jobs_count')->limit(25)->get();
+        $jobs = $company->activeJobs()->with('skills:id,name')
+            ->when($filters['department']??null,fn($q,$value)=>$q->where('category',$value))
+            ->when($filters['location']??null,fn($q,$value)=>$q->where('location',$value))
+            ->when(($filters['experience']??null)==='entry',fn($q)=>$q->where(fn($x)=>$x->whereNull('experience_min')->orWhere('experience_min','<=',2)))
+            ->when(($filters['experience']??null)==='experienced',fn($q)=>$q->where('experience_min','>=',2))
+            ->orderByDesc('posted_at')->orderByDesc('id')->paginate(50)->withQueryString();
+        $company->load('categories:id,name,slug,taxonomy,symbol')->loadCount('activeJobs');
+        return view('companies.show',compact('company','jobs','departments','locations','filters'));
     }
 }

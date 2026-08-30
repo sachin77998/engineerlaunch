@@ -11,6 +11,15 @@ class ApplySiteChrome
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
+
+        // Local UI development changes frequently. Prevent the browser from
+        // reusing an older rendered Blade page while the portal is being tested.
+        if (app()->environment('local')) {
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Expires', '0');
+        }
+
         if (!$response->isSuccessful() || !str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             return $response;
         }

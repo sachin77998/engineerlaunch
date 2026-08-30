@@ -38,9 +38,10 @@ input,select
 }
 .navbar
 {
-    height:72px;
-    padding:0 3%;
-    display:flex;
+    min-height:76px;
+    padding:0 max(28px,6vw);
+    display:grid;
+    grid-template-columns:180px minmax(0,1fr) auto;
     align-items:center;
     position:sticky;
     top:0;z-index:20;
@@ -59,9 +60,21 @@ input,select
   .nav-links
   {
     display:flex;
-    gap:28px;
-    margin-left:50px
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin:0
   }
+  .nav-dropdown{position:relative}
+  .nav-dropdown-toggle{display:flex;align-items:center;gap:7px;border:0;background:transparent;color:#5c6980;font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:10px 12px;border-radius:8px;transition:background .18s ease,color .18s ease}
+  .nav-dropdown-toggle:hover,.nav-dropdown.open .nav-dropdown-toggle{background:#eef5ff;color:#1769ff}
+  .nav-dropdown-toggle::after{content:'\25BE';font-size:12px;line-height:1;transition:transform .18s ease}
+  .nav-dropdown.open .nav-dropdown-toggle::after,.nav-dropdown:focus-within .nav-dropdown-toggle::after{transform:rotate(180deg)}
+  .nav-dropdown-menu{position:absolute;top:calc(100% + 9px);left:0;z-index:50;display:none;min-width:245px;padding:9px;background:#fff;border:1px solid #dbe4f0;border-radius:12px;box-shadow:0 16px 38px rgba(15,35,70,.15)}
+  .nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu,.nav-dropdown.open .nav-dropdown-menu{display:grid}
+  .nav-dropdown-menu a{display:block!important;padding:10px 12px;border-radius:8px;color:#24344f!important}
+  .nav-dropdown-menu a:hover{background:#eef5ff;color:var(--blue)!important}
+  .nav-dropdown-menu small{display:block;margin-top:2px;color:#7a879c;font-size:11px;font-weight:500}
   .nav-links a,
   .nav-right a
   {
@@ -78,7 +91,7 @@ input,select
     display:flex;
     align-items:center;
     gap:18px;
-    margin-left:auto
+    margin-left:24px
 }.signup{
     padding:10px 16px;
     border-radius:8px;
@@ -686,7 +699,7 @@ pointer-events:auto
 }
 @media(max-width:900px)
 {
-    .navbar{height:auto;min-height:72px;flex-wrap:wrap;padding:8px 20px}
+    .navbar{height:auto;min-height:72px;display:flex;flex-wrap:wrap;padding:8px 20px}
     .nav-links{order:3;width:100%;margin:7px 0 0;gap:18px;overflow-x:auto;padding:8px 0}
     .nav-right{gap:8px}
     .nav-right .btn{width:auto!important;min-width:104px}
@@ -776,12 +789,30 @@ pointer-events:auto
         <img src="{{asset('images/ascendia-logo.png')}}" alt="Ascendia — Hire today. Achieve tomorrow.">
     </a>
     <div class="nav-links">
-        <a href="#jobs">Find Jobs</a>
-        <a href="#companies">Companies</a>
-        <a href="/learn">Learning</a>
-        <a href="/practice">Practice</a>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Find Jobs</button>
+            <div class="nav-dropdown-menu">
+                <a href="#jobs">Find Jobs<small>Search verified openings</small></a>
+                <a href="{{route('companies.index')}}">Companies<small>Browse company profiles</small></a>
+                <a href="{{route('jobs.hr')}}">Jobs Posted by HR<small>Direct recruiter opportunities</small></a>
+            </div>
+        </div>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Learning</button>
+            <div class="nav-dropdown-menu">
+                <a href="{{route('learning.index')}}">Learning<small>Courses and interview preparation</small></a>
+                <a href="{{route('practice')}}">Practice<small>Code and test your skills</small></a>
+            </div>
+        </div>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Resume Builder</button>
+            <div class="nav-dropdown-menu">
+                <a href="{{route('resume.builder')}}">Resume Builder<small>Create and edit your resume</small></a>
+                <a href="{{route('resume.builder')}}#ats-preview">ATS-Friendly Resume<small>Preview an ATS-readable format</small></a>
+            </div>
+        </div>
         <a href="/about">About Us</a>
-        <a href="{{route('resume.builder')}}">Resume Builder</a>
+        <a href="{{route('contact')}}">Contact</a>
     </div>
     <div class="nav-right">@auth @if(auth()->user()->role_code===2||auth()->user()->role==='admin')
         <a href="/admin">
@@ -820,9 +851,9 @@ pointer-events:auto
         <header class="hero">
             <div class="hero-inner">
                 <div class="hero-label">✦ 
-                    <span id="available-label">
+                    <span id="available-label">{{number_format($homeStats['total_jobs'])}} verified opportunities available{{--
                         Loading verified opportunities…
-                    </span>
+                    --}}</span>
                 </div>
                 <h1>
                     Find work that
@@ -854,25 +885,25 @@ pointer-events:auto
             </form>
             <div class="hero-stats">
                 <div class="stat">
-                    <strong id="job-count">
+                    <strong id="job-count">{{number_format($homeStats['total_jobs'])}}{{--
                         —
-                    </strong>
+                    --}}</strong>
                     <span>
                         Active jobs
                     </span>
                 </div>
                 <div class="stat">
-                    <strong id="company-count">
+                    <strong id="company-count">{{number_format($homeStats['total_companies'])}}{{--
                         —
-                    </strong>
+                    --}}</strong>
                     <span>
                         Companies hiring
                     </span>
                 </div>
                 <div class="stat">
-                    <strong id="technology-count">
+                    <strong id="technology-count">{{number_format($homeStats['total_technologies'])}}{{--
                         —
-                    </strong>
+                    --}}</strong>
                     <span>
                         Technology skills
                     </span>
@@ -947,12 +978,12 @@ function companyLogo(company){const fallback=`<span class="logo-fallback">${esc(
 function jobCard(job){const tags=[...(job.technologies||[]).map(x=>x.name),...(job.categories||[]).map(x=>x.name)].slice(0,5);const description=String(job.description||'Review the complete role requirements on the official company careers page.').replace(/<[^>]*>/g,' ');const isPortal=job.source==='employer'&&job.slug;const applyUrl=isPortal?`/jobs/${encodeURIComponent(job.slug)}`:(job.external_url||job.company?.careers_url||'#');return `<article class="job-card"><div class="job-top"><div class="company-info"><div class="job-logo">${esc(initials(job.company?.name))}</div><div><div class="company-small">${esc(job.company?.name||'Company')}</div><h3 class="job-title">${esc(job.title)}</h3><div class="job-meta"><span>📍 ${esc(job.location||'Not specified')}</span><span>● ${esc(job.job_type||'Full-time')}</span>${job.work_mode?`<span>● ${esc(job.work_mode)}</span>`:''}</div></div></div></div><p class="job-description">${esc(description)}</p><div class="job-bottom"><div class="tags">${tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div><a class="apply" href="${esc(applyUrl)}" ${isPortal?'':'target="_blank" rel="noopener noreferrer"'}>${isPortal?'View & apply →':'View official job →'}</a></div></article>`}
 function parameters(){const p=new URLSearchParams({per_page:20,sort_by:state.sort,sort_order:'desc'});const values={q:$('#keyword').value.trim(),location:$('#location').value.trim(),company_id:state.company,work_mode:$('#work-mode').value,job_type:$('#job-type').value,experience_years:$('#experience').value,posted_within_days:$('#posted').value,role_family:$('#role').value,technology_id:$('#technology').value};if(state.preset==='graduate')values.q='graduate';if(state.preset==='remote')values.work_mode='remote';Object.entries(values).forEach(([key,value])=>{if(value!==''&&value!=null)p.set(key,value)});return p}
 async function loadJobs(){const list=$('#jobs-list');list.innerHTML='<div class="empty">Loading opportunities…</div>';try{const payload=await api('/api/jobs?'+parameters());$('#result-count').textContent=`${payload.pagination.total.toLocaleString()} matching roles`;list.innerHTML=payload.data.length?payload.data.map(jobCard).join(''):'<div class="empty"><strong>No exact matches.</strong><br>Try fewer keywords or clear one of the filters.</div>'}catch(error){list.innerHTML='<div class="empty">Jobs could not be loaded. Please retry.</div>'}}
-async function initialize(){try{const[stats,companies,technologies]=await Promise.all([api('/api/jobs/stats'),api('/api/companies?per_page=100'),api('/api/technologies?per_page=100')]);const s=stats.data;$('#job-count').textContent=s.total_jobs.toLocaleString();$('#company-count').textContent=s.total_companies.toLocaleString();$('#technology-count').textContent=s.total_technologies.toLocaleString();$('#available-label').textContent=`${s.total_jobs.toLocaleString()} verified opportunities available`;$('#company-grid').innerHTML=companies.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${company.active_jobs_count.toLocaleString()} jobs</span></button>`).join('');$('#technology').insertAdjacentHTML('beforeend',technologies.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}catch(error){$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}loadJobs()}
+async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies?per_page=100'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data;$('#job-count').textContent=Number(s.total_jobs||0).toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=`${Number(s.total_jobs||0).toLocaleString()} verified opportunities available`}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
 $('#search-form').addEventListener('submit',event=>{event.preventDefault();state.company='';state.preset='';loadJobs();$('#jobs').scrollIntoView()});$('#company-grid').addEventListener('click',event=>{const card=event.target.closest('[data-company]');if(!card)return;document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));card.classList.add('active');state.company=card.dataset.company;loadJobs();$('#jobs').scrollIntoView()});$('#all-companies').addEventListener('click',()=>{state.company='';document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));loadJobs()});document.querySelectorAll('.tab[data-sort],.tab[data-preset]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.job-toolbar .tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');state.sort=button.dataset.sort||'posted_at';state.preset=button.dataset.preset||'';loadJobs()}));['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).addEventListener('change',loadJobs));$('#clear-filters').addEventListener('click',()=>{['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).value='');$('#keyword').value='';$('#location').value='';state.company='';state.preset='';loadJobs()});initialize();
 </script><script>
 function attachSuggestions(inputId,type){const input=document.getElementById(inputId),box=document.getElementById(`${inputId}-suggestions`);let timer,controller;const close=()=>{box.classList.remove('open');box.innerHTML=''};input.addEventListener('input',()=>{clearTimeout(timer);controller?.abort();const q=input.value.trim();if(!q){close();return}timer=setTimeout(async()=>{controller=new AbortController();try{const response=await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}&type=${type}`,{headers:{Accept:'application/json'},signal:controller.signal});if(!response.ok)throw new Error('Suggestions unavailable');const items=(await response.json()).data||[];box.innerHTML=items.map(item=>`<button type="button" class="suggestion" data-value="${esc(item.value)}"><span>${esc(item.value)}</span><small>${esc(item.type)}</small></button>`).join('');box.classList.toggle('open',items.length>0)}catch(error){if(error.name!=='AbortError')close()}},180)});box.addEventListener('mousedown',event=>{const option=event.target.closest('[data-value]');if(!option)return;event.preventDefault();input.value=option.dataset.value;close();input.focus()});input.addEventListener('keydown',event=>{if(event.key==='Escape')close()});document.addEventListener('click',event=>{if(!event.target.closest('.autocomplete-field'))close()})}
 attachSuggestions('keyword','keyword');attachSuggestions('location','location');
-const aboutNav=[...document.querySelectorAll('.nav-links a')].find(a=>a.textContent.trim()==='About Us');if(aboutNav&&!document.querySelector('[data-resume-builder]'))aboutNav.insertAdjacentHTML('afterend','<a data-resume-builder href="{{route('resume.builder')}}">Resume Builder</a>');
+document.querySelectorAll('.nav-dropdown-toggle').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();const menu=button.closest('.nav-dropdown');document.querySelectorAll('.nav-dropdown.open').forEach(item=>{if(item!==menu){item.classList.remove('open');item.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded','false')}});const open=menu.classList.toggle('open');button.setAttribute('aria-expanded',String(open))}));document.addEventListener('click',()=>document.querySelectorAll('.nav-dropdown.open').forEach(item=>{item.classList.remove('open');item.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded','false')}));document.addEventListener('keydown',event=>{if(event.key==='Escape')document.dispatchEvent(new MouseEvent('click'))});
 </script><script>
 let companyLogoDirectory={byId:{},byName:{}};
 function paintCompanyLogos(){document.querySelectorAll('.company-card[data-company]').forEach(card=>{const company=companyLogoDirectory.byId[card.dataset.company],target=card.querySelector('.company-logo');if(company&&target)target.innerHTML=companyLogo(company)});document.querySelectorAll('.job-card').forEach(card=>{const name=card.querySelector('.company-small')?.textContent.trim().toLowerCase(),company=companyLogoDirectory.byName[name],target=card.querySelector('.job-logo');if(company&&target)target.innerHTML=companyLogo(company)})}
