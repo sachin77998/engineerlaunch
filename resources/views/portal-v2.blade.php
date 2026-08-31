@@ -782,6 +782,7 @@ pointer-events:auto
                                     font-weight:700
                                     }
                           </style>
+                          <link rel="stylesheet" href="{{ asset('css/ascendia-dark-theme.css') }}?v=20260831-2">
                           </head>
                           <body>
 <nav class="navbar">
