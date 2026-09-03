@@ -13,6 +13,10 @@ class SecureIncomingRequest
 
     public function handle(Request $request, Closure $next): Response
     {
+        if (app()->environment('production') && !$request->isSecure()) {
+            return redirect()->secure($request->getRequestUri(), 308);
+        }
+
         if (!in_array(strtoupper($request->method()), ['GET','HEAD','POST','PUT','PATCH','DELETE','OPTIONS'], true)) {
             return $this->reject($request, 405, 'Unsupported request method.');
         }
@@ -45,7 +49,7 @@ class SecureIncomingRequest
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
         $response->headers->set('Content-Security-Policy', "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self'");
         if (app()->environment('production') && $request->isSecure()) {
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
 
         return $response;

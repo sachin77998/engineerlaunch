@@ -52,4 +52,5 @@ class User extends Authenticatable
     public function candidateProfile(){return $this->hasOne(CandidateProfile::class);}
     public function ownerProfile(){return $this->hasOne(OwnerProfile::class);}
     public function applications(){return $this->hasMany(JobApplication::class);}
+    public function companyReviews(){return $this->hasMany(CompanyReview::class);}
 }

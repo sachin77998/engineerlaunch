@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\JobClassificationService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,7 +50,8 @@ class Job extends Model
         'vacancies',
         'education',
         'published_at',
-        'category','role','job_level','state','relocation_allowed','hiring_urgency',
+        'category','department','engineering_discipline','classification_version','classified_at',
+        'role','job_level','state','relocation_allowed','hiring_urgency',
         'specialization','primary_technology','salary_type','salary_period',
         'additional_compensation','application_method','application_email',
         'application_deadline','job_visibility','resume_required','cover_letter_required',
@@ -68,6 +70,7 @@ class Job extends Model
         'published_at' => 'datetime',
         'application_deadline' => 'date',
         'additional_compensation' => 'array',
+        'classified_at' => 'datetime',
         'relocation_allowed' => 'boolean',
         'resume_required' => 'boolean',
         'cover_letter_required' => 'boolean',
@@ -75,6 +78,17 @@ class Job extends Model
         'github_required' => 'boolean',
         'linkedin_required' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Job $job): void {
+            $classificationInputs = ['title', 'role', 'category', 'description', 'requirements', 'responsibilities', 'company_id'];
+            if ($job->classified_at && ! $job->isDirty($classificationInputs)) return;
+
+            $company = $job->relationLoaded('company') ? $job->company : Company::find($job->company_id);
+            $job->forceFill(app(JobClassificationService::class)->classify($job->getAttributes(), $company));
+        });
+    }
 
     /**
      * Get the company that posted this job

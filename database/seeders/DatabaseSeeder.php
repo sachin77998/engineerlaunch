@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
             JobCategorySeeder::class,
             JobTitleSeeder::class,
             CompanySeeder::class,
+            OfficialCareerSourceSeeder::class,
             CompanyCategorySeeder::class,
+            CompanyDiscoverySeeder::class,
         ]);
 
         // Uncomment to create test users

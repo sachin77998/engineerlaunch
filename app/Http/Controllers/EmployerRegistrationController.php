@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterEmployerRequest;
+use App\Services\VerificationOtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -22,9 +22,9 @@ class EmployerRegistrationController extends Controller
         ]]);
     }
 
-    public function sendPhoneOtp(Request $request): JsonResponse
+    public function sendPhoneOtp(Request $request, VerificationOtpService $otpService): JsonResponse
     {
-        $testingOtp = config('services.verification_otp.driver') === 'testing';
+        $testingOtp = $otpService->usesFixedCode();
         $data = $request->validate(['phone_country_code'=>'required|in:+91,+1,+44,+61,+49,+33,+971','company_phone'=>'required|string|max:20']);
         $number = preg_replace('/\D+/', '', $data['company_phone']);
         if ($data['phone_country_code'] === '+91' && !preg_match('/^[6-9]\d{9}$/', $number)) return response()->json(['message'=>'Enter a valid 10-digit Indian mobile number.'], 422);
@@ -51,7 +51,7 @@ class EmployerRegistrationController extends Controller
         return response()->json(['message'=>'Phone number verified successfully.','verification_token'=>$token]);
     }
 
-    public function store(RegisterEmployerRequest $request): RedirectResponse
+    public function store(RegisterEmployerRequest $request, VerificationOtpService $otpService): RedirectResponse
     {
         $data = $request->validated();
         $phone = $data['phone_country_code'].$data['company_phone'];
@@ -62,15 +62,24 @@ class EmployerRegistrationController extends Controller
             'name'=>trim($data['first_name'].' '.$data['last_name']), 'email'=>$data['email'], 'password'=>Hash::make($data['password']), 'role'=>'employer', 'role_code'=>0,
             'employer_registration'=>collect($data)->except(['password','password_confirmation','phone_verification_token'])->all()+['phone'=>$phone,'registration_token_hash'=>hash('sha256',$registrationToken),'session_id'=>$request->session()->getId(),'phone_verified_at'=>$verified['verified_at']],
         ];
-        $testingOtp = config('services.verification_otp.driver') === 'testing';
-        $emailCode = $testingOtp ? '123456' : (string) random_int(100000,999999);
+        $testingOtp = $otpService->usesFixedCode();
+        $emailCode = $otpService->generate();
         DB::table('email_otps')->where('email',$data['email'])->whereNull('used_at')->delete();
         DB::table('email_otps')->insert(['email'=>$data['email'],'code_hash'=>Hash::make($emailCode),'expires_at'=>now()->addMinutes(10),'created_at'=>now(),'updated_at'=>now()]);
         DB::table('employer_registration_audits')->insert(['session_id'=>$request->session()->getId(),'registration_token_hash'=>hash('sha256',$registrationToken),'ip_hash'=>hash_hmac('sha256',(string)$request->ip(),config('app.key')),'status'=>'pending_email_verification','phone_verified_at'=>$verified['verified_at'],'created_at'=>now(),'updated_at'=>now()]);
         $request->session()->put('pending_registration',$pending);
         $request->session()->put('dev_otp',$testingOtp?$emailCode:null);
         $request->session()->forget('verified_employer_phone');
-        if (!$testingOtp) Mail::raw("Your Ascendia verification code is {$emailCode}.",fn($mail)=>$mail->to($data['email'])->subject('Verify your employer account'));
+        try {
+            $otpService->sendEmail($data['email'], $emailCode, 'Verify your employer account');
+        } catch (\Throwable $exception) {
+            report($exception);
+            DB::table('email_otps')->where('email', $data['email'])->whereNull('used_at')->delete();
+            $request->session()->forget(['pending_registration', 'dev_otp']);
+
+            return back()->withInput($request->except(['password', 'password_confirmation', 'phone_verification_token']))
+                ->withErrors(['email' => 'We could not send the verification email. Check the email address and try again.']);
+        }
         return redirect()->route('otp.form')->with('mail_warning',$testingOtp?'Demo verification mode: use email OTP 123456.':'Verification code sent to the HR email.');
     }
 }

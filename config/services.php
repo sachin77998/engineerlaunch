@@ -26,8 +26,8 @@ return [
     ],
 
     'verification_otp' => [
-        // Use "testing" for local/demo environments (fixed OTP 123456).
-        // Change to "mail" only after working production mail credentials exist.
+        // The service additionally enforces that fixed OTPs can only run in
+        // local/testing environments, preventing production misconfiguration.
         'driver' => env('VERIFICATION_OTP_DRIVER', env('APP_ENV') === 'local' ? 'testing' : 'mail'),
     ],
 

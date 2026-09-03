@@ -21,6 +21,7 @@ use App\Http\Controllers\HrJobListingController;
 use App\Http\Controllers\LearningQuizController;
 use App\Http\Controllers\CompanyDiscoveryController;
 use App\Http\Controllers\CandidateAutoApplyController;
+use App\Http\Controllers\CompanyReviewController;
 
 
 
@@ -28,6 +29,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/companies', [CompanyDiscoveryController::class, 'index'])->name('companies.index');
 Route::get('/companies/category/{category:slug}', [CompanyDiscoveryController::class, 'index'])->name('companies.category');
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
+Route::post('/companies/{company:slug}/reviews', [CompanyReviewController::class, 'store'])->middleware(['auth','throttle:6,1'])->name('companies.reviews.store');
 Route::get('/jobs-posted-by-hr',HrJobListingController::class)->name('jobs.hr');
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');

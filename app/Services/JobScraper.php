@@ -443,10 +443,13 @@ class JobScraper
             ['title' => $jobData['title'] ?? 'Untitled']
         );
 
-        $job->fill([
+        $classification = app(JobClassificationService::class)->classify($jobData, $company);
+
+        $job->fill(array_merge([
             'company_id' => $company->id,
             'title' => $jobData['title'] ?? 'Untitled',
             'description' => $jobData['description'] ?? null,
+            'responsibilities' => $jobData['responsibilities'] ?? null,
             'location' => $jobData['location'] ?? 'Not specified',
             'country' => $jobData['country'] ?? $company->country,
             'salary_min' => $jobData['salary_min'] ?? null,
@@ -459,12 +462,17 @@ class JobScraper
             'experience_min' => $jobData['experience_min'] ?? null,
             'experience_max' => $jobData['experience_max'] ?? null,
             'role_family' => $jobData['role_family'] ?? $this->detectRoleFamily($jobData['title'] ?? ''),
+            'category' => $jobData['category'] ?? null,
+            'role' => $jobData['role'] ?? null,
             'external_url' => $jobData['external_url'] ?? null,
+            'application_method' => $jobData['application_method'] ?? 'external',
             'posted_at' => $jobData['posted_at'] ?? now(),
             'expires_at' => $jobData['expires_at'] ?? null,
             'scraped_at' => now(),
+            'status' => 'published',
+            'job_visibility' => 'public',
             'is_active' => true,
-        ]);
+        ], $classification));
 
         $job->save();
 

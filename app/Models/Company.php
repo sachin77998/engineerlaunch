@@ -38,6 +38,14 @@ class Company extends Model
     {
         return $this->belongsToMany(CompanyCategory::class, 'company_category_company')->withTimestamps();
     }
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CompanyReview::class);
+    }
+    public function publishedReviews(): HasMany
+    {
+        return $this->reviews()->published();
+    }
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

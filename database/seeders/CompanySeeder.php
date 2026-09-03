@@ -139,6 +139,9 @@ class CompanySeeder extends Seeder
         // Requested companies without a verified adapter remain visible but
         // unscheduled until their official feed is validated.
         $requestedCompanies = [
+            ['Optum', 'https://www.optum.com', 'https://careers.unitedhealthgroup.com/optum', 'USA', 'Healthcare Technology', 'Healthcare & Life Sciences'],
+            ['Persistent Systems', 'https://www.persistent.com', 'https://www.persistent.com/careers/', 'India', 'IT Services', 'IT Services & Consulting'],
+            ['Hexaware Technologies', 'https://hexaware.com', 'https://hexaware.com/careers/', 'India', 'IT Services', 'IT Services & Consulting'],
             ['NTT DATA', 'https://nttdata.com', 'https://careers.nttdata.com', 'Japan', 'IT Services', 'IT Services & Consulting'],
             ['DXC Technology', 'https://dxc.com', 'https://careers.dxc.com', 'USA', 'IT Services', 'IT Services & Consulting'],
             ['LTIMindtree', 'https://ltimindtree.com', 'https://www.ltimindtree.com/careers/', 'India', 'IT Services', 'IT Services & Consulting'],
