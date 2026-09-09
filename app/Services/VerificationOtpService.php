@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\OtpMail;
 use Illuminate\Support\Facades\Mail;
 
 final class VerificationOtpService
@@ -26,9 +27,6 @@ final class VerificationOtpService
             return;
         }
 
-        Mail::raw(
-            "Your Ascendia verification code is {$code}. It expires in 10 minutes. Do not share this code.",
-            fn ($message) => $message->to($email)->subject($subject)
-        );
+        Mail::to($email)->send(new OtpMail($code, $subject));
     }
 }

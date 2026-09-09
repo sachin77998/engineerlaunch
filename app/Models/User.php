@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'role_code',
+        'email_verified_at',
         'total_points','correct_answers','total_stars','is_premium','premium_started_at','premium_expires_at',
     ];
 
@@ -53,4 +54,5 @@ class User extends Authenticatable
     public function ownerProfile(){return $this->hasOne(OwnerProfile::class);}
     public function applications(){return $this->hasMany(JobApplication::class);}
     public function companyReviews(){return $this->hasMany(CompanyReview::class);}
+    public function eventNotifications(){return $this->hasMany(PortalEventNotification::class);}
 }

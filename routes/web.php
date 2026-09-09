@@ -22,10 +22,15 @@ use App\Http\Controllers\LearningQuizController;
 use App\Http\Controllers\CompanyDiscoveryController;
 use App\Http\Controllers\CandidateAutoApplyController;
 use App\Http\Controllers\CompanyReviewController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\AdminNewsController;
 
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/latest', [NewsController::class, 'index'])->name('news.index');
+Route::get('/latest/ajax', [NewsController::class, 'ajax'])->name('news.ajax');
+Route::get('/latest/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/companies', [CompanyDiscoveryController::class, 'index'])->name('companies.index');
 Route::get('/companies/category/{category:slug}', [CompanyDiscoveryController::class, 'index'])->name('companies.category');
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
@@ -44,6 +49,7 @@ Route::post('/learning/quiz-answer',[LearningQuizController::class,'store'])->mi
 Route::get('/about', [AboutUsController::class, 'index'])->name('about');
 Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice');
+Route::post('/practice/run', [PracticeController::class, 'run'])->middleware(['auth', 'throttle:20,1'])->name('practice.run');
 Route::middleware('guest')->group(function(){Route::get('/register',[AuthController::class,'registerForm'])->name('register');Route::post('/register',[AuthController::class,'register'])->name('register.store')->middleware('throttle:5,1');Route::get('/login',[AuthController::class,'loginForm'])->name('login');Route::post('/login',[AuthController::class,'login'])->name('login.store')->middleware('throttle:10,1');Route::get('/verify-otp',[AuthController::class,'otpForm'])->name('otp.form');Route::post('/verify-otp',[AuthController::class,'verify'])->name('otp.verify')->middleware('throttle:6,1');});
 Route::get('/employers/register',[EmployerRegistrationController::class,'create'])->middleware('guest')->name('employer.register');
 Route::post('/employers/register',[EmployerRegistrationController::class,'store'])->middleware(['guest','throttle:5,1'])->name('employer.register.store');
@@ -60,8 +66,11 @@ Route::middleware('auth')->group(function(){Route::get('/dashboard',[CandidatePr
 Route::middleware(['auth','throttle:60,1'])->prefix('resume')->name('resume.')->group(function(){Route::get('/builder',[AtsResumeController::class,'edit'])->name('builder');Route::post('/save',[AtsResumeController::class,'save'])->name('save');Route::get('/download',[AtsResumeController::class,'download'])->name('download');Route::get('/lookups/companies',[AtsResumeController::class,'companies'])->name('companies');Route::get('/lookups/locations',[AtsResumeController::class,'locations'])->name('locations');Route::get('/lookups/institutions',[AtsResumeController::class,'institutions'])->name('institutions');});
 Route::post('/profile/auto-apply',[CandidateAutoApplyController::class,'update'])->middleware(['auth','throttle:10,1'])->name('candidate.auto-apply.update');
 Route::middleware(['auth','throttle:30,1'])->prefix('profile')->group(function(){Route::get('/setup',[CandidateAssistantController::class,'setup'])->name('candidate.setup');Route::get('/assistant',[CandidateAssistantController::class,'show'])->name('candidate.assistant');Route::post('/assistant/answer',[CandidateAssistantController::class,'answer'])->name('candidate.assistant.answer');Route::post('/assistant/back',[CandidateAssistantController::class,'back'])->name('candidate.assistant.back');Route::post('/assistant/complete',[CandidateAssistantController::class,'complete'])->name('candidate.assistant.complete');Route::post('/assistant/reset',[CandidateAssistantController::class,'reset'])->name('candidate.assistant.reset');});
-Route::middleware('auth')->prefix('profile/lookups')->group(function(){Route::get('/states',[ProfileLookupController::class,'states'])->name('profile.lookups.states');Route::get('/cities',[ProfileLookupController::class,'cities'])->name('profile.lookups.cities');Route::get('/companies',[ProfileLookupController::class,'companies'])->name('profile.lookups.companies');});
+Route::middleware('auth')->prefix('profile/lookups')->group(function(){Route::get('/states',[ProfileLookupController::class,'states'])->name('profile.lookups.states');Route::get('/cities',[ProfileLookupController::class,'cities'])->name('profile.lookups.cities');Route::get('/companies',[ProfileLookupController::class,'companies'])->name('profile.lookups.companies');Route::get('/institutions',[ProfileLookupController::class,'institutions'])->name('profile.lookups.institutions');});
 Route::prefix('employer')->middleware(['auth','employer'])->name('employer.')->group(function(){Route::get('/',[EmployerController::class,'dashboard'])->name('dashboard');Route::post('/company',[EmployerController::class,'company'])->name('company.store');Route::get('/jobs/create',[EmployerController::class,'create'])->name('jobs.create');Route::post('/jobs',[EmployerController::class,'store'])->name('jobs.store');Route::get('/jobs/{job}/edit',[EmployerController::class,'edit'])->name('jobs.edit');Route::put('/jobs/{job}',[EmployerController::class,'update'])->name('jobs.update');Route::patch('/jobs/{job}/status/{status}',[EmployerController::class,'status'])->name('jobs.status');Route::delete('/jobs/{job}',[EmployerController::class,'destroy'])->name('jobs.destroy');Route::post('/jobs/{job}/duplicate',[EmployerController::class,'duplicate'])->name('jobs.duplicate');Route::get('/jobs/{job}/applicants',[EmployerController::class,'applicants'])->name('jobs.applicants');Route::patch('/applications/{application}/status',[EmployerController::class,'applicationStatus'])->name('applications.status');});
 Route::get('/admin',[AdminController::class,'index'])->middleware(['auth','admin'])->name('admin.dashboard');
 Route::get('/admin/analytics',OwnerAnalyticsDashboardController::class)->middleware(['auth','admin'])->name('admin.analytics');
+Route::get('/admin/news',[AdminNewsController::class,'index'])->middleware(['auth','admin'])->name('admin.news');
+Route::post('/admin/news/sources',[AdminNewsController::class,'source'])->middleware(['auth','admin','throttle:10,1'])->name('admin.news.sources');
+Route::patch('/admin/news/{article}',[AdminNewsController::class,'moderate'])->middleware(['auth','admin'])->name('admin.news.moderate');
 Route::prefix('admin/jobs')->middleware(['auth','admin'])->group(function(){Route::patch('/{job}/publish',[AdminJobApprovalController::class,'publish'])->name('admin.jobs.publish');Route::patch('/{job}/reject',[AdminJobApprovalController::class,'reject'])->name('admin.jobs.reject');});

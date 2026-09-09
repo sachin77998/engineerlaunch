@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{$event->title}}</title></head>
+<body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:40px 15px"><tr><td align="center"><table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;overflow:hidden;border-radius:12px;background:#fff">
+<tr><td style="padding:28px;background:#111827;color:#fff"><h1 style="margin:0;font-size:24px">{{config('app.name')}}</h1><p style="margin:8px 0 0;color:#d1d5db">Career &amp; Industry Intelligence</p></td></tr>
+@if($event->image_url)<tr><td><img src="{{$event->image_url}}" alt="" width="600" style="display:block;width:100%;height:auto"></td></tr>@endif
+<tr><td style="padding:32px"><div style="margin-bottom:12px;color:#2563eb;font-size:13px;font-weight:bold;text-transform:uppercase">{{$event->event_type}}</div><h2 style="margin:0 0 18px;color:#111827;font-size:25px;line-height:1.3">{{$event->title}}</h2><div style="color:#4b5563;font-size:16px;line-height:1.7">{!!nl2br(e($event->description))!!}</div>@if($event->cta_url)<div style="margin-top:28px"><a href="{{$event->cta_url}}" style="display:inline-block;padding:13px 22px;border-radius:7px;background:#2563eb;color:#fff;font-weight:bold;text-decoration:none">{{$event->cta_text ?: 'Explore Now'}}</a></div>@endif</td></tr>
+<tr><td style="padding:20px 32px;background:#f9fafb;color:#6b7280;font-size:12px;line-height:1.6">You are receiving this email because you have an account on {{config('app.name')}}.<br><br>&copy; {{date('Y')}} {{config('app.name')}}</td></tr>
+</table></td></tr></table></body></html>

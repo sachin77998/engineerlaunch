@@ -16,10 +16,13 @@ class OfficialCareerSourceSeederTest extends TestCase
         $this->assertCount(count($sources), array_unique(array_column($sources, 'ats_identifier')));
 
         foreach ($sources as $source) {
-            $this->assertSame('greenhouse', $source['ats_provider']);
+            $this->assertContains($source['ats_provider'], ['greenhouse', 'workday']);
             $this->assertNotSame('', trim($source['ats_identifier']));
             $this->assertStringStartsWith('https://', $source['website']);
             $this->assertStringStartsWith('https://', $source['careers_url']);
+            if ($source['ats_provider'] === 'workday') {
+                $this->assertStringStartsWith('https://', $source['jobs_feed_url']);
+            }
         }
     }
 }

@@ -6,8 +6,16 @@ $reportingGitLessons = require __DIR__.'/reporting_git_lessons.php';
 $dsaFoundationLessons = require __DIR__.'/dsa_foundations.php';
 $dsaForLoopLessons = require __DIR__.'/dsa_for_loops.php';
 $javaInputOutputLessons = require __DIR__.'/java_input_output.php';
+$sqlInterview = require __DIR__.'/sql_interview.php';
 
 return [
+    'sql'=>['title'=>'SQL','icon'=>'SQL','color'=>'#0f766e','description'=>'The first 50 SQL interview questions with supplied solutions and practical queries.','topics'=>[
+        'fundamentals'=>['title'=>'SQL Fundamentals','questions'=>array_slice($sqlInterview,0,10)],
+        'queries-aggregation'=>['title'=>'Queries and Aggregation','questions'=>array_slice($sqlInterview,10,13)],
+        'nulls-joins'=>['title'=>'NULL Values and Joins','questions'=>array_slice($sqlInterview,23,10)],
+        'subqueries-ranking'=>['title'=>'Subqueries and Salary Ranking','questions'=>array_slice($sqlInterview,33,7)],
+        'window-functions'=>['title'=>'Window Functions','questions'=>array_slice($sqlInterview,40,10)],
+    ]],
     'java' => ['title'=>'Java','icon'=>'J','color'=>'#2563eb','description'=>'Core Java and object-oriented interview preparation from beginner to advanced.','topics'=>[
         'input-output'=>['title'=>'Input and Output','type'=>'tutorial','lessons_config'=>'java_input_output','offset'=>0,'limit'=>1,'questions'=>array_column($javaInputOutputLessons,'title')],
         'class'=>['title'=>'Class','questions'=>['What is a class in Java?','Why do we need a class?','What is the difference between a class and an object?','Can a Java class exist without creating an object?','What are instance variables?','What are instance methods?','What are class variables?','What is a nested class?','What is an inner class?','What is an anonymous class?','Can a top-level class be private?','What is an abstract class?']],

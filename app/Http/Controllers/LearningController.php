@@ -8,7 +8,11 @@ class LearningController extends Controller
 {
     public function index(): View
     {
-        return view('learning.hub-modular', ['tracks' => config('learning_tracks', [])]);
+        $tracks = collect(config('learning_tracks', []))
+            ->sortBy(fn ($track, $slug) => $slug === 'sql' ? 1 : 0)
+            ->all();
+
+        return view('learning.hub-modular', compact('tracks'));
     }
 
     public function track(string $track): View
@@ -37,6 +41,14 @@ class LearningController extends Controller
                 'moduleSlug' => $module,
                 'module' => $topic,
                 'lessons' => $lessons,
+            ]);
+        }
+
+        if ($track === 'sql') {
+            return view('learning.sql-questions', [
+                'trackSlug' => $track,
+                'track' => $tracks[$track],
+                'module' => $tracks[$track]['topics'][$module],
             ]);
         }
 

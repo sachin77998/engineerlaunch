@@ -1,0 +1,3 @@
+<?php
+namespace App\Services\News;use InvalidArgumentException;
+class SourceUrlGuard{public function assertAllowed(string $url):void{$parts=parse_url($url);$host=strtolower($parts['host']??'');if(($parts['scheme']??'')!=='https'||!$host)throw new InvalidArgumentException('Only valid HTTPS feed URLs are allowed.');$allowed=collect(config('news.allowed_hosts',[]))->contains(fn($v)=>$host===$v||str_ends_with($host,'.'.$v));if(!$allowed)throw new InvalidArgumentException('Feed host is not allowlisted.');foreach(gethostbynamel($host)?:[] as $ip)if(!filter_var($ip,FILTER_VALIDATE_IP,FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE))throw new InvalidArgumentException('Feed resolves to a private or reserved address.');}}

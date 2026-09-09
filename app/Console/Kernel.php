@@ -30,6 +30,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('candidates:auto-apply')
             ->dailyAt('08:15')
             ->withoutOverlapping(30);
+        $schedule->command('news:fetch')->hourly()->withoutOverlapping(30);
+        $schedule->command('news:fetch-industry --industry=all --limit=10')->hourly()->withoutOverlapping(55);
+        $schedule->command('news:process')->everyThirtyMinutes()->withoutOverlapping(30);
+        $schedule->command('news:publish')->everyThirtyMinutes()->withoutOverlapping(30);
+        $schedule->command('news:notify')->dailyAt('08:00')->withoutOverlapping(30);
+        $schedule->command('portal:send-daily-events --limit=100')->dailyAt('09:00')->withoutOverlapping(120);
     }
 
     /**

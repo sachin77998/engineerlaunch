@@ -31,6 +31,23 @@ return [
         'driver' => env('VERIFICATION_OTP_DRIVER', env('APP_ENV') === 'local' ? 'testing' : 'mail'),
     ],
 
+    'judge0' => [
+        'url' => env('JUDGE0_URL', 'https://ce.judge0.com'),
+        'token' => env('JUDGE0_TOKEN'),
+        'languages' => [
+            'c' => 50,
+            'cpp' => 54,
+            'java' => 62,
+            'javascript' => 63,
+            'php' => 68,
+            'python' => 71,
+            'ruby' => 72,
+            'rust' => 73,
+            'typescript' => 74,
+            'go' => 60,
+        ],
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

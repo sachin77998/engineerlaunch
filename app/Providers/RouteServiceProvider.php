@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -47,6 +48,28 @@ class RouteServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('discovery', function (Request $request) {
+            return [
+                Limit::perMinute(60)->by('discovery:'.$request->ip()),
+                Limit::perHour(1200)->by('discovery-hour:'.$request->ip()),
+            ];
+        });
+
+        RateLimiter::for('auth-api', function (Request $request) {
+            $identity = Str::lower((string) $request->input('email', $request->ip()));
+
+            return [
+                Limit::perMinute(5)->by('auth:'.$identity.'|'.$request->ip()),
+                Limit::perHour(30)->by('auth-hour:'.$request->ip()),
+            ];
+        });
+
+        RateLimiter::for('ingestion', function (Request $request) {
+            $identity = hash('sha256', (string) $request->header('X-Ingestion-Key', $request->ip()));
+
+            return Limit::perMinute(10)->by('ingestion:'.$identity);
         });
     }
 }

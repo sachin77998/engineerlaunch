@@ -99,6 +99,60 @@ class OfficialCareerSourceSeeder extends Seeder
                 'ats_provider' => 'greenhouse',
                 'ats_identifier' => 'databricks',
             ],
+            [
+                'name' => 'Postman', 'website' => 'https://www.postman.com',
+                'careers_url' => 'https://www.postman.com/company/careers/', 'country' => 'Global',
+                'industry' => 'Developer Tools', 'sector' => 'Software Product',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'postman',
+            ],
+            [
+                'name' => 'Rubrik', 'website' => 'https://www.rubrik.com',
+                'careers_url' => 'https://www.rubrik.com/company/careers', 'country' => 'Global',
+                'industry' => 'Cybersecurity', 'sector' => 'Enterprise Software',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'rubrik',
+            ],
+            [
+                'name' => 'Cisco', 'website' => 'https://www.cisco.com',
+                'careers_url' => 'https://jobs.cisco.com/', 'country' => 'Global',
+                'industry' => 'Networking', 'sector' => 'Technology',
+                'ats_provider' => 'workday', 'ats_identifier' => 'cisco/Cisco_Careers',
+                'jobs_feed_url' => 'https://cisco.wd5.myworkdayjobs.com/wday/cxs/cisco/Cisco_Careers/jobs',
+            ],
+            [
+                'name' => 'NVIDIA', 'website' => 'https://www.nvidia.com',
+                'careers_url' => 'https://www.nvidia.com/en-us/about-nvidia/careers/', 'country' => 'Global',
+                'industry' => 'Semiconductors & AI', 'sector' => 'Technology',
+                'ats_provider' => 'workday', 'ats_identifier' => 'nvidia/NVIDIAExternalCareerSite',
+                'jobs_feed_url' => 'https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs',
+            ],
+            [
+                'name' => 'Salesforce', 'website' => 'https://www.salesforce.com',
+                'careers_url' => 'https://careers.salesforce.com/en/jobs/', 'country' => 'Global',
+                'industry' => 'Enterprise Software', 'sector' => 'Technology',
+                'ats_provider' => 'workday', 'ats_identifier' => 'salesforce/External_Career_Site',
+                'jobs_feed_url' => 'https://salesforce.wd12.myworkdayjobs.com/wday/cxs/salesforce/External_Career_Site/jobs',
+            ],
+            [
+                'name' => 'Adobe', 'website' => 'https://www.adobe.com',
+                'careers_url' => 'https://careers.adobe.com/us/en', 'country' => 'Global',
+                'industry' => 'Software Product', 'sector' => 'Technology',
+                'ats_provider' => 'workday', 'ats_identifier' => 'adobe/external_experienced',
+                'jobs_feed_url' => 'https://adobe.wd5.myworkdayjobs.com/wday/cxs/adobe/external_experienced/jobs',
+            ],
+            [
+                'name' => 'Hewlett Packard Enterprise', 'website' => 'https://www.hpe.com',
+                'careers_url' => 'https://careers.hpe.com/us/en', 'country' => 'Global',
+                'industry' => 'Enterprise Technology', 'sector' => 'Technology',
+                'ats_provider' => 'workday', 'ats_identifier' => 'hpe/Jobsathpe',
+                'jobs_feed_url' => 'https://hpe.wd5.myworkdayjobs.com/wday/cxs/hpe/Jobsathpe/jobs',
+            ],
+            [
+                'name' => 'Caterpillar Inc', 'website' => 'https://www.caterpillar.com',
+                'careers_url' => 'https://careers.caterpillar.com/', 'country' => 'Global',
+                'industry' => 'Heavy Engineering', 'sector' => 'Manufacturing',
+                'ats_provider' => 'workday', 'ats_identifier' => 'cat/CaterpillarCareers',
+                'jobs_feed_url' => 'https://cat.wd5.myworkdayjobs.com/wday/cxs/cat/CaterpillarCareers/jobs',
+            ],
         ];
     }
 
@@ -116,7 +170,7 @@ class OfficialCareerSourceSeeder extends Seeder
                     'sector' => $source['sector'],
                     'ats_provider' => $source['ats_provider'],
                     'ats_identifier' => $source['ats_identifier'],
-                    'jobs_feed_url' => null,
+                    'jobs_feed_url' => $source['jobs_feed_url'] ?? null,
                     'sync_enabled' => true,
                     'is_active' => true,
                 ]

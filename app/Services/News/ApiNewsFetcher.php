@@ -1,0 +1,4 @@
+<?php
+namespace App\Services\News;
+use App\Models\NewsSource;use Illuminate\Support\Facades\Http;
+class ApiNewsFetcher{public function __construct(private SourceUrlGuard $guard,private NewsNormalizerService $normalizer){}public function fetch(NewsSource $source):array{if(!$source->api_url)return [];$this->guard->assertAllowed($source->api_url);$response=Http::acceptJson()->connectTimeout(5)->timeout(20)->retry(3,500)->get($source->api_url)->throw();$rows=$response->json('articles')??$response->json('data')??[];return collect($rows)->map(fn($row)=>$this->normalizer->normalize(['title'=>$row['title']??$row['name']??null,'url'=>$row['url']??$row['link']??null,'description'=>$row['description']??$row['summary']??null,'published_at'=>$row['published_at']??$row['publishedAt']??null,'image'=>$row['image']??$row['image_url']??null,'author'=>$row['author']??null],$source))->filter()->values()->all();}}

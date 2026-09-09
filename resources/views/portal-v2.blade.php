@@ -82,11 +82,13 @@ input,select
     font-size:14px;
     font-weight:600
 }
-.nav-links a:hover,
+  .nav-links a:hover,
 .nav-right a:hover
 {
     color:var(--blue)
 }
+  .nav-links .latest-tech-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid #6ea2e6;border-radius:8px;background:#176fe5;color:#fff!important;font-weight:800;white-space:nowrap}
+  .nav-links .latest-tech-link:hover{background:#0f5fc9;color:#fff!important}
 .nav-right{
     display:flex;
     align-items:center;
@@ -791,7 +793,11 @@ pointer-events:auto
                                     font-weight:700
                                     }
                           </style>
-                          <link rel="stylesheet" href="{{ asset('css/ascendia-dark-theme.css') }}?v=20260831-2">
+<link rel="stylesheet" href="{{ asset('css/ascendia-dark-theme.css') }}?v=20260907-1">
+<style>
+.navbar .nav-links,.navbar .nav-right{gap:10px!important}.navbar .nav-right{margin-left:10px!important}.navbar .nav-links>.nav-dropdown>.nav-dropdown-toggle,.navbar .nav-links>a,.navbar .nav-right>a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:112px!important;width:auto!important;height:44px!important;padding:0 15px!important;border:1px solid #7095c2!important;border-radius:9px!important;background:#315f96!important;color:#fff!important;font:750 14px/1 Inter,system-ui,sans-serif!important;text-decoration:none!important;white-space:nowrap!important;box-shadow:0 4px 12px rgba(8,28,54,.12)!important;cursor:pointer!important;transition:background-color .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease!important}.navbar .nav-links>.nav-dropdown>.nav-dropdown-toggle:hover,.navbar .nav-links>.nav-dropdown.open>.nav-dropdown-toggle,.navbar .nav-links>a:hover,.navbar .nav-right>a:hover{border-color:#9fc1e8!important;background:#3f73ad!important;color:#fff!important;transform:translateY(-1px)!important;box-shadow:0 7px 16px rgba(8,28,54,.2)!important}.navbar .nav-links>.nav-dropdown>.nav-dropdown-toggle:focus-visible,.navbar .nav-links>a:focus-visible,.navbar .nav-right>a:focus-visible{outline:3px solid rgba(159,193,232,.42)!important;outline-offset:3px!important}.navbar .nav-dropdown-toggle::after{margin-left:7px}@media(max-width:900px){.navbar .nav-links>.nav-dropdown,.navbar .nav-links>a{flex:1 0 135px}.navbar .nav-links>.nav-dropdown>.nav-dropdown-toggle,.navbar .nav-links>a{width:100%!important}}
+.search-field input::placeholder{color:#9fb0c8;opacity:1;font-size:15px;font-weight:500}.search-field input{font-size:15px!important;font-weight:500}.search-button{height:58px!important;padding:0 30px!important;border-radius:12px!important;background:#4f7fd8!important;font-size:16px!important;transition:transform .2s ease,filter .2s ease}.search-button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+</style>
                           </head>
                           <body>
 <nav class="navbar">
@@ -823,6 +829,7 @@ pointer-events:auto
         </div>
         <a href="/about">About Us</a>
         <a href="{{route('contact')}}">Contact</a>
+        <a class="latest-tech-link" href="{{route('news.index')}}">Latest in Tech</a>
     </div>
     <div class="nav-right">@auth @if(auth()->user()->role_code===2||auth()->user()->role==='admin')
         <a href="/admin">
@@ -861,7 +868,7 @@ pointer-events:auto
         <header class="hero">
             <div class="hero-inner">
                 <div class="hero-label">✦ 
-                    <span id="available-label">{{number_format($homeStats['total_jobs'])}} verified opportunities available{{--
+                    <span id="available-label">{{$homeStats['total_jobs'] > 0 ? number_format($homeStats['total_jobs']).' verified opportunities' : 'No verified opportunities available'}}{{--
                         Loading verified opportunities…
                     --}}</span>
                 </div>
@@ -872,24 +879,23 @@ pointer-events:auto
                     </span>
                 </h1>
                 <p class="hero-copy">
-                    Discover verified job openings directly from official company career pages. 
-                    Search by role, 
-                    skill, or location and apply directly at the source.
+                    Discover verified job openings from official company career pages.
+                    Search by role, skill or location and apply directly through the company.
                 </p>
                 <form class="search-box" id="search-form">
                     <label class="search-field autocomplete-field">
-                        ⌕<input id="keyword" placeholder="Job Title, Skill or Company" aria-label="Job Title, Skill or Company" autocomplete="off">
+                        ⌕<input id="keyword" name="keyword" placeholder="Search job title, skill or company" aria-label="Search by job title, skill or company" autocomplete="off">
                         <span class="suggestions" id="keyword-suggestions" role="listbox">
 
                         </span>
                     </label>
                     <label class="search-field autocomplete-field">
-                    ⌖<input id="location" placeholder="City, State or Remote" aria-label="City, State or Remote" autocomplete="off">
+                    ⌖<input id="location" name="location" placeholder="Location, city, state or remote" aria-label="Search by location, city, state or remote" autocomplete="off">
                     <span class="suggestions" id="location-suggestions" role="listbox">
 
                     </span>
                 </label>
-                <button class="search-button">
+                <button class="search-button" type="submit">
                     Search Jobs
                 </button>
             </form>
@@ -915,7 +921,7 @@ pointer-events:auto
                         —
                     --}}</strong>
                     <span>
-                        Technology skills
+                        Skills in demand
                     </span>
                 </div>
             </div>
@@ -982,13 +988,13 @@ pointer-events:auto
 <script>
 const state={company:'',sort:'posted_at',preset:''};
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-async function api(path){const key='ascendia:api:'+path,now=Date.now();try{const saved=JSON.parse(sessionStorage.getItem(key)||'null');if(saved&&saved.expires>now)return saved.payload}catch(error){sessionStorage.removeItem(key)}const response=await fetch(path,{headers:{Accept:'application/json'},cache:'default'});if(!response.ok)throw new Error('Request failed');const payload=await response.json();try{sessionStorage.setItem(key,JSON.stringify({expires:now+3600000,payload}))}catch(error){}return payload}
+async function api(path){const key='ascendia:api:v3:'+path,now=Date.now();try{const saved=JSON.parse(sessionStorage.getItem(key)||'null');if(saved&&saved.expires>now)return saved.payload}catch(error){sessionStorage.removeItem(key)}const response=await fetch(path,{headers:{Accept:'application/json'},cache:'no-store'});if(!response.ok)throw new Error('Request failed');const payload=await response.json();try{const total=Number(payload?.pagination?.total??payload?.meta?.total??payload?.total??payload?.data?.total_jobs??0);if(total>0)sessionStorage.setItem(key,JSON.stringify({expires:now+300000,payload}));else sessionStorage.removeItem(key)}catch(error){}return payload}
 function initials(name){return String(name||'CO').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
 function companyLogo(company){const fallback=`<span class="logo-fallback">${esc(initials(company?.name))}</span>`;if(!company?.website)return fallback;const source=`https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(company.website)}&sz=128`;return `<img src="${esc(source)}" alt="${esc(company.name)} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">${esc(initials(company.name))}</span>`}
 function jobCard(job){const tags=[...(job.technologies||[]).map(x=>x.name),...(job.categories||[]).map(x=>x.name)].slice(0,5);const description=String(job.description||'Review the complete role requirements on the official company careers page.').replace(/<[^>]*>/g,' ');const isPortal=job.source==='employer'&&job.slug;const applyUrl=isPortal?`/jobs/${encodeURIComponent(job.slug)}`:(job.external_url||job.company?.careers_url||'#');const companyName=job.company?.name||'Company';const reviewCount=Number(job.company?.published_reviews_count||0);const reviewAverage=Number(job.company?.published_reviews_avg_rating||0);const rating=reviewCount?`<span class="company-rating"><span class="star">★</span> ${reviewAverage.toFixed(1)} · ${reviewCount.toLocaleString()} ${reviewCount===1?'review':'reviews'}</span>`:'';return `<article class="job-card"><div class="job-top"><div class="company-info"><div class="job-logo">${esc(initials(companyName))}</div><div><div class="company-small" data-company-name="${esc(companyName)}">${esc(companyName)}${rating}</div><h3 class="job-title">${esc(job.title)}</h3><div class="job-meta"><span>📍 ${esc(job.location||'Not specified')}</span><span>● ${esc(job.job_type||'Full-time')}</span>${job.work_mode?`<span>● ${esc(job.work_mode)}</span>`:''}</div></div></div></div><p class="job-description">${esc(description)}</p><div class="job-bottom"><div class="tags">${tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div><a class="apply" href="${esc(applyUrl)}" ${isPortal?'':'target="_blank" rel="noopener noreferrer"'}>${isPortal?'View & apply →':'View official job →'}</a></div></article>`}
 function parameters(){const p=new URLSearchParams({per_page:20,sort_by:state.sort,sort_order:'desc'});const values={q:$('#keyword').value.trim(),location:$('#location').value.trim(),company_id:state.company,work_mode:$('#work-mode').value,job_type:$('#job-type').value,experience_years:$('#experience').value,posted_within_days:$('#posted').value,role_family:$('#role').value,technology_id:$('#technology').value};if(state.preset==='graduate')values.q='graduate';if(state.preset==='remote')values.work_mode='remote';Object.entries(values).forEach(([key,value])=>{if(value!==''&&value!=null)p.set(key,value)});return p}
 async function loadJobs(){const list=$('#jobs-list');list.innerHTML='<div class="empty">Loading opportunities…</div>';try{const payload=await api('/api/jobs?'+parameters());$('#result-count').textContent=`${payload.pagination.total.toLocaleString()} matching roles`;list.innerHTML=payload.data.length?payload.data.map(jobCard).join(''):'<div class="empty"><strong>No exact matches.</strong><br>Try fewer keywords or clear one of the filters.</div>'}catch(error){list.innerHTML='<div class="empty">Jobs could not be loaded. Please retry.</div>'}}
-async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies?per_page=100'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data;$('#job-count').textContent=Number(s.total_jobs||0).toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=`${Number(s.total_jobs||0).toLocaleString()} verified opportunities available`}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
+async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies/top-hiring?limit=12'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data,totalJobs=Number(s.total_jobs||0);$('#job-count').textContent=totalJobs.toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=totalJobs>0?`${totalJobs.toLocaleString()} verified opportunities`:'No verified opportunities available'}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} active jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
 $('#search-form').addEventListener('submit',event=>{event.preventDefault();state.company='';state.preset='';loadJobs();$('#jobs').scrollIntoView()});$('#company-grid').addEventListener('click',event=>{const card=event.target.closest('[data-company]');if(!card)return;document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));card.classList.add('active');state.company=card.dataset.company;loadJobs();$('#jobs').scrollIntoView()});$('#all-companies').addEventListener('click',()=>{state.company='';document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));loadJobs()});document.querySelectorAll('.tab[data-sort],.tab[data-preset]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.job-toolbar .tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');state.sort=button.dataset.sort||'posted_at';state.preset=button.dataset.preset||'';loadJobs()}));['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).addEventListener('change',loadJobs));$('#clear-filters').addEventListener('click',()=>{['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).value='');$('#keyword').value='';$('#location').value='';state.company='';state.preset='';loadJobs()});initialize();
 </script><script>
 function attachSuggestions(inputId,type){const input=document.getElementById(inputId),box=document.getElementById(`${inputId}-suggestions`);let timer,controller;const close=()=>{box.classList.remove('open');box.innerHTML=''};input.addEventListener('input',()=>{clearTimeout(timer);controller?.abort();const q=input.value.trim();if(!q){close();return}timer=setTimeout(async()=>{controller=new AbortController();try{const response=await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}&type=${type}`,{headers:{Accept:'application/json'},signal:controller.signal});if(!response.ok)throw new Error('Suggestions unavailable');const items=(await response.json()).data||[];box.innerHTML=items.map(item=>`<button type="button" class="suggestion" data-value="${esc(item.value)}"><span>${esc(item.value)}</span><small>${esc(item.type)}</small></button>`).join('');box.classList.toggle('open',items.length>0)}catch(error){if(error.name!=='AbortError')close()}},180)});box.addEventListener('mousedown',event=>{const option=event.target.closest('[data-value]');if(!option)return;event.preventDefault();input.value=option.dataset.value;close();input.focus()});input.addEventListener('keydown',event=>{if(event.key==='Escape')close()});document.addEventListener('click',event=>{if(!event.target.closest('.autocomplete-field'))close()})}
