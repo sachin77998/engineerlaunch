@@ -1,3 +1,50 @@
 <?php
-namespace App\Services\News;use App\Models\{NewsArticle,NewsCategory,NewsFetchLog,NewsSource};use Illuminate\Support\Facades\Http;use Illuminate\Support\Str;
-class NewsAggregatorService{public function __construct(private SourceUrlGuard $guard){}public function fetchSource(NewsSource $source):array{$start=now();$found=$created=$duplicates=0;try{if(!$source->is_active||!$source->feed_url)return compact('found','created','duplicates');$this->guard->assertAllowed($source->feed_url);$body=Http::accept('application/rss+xml, application/atom+xml, application/xml')->connectTimeout(5)->timeout(20)->retry(2,250)->withOptions(['allow_redirects'=>['max'=>2,'strict'=>true]])->get($source->feed_url)->throw()->body();if(strlen($body)>config('news.max_feed_bytes'))throw new \RuntimeException('Feed exceeds maximum size.');$xml=simplexml_load_string($body,'SimpleXMLElement',LIBXML_NONET|LIBXML_NOCDATA);if(!$xml)throw new \RuntimeException('Invalid XML feed.');$nodes=$xml->channel->item??$xml->entry??[];$default=NewsCategory::where('slug','technology')->value('id');foreach($nodes as $item){$found++;$title=trim((string)$item->title);$url=trim((string)($item->link['href']??$item->link));if(!$title||!filter_var($url,FILTER_VALIDATE_URL))continue;$hash=hash('sha256',mb_strtolower($title).'|'.$url);if(NewsArticle::where('source_url',$url)->orWhere('content_hash',$hash)->exists()){$duplicates++;continue;}$raw=trim(strip_tags((string)($item->description??$item->summary??$item->content)));NewsArticle::create(['category_id'=>$default,'source_id'=>$source->id,'title'=>$title,'slug'=>Str::slug($title).'-'.substr($hash,0,8),'excerpt'=>Str::limit($raw,300),'raw_content'=>Str::limit($raw,20000,''),'source_url'=>$url,'content_hash'=>$hash,'processing_status'=>'fetched','source_published_at'=>filled((string)($item->pubDate??$item->updated))?date_create((string)($item->pubDate??$item->updated)):now()]);$created++;} $status='success';$error=null;}catch(\Throwable $e){$status='failed';$error=Str::limit($e->getMessage(),1000);throw $e;}finally{NewsFetchLog::create(['source_id'=>$source->id,'status'=>$status??'failed','items_found'=>$found,'items_created'=>$created,'duplicates'=>$duplicates,'duration_ms'=>$start->diffInMilliseconds(now()),'error'=>$error??null,'started_at'=>$start,'finished_at'=>now()]);}return compact('found','created','duplicates');}}
+
+namespace App\Services\News;
+
+use App\Models\{NewsArticle, NewsCategory, NewsFetchLog, NewsSource};
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
+class NewsAggregatorService
+{
+    public function __construct(private SourceUrlGuard $guard) {}
+    public function fetchSource(NewsSource $source): array
+    {
+        $start = now();
+        $found = $created = $duplicates = 0;
+        try {
+            if (!$source->is_active || !$source->feed_url) return compact('found', 'created', 'duplicates');
+            $this->guard->assertAllowed($source->feed_url);
+            $body = Http::accept('application/rss+xml, application/atom+xml, application/xml')->connectTimeout(5)->timeout(20)->retry(2, 250)->withOptions(['allow_redirects' => ['max' => 2, 'strict' => true]])->get($source->feed_url)->throw()->body();
+            if (strlen($body) > config('news.max_feed_bytes')) throw new \RuntimeException('Feed exceeds maximum size.');
+            $xml = simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOCDATA);
+            if (!$xml) throw new \RuntimeException('Invalid XML feed.');
+            $nodes = $xml->channel->item ?? $xml->entry ?? [];
+            $default = NewsCategory::where('slug', 'technology')->value('id');
+            foreach ($nodes as $item) {
+                $found++;
+                $title = trim((string)$item->title);
+                $url = trim((string)($item->link['href'] ?? $item->link));
+                if (!$title || !filter_var($url, FILTER_VALIDATE_URL)) continue;
+                $hash = hash('sha256', mb_strtolower($title) . '|' . $url);
+                if (NewsArticle::where('source_url', $url)->orWhere('content_hash', $hash)->exists()) {
+                    $duplicates++;
+                    continue;
+                }
+                $raw = trim(strip_tags((string)($item->description ?? $item->summary ?? $item->content)));
+                NewsArticle::create(['category_id' => $default, 'source_id' => $source->id, 'title' => $title, 'slug' => Str::slug($title) . '-' . substr($hash, 0, 8), 'excerpt' => Str::limit($raw, 300), 'raw_content' => Str::limit($raw, 20000, ''), 'source_url' => $url, 'content_hash' => $hash, 'processing_status' => 'fetched', 'source_published_at' => filled((string)($item->pubDate ?? $item->updated)) ? date_create((string)($item->pubDate ?? $item->updated)) : now()]);
+                $created++;
+            }
+            $status = 'success';
+            $error = null;
+        } catch (\Throwable $e) {
+            $status = 'failed';
+            $error = Str::limit($e->getMessage(), 1000);
+            throw $e;
+        } finally {
+            NewsFetchLog::create(['source_id' => $source->id, 'status' => $status ?? 'failed', 'items_found' => $found, 'items_created' => $created, 'duplicates' => $duplicates, 'duration_ms' => $start->diffInMilliseconds(now()), 'error' => $error ?? null, 'started_at' => $start, 'finished_at' => now()]);
+        }
+        return compact('found', 'created', 'duplicates');
+    }
+}

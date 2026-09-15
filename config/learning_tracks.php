@@ -7,8 +7,21 @@ $dsaFoundationLessons = require __DIR__.'/dsa_foundations.php';
 $dsaForLoopLessons = require __DIR__.'/dsa_for_loops.php';
 $javaInputOutputLessons = require __DIR__.'/java_input_output.php';
 $sqlInterview = require __DIR__.'/sql_interview.php';
+$kafkaInterview = require __DIR__.'/kafka_interview.php';
 
 return [
+    'kafka'=>['title'=>'Apache Kafka','icon'=>'K','color'=>'#dc2626','description'=>'100 interview questions with practical answers covering fundamentals, production operations and architecture.','topics'=>[
+        'fundamentals'=>['title'=>'Kafka Fundamentals','questions'=>array_slice($kafkaInterview,0,10)],
+        'consumers-replication'=>['title'=>'Consumers & Replication','questions'=>array_slice($kafkaInterview,10,10)],
+        'delivery-producers'=>['title'=>'Delivery & Producers','questions'=>array_slice($kafkaInterview,20,10)],
+        'ordering-offsets'=>['title'=>'Ordering & Offsets','questions'=>array_slice($kafkaInterview,30,10)],
+        'consumer-operations'=>['title'=>'Consumer Operations','questions'=>array_slice($kafkaInterview,40,10)],
+        'connect-streams'=>['title'=>'Connect, Retry & Streams','questions'=>array_slice($kafkaInterview,50,10)],
+        'streams-transactions'=>['title'=>'Streams & Transactions','questions'=>array_slice($kafkaInterview,60,10)],
+        'kraft-scaling'=>['title'=>'KRaft & Scaling','questions'=>array_slice($kafkaInterview,70,10)],
+        'architecture-patterns'=>['title'=>'Architecture Patterns','questions'=>array_slice($kafkaInterview,80,10)],
+        'production-scenarios'=>['title'=>'Production Scenarios','questions'=>array_slice($kafkaInterview,90,10)],
+    ]],
     'sql'=>['title'=>'SQL','icon'=>'SQL','color'=>'#0f766e','description'=>'The first 50 SQL interview questions with supplied solutions and practical queries.','topics'=>[
         'fundamentals'=>['title'=>'SQL Fundamentals','questions'=>array_slice($sqlInterview,0,10)],
         'queries-aggregation'=>['title'=>'Queries and Aggregation','questions'=>array_slice($sqlInterview,10,13)],

@@ -1,0 +1,502 @@
+{
+  "checked_at": "2026-09-14",
+  "clusters": [
+    {
+      "slug": "manesar-industrial-area",
+      "state": "Haryana",
+      "name": "IMT Manesar",
+      "city": "Manesar",
+      "district": "Gurugram",
+      "tagline": "Automotive and engineering manufacturing hub",
+      "hero": "images/industries/axle/axle6.jpeg",
+      "source": "https://haryanaindustries.gov.in/themes/backend/uploads/Large_Enterprises.pdf",
+      "sectors": [
+        "automobile",
+        "auto-components",
+        "electronics",
+        "braking-systems",
+        "casting-foundry",
+        "cnc-machining",
+        "heavy-engineering",
+        "medical-devices",
+        "electrical-equipment",
+        "warehouse-logistics"
+      ],
+      "companies": [
+        {
+          "name": "Maruti Suzuki India Limited",
+          "sectors": [
+            "automobile",
+            "warehouse-logistics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.marutisuzuki.com/corporate/media/press-releases/2024/april/maruti-suzuki-expands-manufacturing-capability-at-manesar-plant-09042024",
+              "title": "Company facility information",
+              "note": "Vehicle assembly at Manesar.",
+              "period": "2024-04-09"
+            },
+            {
+              "url": "https://www.marutisuzuki.com/corporate/media/press-releases/2025/june/india-largest-automobile-in-plant-railway-siding-at-maruti-suzuki-manesar-facility-starts-operation",
+              "title": "Company facility information",
+              "note": "In-plant railway dispatch facility.",
+              "period": "2025-06"
+            }
+          ],
+          "description": "Vehicle manufacturing and in-plant dispatch at Manesar.",
+          "processes": [
+            "Transport Operations"
+          ],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Honda Motorcycle and Scooter India",
+          "sectors": [
+            "automobile"
+          ],
+          "sources": [
+            {
+              "url": "https://www.honda2wheelersindia.com/corporate/Our-Factories",
+              "title": "Company facility information",
+              "note": "Company lists its Manesar production plant.",
+              "period": null
+            }
+          ],
+          "description": "Motorcycle and scooter manufacturing.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "DENSO Haryana Pvt. Ltd.",
+          "sectors": [
+            "auto-components",
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.denso.com/in/en/about-us/company-information/dnha/",
+              "title": "Company facility information",
+              "note": "Plot 3, Sector 3; powertrain and electronic automotive components.",
+              "period": null
+            }
+          ],
+          "description": "Powertrain and automotive electronics manufacturing.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Minda Industries / Uno Minda",
+          "sectors": [
+            "auto-components",
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Large_Enterprises.pdf",
+              "title": "Haryana large enterprises directory",
+              "note": "Entry 84: automotive lighting and sheet-metal components in IMT Manesar.",
+              "period": null
+            },
+            {
+              "url": "https://www.unominda.com/uploads/investor/Invites_announcement/Uno%20Minda%20Investor%20Presentation%20Q1%20FY26.pdf",
+              "title": "Uno Minda investor presentation",
+              "note": "Lighting and alternate-fuel divisions include Manesar.",
+              "period": "Q1 FY2026"
+            }
+          ],
+          "description": "Automotive lighting and component operations; government listing uses the Minda Industries name.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Nippon Audiotronix Pvt. Ltd.",
+          "sectors": [
+            "auto-components",
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://nipponaudio.com/contact-us/",
+              "title": "Company facility information",
+              "note": "Company lists Sector 8 Manesar facilities.",
+              "period": null
+            },
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Large_Enterprises.pdf",
+              "title": "Haryana large enterprises directory",
+              "note": "Entry 85: automotive electronics.",
+              "period": null
+            }
+          ],
+          "description": "Automotive electronics; Sector 8 facilities.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Bosch Chassis Systems India Pvt. Ltd.",
+          "sectors": [
+            "auto-components",
+            "braking-systems"
+          ],
+          "sources": [
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Large_Enterprises.pdf",
+              "title": "Historical Haryana large enterprises listing",
+              "note": "Entry 87: Plot 127, Sector 8, Manesar.",
+              "period": null
+            },
+            {
+              "url": "https://www.bosch.in/media/our_company/history/bosch-in-india-golden-book.pdf",
+              "title": "Bosch company history",
+              "note": "Historical Manesar foundation-brake business transferred to FBML in 2012.",
+              "period": "Historical / 2012"
+            }
+          ],
+          "description": "Historical directory record. Current plant identity needs reconfirmation following the foundation-brake business transfer.",
+          "processes": [],
+          "subsectors": [],
+          "active": false
+        },
+        {
+          "name": "QH Talbros Pvt. Ltd.",
+          "sectors": [
+            "auto-components"
+          ],
+          "sources": [
+            {
+              "url": "https://www.qhtalbros.com/facilities/",
+              "title": "Company facility information",
+              "note": "Company identifies a Manesar plant.",
+              "period": null
+            },
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Large_Enterprises.pdf",
+              "title": "Haryana large enterprises directory",
+              "note": "Entry 89: automotive components in Sector 3.",
+              "period": null
+            }
+          ],
+          "description": "Automotive component manufacturing in Manesar.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Sona BLW Precision Forgings Limited",
+          "sectors": [
+            "auto-components"
+          ],
+          "sources": [
+            {
+              "url": "https://sonacomstar.com/annual-report-22-23/pdf/sona-comstar-ar.pdf",
+              "title": "Sona annual report",
+              "note": "Manesar: differential assemblies; Plot 13, Sector 2. Sector 35 Gurugram is a separate unit.",
+              "period": "FY2022-23"
+            },
+            {
+              "url": "https://sonacomstar.com/annual-report-24-25/assets/pdf/Sona-Comstar-AR-24-25.pdf",
+              "title": "Sona annual report",
+              "note": "Reports addition of a second Manesar plant in 2024.",
+              "period": "FY2024-25"
+            }
+          ],
+          "description": "Manesar driveline and differential-assembly operations.",
+          "processes": [
+            "Transmission Assembly"
+          ],
+          "subsectors": [
+            "auto-components-transmission"
+          ],
+          "active": true
+        },
+        {
+          "name": "Munjal Kiriu Industries Pvt. Ltd.",
+          "sectors": [
+            "auto-components",
+            "braking-systems",
+            "casting-foundry",
+            "cnc-machining"
+          ],
+          "sources": [
+            {
+              "url": "https://munjalkiriu.co.in/company-profile/",
+              "title": "Company facility information",
+              "note": "Manesar plant produces automotive cast components and braking products.",
+              "period": null
+            },
+            {
+              "url": "https://munjalkiriu.co.in/infrastructure/",
+              "title": "Company facility information",
+              "note": "Manesar foundry equipment; CNC, VMC and grinding facilities.",
+              "period": null
+            }
+          ],
+          "description": "Brake components, foundry and machining operations.",
+          "processes": [
+            "Brake Disc Manufacturing",
+            "Brake Drum Manufacturing",
+            "Moulding",
+            "Melting",
+            "CNC Turning",
+            "VMC Machining",
+            "Grinding"
+          ],
+          "subsectors": [
+            "braking-systems-brake-disc",
+            "casting-foundry-sand-casting",
+            "cnc-machining-precision-machining"
+          ],
+          "active": true
+        },
+        {
+          "name": "FANUC India Pvt. Ltd.",
+          "sectors": [
+            "cnc-machining",
+            "heavy-engineering",
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.fanucindia.com/contact-us",
+              "title": "Company facility information",
+              "note": "Manesar office/facility: Plot 401, Sector 8.",
+              "period": null
+            },
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Uploads/L%26M%20Units%20150118.pdf",
+              "title": "Haryana large and medium units",
+              "note": "Entry 2025: CNC packages and robotic system engineering.",
+              "period": "2015-16"
+            }
+          ],
+          "description": "CNC systems and industrial automation facility; production capability described in the 2015-16 government record.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "SD Biosensor Healthcare Pvt. Ltd.",
+          "sectors": [
+            "medical-devices"
+          ],
+          "sources": [
+            {
+              "url": "https://www.sdbiosensor.co.in/contact.php",
+              "title": "Company facility information",
+              "note": "Company manufacturing site: Plot 38, Sector 4, IMT Manesar.",
+              "period": null
+            }
+          ],
+          "description": "Healthcare diagnostics manufacturing.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Riello Power India Pvt. Ltd.",
+          "sectors": [
+            "electrical-equipment",
+            "renewable-energy"
+          ],
+          "sources": [
+            {
+              "url": "https://www.riello-ups.in/pages/65-riello-power-india-private-limited",
+              "title": "Company facility information",
+              "note": "Company describes a UPS manufacturing plant in Manesar.",
+              "period": null
+            },
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Uploads/L%26M%20Units%20150118.pdf",
+              "title": "Haryana large and medium units",
+              "note": "Entry 2030: Riello PCI, UPS and solar inverters.",
+              "period": "2015-16"
+            }
+          ],
+          "description": "UPS manufacturing; historical Riello PCI record also lists solar inverters.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Alere Medical Pvt. Ltd.",
+          "sectors": [
+            "pharmaceuticals",
+            "medical-devices"
+          ],
+          "sources": [
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Uploads/L%26M%20Units%20150118.pdf",
+              "title": "Historical Haryana large and medium units",
+              "note": "Entry 2024: pharmaceuticals and diagnostic kits in Sector 5.",
+              "period": "2015-16"
+            }
+          ],
+          "description": "Historical manufacturing listing; current occupancy at the listed site has not been confirmed.",
+          "processes": [],
+          "subsectors": [],
+          "active": false
+        },
+        {
+          "name": "Ekin India Pvt. Ltd.",
+          "sectors": [
+            "auto-components"
+          ],
+          "sources": [
+            {
+              "url": "https://haryanaindustries.gov.in/themes/backend/uploads/Uploads/L%26M%20Units%20150118.pdf",
+              "title": "Historical Haryana large and medium units",
+              "note": "Entry 2031: auto parts, Plot 172, Sector 4.",
+              "period": "2015-16"
+            }
+          ],
+          "description": "Historical automotive-parts listing; current occupancy needs confirmation.",
+          "processes": [],
+          "subsectors": [],
+          "active": false
+        },
+        {
+          "name": "SD Bio Standard Diagnostics Pvt. Ltd.",
+          "sectors": [
+            "medical-devices",
+            "warehouse-logistics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.globalpointofcare.abbott/za/en/about/locations.html",
+              "title": "Company facility information",
+              "note": "Abbott lists manufacturing and warehousing at Plot 266, Sector 6, IMT Manesar.",
+              "period": null
+            }
+          ],
+          "description": "Diagnostics manufacturing and warehouse facility listed by Abbott.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        }
+      ]
+    },
+    {
+      "slug": "sanand-industrial-area",
+      "state": "Gujarat",
+      "name": "Sanand Industrial Cluster",
+      "city": "Sanand",
+      "district": "Ahmedabad",
+      "tagline": "Automobile, engineering and electronics manufacturing",
+      "hero": "images/industries/axle/axle2.jpeg",
+      "source": "https://static.investindia.gov.in/s3fs-public/2020-05/Great%20Places%20to%20manufacture%20in%20India.pdf",
+      "sectors": [
+        "automobile",
+        "auto-components",
+        "heavy-engineering",
+        "electronics",
+        "tyres"
+      ],
+      "companies": [
+        {
+          "name": "CG Semi",
+          "sectors": [
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2281125&lang=1",
+              "title": "Press Information Bureau",
+              "note": "Sanand OSAT facility inaugurated.",
+              "period": "2026-07-04"
+            }
+          ],
+          "description": "Semiconductor assembly and testing; CG Power joint venture ecosystem with Renesas and Stars.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Micron Technology",
+          "sectors": [
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2281154&lang=2",
+              "title": "Press Information Bureau",
+              "note": "Reports production by Micron, Kaynes and CG Semi in Sanand.",
+              "period": "2026-07-04"
+            }
+          ],
+          "description": "Semiconductor assembly and test operations.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Kaynes Semicon",
+          "sectors": [
+            "electronics"
+          ],
+          "sources": [
+            {
+              "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2281154&lang=2",
+              "title": "Press Information Bureau",
+              "note": "Reports Sanand semiconductor production.",
+              "period": "2026-07-04"
+            }
+          ],
+          "description": "Semiconductor assembly and test operations.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Tata Passenger Electric Mobility Limited",
+          "sectors": [
+            "automobile",
+            "auto-components"
+          ],
+          "sources": [
+            {
+              "url": "https://www.tatamotors.com/press-releases/tata-passenger-electric-mobility-commences-production-at-its-state-of-the-art-new-facility-in-sanand-gujarat/",
+              "title": "Tata Motors Sanand production announcement",
+              "note": "Production at acquired former Ford facility in GIDC Sanand.",
+              "period": "2024"
+            }
+          ],
+          "description": "Vehicle production at Sanand; the former Ford facility is operated by Tata.",
+          "processes": [],
+          "subsectors": [],
+          "active": true
+        },
+        {
+          "name": "Maxxis Rubber India",
+          "active": true,
+          "description": "Two-wheeler tyre and tube manufacturing in Sanand-II Industrial Estate.",
+          "sectors": [
+            "tyres",
+            "auto-components"
+          ],
+          "processes": [],
+          "subsectors": [],
+          "sources": [
+            {
+              "title": "Maxxis India contact",
+              "url": "https://www.maxxistyres.co.in/contact",
+              "period": "Current contact page",
+              "note": "Company address identifies Sanand-II Industrial Estate."
+            },
+            {
+              "title": "Maxxis Sanand factory opening",
+              "url": "https://www.maxxis.com/us/news/maxxis-opens-new-factory-in-india/",
+              "period": "2018",
+              "note": "Company announcement identifies tyre and tube manufacturing at Sanand."
+            }
+          ]
+        }
+      ],
+      "description_note": "The broader Gujarat electronics ecosystem also includes the Tata-PSMC fab at Dholera. Dholera is a separate cluster, not a Sanand company location."
+    }
+  ]
+}

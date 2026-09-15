@@ -1,0 +1,14 @@
+@extends('layouts.site')
+@section('title', $job->job_title.' | Industrial India')
+@section('content')
+<div class="container section"><p><a href="{{ route('industrial.index', ['state'=>$job->area->state_id,'location'=>$job->area->city ?: $job->area->district,'area'=>$job->industrial_area_id,'company'=>$job->industrial_company_id]) }}">&larr; Back to {{ $job->area->name }}</a></p><article class="panel">
+<p>{{ $job->area->state->name }} &rarr; {{ $job->area->city ?: $job->area->district }} &rarr; {{ $job->area->name }} &rarr; {{ $job->company?->name ?: 'Company not supplied' }} @if($job->department) &rarr; {{ $job->department->name }} @endif @if($job->role) &rarr; {{ $job->role->name }} @endif</p>
+<h1>{{ $job->job_title }}</h1><p>{{ $job->company?->plant_name }} &middot; {{ $job->verification_label }}</p>
+<div class="explain-table-wrap"><table style="width:100%;text-align:left;border-collapse:collapse"><caption style="text-align:left;font-weight:700">Opening requirements at a glance</caption><tbody><tr><th scope="row" style="padding:12px;border-bottom:1px solid #dbe4ef">Employment type</th><td style="padding:12px;border-bottom:1px solid #dbe4ef">{{ $job->employment_type ?: 'Not specified' }}</td></tr><tr><th scope="row" style="padding:12px;border-bottom:1px solid #dbe4ef">Experience (years)</th><td style="padding:12px;border-bottom:1px solid #dbe4ef">{{ $job->experience_min ?? 'Not specified' }} @if($job->experience_max !== null) to {{ $job->experience_max }} @endif</td></tr><tr><th scope="row" style="padding:12px;border-bottom:1px solid #dbe4ef">Salary (INR, {{ $job->salary_period }})</th><td style="padding:12px;border-bottom:1px solid #dbe4ef">{{ $job->salary_min !== null ? number_format($job->salary_min) : 'Not specified' }} @if($job->salary_max !== null) to {{ number_format($job->salary_max) }} @endif</td></tr><tr><th scope="row" style="padding:12px;border-bottom:1px solid #dbe4ef">Qualification</th><td style="padding:12px;border-bottom:1px solid #dbe4ef">{{ $job->qualification ?: 'Not specified' }}</td></tr></tbody></table></div>
+@if($job->skills)<h2>Skills</h2><ul>@foreach($job->skills as $skill)<li>{{ $skill }}</li>@endforeach</ul>@endif
+@if($job->source_name)<p>Source: {{ $job->source_name }} @if($job->last_verified_at) | Last checked {{ $job->last_verified_at->format('d M Y') }} @endif</p>@endif
+<h2>Job description</h2>@include('learning.partials.answer-blocks',['answerText'=>$job->description ?: 'No description supplied.'])
+@if($job->application_deadline)<p>Application deadline: {{ $job->application_deadline->format('d M Y, H:i T') }}</p>@endif
+@if($job->source_url && preg_match('~^https?://~i', $job->source_url))<p><a class="primary" href="{{ $job->source_url }}" target="_blank" rel="noopener noreferrer">View opening / apply at source &nearr;</a></p>@else<p>An application link has not been supplied.</p>@endif
+</article></div>
+@endsection

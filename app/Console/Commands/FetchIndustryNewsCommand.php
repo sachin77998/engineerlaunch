@@ -6,6 +6,7 @@ use App\Models\NewsArticle;
 use App\Models\NewsCategory;
 use App\Models\NewsSource;
 use App\Services\News\IndustryNewsRssService;
+use App\Services\Kafka\KafkaPublisher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -18,7 +19,7 @@ class FetchIndustryNewsCommand extends Command
 
     protected $description = 'Fetch and publish current Gear, Forging and Steel industry news';
 
-    public function __construct(private IndustryNewsRssService $rssService)
+    public function __construct(private IndustryNewsRssService $rssService, private KafkaPublisher $kafka)
     {
         parent::__construct();
     }
@@ -66,6 +67,8 @@ class FetchIndustryNewsCommand extends Command
 
         $this->newLine();
         $this->info("Industry news completed — fetched: {$fetched}, saved: {$saved}, skipped: {$skipped}, failed queries: {$failed}");
+
+        $this->kafka->publish(config('kafka.topics.news_events'), 'news.industry.fetch-completed', compact('industry', 'fetched', 'saved', 'skipped', 'failed'), $industry);
 
         return $failed > 0 && $fetched === 0 ? self::FAILURE : self::SUCCESS;
     }

@@ -20,14 +20,12 @@ class RoleAuthController extends Controller
         $data = $this->registrationData($request);
         return $this->beginRegistration($data, 'student', [], $otpService);
     }
-
     public function employerRegister(Request $request, VerificationOtpService $otpService): JsonResponse
     {
         $data = $this->registrationData($request);
         $companyData = $request->validate(['company_name' => ['required','string','max:190'], 'company_website' => ['nullable','url','max:255']]);
         return $this->beginRegistration($data, 'employer', $companyData, $otpService);
     }
-
     public function verifyRegistration(Request $request): JsonResponse
     {
         $data = $request->validate(['verification_token' => ['required','string','size:64'], 'code' => ['required','digits:6']]);
@@ -65,7 +63,6 @@ class RoleAuthController extends Controller
         Cache::forget($key);
         return $this->tokenResponse($user, $pending['role'].'-api');
     }
-
     public function ownerRegister(Request $request): JsonResponse
     {
         abort_unless($request->user()?->role_code === 2 || $request->user()?->role === 'admin', 403);
@@ -74,7 +71,6 @@ class RoleAuthController extends Controller
         $user->ownerProfile()->create();
         return response()->json(['data' => $user], 201);
     }
-
     public function login(Request $request, string $role): JsonResponse
     {
         abort_unless(in_array($role, ['student','employer','owner'], true), 404);
@@ -89,13 +85,11 @@ class RoleAuthController extends Controller
         }
         return $this->tokenResponse($user, $data['device_name'] ?? $role.'-api');
     }
-
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()?->delete();
         return response()->json(['message' => 'Token revoked.']);
     }
-
     private function beginRegistration(array $data, string $role, array $companyData, VerificationOtpService $otpService): JsonResponse
     {
         $token = Str::random(64);

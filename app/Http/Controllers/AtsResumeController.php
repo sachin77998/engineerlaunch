@@ -15,9 +15,9 @@ class AtsResumeController extends Controller
     public function edit(Request $request)
     {
         $profile = $request->user()->candidateProfile;
-        $resume = AtsResume::firstOrNew(['user_id'=>$request->user()->id]);
+        $resume = AtsResume::firstOrNew(['user_id' => $request->user()->id]);
         if (!$resume->exists) {
-            $resume->fill(['full_name'=>$request->user()->name,'email'=>$request->user()->email,'phone'=>$profile?->phone,'location'=>$profile?->location,'headline'=>$profile?->headline,'summary'=>$profile?->bio,'skills'=>[],'experience'=>[],'education'=>[],'links'=>[]]);
+            $resume->fill(['full_name' => $request->user()->name, 'email' => $request->user()->email, 'phone' => $profile?->phone, 'location' => $profile?->location, 'headline' => $profile?->headline, 'summary' => $profile?->bio, 'skills' => [], 'experience' => [], 'education' => [], 'links' => []]);
         }
         return view('resume.builder', [
             'resume' => $resume,
@@ -33,23 +33,23 @@ class AtsResumeController extends Controller
     public function save(SaveAtsResumeRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $resume = AtsResume::updateOrCreate(['user_id'=>$request->user()->id], $data);
-        $resume->update(['completeness'=>$resume->calculateCompleteness()]);
-        return response()->json(['ok'=>true,'message'=>'Resume saved successfully.','completeness'=>$resume->completeness,'updated_at'=>$resume->updated_at->diffForHumans()]);
+        $resume = AtsResume::updateOrCreate(['user_id' => $request->user()->id], $data);
+        $resume->update(['completeness' => $resume->calculateCompleteness()]);
+        return response()->json(['ok' => true, 'message' => 'Resume saved successfully.', 'completeness' => $resume->completeness, 'updated_at' => $resume->updated_at->diffForHumans()]);
     }
 
     public function companies(Request $request): JsonResponse
     {
         $q = trim((string) $request->query('q'));
-        return response()->json(Company::query()->when($q !== '', fn($query) => $query->where('name','like','%'.$q.'%'))->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', [$q.'%'])->orderBy('name')->limit(25)->pluck('name'));
+        return response()->json(Company::query()->when($q !== '', fn($query) => $query->where('name', 'like', '%' . $q . '%'))->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', [$q . '%'])->orderBy('name')->limit(25)->pluck('name'));
     }
 
     public function locations(Request $request): JsonResponse
     {
         $q = trim((string) $request->query('q'));
         $values = collect();
-        if (\Schema::hasTable('jobs')) $values = $values->merge(\DB::table('jobs')->whereNotNull('location')->when($q !== '', fn($x) => $x->where('location','like','%'.$q.'%'))->distinct()->limit(40)->pluck('location'));
-        if (\Schema::hasTable('company_locations')) $values = $values->merge(\DB::table('company_locations')->whereNotNull('city')->when($q !== '', fn($x) => $x->where('city','like','%'.$q.'%'))->distinct()->limit(40)->pluck('city'));
+        if (\Schema::hasTable('jobs')) $values = $values->merge(\DB::table('jobs')->whereNotNull('location')->when($q !== '', fn($x) => $x->where('location', 'like', '%' . $q . '%'))->distinct()->limit(40)->pluck('location'));
+        if (\Schema::hasTable('company_locations')) $values = $values->merge(\DB::table('company_locations')->whereNotNull('city')->when($q !== '', fn($x) => $x->where('city', 'like', '%' . $q . '%'))->distinct()->limit(40)->pluck('city'));
         return response()->json($values->filter()->map(fn($v) => trim($v))->unique(fn($v) => mb_strtolower($v))->sort()->take(30)->values());
     }
 
@@ -61,8 +61,7 @@ class AtsResumeController extends Controller
 
     public function download(Request $request)
     {
-        $resume = AtsResume::where('user_id',$request->user()->id)->firstOrFail();
-        return Pdf::loadView('resume.pdf',compact('resume'))->setPaper('a4')->download(Str::slug($resume->full_name).'-ats-resume.pdf');
+        $resume = AtsResume::where('user_id', $request->user()->id)->firstOrFail();
+        return Pdf::loadView('resume.pdf', compact('resume'))->setPaper('a4')->download(Str::slug($resume->full_name) . '-ats-resume.pdf');
     }
-
 }

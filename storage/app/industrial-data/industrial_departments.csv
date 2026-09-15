@@ -1,0 +1,41 @@
+name,category
+Manufacturing,Production
+Production,Manufacturing
+Maintenance,Engineering
+Electrical Maintenance,Maintenance
+Mechanical Maintenance,Maintenance
+Tool Room,Engineering
+Die Making,Tool Room
+Die Maintenance,Tool Room
+CNC,Machining
+VMC,Machining
+Machine Shop,Machining
+Quality,Testing
+Testing,Quality
+Foundry,Manufacturing
+Moulding,Foundry
+Furnace,Foundry
+Forging,Manufacturing
+Casting,Manufacturing
+Fabrication,Manufacturing
+Welding,Manufacturing
+Assembly,Manufacturing
+Warehouse,Logistics
+Logistics,Supply Chain
+Dispatch,Logistics
+Delivery,Logistics
+Stores,Supply Chain
+Purchase,Supply Chain
+Procurement,Supply Chain
+Accounts,Finance
+Finance,Finance
+Human Resources,HR
+Administration,Administration
+Security,Facility
+Housekeeping,Facility
+Facilities,Facility
+Driver,Transport
+Diesel Mechanic,Maintenance
+Painter,Production
+Helper,Production
+Technician,Engineering

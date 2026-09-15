@@ -19,4 +19,13 @@
 @include('companies.partials.reviews',['company'=>$company])
 <section class="panel overview" id="overview"><h2>About {{$company->name}}</h2><p>{{$company->description?:'This profile uses information supplied by registered employers and supported official career sources. Job availability and counts are calculated from Ascendia records.'}}</p></section>
 </div>
+@push('scripts')
+<script>
+const companyJobDetailUrls=@json($jobs->getCollection()->map(fn($job)=>route('opportunities.show',$job))->values());
+document.querySelectorAll('.company-job').forEach((card,index)=>{
+    const action=card.querySelector('.job-bottom a');
+    if(action&&companyJobDetailUrls[index]){action.href=companyJobDetailUrls[index];action.removeAttribute('target');action.removeAttribute('rel');action.textContent='View job details';}
+});
+</script>
+@endpush
 @endsection

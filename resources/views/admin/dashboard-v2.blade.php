@@ -239,6 +239,7 @@
                                                                                                                                                                 </nav>
                                                                                                                                                             </header>
                                                                                                                                                             <main class="page">
+<div style="padding:18px 0"><a href="{{ route('admin.industrial.index') }}">Manage Industrial Areas, Companies and Openings</a></div>
                                                                                                                                                                 <div class="hero">
                                                                                                                                                                     <div>
                                                                                                                                                                         <h1>

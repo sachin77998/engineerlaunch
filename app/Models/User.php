@@ -55,4 +55,5 @@ class User extends Authenticatable
     public function applications(){return $this->hasMany(JobApplication::class);}
     public function companyReviews(){return $this->hasMany(CompanyReview::class);}
     public function eventNotifications(){return $this->hasMany(PortalEventNotification::class);}
+    public function interviewExperiences(){return $this->hasMany(InterviewExperience::class);}
 }

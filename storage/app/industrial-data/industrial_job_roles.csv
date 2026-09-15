@@ -1,0 +1,65 @@
+department_slug,name,slug
+delivery,Delivery Executive,delivery-executive
+delivery,Delivery Driver,delivery-driver
+driver,Heavy Vehicle Driver,heavy-vehicle-driver
+warehouse,Warehouse Executive,warehouse-executive
+warehouse,Warehouse Supervisor,warehouse-supervisor
+warehouse,Forklift Operator,forklift-operator
+warehouse,Packing Operator,packing-operator
+logistics,Logistics Executive,logistics-executive
+logistics,Logistics Manager,logistics-manager
+production,Production Engineer,production-engineer
+production,Production Supervisor,production-supervisor
+production,Production Manager,production-manager
+production,Machine Operator,machine-operator
+production,Production Helper,production-helper
+mechanical-maintenance,Mechanical Engineer,mechanical-engineer
+mechanical-maintenance,Diploma Mechanical Engineer,diploma-mechanical-engineer
+electrical-maintenance,Electrical Engineer,electrical-engineer
+electrical-maintenance,Diploma Electrical Engineer,diploma-electrical-engineer
+electrical-maintenance,Electrician,electrician
+electrical-maintenance,Electrical Technician,electrical-technician
+cnc,CNC Operator,cnc-operator
+cnc,CNC Programmer,cnc-programmer
+vmc,VMC Operator,vmc-operator
+vmc,VMC Programmer,vmc-programmer
+die-making,Die Engineer,die-engineer
+die-making,Die Maker,die-maker
+die-making,Die Designer,die-designer
+die-maintenance,Die Maintenance Engineer,die-maintenance-engineer
+tool-room,Tool Room Engineer,tool-room-engineer
+tool-room,Tool Room Technician,tool-room-technician
+furnace,Furnace Engineer,furnace-engineer
+furnace,Furnace Operator,furnace-operator
+foundry,Foundry Engineer,foundry-engineer
+moulding,Moulding Engineer,moulding-engineer
+moulding,Shed Moulding Engineer,shed-moulding-engineer
+moulding,Moulding Technician,moulding-technician
+maintenance,Maintenance Engineer,maintenance-engineer
+maintenance,Maintenance Fitter,maintenance-fitter
+maintenance,Machine Maintenance Engineer,machine-maintenance-engineer
+maintenance,Maintenance Technician,maintenance-technician
+diesel-mechanic,Diesel Mechanic,diesel-mechanic
+diesel-mechanic,Automobile Technician,automobile-technician
+quality,Quality Engineer,quality-engineer
+quality,Quality Inspector,quality-inspector
+testing,Testing Engineer,testing-engineer
+testing,Lab Technician,lab-technician
+stores,Store Engineer,store-engineer
+stores,Store Executive,store-executive
+purchase,Purchase Executive,purchase-executive
+purchase,Purchase Manager,purchase-manager
+accounts,Accounts Executive,accounts-executive
+accounts,Accountant,accountant
+finance,Finance Executive,finance-executive
+security,Security Guard,security-guard
+security,Security Supervisor,security-supervisor
+housekeeping,Housekeeping Staff,housekeeping-staff
+administration,Peon,peon
+administration,Office Assistant,office-assistant
+painter,Painter,painter
+painter,Painter Helper,painter-helper
+welding,Welder,welder
+fabrication,Fabricator,fabricator
+fabrication,Fitter,fitter
+dispatch,Dispatch Executive,dispatch-executive

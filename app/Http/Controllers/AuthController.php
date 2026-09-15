@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -7,16 +9,135 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use App\Services\VerificationOtpService;
-class AuthController extends Controller {
- public function registerForm(){return view('auth.register-v2',['stats'=>['jobs'=>0,'companies'=>0,'remote'=>0]]);}
- public function register(Request $r, VerificationOtpService $otpService){$data=$r->validate(['name'=>'required|string|max:100','email'=>'required|email|max:190|unique:users','password'=>'required|string|min:8|confirmed','account_type'=>'nullable|in:student,employer']);$role=$data['account_type']??'student';$local=$otpService->usesFixedCode();$code=$otpService->generate();DB::table('email_otps')->where('email',$data['email'])->whereNull('used_at')->delete();DB::table('email_otps')->insert(['email'=>$data['email'],'code_hash'=>Hash::make($code),'expires_at'=>now()->addMinutes(10),'created_at'=>now(),'updated_at'=>now()]);session(['pending_registration'=>['name'=>$data['name'],'email'=>$data['email'],'password'=>Hash::make($data['password']),'role'=>$role,'role_code'=>$role==='employer'?0:1],'dev_otp'=>$local?$code:null]);if($local){return redirect()->route('otp.form')->with('mail_warning','Local testing mode is active. Use dummy OTP 123456. No email was sent.');}try{$otpService->sendEmail($data['email'],$code,'Verify your Ascendia account');}catch(\Throwable $e){report($e);DB::table('email_otps')->where('email',$data['email'])->whereNull('used_at')->delete();session()->forget(['pending_registration','dev_otp']);return back()->withInput($r->only('name','email','account_type'))->withErrors(['email'=>'We could not send your verification email. Please try again shortly or contact support.']);}return redirect()->route('otp.form');}
- public function otpForm(VerificationOtpService $otpService){abort_unless(session('pending_registration'),403);return view('auth.otp',['email'=>session('pending_registration.email'),'devOtp'=>$otpService->usesFixedCode()?session('dev_otp'):null]);}
- public function verify(Request $r){$r->validate(['code'=>'required|digits:6']);$pending=session('pending_registration');abort_unless($pending,403);$otp=DB::table('email_otps')->where('email',$pending['email'])->whereNull('used_at')->where('expires_at','>',now())->latest()->first();if(!$otp||!Hash::check($r->code,$otp->code_hash))return back()->withErrors(['code'=>'The code is invalid or expired.']);DB::table('email_otps')->where('id',$otp->id)->update(['used_at'=>now()]);$pending['role']=config('services.admin_email')&&strcasecmp($pending['email'],config('services.admin_email'))===0?'admin':($pending['role']??'student');$pending['role_code']=$pending['role']==='admin'?2:($pending['role']==='employer'?0:1);$employer=$pending['employer_registration']??null;unset($pending['employer_registration']);$user=DB::transaction(function()use($pending,$employer){$user=User::create($pending);if($user->role_code===1){$parts=preg_split('/\s+/',trim($user->name),2);$user->candidateProfile()->create(['first_name'=>$parts[0]??$user->name,'last_name'=>$parts[1]??null,'profile_completion'=>15]);}if($user->role_code===0&&$employer){$company=\App\Models\Company::create(['name'=>$employer['company_name'],'slug'=>\Illuminate\Support\Str::slug($employer['company_name']).'-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)),'company_email'=>$employer['company_email'],'phone_country_code'=>$employer['phone_country_code'],'phone_number'=>$employer['company_phone'],'organization_type'=>$employer['organization_type'],'business_type'=>$employer['business_type']??null,'company_type'=>'company','website'=>$employer['website']??null,'country'=>'India','is_active'=>true]);$user->employerProfile()->create(['company_id'=>$company->id,'first_name'=>$employer['first_name'],'last_name'=>$employer['last_name'],'designation'=>$employer['designation']??null,'phone_country_code'=>$employer['phone_country_code'],'phone'=>$employer['company_phone'],'phone_verified_at'=>$employer['phone_verified_at'],'verification_status'=>'phone_verified']);DB::table('employer_registration_audits')->where('registration_token_hash',$employer['registration_token_hash'])->update(['user_id'=>$user->id,'company_id'=>$company->id,'status'=>'completed','email_verified_at'=>now(),'updated_at'=>now()]);}return $user;});session()->forget(['pending_registration','dev_otp']);Auth::login($user);$r->session()->regenerate();return redirect($user->role==='employer'?'/employer':($user->role==='admin'?'/admin':'/dashboard'));}
- public function loginForm(){return view('auth.login');}
- public function employerLoginForm(){return view('auth.employer-login');}
- public function ownerLoginForm(){return view('auth.owner-login');}
- public function ownerRegisterForm(Request $r){$hasOwner=User::where(fn($q)=>$q->where('role_code',2)->orWhere('role','admin'))->exists();$isOwner=$r->user()&&($r->user()->role_code===2||$r->user()->role==='admin');if($hasOwner&&!$isOwner)return redirect()->route('owner.login')->withErrors(['email'=>'An owner account already exists. Sign in as an owner to create another owner.']);if(!$hasOwner&&$r->user())abort(403,'Log out before creating the first owner account.');return view('auth.owner-register',compact('hasOwner'));}
- public function ownerRegister(Request $r){$data=$r->validate(['name'=>'required|string|max:100','email'=>'required|email|max:190|unique:users,email','password'=>'required|string|min:8|confirmed']);$wasFirstOwner=false;$user=Cache::lock('owner-registration',10)->block(3,function()use($r,$data,&$wasFirstOwner){$hasOwner=User::where(fn($q)=>$q->where('role_code',2)->orWhere('role','admin'))->exists();$isOwner=$r->user()&&($r->user()->role_code===2||$r->user()->role==='admin');abort_unless(!$hasOwner||$isOwner,403,'Only an existing owner can create another owner account.');abort_if(!$hasOwner&&$r->user(),403,'Log out before creating the first owner account.');$wasFirstOwner=!$hasOwner;return DB::transaction(function()use($data){$owner=User::create(['name'=>$data['name'],'email'=>$data['email'],'password'=>Hash::make($data['password']),'role'=>'admin','role_code'=>2]);$owner->ownerProfile()->create();return $owner;});});if($wasFirstOwner){Auth::login($user);$r->session()->regenerate();}return redirect()->route('admin.dashboard')->with('success','Owner account created for '.$user->email);}
- public function login(Request $r){$credentials=$r->validate(['email'=>'required|email','password'=>'required|string','expected_role'=>'nullable|in:student,employer,owner']);if(!Auth::attempt(['email'=>$credentials['email'],'password'=>$credentials['password']],$r->boolean('remember')))return back()->withErrors(['email'=>'Invalid credentials.'])->onlyInput('email');$user=$r->user();$matches=match($credentials['expected_role']??null){'employer'=>$user->role_code===0||$user->role==='employer','owner'=>$user->role_code===2||$user->role==='admin','student'=>$user->role_code===1||$user->role==='student',default=>true};if(!$matches){Auth::logout();return back()->withErrors(['email'=>'This account cannot use the selected login portal.'])->onlyInput('email');}$r->session()->regenerate();return redirect()->intended(($user->role_code===2||$user->role==='admin')?'/admin':(($user->role_code===0||$user->role==='employer')?'/employer':'/dashboard'));}
- public function logout(Request $r){Auth::logout();$r->session()->invalidate();$r->session()->regenerateToken();return redirect('/');}
+
+class AuthController extends Controller
+{
+    public function registerForm()
+    {
+        return view('auth.register-v2', ['stats' => ['jobs' => 0, 'companies' => 0, 'remote' => 0]]);
+    }
+    public function register(Request $r, VerificationOtpService $otpService)
+    {
+        $data = $r->validate(['name' => 'required|string|max:100', 'email' => 'required|email|max:190|unique:users', 'password' => 'required|string|min:8|confirmed', 'account_type' => 'nullable|in:student,employer']);
+        $role = $data['account_type'] ?? 'student';
+        $local = $otpService->usesFixedCode();
+        $code = $otpService->generate();
+        DB::table('email_otps')->where('email', $data['email'])->whereNull('used_at')->delete();
+        DB::table('email_otps')->insert(['email' => $data['email'], 'code_hash' => Hash::make($code), 'expires_at' => now()->addMinutes(10), 'created_at' => now(), 'updated_at' => now()]);
+        session(['pending_registration' => ['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => $role, 'role_code' => $role === 'employer' ? 0 : 1], 'dev_otp' => $local ? $code : null]);
+        if ($local) {
+            return redirect()->route('otp.form')->with('mail_warning', 'Local testing mode is active. Use dummy OTP 123456. No email was sent.');
+        }
+        try {
+            $otpService->sendEmail($data['email'], $code, 'Verify your Ascendia account');
+        } catch (\Throwable $e) {
+            report($e);
+            DB::table('email_otps')->where('email', $data['email'])->whereNull('used_at')->delete();
+            session()->forget(['pending_registration', 'dev_otp']);
+            return back()->withInput($r->only('name', 'email', 'account_type'))->withErrors(['email' => 'We could not send your verification email. Please try again shortly or contact support.']);
+        }
+        return redirect()->route('otp.form');
+    }
+    public function otpForm(VerificationOtpService $otpService)
+    {
+        abort_unless(session('pending_registration'), 403);
+        return view('auth.otp', ['email' => session('pending_registration.email'), 'devOtp' => $otpService->usesFixedCode() ? session('dev_otp') : null]);
+    }
+    public function verify(Request $r)
+    {
+        $r->validate(['code' => 'required|digits:6']);
+        $pending = session('pending_registration');
+        abort_unless($pending, 403);
+        $otp = DB::table('email_otps')->where('email', $pending['email'])->whereNull('used_at')->where('expires_at', '>', now())->latest()->first();
+        if (!$otp || !Hash::check($r->code, $otp->code_hash)) return back()->withErrors(['code' => 'The code is invalid or expired.']);
+        DB::table('email_otps')->where('id', $otp->id)->update(['used_at' => now()]);
+        $pending['role'] = config('services.admin_email') && strcasecmp($pending['email'], config('services.admin_email')) === 0 ? 'admin' : ($pending['role'] ?? 'student');
+        $pending['role_code'] = $pending['role'] === 'admin' ? 2 : ($pending['role'] === 'employer' ? 0 : 1);
+        $employer = $pending['employer_registration'] ?? null;
+        unset($pending['employer_registration']);
+        $user = DB::transaction(function () use ($pending, $employer) {
+            $user = User::create($pending);
+            if ($user->role_code === 1) {
+                $parts = preg_split('/\s+/', trim($user->name), 2);
+                $user->candidateProfile()->create(['first_name' => $parts[0] ?? $user->name, 'last_name' => $parts[1] ?? null, 'profile_completion' => 15]);
+            }
+            if ($user->role_code === 0 && $employer) {
+                $company = \App\Models\Company::create(['name' => $employer['company_name'], 'slug' => \Illuminate\Support\Str::slug($employer['company_name']) . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6)), 'company_email' => $employer['company_email'], 'phone_country_code' => $employer['phone_country_code'], 'phone_number' => $employer['company_phone'], 'organization_type' => $employer['organization_type'], 'business_type' => $employer['business_type'] ?? null, 'company_type' => 'company', 'website' => $employer['website'] ?? null, 'country' => 'India', 'is_active' => true]);
+                $user->employerProfile()->create(['company_id' => $company->id, 'first_name' => $employer['first_name'], 'last_name' => $employer['last_name'], 'designation' => $employer['designation'] ?? null, 'phone_country_code' => $employer['phone_country_code'], 'phone' => $employer['company_phone'], 'phone_verified_at' => $employer['phone_verified_at'], 'verification_status' => 'phone_verified']);
+                DB::table('employer_registration_audits')->where('registration_token_hash', $employer['registration_token_hash'])->update(['user_id' => $user->id, 'company_id' => $company->id, 'status' => 'completed', 'email_verified_at' => now(), 'updated_at' => now()]);
+            }
+            return $user;
+        });
+        session()->forget(['pending_registration', 'dev_otp']);
+        Auth::login($user);
+        $r->session()->regenerate();
+        return redirect($user->role === 'employer' ? '/employer' : ($user->role === 'admin' ? '/admin' : '/dashboard'));
+    }
+    public function loginForm()
+    {
+        return view('auth.login');
+    }
+    public function employerLoginForm()
+    {
+        return view('auth.employer-login');
+    }
+    public function ownerLoginForm()
+    {
+        return view('auth.owner-login', ['hasOwner' => User::where('role_code', 2)->orWhere('role', 'admin')->exists()]);
+    }
+    public function ownerRegisterForm(Request $r)
+    {
+        $hasOwner = User::where(fn($q) => $q->where('role_code', 2)->orWhere('role', 'admin'))->exists();
+        $isOwner = $r->user() && ($r->user()->role_code === 2 || $r->user()->role === 'admin');
+        if ($hasOwner && !$isOwner) return redirect()->route('owner.login')->withErrors(['email' => 'An owner account already exists. Sign in as an owner to create another owner.']);
+        if (!$hasOwner && $r->user()) abort(403, 'Log out before creating the first owner account.');
+        return view('auth.owner-register', compact('hasOwner'));
+    }
+    public function ownerRegister(Request $r)
+    {
+        $data = $r->validate(['name' => 'required|string|max:100', 'email' => 'required|email|max:190|unique:users,email', 'password' => 'required|string|min:8|confirmed']);
+        $wasFirstOwner = false;
+        $user = Cache::lock('owner-registration', 10)->block(3, function () use ($r, $data, &$wasFirstOwner) {
+            $hasOwner = User::where(fn($q) => $q->where('role_code', 2)->orWhere('role', 'admin'))->exists();
+            $isOwner = $r->user() && ($r->user()->role_code === 2 || $r->user()->role === 'admin');
+            abort_unless(!$hasOwner || $isOwner, 403, 'Only an existing owner can create another owner account.');
+            abort_if(!$hasOwner && $r->user(), 403, 'Log out before creating the first owner account.');
+            $wasFirstOwner = !$hasOwner;
+            return DB::transaction(function () use ($data) {
+                $owner = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => 'admin', 'role_code' => 2]);
+                $owner->ownerProfile()->create();
+                return $owner;
+            });
+        });
+        if ($wasFirstOwner) {
+            Auth::login($user);
+            $r->session()->regenerate();
+        }
+        return redirect()->route('admin.dashboard')->with('success', 'Owner account created for ' . $user->email);
+    }
+    public function login(Request $r)
+    {
+        $credentials = $r->validate(['email' => 'required|email', 'password' => 'required|string', 'expected_role' => 'nullable|in:student,employer,owner']);
+        if (!Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $r->boolean('remember'))) return back()->withErrors(['email' => 'Invalid credentials.'])->onlyInput('email');
+        $user = $r->user();
+        $matches = match ($credentials['expected_role'] ?? null) {
+            'employer' => $user->role_code === 0 || $user->role === 'employer',
+            'owner' => $user->role_code === 2 || $user->role === 'admin',
+            'student' => $user->role_code === 1 || $user->role === 'student',
+            default => true
+        };
+        if (!$matches) {
+            Auth::logout();
+            return back()->withErrors(['email' => 'This account cannot use the selected login portal.'])->onlyInput('email');
+        }
+        $r->session()->regenerate();
+        return redirect()->intended(($user->role_code === 2 || $user->role === 'admin') ? '/admin' : (($user->role_code === 0 || $user->role === 'employer') ? '/employer' : '/dashboard'));
+    }
+    public function logout(Request $r)
+    {
+        Auth::logout();
+        $r->session()->invalidate();
+        $r->session()->regenerateToken();
+        return redirect('/');
+    }
 }

@@ -21,7 +21,7 @@ class CompanyReviewController extends Controller
 
         $verifiedApplication = $request->user()->applications()
             ->where('status', '!=', 'withdrawn')
-            ->whereHas('job', fn ($query) => $query->where('company_id', $company->id))
+            ->whereHas('job', fn($query) => $query->where('company_id', $company->id))
             ->exists();
 
         $company->reviews()->updateOrCreate(

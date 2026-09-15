@@ -12,3 +12,7 @@ storage/framework/sessions/*
 storage/framework/views/*
 npm-debug.log
 yarn-error.log
+
+storage/app/industrial-photo-qa
+storage/app/private
+.phpunit.result.cache

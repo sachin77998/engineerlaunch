@@ -26,6 +26,14 @@ class Company extends Model
         'sync_enabled' => 'boolean',
         'last_synced_at' => 'datetime',
     ];
+
+    public function getLogoUrlAttribute(?string $value): ?string
+    {
+        if (filled($value)) return $value;
+        if (! filled($this->website)) return null;
+
+        return 'https://www.google.com/s2/favicons?domain_url='.rawurlencode($this->website).'&sz=128';
+    }
     public function jobs(): HasMany
     {
         return $this->hasMany(Job::class);

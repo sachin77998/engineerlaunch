@@ -1,0 +1,55 @@
+<?php
+return [
+ 'java'=>[
+  'title'=>'From a class to a working object',
+  'steps'=>[['Class','Defines fields and methods.'],['Constructor call','new creates an instance and invokes a constructor.'],['Object reference','Use the reference to access accessible members.'],['Method call','The object performs an operation.']],
+  'columns'=>['Concept','Meaning','Example'],
+  'rows'=>[['Class','A type definition','class Student { ... }'],['Object','An instance of a class','new Student()'],['Instance field','State belonging to one object','student.name'],['Static field','State associated with the class','Student.school']],
+  'pitfall'=>'A reference is not the object itself. A null reference cannot be used to call an instance method.',
+  'source'=>['Java learning guide','https://dev.java/learn/classes-objects/'],
+ ],
+ 'sql'=>[
+  'title'=>'Follow the rows through a query',
+  'steps'=>[['FROM / JOIN','Choose and combine source rows.'],['WHERE','Filter individual rows.'],['GROUP BY / HAVING','Group rows and filter the groups when needed.'],['SELECT / ORDER BY','Choose output expressions and sort the result.']],
+  'columns'=>['Clause','Works on','Use it to'],
+  'rows'=>[['WHERE','Individual rows','Keep salary > 50000'],['GROUP BY','Rows with shared values','Create one group per department'],['HAVING','Groups','Keep groups with COUNT(*) > 5'],['ORDER BY','Result rows','Display salaries from highest to lowest']],
+  'pitfall'=>'This is a simplified logical model, not a claim about the database execution plan. SQL syntax differs between database products.',
+  'source'=>['PostgreSQL table expressions','https://www.postgresql.org/docs/17/queries-table-expressions.html'],
+ ],
+ 'kafka'=>[
+  'title'=>'Trace an event from writer to reader',
+  'steps'=>[['Producer','Publishes an event.'],['Topic partition','Stores the event in an ordered log.'],['Consumer','Reads records from assigned partitions.'],['Application','Processes the event for its use case.']],
+  'columns'=>['Term','Responsibility','Remember'],
+  'rows'=>[['Topic','Names an event stream','A topic can contain several partitions'],['Partition','Maintains an ordered log','Ordering is within a partition'],['Broker','Hosts partition data','A cluster contains brokers'],['Consumer group','Coordinates readers','Traditional groups assign a partition to at most one member at a time']],
+  'pitfall'=>'An offset identifies a position within a partition. It is not a unique position across the whole topic.',
+  'source'=>['Apache Kafka introduction','https://kafka.apache.org/documentation/'],
+ ],
+ 'spring-boot'=>[
+  'title'=>'Build and verify a Spring Boot feature',
+  'steps'=>[['Define','Describe the request and expected response.'],['Implement','Use the lesson code to implement one behavior.'],['Exercise','Send normal and invalid inputs.'],['Verify','Check the response and side effects.']],
+  'columns'=>['Practice step','What to produce'],
+  'rows'=>[['Understand','A short explanation of the lesson concept'],['Build','A minimal working example'],['Test','One normal case and one failure case'],['Explain','A reason for the chosen design']],
+  'pitfall'=>'Test the behavior you need, including failures; a successful startup alone does not prove the feature works.',
+ ],
+ 'php-laravel'=>[
+  'title'=>'Build and verify a Laravel feature',
+  'steps'=>[['Requirement','Write the expected user action.'],['Implementation','Follow the lesson code.'],['Test case','Try valid and invalid input.'],['Result','Compare the actual response with the expectation.']],
+  'columns'=>['Practice step','What to produce'],
+  'rows'=>[['Understand','Explain the feature in your own words'],['Apply','Connect it to a small job-portal example'],['Verify','Check output and stored data'],['Review','Explain the failure path']],
+  'pitfall'=>'Run destructive examples only against a disposable practice database.',
+ ],
+ 'dsa'=>[
+  'title'=>'Make your reasoning visible',
+  'steps'=>[['Input','Write a small example and the constraints.'],['Trace','Follow each operation by hand.'],['Algorithm','Describe the repeatable steps.'],['Check','Test output, edge cases and complexity.']],
+  'columns'=>['Case','Why test it'],
+  'rows'=>[['Small normal input','Shows the basic behavior'],['Empty or minimum input','Checks the boundary'],['Repeated values','Exposes duplicate-handling assumptions'],['Large input','Reveals time and space costs']],
+  'pitfall'=>'A correct result on one sample is not proof that an algorithm works for every allowed input.',
+ ],
+ 'react'=>[
+  'title'=>'Explain a UI change step by step',
+  'steps'=>[['Initial screen','Describe what the user sees.'],['User action','Choose one click or input.'],['State transition','Predict the new state.'],['Visible result','Verify the updated interface.']],
+  'columns'=>['Practice step','Evidence to collect'],
+  'rows'=>[['Describe','A small component responsibility'],['Interact','One clear user action'],['Observe','The expected UI change'],['Check','Loading, empty and error states']],
+  'pitfall'=>'Test behavior from a user perspective, including keyboard interaction.',
+ ],
+];

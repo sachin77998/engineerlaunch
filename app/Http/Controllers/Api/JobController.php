@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
+    public function locations(Request $request): JsonResponse
+    {
+        $filters = $request->validate([
+            'region' => ['nullable','string','max:100'],
+            'country' => ['nullable','string','max:100'],
+            'state' => ['nullable','string','max:100'],
+            'q' => ['nullable','string','max:100'],
+        ]);
+        return response()->json(['success'=>true,'data'=>app(\App\Services\JobGeography::class)->options($filters)]);
+    }
     public function categories(): JsonResponse
     {
         return response()->json(['success' => true,'data' => JobCategory::query()->orderBy('name')->get(),]);
@@ -22,6 +32,9 @@ class JobController extends Controller
     {
         $validated = $request->validate([
             'country' => ['nullable', 'string', 'max:100'],
+            'region' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'city' => ['nullable', 'string', 'max:150'],
             'location' => ['nullable', 'string', 'max:150'],
             'company_id' => ['nullable', 'integer', 'exists:companies,id'],
             'job_type' => ['nullable', 'string', 'max:50'],
@@ -42,14 +55,13 @@ class JobController extends Controller
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('search.max_results_per_page', 50)],
         ]);
         $query = Job::active()->with($this->jobRelations());
-        if ($request->has('country')) {$query->country($request->get('country'));}
-        if ($request->has('location')) {$query->location($request->get('location'));}
+        app(\App\Services\JobGeography::class)->apply($query, $validated);
         if ($request->has('company_id')) {$query->company($request->get('company_id'));}
         if ($request->has('job_type')) {$query->jobType($request->get('job_type'));}
         if ($request->has('experience_level')) {$query->experienceLevel($request->get('experience_level'));}
         if ($request->filled('experience_years')) {$years = (int) $request->get('experience_years');
             $query->where(function ($experience) use ($years) {
-                $experience->whereNull('experience_min')->orWhere('experience_min', '<=', $years);
+                $experience->whereNotNull('experience_min')->where('experience_min', '<=', $years);
             })->where(function ($experience) use ($years) {
                 $experience->whereNull('experience_max')->orWhere('experience_max', '>=', $years);
             });

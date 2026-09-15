@@ -6,7 +6,7 @@ use App\Models\Company;
 
 class JobClassificationService
 {
-    public const VERSION = 1;
+    public const VERSION = 2;
 
     public function classify(array $job, ?Company $company = null): array
     {
@@ -16,12 +16,19 @@ class JobClassificationService
             $this->flatten($job['responsibilities'] ?? null), $company?->industry, $company?->sector,
         ])));
 
-        return [
+        $classification = [
             'department' => $this->department($text),
             'engineering_discipline' => $this->discipline($text),
             'classification_version' => self::VERSION,
             'classified_at' => now(),
         ];
+
+        if (! isset($job['experience_min']) && ($experience = $this->experience($text))) {
+            $classification['experience_min'] = $experience[0];
+            $classification['experience_max'] = $experience[1];
+        }
+
+        return $classification;
     }
 
     private function department(string $text): string
@@ -72,6 +79,19 @@ class JobClassificationService
     {
         foreach ($terms as $term) if (str_contains($text, $term)) return true;
         return false;
+    }
+
+    private function experience(string $text): ?array
+    {
+        if (preg_match('/\b(\d{1,2})\s*(?:-|–|to)\s*(\d{1,2})\+?\s+years?(?:\s+of)?(?:\s+[a-z]+){0,3}\s+experience\b/u', $text, $match)) {
+            return [(int) $match[1], (int) $match[2]];
+        }
+        if (preg_match('/\b(\d{1,2})\+?\s+years?(?:\s+of)?(?:\s+[a-z]+){0,3}\s+experience\b/u', $text, $match)) {
+            $minimum = (int) $match[1];
+            return [$minimum, null];
+        }
+
+        return null;
     }
 
     private function flatten(mixed $value): ?string

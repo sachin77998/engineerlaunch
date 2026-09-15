@@ -1,3 +1,4 @@
+@include('partials.page-guide')
 <style>
 .asc-site-footer{background:#f7f9fc;border-top:1px solid #e3e9f2;color:#17233c;font-family:inherit;margin-top:auto}
 .asc-footer-wrap{max-width:1420px;margin:0 auto;padding:56px 32px 26px}

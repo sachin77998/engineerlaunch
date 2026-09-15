@@ -24,6 +24,8 @@ use App\Http\Controllers\CandidateAutoApplyController;
 use App\Http\Controllers\CompanyReviewController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\AdminNewsController;
+use App\Http\Controllers\CompanyExperienceController;
+use App\Http\Controllers\AdminCompanyExperienceController;
 
 
 
@@ -36,9 +38,18 @@ Route::get('/companies/category/{category:slug}', [CompanyDiscoveryController::c
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
 Route::post('/companies/{company:slug}/reviews', [CompanyReviewController::class, 'store'])->middleware(['auth','throttle:6,1'])->name('companies.reviews.store');
 Route::get('/jobs-posted-by-hr',HrJobListingController::class)->name('jobs.hr');
+Route::prefix('company-experiences')->name('company.experiences.')->group(function(){
+ Route::get('/',[CompanyExperienceController::class,'index'])->name('index');
+ Route::get('/compare',[CompanyExperienceController::class,'compare'])->name('compare');
+ Route::get('/share',[CompanyExperienceController::class,'create'])->middleware('auth')->name('create');
+ Route::post('/share',[CompanyExperienceController::class,'store'])->middleware(['auth','throttle:5,1'])->name('store');
+ Route::get('/{companySlug}/experience/{experienceId}',[CompanyExperienceController::class,'experience'])->whereNumber('experienceId')->name('experience');
+ Route::get('/{slug}',[CompanyExperienceController::class,'company'])->name('company');
+});
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
 Route::get('/jobs/{job:slug}',[CandidateJobController::class,'show'])->name('jobs.show');
+Route::get('/opportunities/{job}',[CandidateJobController::class,'show'])->whereNumber('job')->name('opportunities.show');
 Route::post('/jobs/{job:slug}/apply',[CandidateJobController::class,'apply'])->middleware('auth')->name('jobs.apply');
 Route::patch('/applications/{application}/withdraw',[CandidateJobController::class,'withdraw'])->middleware('auth')->name('applications.withdraw');
 
@@ -73,4 +84,34 @@ Route::get('/admin/analytics',OwnerAnalyticsDashboardController::class)->middlew
 Route::get('/admin/news',[AdminNewsController::class,'index'])->middleware(['auth','admin'])->name('admin.news');
 Route::post('/admin/news/sources',[AdminNewsController::class,'source'])->middleware(['auth','admin','throttle:10,1'])->name('admin.news.sources');
 Route::patch('/admin/news/{article}',[AdminNewsController::class,'moderate'])->middleware(['auth','admin'])->name('admin.news.moderate');
+Route::get('/admin/company-experiences',[AdminCompanyExperienceController::class,'index'])->middleware(['auth','admin'])->name('admin.company-experiences.index');
+Route::patch('/admin/company-experiences/{experience}',[AdminCompanyExperienceController::class,'moderate'])->middleware(['auth','admin','throttle:30,1'])->name('admin.company-experiences.moderate');
 Route::prefix('admin/jobs')->middleware(['auth','admin'])->group(function(){Route::patch('/{job}/publish',[AdminJobApprovalController::class,'publish'])->name('admin.jobs.publish');Route::patch('/{job}/reject',[AdminJobApprovalController::class,'reject'])->name('admin.jobs.reject');});
+
+
+Route::prefix('industrial-areas')->name('industrial.')->group(function () {
+    Route::get('/ajax/cities', [\App\Http\Controllers\IndustrialAreaController::class, 'cities'])->name('ajax.cities');
+    Route::get('/ajax/areas', [\App\Http\Controllers\IndustrialAreaController::class, 'areas'])->name('ajax.areas');
+    Route::get('/ajax/companies/{area}', [\App\Http\Controllers\IndustrialAreaController::class, 'companies'])->whereNumber('area')->name('ajax.companies');
+    Route::get('/ajax', [\App\Http\Controllers\IndustrialAreaController::class, 'ajax'])->name('ajax');
+    Route::get('/', [\App\Http\Controllers\IndustrialAreaController::class, 'index'])->name('index');
+    Route::get('/openings/{job}', [\App\Http\Controllers\IndustrialAreaController::class, 'opening'])->whereNumber('job')->name('jobs.show');
+    Route::get('/state/{stateSlug}/{areaSlug}/company/{companySlug}', [\App\Http\Controllers\IndustrialAreaController::class, 'company'])->name('company');
+    Route::get('/state/{stateSlug}/{areaSlug}', [\App\Http\Controllers\IndustrialAreaController::class, 'show'])->name('show');
+    Route::get('/company/{companySlug}', [\App\Http\Controllers\IndustrialAreaController::class, 'legacyCompany'])->name('company.short');
+    Route::get('/{areaSlug}', [\App\Http\Controllers\IndustrialAreaController::class, 'legacyArea'])->name('show.short');
+});
+
+
+Route::prefix('admin/industrial-areas')->middleware(['auth', 'admin'])->name('admin.industrial.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'index'])->name('index');
+    Route::get('/cities', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'cities'])->name('cities');
+    Route::patch('/cities', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'updateCity'])->name('cities.update');
+    Route::get('/sources', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'sources'])->name('sources');
+    Route::get('/lookups', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'lookups'])->name('lookups');
+    Route::post('/import', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'import'])->middleware('throttle:10,1')->name('import');
+    Route::get('/{type}/create', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'form'])->name('create');
+    Route::post('/{type}', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'save'])->name('store');
+    Route::get('/{type}/{record}/edit', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'form'])->whereNumber('record')->name('edit');
+    Route::put('/{type}/{record}', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'save'])->whereNumber('record')->name('update');
+});

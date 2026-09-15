@@ -9,6 +9,8 @@ RUN apt-get update \
         libicu-dev \
         libonig-dev \
         libpq-dev \
+        libsqlite3-dev \
+        librdkafka-dev \
         libzip-dev \
     && docker-php-ext-install \
         bcmath \
@@ -16,7 +18,10 @@ RUN apt-get update \
         mbstring \
         pdo_mysql \
         pdo_pgsql \
+        pdo_sqlite \
         zip \
+    && pecl install rdkafka \
+    && docker-php-ext-enable rdkafka \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

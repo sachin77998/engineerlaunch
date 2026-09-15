@@ -27,6 +27,7 @@ Route::middleware(['throttle:discovery', CacheDiscoveryResponses::class])->prefi
     Route::get('/', [JobController::class, 'index'])->name('jobs.index');
     Route::get('/recent', [JobController::class, 'recentJobs'])->name('jobs.recent');
     Route::get('/trending', [JobController::class, 'trending'])->name('jobs.trending');
+    Route::get('/locations', [JobController::class, 'locations'])->name('jobs.locations');
     Route::get('/stats', [JobController::class, 'stats'])->name('jobs.stats');
     Route::get('/categories', [JobController::class, 'categories'])->name('jobs.categories');
     Route::get('/company/{companyId}', [JobController::class, 'byCompany'])->whereNumber('companyId')->name('jobs.by-company');

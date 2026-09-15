@@ -1,0 +1,135 @@
+﻿state,city,district,name,area_type,sectors,source_name,source_url,last_verified_at,verification_status,is_featured,is_active
+Punjab,Ludhiana,Ludhiana,Ludhiana Industrial Focal Point,industrial_area,Textile;Engineering;Auto Components;Forging;Cycle Manufacturing,User-supplied starter master,,,unverified,1,1
+Punjab,Ludhiana,Ludhiana,Ludhiana Textile Hub,textile_hub,Textile;Garments;Knitting;Dyeing,User-supplied starter master,,,unverified,1,1
+Punjab,Jalandhar,Jalandhar,Jalandhar Sports Hub,manufacturing_hub,Sports Goods;Manufacturing;Rubber;Leather,User-supplied starter master,,,unverified,1,1
+Punjab,Rajpura,Patiala,Rajpura Industrial Area,industrial_area,Manufacturing;Engineering;Steel;Food;Logistics,User-supplied starter master,,,unverified,1,1
+Punjab,Mohali,SAS Nagar,Mohali Industrial Area,industrial_area,Engineering;Electronics;IT;Manufacturing,User-supplied starter master,,,unverified,1,1
+Punjab,Amritsar,Amritsar,Amritsar Industrial Area,industrial_area,Textile;Food Processing;Engineering,User-supplied starter master,,,unverified,1,1
+Haryana,Manesar,Gurugram,Manesar Industrial Area,industrial_area,Automobile;Auto Components;Engineering;Electronics,User-supplied starter master,,,unverified,1,1
+Haryana,Gurugram,Gurugram,Gurugram Industrial Area,industrial_area,IT;Automobile;Engineering;Logistics,User-supplied starter master,,,unverified,1,1
+Haryana,Bawal,Rewari,Bawal Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Haryana,Dharuhera,Rewari,Dharuhera Industrial Area,industrial_area,Automobile;Auto Components;Manufacturing,User-supplied starter master,,,unverified,1,1
+Haryana,Faridabad,Faridabad,Faridabad Industrial Area,industrial_area,Engineering;Automobile;Manufacturing,User-supplied starter master,,,unverified,1,1
+Haryana,Panipat,Panipat,Panipat Industrial Cluster,industrial_cluster,Textile;Chemical;Manufacturing,User-supplied starter master,,,unverified,1,1
+Haryana,Sonipat,Sonipat,Sonipat Industrial Area,industrial_area,Engineering;Manufacturing;Logistics,User-supplied starter master,,,unverified,1,1
+Rajasthan,Bhiwadi,Alwar,Bhiwadi Industrial Area,industrial_area,Steel;Automobile;Engineering;FMCG;Chemical,User-supplied starter master,,,unverified,1,1
+Rajasthan,Khushkhera,Alwar,Khushkhera Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Neemrana,Alwar,Neemrana Industrial Area,industrial_area,Automobile;Engineering;Electronics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Tapukara,Alwar,Tapukara Industrial Area,industrial_area,Automobile;Auto Components;Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Ghiloth,Alwar,Ghiloth Industrial Area,industrial_area,Automobile;Engineering;Japanese Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Jaipur,Jaipur,Jaipur Industrial Area,industrial_area,Engineering;Textile;Gems;Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Jodhpur,Jodhpur,Jodhpur Industrial Area,industrial_area,Engineering;Handicraft;Manufacturing,User-supplied starter master,,,unverified,1,1
+Rajasthan,Pali,Pali,Jodhpur Pali Marwar Industrial Area,industrial_cluster,Textile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Gujarat,Sanand,Ahmedabad,Sanand Industrial Area,industrial_area,Automobile;Auto Components;Engineering;Tyres;Manufacturing,User-supplied starter master,,,unverified,1,1
+Gujarat,Ahmedabad,Ahmedabad,Ahmedabad Industrial Cluster,industrial_cluster,Engineering;Pharma;Textile;Chemicals,User-supplied starter master,,,unverified,1,1
+Gujarat,Changodar,Ahmedabad,Changodar Industrial Area,industrial_area,Engineering;Pharma;Manufacturing,User-supplied starter master,,,unverified,1,1
+Gujarat,Vadodara,Vadodara,Vadodara Industrial Cluster,industrial_cluster,Engineering;Chemicals;Electrical,User-supplied starter master,,,unverified,1,1
+Gujarat,Bharuch,Bharuch,Bharuch Industrial Cluster,industrial_cluster,Chemicals;Petrochemicals;Engineering,User-supplied starter master,,,unverified,1,1
+Gujarat,Dahej,Bharuch,Dahej Industrial Area,industrial_area,Petrochemicals;Chemicals;Engineering,User-supplied starter master,,,unverified,1,1
+Gujarat,Halol,Panchmahal,Halol Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Gujarat,Surat,Surat,Surat Industrial Cluster,industrial_cluster,Textile;Diamond;Engineering,User-supplied starter master,,,unverified,1,1
+Gujarat,Hazira,Surat,Hazira Industrial Area,industrial_area,Steel;Energy;Engineering;Heavy Industry,User-supplied starter master,,,unverified,1,1
+Gujarat,Vapi,Valsad,Vapi Industrial Area,industrial_area,Chemicals;Pharma;Manufacturing,User-supplied starter master,,,unverified,1,1
+Gujarat,Ankleshwar,Bharuch,Ankleshwar Industrial Area,industrial_area,Chemicals;Pharmaceuticals;Engineering,User-supplied starter master,,,unverified,1,1
+Uttarakhand,Rudrapur,Udham Singh Nagar,Rudrapur Industrial Area,industrial_area,Automobile;FMCG;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttarakhand,Pantnagar,Udham Singh Nagar,Pantnagar Industrial Area,industrial_area,Automobile;FMCG;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttarakhand,Haridwar,Haridwar,Haridwar Integrated Industrial Estate,industrial_area,Automobile;FMCG;Electrical;Pharma;Engineering,User-supplied starter master,,,unverified,1,1
+Uttarakhand,SIDCUL Haridwar,Haridwar,SIDCUL Haridwar,industrial_area,Engineering;Pharma;FMCG;Automobile,User-supplied starter master,,,unverified,1,1
+Uttarakhand,Kashipur,Udham Singh Nagar,Kashipur Industrial Area,industrial_area,Manufacturing;Paper;Engineering;FMCG,User-supplied starter master,,,unverified,1,1
+Uttarakhand,Sitarganj,Udham Singh Nagar,Sitarganj Industrial Area,industrial_area,Manufacturing;Food Processing;Engineering,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Baddi,Solan,Baddi Industrial Area,industrial_area,Pharma;FMCG;Chemicals;Manufacturing,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Barotiwala,Solan,Barotiwala Industrial Area,industrial_area,Pharma;Manufacturing;FMCG,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Nalagarh,Solan,Nalagarh Industrial Area,industrial_area,Pharma;Manufacturing;Engineering,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Paonta Sahib,Sirmaur,Paonta Sahib Industrial Area,industrial_area,Pharma;Manufacturing;Chemicals,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Kala Amb,Sirmaur,Kala Amb Industrial Area,industrial_area,Pharma;Chemicals;Manufacturing,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Mehatpur,Una,Mehatpur Industrial Area,industrial_area,Engineering;Manufacturing;Automobile Components,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Tahliwal,Una,Tahliwal Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Gagret,Una,Gagret Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Himachal Pradesh,Amb,Una,Amb Industrial Area,industrial_area,Manufacturing;Engineering,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Visakhapatnam,Visakhapatnam,Visakhapatnam Industrial Cluster,industrial_cluster,Steel;Pharma;Fertilizer;Engineering;Shipbuilding,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Atchutapuram,Anakapalli,Atchutapuram Industrial Park,industrial_park,Steel;Pharma;Chemicals;Engineering,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Sri City,Tirupati,Sri City Industrial Park,industrial_park,Automobile;Electronics;Textile;Manufacturing,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Kakinada,Kakinada,Kakinada Industrial Area,industrial_area,Petrochemicals;Food Processing;Engineering,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Anantapur,Anantapur,Anantapur Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Hindupur,Anantapur,Hindupur Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Nellore,Nellore,Nellore Industrial Area,industrial_area,Manufacturing;Food Processing;Chemicals,User-supplied starter master,,,unverified,1,1
+Andhra Pradesh,Tirupati,Tirupati,Tirupati Industrial Area,industrial_area,Electronics;Manufacturing;Pharma,User-supplied starter master,,,unverified,1,1
+Assam,Guwahati,Kamrup,Guwahati Industrial Area,industrial_area,FMCG;Food Processing;Logistics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Assam,Nalbari,Nalbari,Nalbari Industrial Area,industrial_area,Food Processing;Manufacturing,User-supplied starter master,,,unverified,1,1
+Assam,Dibrugarh,Dibrugarh,Dibrugarh Industrial Area,industrial_area,Tea;Oil;Petrochemicals;Manufacturing,User-supplied starter master,,,unverified,1,1
+Assam,Silchar,Cachar,Silchar Industrial Area,industrial_area,Food Processing;Manufacturing,User-supplied starter master,,,unverified,1,1
+Assam,Balipara,Sonitpur,Balipara Growth Centre,industrial_park,Food Processing;Manufacturing,User-supplied starter master,,,unverified,1,1
+Assam,Matia,Goalpara,Matia Growth Centre,industrial_park,Food Processing;Manufacturing,User-supplied starter master,,,unverified,1,1
+West Bengal,Kolkata,Kolkata,Kolkata Industrial Cluster,industrial_cluster,Engineering;Steel;Casting;Logistics;Manufacturing,User-supplied starter master,,,unverified,1,1
+West Bengal,Durgapur,Paschim Bardhaman,Durgapur Industrial Area,industrial_cluster,Steel;Engineering;Heavy Industry,User-supplied starter master,,,unverified,1,1
+West Bengal,Asansol,Paschim Bardhaman,Asansol Industrial Area,industrial_area,Steel;Engineering;Mining,User-supplied starter master,,,unverified,1,1
+West Bengal,Haldia,Purba Medinipur,Haldia Industrial Area,industrial_area,Petrochemicals;Chemicals;Logistics,User-supplied starter master,,,unverified,1,1
+West Bengal,Raghunathpur,Purulia,Raghunathpur Industrial Area,industrial_area,Steel;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Maharashtra,Pune,Pune,Pune Industrial Cluster,industrial_cluster,Automobile;Engineering;IT;Manufacturing,User-supplied starter master,,,unverified,1,1
+Maharashtra,Chakan,Pune,Chakan Industrial Area,industrial_area,Automobile;Engineering;Auto Components,User-supplied starter master,,,unverified,1,1
+Maharashtra,Talegaon,Pune,Talegaon Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Maharashtra,Aurangabad,Chhatrapati Sambhajinagar,Waluj Industrial Area,industrial_area,Automobile;Pharma;Engineering,User-supplied starter master,,,unverified,1,1
+Maharashtra,Shendra,Chhatrapati Sambhajinagar,Shendra Industrial Area,industrial_area,Engineering;Manufacturing;Electronics,User-supplied starter master,,,unverified,1,1
+Maharashtra,Nashik,Nashik,Nashik Industrial Cluster,industrial_cluster,Automobile;Engineering;Pharma,User-supplied starter master,,,unverified,1,1
+Maharashtra,Nagpur,Nagpur,Nagpur Industrial Area,industrial_area,Engineering;Logistics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Karnataka,Bengaluru,Bengaluru,Bengaluru Industrial Cluster,industrial_cluster,IT;Aerospace;Electronics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Karnataka,Tumakuru,Tumakuru,Tumakuru Industrial Area,industrial_area,Engineering;Automobile;Manufacturing,User-supplied starter master,,,unverified,1,1
+Karnataka,Hubli,Hubli-Dharwad,Hubli Dharwad Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Karnataka,Dharwad,Dharwad,Dharwad Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Chennai,Chennai,Chennai Industrial Cluster,industrial_cluster,Automobile;Electronics;Engineering,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Sriperumbudur,Kanchipuram,Sriperumbudur Industrial Area,industrial_area,Automobile;Electronics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Hosur,Krishnagiri,Hosur Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Coimbatore,Coimbatore,Coimbatore Industrial Cluster,industrial_cluster,Engineering;Textile;Manufacturing,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Tiruppur,Tiruppur,Tiruppur Textile Hub,textile_hub,Textile;Garments;Export,User-supplied starter master,,,unverified,1,1
+Tamil Nadu,Salem,Salem,Salem Industrial Area,industrial_area,Steel;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Telangana,Hyderabad,Hyderabad,Hyderabad Industrial Cluster,industrial_cluster,IT;Pharma;Engineering;Electronics,User-supplied starter master,,,unverified,1,1
+Telangana,Medchal,Medchal-Malkajgiri,Medchal Industrial Area,industrial_area,Pharma;Manufacturing;Engineering,User-supplied starter master,,,unverified,1,1
+Telangana,Adibatla,Rangareddy,Adibatla Industrial Area,industrial_area,Aerospace;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Telangana,Shamshabad,Rangareddy,Shamshabad Industrial Area,industrial_area,Logistics;Aerospace;Manufacturing,User-supplied starter master,,,unverified,1,1
+Odisha,Bhubaneswar,Khordha,Bhubaneswar Industrial Area,industrial_area,IT;Electronics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Odisha,Rourkela,Sundargarh,Rourkela Industrial Area,industrial_area,Steel;Engineering;Heavy Industry,User-supplied starter master,,,unverified,1,1
+Odisha,Angul,Angul,Angul Industrial Cluster,industrial_cluster,Steel;Aluminium;Power,User-supplied starter master,,,unverified,1,1
+Odisha,Paradip,Jagatsinghpur,Paradip Industrial Area,industrial_area,Petrochemicals;Port;Logistics,User-supplied starter master,,,unverified,1,1
+Chhattisgarh,Bhilai,Durg,Bhilai Industrial Area,industrial_area,Steel;Engineering;Heavy Industry,User-supplied starter master,,,unverified,1,1
+Chhattisgarh,Rajpur,Rajnandgaon,Rajpur Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Chhattisgarh,Raipur,Raipur,Raipur Industrial Cluster,industrial_cluster,Steel;Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Jharkhand,Jamshedpur,East Singhbhum,Jamshedpur Industrial Area,industrial_cluster,Steel;Automobile;Engineering,User-supplied starter master,,,unverified,1,1
+Jharkhand,Bokaro,Bokaro,Bokaro Industrial Area,industrial_area,Steel;Engineering;Heavy Industry,User-supplied starter master,,,unverified,1,1
+Jharkhand,Dhanbad,Dhanbad,Dhanbad Industrial Cluster,industrial_cluster,Mining;Steel;Engineering,User-supplied starter master,,,unverified,1,1
+Bihar,Patna,Patna,Patna Industrial Area,industrial_area,Manufacturing;Food Processing;Logistics,User-supplied starter master,,,unverified,1,1
+Bihar,Begusarai,Begusarai,Begusarai Industrial Area,industrial_area,Petrochemicals;Engineering,User-supplied starter master,,,unverified,1,1
+Bihar,Muzzafarpur,Muzaffarpur,Muzaffarpur Industrial Area,industrial_area,Food Processing;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttar Pradesh,Noida,Gautam Buddha Nagar,Noida Industrial Area,industrial_area,Electronics;IT;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttar Pradesh,Greater Noida,Gautam Buddha Nagar,Greater Noida Industrial Area,industrial_area,Automobile;Electronics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttar Pradesh,Ghaziabad,Ghaziabad,Ghaziabad Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Uttar Pradesh,Kanpur,Kanpur Nagar,Kanpur Industrial Area,industrial_area,Leather;Textile;Engineering,User-supplied starter master,,,unverified,1,1
+Uttar Pradesh,Lucknow,Lucknow,Lucknow Industrial Area,industrial_area,IT;Manufacturing;Engineering,User-supplied starter master,,,unverified,1,1
+Madhya Pradesh,Indore,Indore,Indore Industrial Cluster,industrial_cluster,Engineering;Pharma;Manufacturing,User-supplied starter master,,,unverified,1,1
+Madhya Pradesh,Pithampur,Dhar,Pithampur Industrial Area,industrial_area,Automobile;Engineering;Pharma,User-supplied starter master,,,unverified,1,1
+Madhya Pradesh,Bhopal,Bhopal,Bhopal Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Madhya Pradesh,Jabalpur,Jabalpur,Jabalpur Industrial Area,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Kerala,Kochi,Ernakulam,Kochi Industrial Cluster,industrial_cluster,Engineering;Food;Logistics;Manufacturing,User-supplied starter master,,,unverified,1,1
+Kerala,Thiruvananthapuram,Thiruvananthapuram,Thiruvananthapuram Industrial Area,industrial_area,IT;Electronics;Engineering,User-supplied starter master,,,unverified,1,1
+Kerala,Kozhikode,Kozhikode,Kozhikode Industrial Area,industrial_area,Food;Manufacturing;Engineering,User-supplied starter master,,,unverified,1,1
+Goa,Verna,South Goa,Verna Industrial Estate,industrial_area,Pharma;Engineering;Food Processing,User-supplied starter master,,,unverified,1,1
+Goa,Ponda,North Goa,Ponda Industrial Estate,industrial_area,Engineering;Manufacturing,User-supplied starter master,,,unverified,1,1
+Punjab,Abohar,Fazilka,Abohar Industrial Focal Point,industrial_area,Manufacturing;Engineering;Agro Processing,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Batala,Gurdaspur,Batala Industrial Focal Point,industrial_area,Engineering;Foundry;Machine Tools;Manufacturing,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Bathinda,Bathinda,Bathinda New Industrial Focal Point,industrial_area,Engineering;Manufacturing;Chemicals;Energy,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Chanalon,SAS Nagar,Chanalon Industrial Focal Point,industrial_area,Engineering;Manufacturing;Auto Components,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Dera Bassi,SAS Nagar,Dera Bassi Industrial Focal Point,industrial_area,Engineering;Manufacturing;Chemicals;Pharma,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Goindwal Sahib,Tarn Taran,Goindwal Sahib Industrial Focal Point,industrial_area,Engineering;Manufacturing;Heavy Industry,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Jalandhar,Jalandhar,Jalandhar Industrial Focal Point Expansion,industrial_area,Sports Goods;Engineering;Manufacturing;Auto Components,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Punjab,Bathinda,Bathinda,IGC Bathinda,industrial_park,Engineering;Manufacturing;Energy;Chemicals,Punjab Small Industries & Export Corporation (PSIEC),https://psiecems.punjab.gov.in/,2026-09-12,government_source,0,1
+Assam,Demow,Sivasagar,"Integrated Infrastructure Development Centre, Demow",industrial_park,Manufacturing;Engineering;Agro Processing,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/portlet-innerpage/industrial-areas,2026-09-12,government_source,0,1
+Assam,Dalgaon,Darrang,"Integrated Infrastructure Development Centre, Dalgaon",industrial_park,Manufacturing;Engineering;Food Processing,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/portlet-innerpage/industrial-areas,2026-09-12,government_source,0,1
+Assam,Bhomoraguri,Nagaon,"Integrated Infrastructure Development Centre, Bhomoraguri / Naltali",industrial_park,Manufacturing;Engineering;Food Processing,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/portlet-innerpage/industrial-areas,2026-09-12,government_source,0,1
+Assam,Malinibeel,Cachar,"Industrial Estate, Malinibeel",industrial_estate,Manufacturing;Engineering,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/information-services/allotment-of-land-in-igc-iida,2026-09-12,government_source,0,1
+Assam,Titabor,Jorhat,"Integrated Infrastructure Development Centre, Titabor",industrial_park,Manufacturing;Food Processing;Engineering,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/information-services/allotment-of-land-in-igc-iida,2026-09-12,government_source,0,1
+Assam,Silapathar,Dhemaji,"Integrated Infrastructure Development Centre, Silapathar",industrial_park,Manufacturing;Engineering,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/information-services/allotment-of-land-in-igc-iida,2026-09-12,government_source,0,1
+Assam,Pathsala,Barpeta,"Infrastructure Development Centre, Pathsala",industrial_park,Manufacturing;Food Processing;Engineering,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/information-services/allotment-of-land-in-igc-iida,2026-09-12,government_source,0,1
+Assam,Tinsukia,Tinsukia,"Plastic Park, Tinsukia",industrial_park,Plastic;Manufacturing;Petrochemicals,Assam Industrial Development Corporation (AIDC),https://aidcltd.assam.gov.in/information-services/allotment-of-land-in-igc-iida,2026-09-12,government_source,0,1
+Rajasthan,Bhiwadi,Alwar,IID Khushkhera,industrial_area,Automobile;Engineering;Manufacturing,Rajasthan State Industrial Development and Investment Corporation (RIICO),https://riico.rajasthan.gov.in/LA.aspx?menu_id=95,2026-09-12,government_source,0,1
+Rajasthan,Bhiwadi,Alwar,Karoli Industrial Area,industrial_area,Automobile;Engineering;Manufacturing,Rajasthan State Industrial Development and Investment Corporation (RIICO),https://riico.rajasthan.gov.in/LA.aspx?menu_id=95,2026-09-12,government_source,0,1
+Rajasthan,Bhiwadi,Alwar,Pathredi Industrial Area,industrial_area,Engineering;Manufacturing;Auto Components,Rajasthan State Industrial Development and Investment Corporation (RIICO),https://riico.rajasthan.gov.in/LA.aspx?menu_id=95,2026-09-12,government_source,0,1
+Rajasthan,Bhiwadi,Alwar,Salarpur Industrial Area,industrial_area,Engineering;Manufacturing;FMCG,Rajasthan State Industrial Development and Investment Corporation (RIICO),https://riico.rajasthan.gov.in/LA.aspx?menu_id=95,2026-09-12,government_source,0,1

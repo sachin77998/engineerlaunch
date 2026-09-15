@@ -1,0 +1,1 @@
+@if($items->hasPages())<nav class="im-pages" aria-label="Record pages"><span>@if($items->previousPageUrl())<a href="{{ $items->previousPageUrl() }}">Previous</a>@endif</span><span>Page {{ $items->currentPage() }} of {{ $items->lastPage() }}</span><span>@if($items->nextPageUrl())<a href="{{ $items->nextPageUrl() }}">Next</a>@endif</span></nav>@endif

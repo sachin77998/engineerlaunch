@@ -1,8 +1,52 @@
 <?php
+
 namespace App\Http\Controllers;
-use App\Models\Job;use App\Models\NewsArticle;use App\Models\NewsCategory;use Illuminate\Database\Eloquent\Builder;use Illuminate\Http\JsonResponse;use Illuminate\Http\Request;use Illuminate\View\View;
-class NewsController extends Controller{
-public function index(Request $r):View{$categories=NewsCategory::where('is_active',true)->orderBy('sort_order')->get();$articles=$this->query($r)->paginate(18)->withQueryString();$mechanicalArticles=NewsArticle::with(['category','source'])->where('is_published',true)->whereHas('category',fn($query)=>$query->whereIn('slug',['mechanical-engineering','manufacturing','automobile','tractors-agriculture','forging','industrial-automation','electric-vehicles','steel-metals','robotics','cad-cae']))->latest('published_at')->limit(6)->get();return view('news.index',compact('categories','articles','mechanicalArticles'));}
-public function ajax(Request $r):JsonResponse{return response()->json($this->query($r)->paginate(18));}
-public function show(string $slug):View{$article=NewsArticle::with(['category','source','tags','industryInsights','careerInsights','salaryInsights','companies'])->where('slug',$slug)->where('is_published',true)->firstOrFail();$skills=collect($article->recommended_skills??[])->merge($article->skills??[])->merge($article->careerInsights->flatMap(fn($i)=>$i->recommended_skills??[]))->filter(fn($skill)=>is_string($skill)&&mb_strlen(trim($skill))>1)->unique()->values();$roles=collect($article->roles??[])->merge($article->careerInsights->pluck('role'))->filter(fn($role)=>is_string($role)&&mb_strlen(trim($role))>2)->unique()->values();$relatedArticles=NewsArticle::with(['category','source'])->where('is_published',true)->whereKeyNot($article->id)->when($article->category_id,fn($query)=>$query->where('category_id',$article->category_id))->latest('published_at')->limit(6)->get();$jobQuery=Job::with('company')->active();$terms=$skills->take(5)->merge($roles->take(3))->filter()->unique();if($terms->isNotEmpty()){$jobQuery->where(function(Builder $q)use($terms){foreach($terms as $term){$q->orWhere('title','like',"%{$term}%")->orWhere('description','like',"%{$term}%");}});}$relatedJobCount=(clone $jobQuery)->count();$relatedJobs=$jobQuery->latest('posted_at')->limit(6)->get();$score=max(70,min(98,(int)round((float)$article->relevance_score)));$intelligence=['overall'=>$score,'market'=>min(100,$score+4),'career'=>min(100,$score+2),'technology'=>min(100,$score+min(8,$skills->count())),'hiring'=>max(40,min(100,$score-8+min(15,intdiv($relatedJobCount,10))))];return view('news.show',compact('article','skills','roles','relatedArticles','relatedJobs','relatedJobCount','intelligence'));}
-private function query(Request $r){$d=$r->validate(['category'=>'nullable|string|max:100','search'=>'nullable|string|max:150']);return NewsArticle::with(['category','source'])->where('is_published',true)->when($d['category']??null,fn($q,$v)=>$q->whereHas('category',fn($c)=>$c->where('slug',$v)))->when($d['search']??null,fn($q,$v)=>$q->where(fn($s)=>$s->where('title','like',"%$v%")->orWhere('excerpt','like',"%$v%")))->latest('published_at');}}
+
+use App\Models\Job;
+use App\Models\NewsArticle;
+use App\Models\NewsCategory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class NewsController extends Controller
+{
+    public function index(Request $r): View
+    {
+        $categories = NewsCategory::where('is_active', true)->orderBy('sort_order')->get();
+        $articles = $this->query($r)->paginate(18)->withQueryString();
+        $mechanicalArticles = NewsArticle::with(['category', 'source'])->where('is_published', true)->whereHas('category', fn($query) => $query->whereIn('slug', ['mechanical-engineering', 'manufacturing', 'automobile', 'tractors-agriculture', 'forging', 'industrial-automation', 'electric-vehicles', 'steel-metals', 'robotics', 'cad-cae']))->latest('published_at')->limit(6)->get();
+        return view('news.index', compact('categories', 'articles', 'mechanicalArticles'));
+    }
+    public function ajax(Request $r): JsonResponse
+    {
+        return response()->json($this->query($r)->paginate(18));
+    }
+    public function show(string $slug): View
+    {
+        $article = NewsArticle::with(['category', 'source', 'tags', 'industryInsights', 'careerInsights', 'salaryInsights', 'companies'])->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $skills = collect($article->recommended_skills ?? [])->merge($article->skills ?? [])->merge($article->careerInsights->flatMap(fn($i) => $i->recommended_skills ?? []))->filter(fn($skill) => is_string($skill) && mb_strlen(trim($skill)) > 1)->unique()->values();
+        $roles = collect($article->roles ?? [])->merge($article->careerInsights->pluck('role'))->filter(fn($role) => is_string($role) && mb_strlen(trim($role)) > 2)->unique()->values();
+        $relatedArticles = NewsArticle::with(['category', 'source'])->where('is_published', true)->whereKeyNot($article->id)->when($article->category_id, fn($query) => $query->where('category_id', $article->category_id))->latest('published_at')->limit(6)->get();
+        $jobQuery = Job::with('company')->active();
+        $terms = $skills->take(5)->merge($roles->take(3))->filter()->unique();
+        if ($terms->isNotEmpty()) {
+            $jobQuery->where(function (Builder $q) use ($terms) {
+                foreach ($terms as $term) {
+                    $q->orWhere('title', 'like', "%{$term}%")->orWhere('description', 'like', "%{$term}%");
+                }
+            });
+        }
+        $relatedJobCount = (clone $jobQuery)->count();
+        $relatedJobs = $jobQuery->latest('posted_at')->limit(6)->get();
+        $score = max(70, min(98, (int)round((float)$article->relevance_score)));
+        $intelligence = ['overall' => $score, 'market' => min(100, $score + 4), 'career' => min(100, $score + 2), 'technology' => min(100, $score + min(8, $skills->count())), 'hiring' => max(40, min(100, $score - 8 + min(15, intdiv($relatedJobCount, 10))))];
+        return view('news.show', compact('article', 'skills', 'roles', 'relatedArticles', 'relatedJobs', 'relatedJobCount', 'intelligence'));
+    }
+    private function query(Request $r)
+    {
+        $d = $r->validate(['category' => 'nullable|string|max:100', 'search' => 'nullable|string|max:150']);
+        return NewsArticle::with(['category', 'source'])->where('is_published', true)->when($d['category'] ?? null, fn($q, $v) => $q->whereHas('category', fn($c) => $c->where('slug', $v)))->when($d['search'] ?? null, fn($q, $v) => $q->where(fn($s) => $s->where('title', 'like', "%$v%")->orWhere('excerpt', 'like', "%$v%")))->latest('published_at');
+    }
+}

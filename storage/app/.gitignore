@@ -1,3 +1,8 @@
 *
 !public/
 !.gitignore
+
+!industrial-data/
+!industrial-data/*.csv
+
+!industrial-data/*.json
