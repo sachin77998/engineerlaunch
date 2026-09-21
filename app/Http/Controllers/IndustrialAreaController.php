@@ -16,224 +16,175 @@ use Illuminate\Validation\ValidationException;
 
 class IndustrialAreaController extends Controller
 {
-    /**
-     * Main Industrial India directory.
-     *
-     * Hierarchy:
-     *
-     * India
-     *  └── State
-     *      └── City / District
-     *          └── Industrial Area / Cluster / Estate
-     *              └── Company / Plant
-     *                  └── Department
-     *                      └── Job Role
-     *                          └── Live Jobs
-     */
     public function index(Request $request)
     {
         $data = $this->data($request);
         return view('industrial.index', $data);
     }
-     // AJAX version of the industrial directory.
-    public function ajax(Request $request)
+     public function ajax(Request $request)
     {
         $data = $this->data($request);
-        return response()->json([
-            'html' => view('industrial.results', $data)->render(),
-            'options' => $data['options'],
-            'taxonomyHtml' => view('industrial.taxonomy',$data)->render(),
-            'hero' => $data['heroUrl'],
-            'heroText' => $data['heroText'],
-            'heroCaption' => $data['heroCaption'],
-            'filters' => $data['filters'],
-            'heading' => $data['contextCompany']->name ?? $data['contextArea']->name ?? 'Industrial India',
-        ]);
+        return response()->json(['html' => view('industrial.results', $data)->render(),'options' => $data['options'],'taxonomyHtml' => view('industrial.taxonomy', $data)->render(),'hero' => $data['heroUrl'],'heroText' => $data['heroText'],'heroCaption' => $data['heroCaption'],'filters' => $data['filters'],'heading' => $data['contextCompany']->name ?? $data['contextArea']->name ?? 'Industrial India',]);
     }
-     // Build all data required by the industrial directory.
     private function data(Request $request): array
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Public parameter aliases
-        |--------------------------------------------------------------------------
-        |
-        | Allow both:
-        |
-        | state / state_id
-        | location / city
-        | area / area_id
-        | department / department_id
-        |
-        */
-        foreach (['state_id' => 'state','city' => 'location','area_id' => 'area','department_id' => 'department',] as $alias => $name) 
-            {
-            if (! $request->has($name) && $request->has($alias)) {
-                $request->merge([$name => $request->input($alias),]);
-            }
+        foreach (['state_id' => 'state', 'city' => 'location', 'area_id' => 'area', 'department_id' => 'department',] as $alias => $name) {
+            if (! $request->has($name) && $request->has($alias)) {$request->merge([$name => $request->input($alias),]);}
         }
-        /*
-        |--------------------------------------------------------------------------
-        | Validate filters
-        |--------------------------------------------------------------------------
-        */
         $filters = $request->validate([
-            'experience' => ['nullable',Rule::in(['fresher','0-2','2-5','5-10',]),],
-            'qualification' => ['nullable',Rule::in(['10th','12th','ITI','Diploma','B.Tech','Graduate',]),],
-            'salary' => ['nullable',Rule::in(['10000-20000','20000-30000','30000-50000','50000+',]),
-            ],
-
+            'experience' => ['nullable', Rule::in(['fresher', '0-2', '2-5', '5-10',]),],
+            'qualification' => ['nullable', Rule::in(['10th', '12th', 'ITI', 'Diploma', 'B.Tech', 'Graduate',]),],
+            'salary' => ['nullable',Rule::in(['10000-20000', '20000-30000', '30000-50000', '50000+',]),],
             'sector' => 'nullable|integer|min:1',
             'subsector' => 'nullable|integer|min:1',
             'process' => 'nullable|integer|min:1',
-
             'skill' => 'nullable|string|max:120',
             'search' => 'nullable|string|max:120',
-
             'state' => 'nullable|integer|min:1',
             'location' => 'nullable|string|max:255',
             'area' => 'nullable|integer|min:1',
             'company' => 'nullable|integer|min:1',
             'department' => 'nullable|integer|min:1',
             'role' => 'nullable|integer|min:1',
-
             'page' => 'nullable|integer|min:1',
             'companies_page' => 'nullable|integer|min:1',
             'jobs_page' => 'nullable|integer|min:1',
         ]);
-         // Taxonomy
         $taxonomyService = app(\App\Services\IndustrialTaxonomy::class);
         $taxonomy = $taxonomyService->prepare($filters);
-         //    STATES
-        $states = IndustrialState::query()->where('is_active', true)->orderBy('name')->get(['id','name',]);
+        $states = IndustrialState::query()->where('is_active', true)->orderBy('name')->get(['id', 'name',]);
         if (!empty($filters['state']) && ! $states->contains('id', $filters['state'])) {
             $this->invalid('state');
         }
-       //   INDUSTRIAL AREAS
         $baseAreas = IndustrialArea::visible();
         if (! empty($filters['state'])) {
-            $baseAreas->where('state_id',$filters['state']);
+            $baseAreas->where('state_id', $filters['state']);
         }
-       //  CITY / DISTRICT
         $locations = IndustrialArea::locationNames($baseAreas);
         if (! empty($filters['location'])) {
-            if (empty($filters['state'])|| ! $locations->contains($filters['location'])) {
+            if (empty($filters['state']) || ! $locations->contains($filters['location'])) {
                 $this->invalid('location');
             }
             $baseAreas->atLocation($filters['location']);
         }
-        //  AREA
+        if (! empty($filters['area'])) {if (!(clone $baseAreas)->whereKey($filters['area'])->exists()) {$this->invalid('area');}
+        }
+        $areaOptions = ! empty($filters['state']) ? (clone $baseAreas)->orderBy('name')->get(['id', 'name',]) : collect();
         if (! empty($filters['area'])) {
-            if (!(clone $baseAreas)->whereKey($filters['area'])->exists()) {$this->invalid('area');}
+            $baseAreas->whereKey($filters['area']);
         }
-        //  | AREA OPTIONS
-        $areaOptions = ! empty($filters['state'])? (clone $baseAreas)->orderBy('name')->get(['id','name',]): collect();
-        if (! empty($filters['area'])) {$baseAreas->whereKey($filters['area']);}
-        //    COMPANIES / PLANTS
-        $companiesQuery = IndustrialCompany::visible()->whereIn('industrial_area_id',(clone $baseAreas)->select('id'));
-        $taxonomyService->companies($companiesQuery,$taxonomy);
+        $companiesQuery = IndustrialCompany::visible()->whereIn('industrial_area_id', (clone $baseAreas)->select('id'));
+        $taxonomyService->companies($companiesQuery, $taxonomy);
         if (! empty($filters['company']) && (empty($filters['area']) || ! (clone $companiesQuery)->whereKey($filters['company'])->exists())) {
-            $this->invalid('company');}
-        $companyOptions = ! empty($filters['area']) ? (clone $companiesQuery)->orderBy('name')->get(['id','name',]): collect();
-        //   LIVE JOBS
-        //  Important:
-        //  Company master data and live job openings are kept separate. 
-        //  A company existing inside an industrial area does NOT automatically
-        //  mean that it currently has a job opening.   
-        $jobsQuery = IndustrialJob::live()->whereIn('industrial_area_id',(clone $baseAreas)->select('id'));
-        //  TAXONOMY FILTER
+            $this->invalid('company');
+        }
+        $companyOptions = ! empty($filters['area']) ? (clone $companiesQuery)->orderBy('name')->get(['id', 'name',]) : collect();
+         $jobsQuery = IndustrialJob::live()->whereIn('industrial_area_id', (clone $baseAreas)->select('id'));
         if ($taxonomy['sector']) {
-            $jobsQuery->whereHas('company',fn($q) => $taxonomyService->companies($q,$taxonomy));}
-       //   COMPANY FILTER
-        if (! empty($filters['company'])) {$companiesQuery->whereKey($filters['company']);
-            $jobsQuery->where('industrial_company_id',$filters['company']);
+            $jobsQuery->whereHas('company', fn($q) => $taxonomyService->companies($q, $taxonomy));
         }
-        //  DEPARTMENTS
-        $departmentsQuery = IndustrialDepartment::query()->where('is_active', true);
-        if (! empty($filters['company'])) {$departmentsQuery->whereIn('id',(clone $jobsQuery)->select('department_id'));}
-        $departments = $departmentsQuery->orderBy('name')->get(['id','name',]);
-        //  DEPARTMENT FILTER
-        if (! empty($filters['department'])) {
-            if (!$departments->contains('id',$filters['department'])) {$this->invalid('department');}
-            $jobsQuery->where('department_id',$filters['department']);
-        }
-        //  | JOB ROLES
-        $rolesQuery = IndustrialJobRole::query()->where('is_active', true)->whereHas('department',fn($q) => $q->where('is_active',true));
-        if (! empty($filters['department'])) {$rolesQuery->where('department_id',$filters['department']);}
         if (! empty($filters['company'])) {
-            $rolesQuery->whereIn('id',(clone $jobsQuery)->select('job_role_id'));}
-            //   ROLE FILTER
-        if (! empty($filters['role'])) {
-            if (empty($filters['department'])|| ! (clone $rolesQuery)->whereKey($filters['role'])->exists()) {$this->invalid('role');}
-            $jobsQuery->where(
-                'job_role_id',
-                $filters['role']
-            );
+            $companiesQuery->whereKey($filters['company']);
+            $jobsQuery->where('industrial_company_id', $filters['company']);
         }
-        $roles = ! empty($filters['department'])? $rolesQuery->orderBy('name')->get(['id','name',]): collect();
-       //   SEARCH
+        $departmentsQuery = IndustrialDepartment::query()->where('is_active', true);
+        if (! empty($filters['company'])) {
+            $departmentsQuery->whereIn('id', (clone $jobsQuery)->select('department_id'));
+        }
+        $departments = $departmentsQuery->orderBy('name')->get(['id', 'name',]);
+        if (! empty($filters['department'])) {
+            if (!$departments->contains('id', $filters['department'])) {
+                $this->invalid('department');
+            }
+            $jobsQuery->where('department_id', $filters['department']);
+        }
+        $rolesQuery = IndustrialJobRole::query()->where('is_active', true)->whereHas('department', fn($q) => $q->where('is_active', true));
+        if (! empty($filters['department'])) {
+            $rolesQuery->where('department_id', $filters['department']);
+        }
+        if (! empty($filters['company'])) {
+            $rolesQuery->whereIn('id', (clone $jobsQuery)->select('job_role_id'));
+        }
+        if (! empty($filters['role'])) {
+            if (empty($filters['department']) || ! (clone $rolesQuery)->whereKey($filters['role'])->exists()) {
+                $this->invalid('role');
+            }
+            $jobsQuery->where('job_role_id',$filters['role']);
+        }
+        $roles = ! empty($filters['department']) ? $rolesQuery->orderBy('name')->get(['id', 'name',]) : collect();
+        //   SEARCH
         $search = app(IndustrialSearch::class);
         $tokens = $search->tokens($filters['search'] ?? '');
-        $search->areas($baseAreas,$tokens);
-        $search->companies($companiesQuery,$tokens);
-        $search->jobs($jobsQuery,$tokens);
+        $search->areas($baseAreas, $tokens);
+        $search->companies($companiesQuery, $tokens);
+        $search->jobs($jobsQuery, $tokens);
         //  EXPERIENCE FILTER
-       
+
         if (! empty($filters['experience'])) {
             if ($filters['experience'] === 'fresher') {
                 [$min, $max] = [0, 0];
             } else {
-                [$min, $max] = array_map('intval',explode('-',$filters['experience']));
+                [$min, $max] = array_map('intval', explode('-', $filters['experience']));
             }
-            $jobsQuery->whereNotNull('experience_min')->where('experience_min','<=',$max)->where(fn($q) => $q->whereNull('experience_max')->orWhere('experience_max','>=',$min));
+            $jobsQuery->whereNotNull('experience_min')->where('experience_min', '<=', $max)->where(fn($q) => $q->whereNull('experience_max')->orWhere('experience_max', '>=', $min));
         }
         //  QUALIFICATION FILTER
-        if (! empty($filters['qualification'])) {$jobsQuery->where('qualification','like','%' . $filters['qualification'] . '%');}
-       //   SKILL FILTER
+        if (! empty($filters['qualification'])) {
+            $jobsQuery->where('qualification', 'like', '%' . $filters['qualification'] . '%');
+        }
+        //   SKILL FILTER
         if (! empty($filters['skill'])) {
             if ($jobsQuery->getConnection()->getDriverName() === 'sqlite') {
-                $jobsQuery->whereRaw('EXISTS (SELECT 1 FROM json_each(industrial_jobs.skills) WHERE json_each.value = ?)',
-                    [$filters['skill'],]);
+                $jobsQuery->whereRaw(
+                    'EXISTS (SELECT 1 FROM json_each(industrial_jobs.skills) WHERE json_each.value = ?)',
+                    [$filters['skill'],]
+                );
             } else {
-                $jobsQuery->whereJsonContains('skills',$filters['skill']);
+                $jobsQuery->whereJsonContains('skills', $filters['skill']);
             }
         }
-       //   SALARY FILTER
+        //   SALARY FILTER
         if (! empty($filters['salary'])) {
-            if ($filters['salary'] === '50000+') {[$min, $max] = [50000, null];
+            if ($filters['salary'] === '50000+') {
+                [$min, $max] = [50000, null];
             } else {
-                [$min, $max] = array_map('intval',explode('-',$filters['salary']));
+                [$min, $max] = array_map('intval', explode('-', $filters['salary']));
             }
-            $jobsQuery->whereIn('salary_period',['monthly','annual',])->whereNotNull('salary_min');
+            $jobsQuery->whereIn('salary_period', ['monthly', 'annual',])->whereNotNull('salary_min');
             if ($max !== null) {
                 $jobsQuery->whereRaw(
                     "salary_min / CASE
-                        WHEN salary_period = 'annual' THEN 12 ELSE 1 END <= ?",[$max,]);
+                        WHEN salary_period = 'annual' THEN 12 ELSE 1 END <= ?",
+                    [$max,]
+                );
             }
-            $jobsQuery->whereRaw("COALESCE(salary_max, salary_min) /CASE WHEN salary_period = 'annual' THEN 12 ELSE 1 END >= ?",[$min,]);
+            $jobsQuery->whereRaw("COALESCE(salary_max, salary_min) /CASE WHEN salary_period = 'annual' THEN 12 ELSE 1 END >= ?", [$min,]);
         }
-       //   SECTOR → AREA RELATION
+        //   SECTOR → AREA RELATION
         if ($taxonomy['sector']) {
-            $baseAreas->where(function ($q) use ($taxonomy,$taxonomyService) {
-                    $q->whereHas('companies',function ($c) use ($taxonomy,$taxonomyService) {
+            $baseAreas->where(
+                function ($q) use ($taxonomy, $taxonomyService) {
+                    $q->whereHas(
+                        'companies',
+                        function ($c) use ($taxonomy, $taxonomyService) {
                             $c->visible();
-                            $taxonomyService->companies($c,$taxonomy);
+                            $taxonomyService->companies($c, $taxonomy);
                         }
                     );
                     if (! $taxonomy['sub'] && ! $taxonomy['process']) {
-                        $q->orWhereHas('sectorCatalog',fn($s) => $s->whereKey($taxonomy['sector']->id));
+                        $q->orWhereHas('sectorCatalog', fn($s) => $s->whereKey($taxonomy['sector']->id));
                     }
                 }
             );
         }
         //   INDUSTRIAL AREAS RESULT
-        $areas = $baseAreas->with('state')->withCount(['companies' => fn($q) => $q->visible(),'jobs as live_jobs_count' => fn($q) => $q->live(),])
+        $areas = $baseAreas->with('state')->withCount(['companies' => fn($q) => $q->visible(), 'jobs as live_jobs_count' => fn($q) => $q->live(),])
             ->orderByDesc('is_featured')->orderBy('name')->orderBy('id')->paginate(12)->withQueryString();
         //   COMPANIES RESULT
-        
+
         $companies = $companiesQuery->with('area.state', 'sources', 'sectors')->withCount(['jobs as live_jobs_count' => fn($q) => $q->live(),])
-            ->orderBy('name')->orderBy('id')->paginate(12,['*'],'companies_page')->withQueryString();
-         //   LIVE JOBS RESULT
+            ->orderBy('name')->orderBy('id')->paginate(12, ['*'], 'companies_page')->withQueryString();
+        //   LIVE JOBS RESULT
         $careerMatches = $taxonomy['careerMatch']['matches'];
         if ($careerMatches) {
             $cases = [];
@@ -243,11 +194,11 @@ class IndustrialAreaController extends Controller
                 $bindings[] = $roleId;
                 $bindings[] = $match['score'];
             }
-            $jobsQuery->orderByRaw('CASE job_role_id '.implode(' ', $cases).' ELSE 0 END DESC', $bindings);
+            $jobsQuery->orderByRaw('CASE job_role_id ' . implode(' ', $cases) . ' ELSE 0 END DESC', $bindings);
         }
-        $jobs = $jobsQuery->with(['area.state','company','department','role',])->latest('id')->paginate(12,['*'],'jobs_page')->withQueryString();
+        $jobs = $jobsQuery->with(['area.state', 'company', 'department', 'role',])->latest('id')->paginate(12, ['*'], 'jobs_page')->withQueryString();
         //  FEATURED INDUSTRIAL HUBS
-        $hubs = IndustrialArea::visible()->where('is_featured',true)->with('state')->orderBy('state_id')
+        $hubs = IndustrialArea::visible()->where('is_featured', true)->with('state')->orderBy('state_id')
             ->orderBy('city')->limit(200)->get()->groupBy('state.name');
         //  FILTER OPTIONS        
         $options = [
@@ -328,8 +279,8 @@ class IndustrialAreaController extends Controller
             );
         }
 
-        $data['careerMatches']=$careerMatches;
-        $data += app(\App\Services\IndustrialPresentation::class)->build($filters,$taxonomy,$data['contextArea'],$data['contextCompany']);
+        $data['careerMatches'] = $careerMatches;
+        $data += app(\App\Services\IndustrialPresentation::class)->build($filters, $taxonomy, $data['contextArea'], $data['contextCompany']);
         return $data;
     }
 
