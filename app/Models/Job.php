@@ -188,7 +188,19 @@ class Job extends Model
     public function scopeSearch($query, $term)
     {
         $normalizedTerm = preg_replace('/[^\pL\pN+#.]+/u', ' ', trim((string) $term));
-        $tokens = collect(preg_split('/\s+/', $normalizedTerm))->filter(fn($token) => mb_strlen($token) >= 2)
+        $aliases = [
+            'rect' => 'react',
+            'reactjs' => 'react',
+            'react.js' => 'react',
+            'springboot' => 'spring boot',
+            'nodejs' => 'node.js',
+            'javascript' => 'javascript',
+        ];
+        $tokens = collect(preg_split('/\s+/', mb_strtolower($normalizedTerm)))
+            ->flatMap(function ($token) use ($aliases) {
+                return preg_split('/\s+/', $aliases[$token] ?? $token);
+            })
+            ->filter(fn($token) => mb_strlen($token) >= 2)
             ->unique()->take(8);
         foreach ($tokens as $token) {
             $query->where(function ($searchQuery) use ($token) {
