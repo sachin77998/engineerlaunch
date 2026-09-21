@@ -21,3 +21,5 @@ deployment:
     - /bin/cp vite.config.js $DEPLOY_PATH
 
     - /bin/cp -R docs $DEPLOY_PATH
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan db:seed --force
