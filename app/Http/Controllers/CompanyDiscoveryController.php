@@ -37,7 +37,7 @@ class CompanyDiscoveryController extends Controller
                     });
                 });
             })
-            ->orderByDesc('active_jobs_count')->orderBy('name')->paginate(10)->withQueryString();
+            ->orderByDesc('active_jobs_count')->orderBy('name')->paginate(50)->withQueryString();
         $taxonomies = Cache::remember('company-discovery:facets:v3', now()->addHour(), fn() => CompanyCategory::where('is_active', true)
             ->withCount(['companies' => fn($q) => $q->active()])
             ->orderBy('sort_order')->get()->groupBy('taxonomy'));

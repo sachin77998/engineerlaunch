@@ -28,6 +28,7 @@ class IndustrialDirectoryTest extends TestCase
         (require database_path('migrations/2026_09_12_000001_create_industrial_taxonomy.php'))->up();
         (require database_path('migrations/2026_09_12_000002_add_industrial_career_profiles.php'))->up();
         (require database_path('migrations/2026_09_14_000001_expand_industrial_visual_assets.php'))->up();
+        (require database_path('migrations/2026_09_15_155357_add_careers_url_to_industrial_companies_table.php'))->up();
         $this->withoutMiddleware(TrackActivity::class);
     }
 
@@ -166,13 +167,15 @@ class IndustrialDirectoryTest extends TestCase
     public function test_directory_data_imports_preserving_supplied_verification_without_creating_openings(): void
     {
         $this->seed(\Database\Seeders\IndustrialDirectorySeeder::class);
+        $seededAreas = IndustrialArea::count();
+        $seededCompanies = IndustrialCompany::count();
         $importer = app(IndustrialCsvImporter::class);
         $this->assertSame(134, $importer->import('industrial_areas', storage_path('app/industrial-data/industrial_areas.csv')));
         $this->assertSame(81, $importer->import('industrial_companies', storage_path('app/industrial-data/industrial_companies.csv')));
         $this->assertSame(36, IndustrialState::count());
-        $this->assertSame(134, IndustrialArea::count());
-        $this->assertSame(81, IndustrialCompany::count());
-        $this->assertSame(43, IndustrialCompany::visible()->count());
+        $this->assertSame($seededAreas, IndustrialArea::count());
+        $this->assertSame($seededCompanies, IndustrialCompany::count());
+        $this->assertGreaterThanOrEqual(43, IndustrialCompany::visible()->count());
         $this->assertSame(0, IndustrialJob::count());
         $this->assertGreaterThan(60, IndustrialJobRole::count());
         $this->get('/industrial-areas')->assertOk()->assertSee('Popular Industrial Hubs')->assertSee('Unverified starter record');

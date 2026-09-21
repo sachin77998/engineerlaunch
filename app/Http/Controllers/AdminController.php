@@ -10,63 +10,23 @@ class AdminController extends Controller
 {
     public function index(Request $request,OwnerAnalyticsService $analytics)
     {
-        $filters=$request->validate(
-            [
-                'city'=>'nullable|string|max:100',
-                'salary_min'=>'nullable|numeric|min:0',
-                'salary_max'=>'nullable|numeric|gte:salary_min'
-            ]
-            );
+        $filters=$request->validate(['city'=>'nullable|string|max:100','salary_min'=>'nullable|numeric|min:0','salary_max'=>'nullable|numeric|gte:salary_min']);
             return view('admin.dashboard-v2',
-            [
-                'analytics'=>$analytics->summary($filters),
+            ['analytics'=>$analytics->summary($filters),
                 'metrics'=>
-                      [
-                        'companies'=>DB::table('jobs')
-                        ->whereNotNull('employer_id')
-                        ->distinct('company_id')
-                        ->count('company_id'),
-                        'hr'=>User::where(fn($q)
-                        =>$q
-                        ->where('role_code',0)
-                        ->orWhere('role','employer')
-                        )
-                        ->count(),
-                        'students'
-                        =>User::where
-                        (
-                            fn($q)=>$q->where('role_code',1)
-                            ->orWhere('role','student'))
-                            ->count(),'jobs'=>DB::table('jobs')
-                            ->whereNull('deleted_at')
-                            ->whereNotNull('employer_id')
-                            ->count(),
-                            'applications'=>DB::table('job_applications')
-                            ->count(),
-                            'visits'=>DB::table('activity_logs')
-                            ->count(),
+                      ['companies'=>DB::table('jobs')->whereNotNull('employer_id')->distinct('company_id')->count('company_id'),
+                        'hr'=>User::where(fn($q)=>$q->where('role_code',0)->orWhere('role','employer'))->count(),
+                        'students'=>User::where(fn($q)=>$q->where('role_code',1)->orWhere('role','student'))->count(),'jobs'=>DB::table('jobs')
+                            ->whereNull('deleted_at')->whereNotNull('employer_id')->count(),
+                            'applications'=>DB::table('job_applications')->count(),
+                            'visits'=>DB::table('activity_logs')->count(),
                             'unique_visitors'=>DB::table('activity_logs')
-                            ->distinct('session_id')
-                            ->count('session_id'),
-                            'searches'
-                            =>DB::table('search_logs')
-                            ->count(),
-                            'deleted_jobs'
-                            =>DB::table('deleted_job_events')
-                            ->count()
+                            ->distinct('session_id')->count('session_id'),
+                            'searches'=>DB::table('search_logs')->count(),
+                            'deleted_jobs'=>DB::table('deleted_job_events')->count()
                             ],
-                            'popular'=>DB::table('activity_logs')
-                            ->selectRaw('path,count(*) visits')
-                            ->groupBy('path')
-                            ->orderByDesc('visits')
-                            ->limit(8)->get(),
-                            'searchTerms'=>DB::table('search_logs')
-                            ->whereNotNull('keyword')
-                            ->selectRaw('keyword,count(*) searches,sum(results_count) results')
-                            ->groupBy('keyword')
-                            ->orderByDesc('searches')
-                            ->limit(10)
-                            ->get(),
+                            'popular'=>DB::table('activity_logs')->selectRaw('path,count(*) visits')->groupBy('path')->orderByDesc('visits')->limit(8)->get(),
+                            'searchTerms'=>DB::table('search_logs')->whereNotNull('keyword')->selectRaw('keyword,count(*) searches,sum(results_count) results')->groupBy('keyword')->orderByDesc('searches')->limit(10)->get(),
                             'recent'=>DB::table('activity_logs')
                             ->leftJoin('users','users.id','=','activity_logs.user_id')
                             ->select('activity_logs.*','users.email')

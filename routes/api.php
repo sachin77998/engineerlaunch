@@ -10,6 +10,8 @@ use App\Http\Middleware\CacheDiscoveryResponses;
 use App\Http\Controllers\Api\OwnerAnalyticsController;
 use App\Http\Controllers\Api\RoleAuthController;
 use App\Http\Controllers\Api\SearchSuggestionController;
+use App\Http\Controllers\Api\AiChatController;
+use App\Http\Controllers\Api\AiConversationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,3 +77,62 @@ Route::post('/ingestion/jobs', [JobIngestionController::class, 'store'])
 Route::get('/owner/analytics', OwnerAnalyticsController::class)
     ->middleware(['auth:sanctum', 'admin', 'throttle:30,1'])
     ->name('api.owner.analytics');
+
+
+/*
+|--------------------------------------------------------------------------
+| AI Assistant API Routes
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| AI Assistant API Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('ai')->middleware('throttle:60,1')->group(function () {
+
+    // Main AI chat endpoint
+    Route::post('/chat', [AiChatController::class, 'chat'])
+        ->name('api.ai.chat');
+
+    // List available AI agents
+    Route::get('/agents', [AiChatController::class, 'agents'])
+        ->name('api.ai.agents');
+
+    // Check whether a specific agent is supported
+    Route::get('/agents/{agent}', [AiChatController::class, 'checkAgent'])
+        ->name('api.ai.agents.check');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI Conversation Routes
+    |--------------------------------------------------------------------------
+    */
+
+    // List authenticated user's conversations
+    Route::get('/conversations', [AiConversationController::class, 'index'])
+        ->middleware('auth:sanctum')
+        ->name('api.ai.conversations.index');
+
+    // Create a new conversation
+    Route::post('/conversations', [AiConversationController::class, 'store'])
+        ->name('api.ai.conversations.store');
+
+    // Get a conversation with messages
+    Route::get('/conversations/{conversationId}', [AiConversationController::class, 'show'])
+        ->whereNumber('conversationId')
+        ->name('api.ai.conversations.show');
+
+    // Get messages for a conversation
+    Route::get('/conversations/{conversationId}/messages', [AiConversationController::class, 'messages'])
+        ->whereNumber('conversationId')
+        ->name('api.ai.conversations.messages');
+
+    // Close a conversation
+    Route::post('/conversations/{conversationId}/close', [AiConversationController::class, 'close'])
+        ->whereNumber('conversationId')
+        ->name('api.ai.conversations.close');
+});

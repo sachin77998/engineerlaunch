@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Support\DiscoveryCache;
+use Illuminate\Support\Str;
 
 class JobScraper
 {
@@ -17,6 +18,7 @@ class JobScraper
     protected string $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
     protected $technologies;
     protected $categories;
+    protected ?IndustrialJobSourceService $industrialImporter = null;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class JobScraper
             'timeout' => 30,
             'connect_timeout' => 10,
             'http_errors' => true,
+            'verify' => config('industrial_sources.ca_bundle', true),
         ]);
     }
 
@@ -69,9 +72,15 @@ class JobScraper
 
             // Never retire an entire company's catalogue because an upstream
             // page temporarily returned an empty response or changed markup.
-            if ($company->sync_enabled && count($jobs) > 0) {
+            if ($company->sync_enabled && count($jobs) > 0 && $results['errors'] === []) {
                 $currentUrls = collect($jobs)->pluck('external_url')->filter()->all();
-                $company->jobs()->whereNotIn('external_url', $currentUrls ?: [''])->update(['is_active' => false]);
+                $retired = $company->jobs()->whereNotIn('external_url', $currentUrls ?: ['']);
+                $retired->chunkById(200, function ($oldJobs) {
+                    foreach ($oldJobs as $oldJob) {
+                        $oldJob->update(['is_active' => false]);
+                        ($this->industrialImporter ??= app(IndustrialJobSourceService::class))->ingest($oldJob);
+                    }
+                });
                 $company->forceFill(['last_synced_at' => now()])->save();
             }
 
@@ -91,6 +100,9 @@ class JobScraper
     protected function scrapeCompanyJobs(Company $company): array
     {
         return match ($company->ats_provider) {
+            'happy_forgings' => $this->scrapeHappyForgings($company),
+            'sonalika' => app(IndustrialCareerParser::class)->sonalika($this->getContent($company->careers_url)),
+            'structured_industrial' => app(IndustrialCareerParser::class)->structured($this->getContent($company->careers_url), $company->careers_url),
             'greenhouse' => $this->scrapeGreenhouse($company),
             'lever' => $this->scrapeLever($company),
             'successfactors' => $this->scrapeSuccessFactors($company),
@@ -100,6 +112,28 @@ class JobScraper
             'icims_jibe' => $this->scrapeIcimsJibe($company),
             default => throw new \RuntimeException('No supported ATS feed is configured.'),
         };
+    }
+
+    protected function scrapeHappyForgings(Company $company): array
+    {
+        $parser = app(IndustrialCareerParser::class);
+        $jobs = [];
+        foreach ($parser->happyLinks($this->getContent($company->careers_url)) as $url => $title) {
+            $html = $this->getContent($url);
+            $text = html_entity_decode(strip_tags(preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/is', '', $html)));
+            $text = trim(preg_replace('/\s+/u', ' ', $text));
+            $start = stripos($text, 'Job Description:');
+            if ($start === false) throw new \RuntimeException('Unrecognized vacancy details at '.$url);
+            $text = substr($text, $start);
+            $end = stripos($text, 'Apply Now');
+            if ($end !== false) $text = substr($text, 0, $end);
+            preg_match('/(\d+)\s*[-\x{2013}]\s*(\d+)\s*years? of experience/iu', $text, $experience);
+            $jobs[] = ['title'=>$title,'external_url'=>$url,'location'=>'Not specified','country'=>'India',
+                'description'=>Str::limit($text, 900).' See the official listing for full requirements and confirm the work location.',
+                'experience_min'=>$experience[1] ?? null,'experience_max'=>$experience[2] ?? null,
+                'posting_source'=>'official_company'];
+        }
+        return $jobs;
     }
 
     protected function scrapeIcimsJibe(Company $company): array
@@ -325,9 +359,9 @@ class JobScraper
         $baseUrl = rtrim($company->jobs_feed_url ?: $company->careers_url, '/');
         $jobs = [];
 
-        // SuccessFactors career sites expose 50 jobs per page using startrow.
+        // SuccessFactors page sizes vary by employer; advance by observed unique jobs.
         // A hard ceiling prevents a broken pagination response looping forever.
-        for ($start = 0; $start < 10000; $start += 50) {
+        for ($start = 0; $start < 10000;) {
             $separator = str_contains($baseUrl, '?') ? '&' : '?';
             $url = $baseUrl.$separator.'startrow='.$start;
             $document = new \DOMDocument();
@@ -350,6 +384,13 @@ class JobScraper
                         if ($locationNodes->length) $location = trim($locationNodes->item(0)->textContent);
                     }
 
+                    $postedAt = null;
+                    if ($row) {
+                        $dates = $xpath->query('.//*[@data-careersite-propertyid="date" or contains(concat(" ", normalize-space(@class), " "), " jobDate ")]', $row);
+                        if ($dates->length) {
+                            try { $postedAt = Carbon::parse(trim($dates->item(0)->textContent)); } catch (\Throwable $e) {}
+                        }
+                    }
                     $absoluteUrl = str_starts_with($href, 'http')
                         ? $href
                         : rtrim((string) parse_url($url, PHP_URL_SCHEME).'://'.parse_url($url, PHP_URL_HOST), '/').'/'.ltrim($href, '/');
@@ -359,14 +400,15 @@ class JobScraper
                         'description' => $rowText,
                         'location' => $location,
                         'external_url' => $absoluteUrl,
-                        'posted_at' => now(),
+                        'posted_at' => $postedAt,
                     ]);
             }
 
             if ($pageJobs === []) break;
             $before = count($jobs);
             $jobs += $pageJobs;
-            if (count($jobs) === $before || count($pageJobs) < 50) break;
+            if (count($jobs) === $before) break;
+            $start += count($pageJobs);
         }
 
         return array_values($jobs);
@@ -466,7 +508,7 @@ class JobScraper
             'role' => $jobData['role'] ?? null,
             'external_url' => $jobData['external_url'] ?? null,
             'application_method' => $jobData['application_method'] ?? 'external',
-            'posted_at' => $jobData['posted_at'] ?? now(),
+            'posted_at' => $jobData['posted_at'] ?? $job->posted_at ?? now(),
             'expires_at' => $jobData['expires_at'] ?? null,
             'scraped_at' => now(),
             'status' => 'published',
@@ -475,6 +517,7 @@ class JobScraper
         ], $classification));
 
         $job->save();
+        ($this->industrialImporter ??= app(IndustrialJobSourceService::class))->ingest($job);
 
         // Attach technologies if provided
         if (!empty($jobData['technologies'])) {

@@ -1,82 +1,82 @@
-﻿state,area,company,industry,facility_type,source_name,source_url,last_verified_at,verification_status,is_verified,is_active
-Punjab,Ludhiana Industrial Focal Point,Hero Cycles,Automobile Components,,User-supplied company example,,,unverified,0,0
-Punjab,Ludhiana Industrial Focal Point,Happy Forgings,Forging,,User-supplied company example,,,unverified,0,0
-Punjab,Ludhiana Industrial Focal Point,Vardhman,Textile,,User-supplied company example,,,unverified,0,0
-Punjab,Ludhiana Textile Hub,Oswal Woollen Mills,Textile,,User-supplied company example,,,unverified,0,0
-Punjab,Ludhiana Textile Hub,Monte Carlo,Textile,,User-supplied company example,,,unverified,0,0
-Punjab,Ludhiana Textile Hub,Sportking,Textile,,User-supplied company example,,,unverified,0,0
-Punjab,Rajpura Industrial Area,Industrial Companies,Manufacturing,,User-supplied company example,,,unverified,0,0
-Punjab,Jalandhar Sports Hub,Sports Goods Manufacturers,Sports Goods,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Suzuki Motors,Automobile,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Honda Motorcycles,Automobile,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Sanko Gosei,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Munjal Kiriu,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Roki Minda,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Bosch,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Maxxis Tyres,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Magna Closures,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Valeo,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Marelli,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Motherson,Automotive,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Hero MotoCorp,Automobile,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,MG Motor,Automobile,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Ashok Leyland,Automobile,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Mahindra Tractors,Automobile,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Nestle,FMCG,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Britannia,FMCG,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Steelbird International,Automotive,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Bajaj Auto,Automobile,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Rudrapur Industrial Area,Banco Products,Automotive,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,ITC,FMCG,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,Wipro,Consumer Products,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,V-Guard,Electrical,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,Rockman Industries,Automotive,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,Mahindra & Mahindra,Automobile,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,Lumax Industries,Automotive,,User-supplied company example,,,unverified,0,0
-Uttarakhand,Haridwar Integrated Industrial Estate,Themis Medicare,Pharma,,User-supplied company example,,,unverified,0,0
-Rajasthan,Bhiwadi Industrial Area,JSW Steel,Steel,,User-supplied company example,,,unverified,0,0
-Rajasthan,Bhiwadi Industrial Area,Adani,Infrastructure,,User-supplied company example,,,unverified,0,0
-Rajasthan,Bhiwadi Industrial Area,Indian Oil,Oil & Gas,,User-supplied company example,,,unverified,0,0
-Gujarat,Sanand Industrial Area,Maxxis Rubber,Automotive,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Graziano Trasmissioni,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Valeo India,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Nestle India,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Emcure Pharmaceuticals,Pharmaceuticals,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,JBM Auto System,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Unicharm India,Consumer Products,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,India Japan Lighting,Automotive Lighting,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Mitsuba Sical,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Uflex Limited,Packaging,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Voltbek Home,Consumer Appliances,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Inductotherm,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Baosteel India,Steel,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Bosch Limited,Automotive,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Marico Limited,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Alstom Bharat Forge,Engineering,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Secure Meters,Electrical Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Mitsubishi Electric,Electrical Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Hindustan Coca-Cola,Beverages,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Oji India Packaging,Packaging,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Nivea India,Consumer Products,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Visteon Automotive Systems,Automotive Electronics,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Colgate-Palmolive,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Viega India,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,POSCO India,Steel,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Gujarat,Sanand Industrial Area,Marini India,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,WS Industries Limited,Electrical Equipment,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Uniparts India Limited,Automotive Components,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Pokarna Limited,Engineered Stone,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Southern Online Biotechnologies,Biofuels,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Confidence Petroleum India,Petroleum & Biofuels,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Anjaney Alloys,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Abhijeet Ferrotech,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Vasanth Chemicals,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Net Matrix,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Sundaram Alloys,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Posh Chemicals,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Avra Laboratories,Pharmaceuticals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Kaizen Power,Power Generation,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Glochem Industries,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Natsol Laboratories,Pharmaceuticals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,SPS Symergy Solar,Solar Manufacturing,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
-Andhra Pradesh,Visakhapatnam Industrial Cluster,Amit Weigh Bridge,Logistics Services,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,2026-09-13,government_source,1,1
+﻿state,area,company,industry,facility_type,source_name,source_url,careers_url,last_verified_at,verification_status,is_verified,is_active
+Punjab,Ludhiana Industrial Focal Point,Hero Cycles,Automobile Components,,User-supplied company example,,https://www.herocycles.com/pages/carrers,,unverified,0,0
+Punjab,Ludhiana Industrial Focal Point,Happy Forgings,Forging,,User-supplied company example,,https://happyforgingsltd.com/opportunities/,,unverified,0,0
+Punjab,Ludhiana Industrial Focal Point,Vardhman,Textile,,User-supplied company example,,,,unverified,0,0
+Punjab,Ludhiana Textile Hub,Oswal Woollen Mills,Textile,,User-supplied company example,,,,unverified,0,0
+Punjab,Ludhiana Textile Hub,Monte Carlo,Textile,,User-supplied company example,,,,unverified,0,0
+Punjab,Ludhiana Textile Hub,Sportking,Textile,,User-supplied company example,,https://sportking.co.in/careers/,,unverified,0,0
+Punjab,Rajpura Industrial Area,Industrial Companies,Manufacturing,,User-supplied company example,,,,unverified,0,0
+Punjab,Jalandhar Sports Hub,Sports Goods Manufacturers,Sports Goods,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Suzuki Motors,Automobile,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Honda Motorcycles,Automobile,,User-supplied company example,,https://www.honda2wheelersindia.com/about/careers,,unverified,0,0
+Gujarat,Sanand Industrial Area,Sanko Gosei,Automotive,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Munjal Kiriu,Automotive,,User-supplied company example,,https://munjalkiriu.co.in/careers/,,unverified,0,0
+Gujarat,Sanand Industrial Area,Roki Minda,Automotive,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Bosch,Automotive,,User-supplied company example,,https://www.bosch.in/careers/job-offers/,,unverified,0,0
+Gujarat,Sanand Industrial Area,Maxxis Tyres,Automotive,,User-supplied company example,,https://www.maxxistyres.co.in/career,,unverified,0,0
+Gujarat,Sanand Industrial Area,Magna Closures,Automotive,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Valeo,Automotive,,User-supplied company example,,https://www.valeo.com/en/india/,,unverified,0,0
+Gujarat,Sanand Industrial Area,Marelli,Automotive,,User-supplied company example,,https://jobs.marelli.com/,,unverified,0,0
+Gujarat,Sanand Industrial Area,Motherson,Automotive,,User-supplied company example,,https://careers.motherson.com/en/country/india,,unverified,0,0
+Gujarat,Sanand Industrial Area,Hero MotoCorp,Automobile,,User-supplied company example,,https://www.heromotocorp.com/en-in/company/careers/career-overview.html,,unverified,0,0
+Gujarat,Sanand Industrial Area,MG Motor,Automobile,,User-supplied company example,,https://www.mgmotor.co.in/careers,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Ashok Leyland,Automobile,,User-supplied company example,,https://ashokleyland.com/in/careers,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Mahindra Tractors,Automobile,,User-supplied company example,,https://www.mahindra.com/career,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Nestle,FMCG,,User-supplied company example,,https://www.nestle.in/jobs,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Britannia,FMCG,,User-supplied company example,,https://www.britannia.co.in/careers,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Steelbird International,Automotive,,User-supplied company example,,,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Bajaj Auto,Automobile,,User-supplied company example,,,,unverified,0,0
+Uttarakhand,Rudrapur Industrial Area,Banco Products,Automotive,,User-supplied company example,,,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,ITC,FMCG,,User-supplied company example,,https://recruitment.itcportal.com/jobs/Careers,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,Wipro,Consumer Products,,User-supplied company example,,https://careers.wipro.com/,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,V-Guard,Electrical,,User-supplied company example,,,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,Rockman Industries,Automotive,,User-supplied company example,,https://www.rockman.in/career/,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,Mahindra & Mahindra,Automobile,,User-supplied company example,,https://www.mahindra.com/career,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,Lumax Industries,Automotive,,User-supplied company example,,,,unverified,0,0
+Uttarakhand,Haridwar Integrated Industrial Estate,Themis Medicare,Pharma,,User-supplied company example,,https://www.themismedicare.com/careers/,,unverified,0,0
+Rajasthan,Bhiwadi Industrial Area,JSW Steel,Steel,,User-supplied company example,,https://www.jsw.in/careers/,,unverified,0,0
+Rajasthan,Bhiwadi Industrial Area,Adani,Infrastructure,,User-supplied company example,,https://careers.adani.com/,,unverified,0,0
+Rajasthan,Bhiwadi Industrial Area,Indian Oil,Oil & Gas,,User-supplied company example,,,,unverified,0,0
+Gujarat,Sanand Industrial Area,Maxxis Rubber,Automotive,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Graziano Trasmissioni,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Valeo India,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Nestle India,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Emcure Pharmaceuticals,Pharmaceuticals,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,JBM Auto System,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Unicharm India,Consumer Products,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,https://www.unicharm.co.in/en/recruit.html,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,India Japan Lighting,Automotive Lighting,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Mitsuba Sical,Automotive Components,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Uflex Limited,Packaging,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,https://www.uflexltd.com/current-openings.php,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Voltbek Home,Consumer Appliances,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Inductotherm,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Baosteel India,Steel,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Bosch Limited,Automotive,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Marico Limited,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,https://marico.com/india/careers/work-with-us,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Alstom Bharat Forge,Engineering,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Secure Meters,Electrical Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Mitsubishi Electric,Electrical Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Hindustan Coca-Cola,Beverages,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Oji India Packaging,Packaging,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Nivea India,Consumer Products,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Visteon Automotive Systems,Automotive Electronics,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Colgate-Palmolive,FMCG,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Viega India,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,POSCO India,Steel,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Gujarat,Sanand Industrial Area,Marini India,Industrial Equipment,Manufacturing plant,Government industrial estate/SEZ record,https://www.gidc.gujarat.gov.in/pdf/June%202022%20GIDC%20Sanand%20Industrial%20Estate.pdf,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,WS Industries Limited,Electrical Equipment,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Uniparts India Limited,Automotive Components,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Pokarna Limited,Engineered Stone,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Southern Online Biotechnologies,Biofuels,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Confidence Petroleum India,Petroleum & Biofuels,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Anjaney Alloys,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Abhijeet Ferrotech,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Vasanth Chemicals,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Net Matrix,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Sundaram Alloys,Ferro Alloys,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Posh Chemicals,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Avra Laboratories,Pharmaceuticals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Kaizen Power,Power Generation,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Glochem Industries,Chemicals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Natsol Laboratories,Pharmaceuticals,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,SPS Symergy Solar,Solar Manufacturing,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1
+Andhra Pradesh,Visakhapatnam Industrial Cluster,Amit Weigh Bridge,Logistics Services,SEZ unit,Government industrial estate/SEZ record,https://apiic.in/list-of-allotments/,,2026-09-13,government_source,1,1

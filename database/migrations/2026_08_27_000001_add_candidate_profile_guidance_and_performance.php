@@ -33,8 +33,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('recruiter_profile_views');
-        $columns = collect(['locality','job_search_status','search_appearances','recruiter_actions','profile_views_count','phone_confirmed_at','guidance_completed_at'])
-            ->filter(fn ($column) => Schema::hasColumn('candidate_profiles', $column))->all();
-        if ($columns) Schema::table('candidate_profiles', fn (Blueprint $table) => $table->dropColumn($columns));
+        $columns = collect(['locality', 'job_search_status', 'search_appearances', 'recruiter_actions', 'profile_views_count', 'phone_confirmed_at', 'guidance_completed_at'])
+            ->filter(fn($column) => Schema::hasColumn('candidate_profiles', $column))->all();
+        if ($columns) Schema::table('candidate_profiles', fn(Blueprint $table) => $table->dropColumn($columns));
     }
 };

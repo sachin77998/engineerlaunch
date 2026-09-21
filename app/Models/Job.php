@@ -50,12 +50,30 @@ class Job extends Model
         'vacancies',
         'education',
         'published_at',
-        'category','department','engineering_discipline','classification_version','classified_at',
-        'role','job_level','state','relocation_allowed','hiring_urgency',
-        'specialization','primary_technology','salary_type','salary_period',
-        'additional_compensation','application_method','application_email',
-        'application_deadline','job_visibility','resume_required','cover_letter_required',
-        'portfolio_required','github_required','linkedin_required',
+        'category',
+        'department',
+        'engineering_discipline',
+        'classification_version',
+        'classified_at',
+        'role',
+        'job_level',
+        'state',
+        'relocation_allowed',
+        'hiring_urgency',
+        'specialization',
+        'primary_technology',
+        'salary_type',
+        'salary_period',
+        'additional_compensation',
+        'application_method',
+        'application_email',
+        'application_deadline',
+        'job_visibility',
+        'resume_required',
+        'cover_letter_required',
+        'portfolio_required',
+        'github_required',
+        'linkedin_required',
     ];
 
     protected $casts = [
@@ -94,54 +112,54 @@ class Job extends Model
     {
         return $this->belongsTo(Company::class);
     }
-     // Get all categories for this job
+    // Get all categories for this job
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(JobCategory::class, 'job_category', 'job_id', 'job_categories_id');
     }
-     // Get all technologies required for this job
+    // Get all technologies required for this job
     public function technologies(): BelongsToMany
     {
         return $this->belongsToMany(Technology::class, 'job_technology', 'job_id', 'technology_id');
     }
-    public function applications(): HasMany 
+    public function applications(): HasMany
     {
-         return $this->hasMany(JobApplication::class);
- }
-    public function locations(): HasMany 
-    { 
-        return $this->hasMany(JobLocation::class); 
+        return $this->hasMany(JobApplication::class);
     }
-    public function screeningQuestions(): HasMany 
-    { 
-        return $this->hasMany(JobScreeningQuestion::class)->orderBy('sort_order'); 
-    }
-    public function skills(): BelongsToMany 
+    public function locations(): HasMany
     {
-         return $this->belongsToMany(Skill::class, 'job_skills')->withPivot('importance'); 
+        return $this->hasMany(JobLocation::class);
     }
-     // Scope to only active jobs
+    public function screeningQuestions(): HasMany
+    {
+        return $this->hasMany(JobScreeningQuestion::class)->orderBy('sort_order');
+    }
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'job_skills')->withPivot('importance');
+    }
+    // Scope to only active jobs
     public function scopeActive($query)
     {
         return $query->where('is_active', true)->where('status', 'published')->where('job_visibility', 'public')->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }
-     // Scope to filter by country
+    // Scope to filter by country
     public function scopeCountry($query, $country)
     {
         return $query->where('country', $country);
     }
-     // Scope to filter by location
+    // Scope to filter by location
     public function scopeLocation($query, $location)
     {
         return $query->where('location', 'LIKE', "%{$location}%");
     }
-     // Scope to filter by company
+    // Scope to filter by company
     public function scopeCompany($query, $companyId)
     {
         return $query->where('company_id', $companyId);
-    }    
+    }
     //  Scope to filter by job type
     public function scopeJobType($query, $type)
     {
@@ -159,18 +177,18 @@ class Job extends Model
             $q->where('technology_id', $technologyId);
         });
     }
-     // Scope to filter by category
+    // Scope to filter by category
     public function scopeWithCategory($query, $categoryId)
     {
         return $query->whereHas('categories', function ($q) use ($categoryId) {
             $q->where('job_categories_id', $categoryId);
         });
     }
-     //     Scope to search by title and description
+    //     Scope to search by title and description
     public function scopeSearch($query, $term)
     {
         $normalizedTerm = preg_replace('/[^\pL\pN+#.]+/u', ' ', trim((string) $term));
-        $tokens = collect(preg_split('/\s+/', $normalizedTerm))->filter(fn ($token) => mb_strlen($token) >= 2)
+        $tokens = collect(preg_split('/\s+/', $normalizedTerm))->filter(fn($token) => mb_strlen($token) >= 2)
             ->unique()->take(8);
         foreach ($tokens as $token) {
             $query->where(function ($searchQuery) use ($token) {
@@ -178,13 +196,13 @@ class Job extends Model
                 $searchQuery->where('title', 'LIKE', $like)->orWhere('description', 'LIKE', $like)
                     ->orWhere('requirements', 'LIKE', $like)
                     ->orWhere('location', 'LIKE', $like)
-                    ->orWhereHas('company', fn ($companyQuery) => $companyQuery->where('name', 'LIKE', $like))
-                    ->orWhereHas('technologies', fn ($technologyQuery) => $technologyQuery->where('name', 'LIKE', $like));
+                    ->orWhereHas('company', fn($companyQuery) => $companyQuery->where('name', 'LIKE', $like))
+                    ->orWhereHas('technologies', fn($technologyQuery) => $technologyQuery->where('name', 'LIKE', $like));
             });
         }
         return $query;
     }
-     // Scope to filter by salary range
+    // Scope to filter by salary range
     public function scopeSalaryRange($query, $min, $max)
     {
         return $query->where('salary_currency', 'INR')->where('salary_max', '>=', $min)->where('salary_min', '<=', $max);

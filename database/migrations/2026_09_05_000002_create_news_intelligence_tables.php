@@ -1,7 +1,60 @@
 <?php
-use Illuminate\Database\Migrations\Migration;use Illuminate\Database\Schema\Blueprint;use Illuminate\Support\Facades\Schema;
-return new class extends Migration{public function up():void{
-Schema::create('news_categories',function(Blueprint $t){$t->id();$t->string('name');$t->string('slug')->unique();$t->string('icon',20)->nullable();$t->string('color',20)->nullable();$t->boolean('is_active')->default(true);$t->unsignedInteger('sort_order')->default(0);$t->timestamps();});
-Schema::create('news_sources',function(Blueprint $t){$t->id();$t->string('name');$t->string('website')->nullable();$t->string('feed_url')->nullable();$t->string('source_type',30)->default('rss');$t->boolean('is_active')->default(true);$t->timestamps();});
-Schema::create('news_articles',function(Blueprint $t){$t->id();$t->foreignId('category_id')->constrained('news_categories');$t->foreignId('source_id')->nullable()->constrained('news_sources')->nullOnDelete();$t->string('title');$t->string('slug')->unique();$t->text('excerpt')->nullable();$t->longText('summary')->nullable();$t->longText('career_impact')->nullable();$t->longText('industry_impact')->nullable();$t->json('skills')->nullable();$t->json('roles')->nullable();$t->string('source_url')->unique();$t->string('image_url')->nullable();$t->string('company_name')->nullable();$t->decimal('relevance_score',5,2)->default(0);$t->string('career_impact_level',20)->default('medium');$t->boolean('is_featured')->default(false);$t->boolean('is_published')->default(false);$t->timestamp('published_at')->nullable()->index();$t->timestamp('source_published_at')->nullable();$t->timestamps();$t->index(['category_id','is_published']);});
-}public function down():void{Schema::dropIfExists('news_articles');Schema::dropIfExists('news_sources');Schema::dropIfExists('news_categories');}};
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('news_categories', function (Blueprint $t) {
+            $t->id();
+            $t->string('name');
+            $t->string('slug')->unique();
+            $t->string('icon', 20)->nullable();
+            $t->string('color', 20)->nullable();
+            $t->boolean('is_active')->default(true);
+            $t->unsignedInteger('sort_order')->default(0);
+            $t->timestamps();
+        });
+        Schema::create('news_sources', function (Blueprint $t) {
+            $t->id();
+            $t->string('name');
+            $t->string('website')->nullable();
+            $t->string('feed_url')->nullable();
+            $t->string('source_type', 30)->default('rss');
+            $t->boolean('is_active')->default(true);
+            $t->timestamps();
+        });
+        Schema::create('news_articles', function (Blueprint $t) {
+            $t->id();
+            $t->foreignId('category_id')->constrained('news_categories');
+            $t->foreignId('source_id')->nullable()->constrained('news_sources')->nullOnDelete();
+            $t->string('title');
+            $t->string('slug')->unique();
+            $t->text('excerpt')->nullable();
+            $t->longText('summary')->nullable();
+            $t->longText('career_impact')->nullable();
+            $t->longText('industry_impact')->nullable();
+            $t->json('skills')->nullable();
+            $t->json('roles')->nullable();
+            $t->string('source_url')->unique();
+            $t->string('image_url')->nullable();
+            $t->string('company_name')->nullable();
+            $t->decimal('relevance_score', 5, 2)->default(0);
+            $t->string('career_impact_level', 20)->default('medium');
+            $t->boolean('is_featured')->default(false);
+            $t->boolean('is_published')->default(false);
+            $t->timestamp('published_at')->nullable()->index();
+            $t->timestamp('source_published_at')->nullable();
+            $t->timestamps();
+            $t->index(['category_id', 'is_published']);
+        });
+    }
+    public function down(): void
+    {
+        Schema::dropIfExists('news_articles');
+        Schema::dropIfExists('news_sources');
+        Schema::dropIfExists('news_categories');
+    }
+};

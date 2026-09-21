@@ -8,11 +8,11 @@ use App\Models\IndustrialDepartment;
 use App\Models\IndustrialJob;
 use App\Models\IndustrialJobRole;
 use App\Models\Job;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class IndustrialJobSourceService
 {
+    private ?array $companyCandidates = null;
     /**
      * Import one generic Job into the industrial job directory.
      *
@@ -30,14 +30,23 @@ class IndustrialJobSourceService
      */
     public function ingest(Job $job): ?IndustrialJob
     {
-        if (!$job->is_active) {return null;}
+        if (!$job->is_active || $job->status !== 'published' || $job->job_visibility !== 'public'
+            || ($job->expires_at && $job->expires_at->isPast())
+            || ($job->application_deadline && \Carbon\Carbon::parse($job->application_deadline)->isPast())) {
+            IndustrialJob::where('external_id', $this->externalId($job))->update(['is_active' => false]);
+            return null;
+        }
         if (empty($job->external_url)) {return null;}
         $genericCompany = $job->relationLoaded('company')? $job->company : $job->company()->first();
         if (!$genericCompany) {return null;}
         $industrialCompany = $this->findIndustrialCompany($genericCompany,$job);
-        if (!$industrialCompany) {return null;}
+        if (!$industrialCompany) {
+            IndustrialJob::where('external_id', $this->externalId($job))->update(['is_active' => false]);
+            return null;
+        }
         $department = $this->findDepartment($job);
         $role = $this->findRole($job, $department);
+        if ($role) $department = $role->department;
         $externalId = $this->externalId($job);
         $payload = [
             'industrial_area_id' => $industrialCompany->industrial_area_id,
@@ -123,238 +132,31 @@ class IndustrialJobSourceService
         ];
     }
 
-    /**
-     * Find an IndustrialCompany corresponding to the generic Company.
-     *
-     * Matching strategy:
-     *
-     * 1. Exact normalized company name
-     * 2. Exact normalized plant name
-     * 3. Normalized company name contains / contained by
-     * 4. Website domain
-     * 5. Name similarity + location
-     *
-     * We NEVER create an IndustrialCompany automatically.
-     */
-    private function findIndustrialCompany(
-        Company $company,
-        Job $job
-    ): ?IndustrialCompany {
-        $companyName = trim((string) $company->name);
-
-        if ($companyName === '') {
-            return null;
-        }
-
-        $normalizedCompany = $this->normalizeCompanyName(
-            $companyName
-        );
-
-        /*
-         * Load visible industrial companies once.
-         *
-         * The current directory contains a relatively small verified
-         * company master, so this is much safer than performing many
-         * database queries for every job.
-         */
-        $companies = IndustrialCompany::query()
-            ->visible()
-            ->with([
-                'area',
-                'area.state',
-            ])
-            ->get();
-
-        if ($companies->isEmpty()) {
-            return null;
-        }
-
-        /*
-         * ---------------------------------------------------------
-         * 1. Exact normalized company name
-         * ---------------------------------------------------------
-         */
-        foreach ($companies as $industrialCompany) {
-            if (
-                $normalizedCompany ===
-                $this->normalizeCompanyName($industrialCompany->name)
-            ) {
-                return $industrialCompany;
-            }
-        }
-
-        /*
-         * ---------------------------------------------------------
-         * 2. Exact normalized plant name
-         * ---------------------------------------------------------
-         */
-        foreach ($companies as $industrialCompany) {
-            if (
-                !empty($industrialCompany->plant_name) &&
-                $normalizedCompany ===
-                $this->normalizeCompanyName(
-                    $industrialCompany->plant_name
-                )
-            ) {
-                return $industrialCompany;
-            }
-        }
-
-        /*
-         * ---------------------------------------------------------
-         * 3. Containment matching
-         *
-         * Example:
-         *
-         * Generic:
-         *     Happy Forgings Limited
-         *
-         * Industrial:
-         *     Happy Forgings
-         *
-         * Generic:
-         *     Bosch Limited
-         *
-         * Industrial:
-         *     Bosch
-         * ---------------------------------------------------------
-         */
-        foreach ($companies as $industrialCompany) {
-            $industrialName = $this->normalizeCompanyName(
-                $industrialCompany->name
-            );
-
-            if ($industrialName === '') {
-                continue;
-            }
-
-            if (
-                Str::contains($normalizedCompany, $industrialName) ||
-                Str::contains($industrialName, $normalizedCompany)
-            ) {
-                return $industrialCompany;
-            }
-
-            if (!empty($industrialCompany->plant_name)) {
-                $plantName = $this->normalizeCompanyName(
-                    $industrialCompany->plant_name
-                );
-
-                if (
-                    $plantName !== '' &&
-                    (
-                        Str::contains($normalizedCompany, $plantName) ||
-                        Str::contains($plantName, $normalizedCompany)
-                    )
-                ) {
-                    return $industrialCompany;
+    /** Match a verified company and a specific city; ambiguous plants stay unmatched. */
+    private function findIndustrialCompany(Company $company, Job $job): ?IndustrialCompany
+    {
+        // A corporate brand is not a plant address. Never use fuzzy names or
+        // a state alone to assign a vacancy to a particular industrial estate.
+        $name = $this->normalizeCompanyName((string) $company->name);
+        if ($name === '' || trim((string) $job->location) === '') return null;
+        $domain = $company->website ? $this->domain($company->website) : null;
+        if ($this->companyCandidates === null) {
+            $this->companyCandidates = [];
+            IndustrialCompany::visible()->with('area.state')->chunkById(500, function ($companies) {
+                foreach ($companies as $candidate) {
+                    $this->companyCandidates['name:'.$this->normalizeCompanyName($candidate->name)][$candidate->id] = $candidate;
+                    if ($candidate->website) $this->companyCandidates['domain:'.$this->domain($candidate->website)][$candidate->id] = $candidate;
                 }
-            }
+            });
         }
-
-        /*
-         * ---------------------------------------------------------
-         * 4. Website domain matching
-         * ---------------------------------------------------------
-         */
-        if (!empty($company->website)) {
-            $domain = $this->domain($company->website);
-
-            if ($domain) {
-                foreach ($companies as $industrialCompany) {
-                    if (empty($industrialCompany->website)) {
-                        continue;
-                    }
-
-                    $industrialDomain = $this->domain(
-                        $industrialCompany->website
-                    );
-
-                    if (
-                        $industrialDomain &&
-                        $industrialDomain === $domain
-                    ) {
-                        return $industrialCompany;
-                    }
-                }
-            }
-        }
-
-        /*
-         * ---------------------------------------------------------
-         * 5. Name similarity + location matching
-         *
-         * This is deliberately more controlled than blindly using
-         * similar_text().
-         * ---------------------------------------------------------
-         */
-        $location = trim((string) $job->location);
-
-        $bestCandidate = null;
-        $bestScore = 0;
-
-        foreach ($companies as $industrialCompany) {
-            $industrialName = $this->normalizeCompanyName(
-                $industrialCompany->name
-            );
-
-            if ($industrialName === '') {
-                continue;
-            }
-
-            $score = $this->companySimilarityScore(
-                $normalizedCompany,
-                $industrialName
-            );
-
-            /*
-             * Plant name can provide additional evidence.
-             */
-            if (!empty($industrialCompany->plant_name)) {
-                $plantName = $this->normalizeCompanyName(
-                    $industrialCompany->plant_name
-                );
-
-                if ($plantName !== '') {
-                    $plantScore = $this->companySimilarityScore(
-                        $normalizedCompany,
-                        $plantName
-                    );
-
-                    $score = max($score, $plantScore);
-                }
-            }
-
-            /*
-             * Location provides an additional 25 points.
-             */
-            if (
-                $location !== '' &&
-                $this->locationMatches(
-                    $location,
-                    $industrialCompany->area
-                )
-            ) {
-                $score += 25;
-            }
-
-            if ($score > $bestScore) {
-                $bestScore = $score;
-                $bestCandidate = $industrialCompany;
-            }
-        }
-
-        /*
-         * Require reasonable confidence.
-         *
-         * This prevents unrelated companies from being assigned
-         * merely because their names happen to be somewhat similar.
-         */
-        if ($bestCandidate && $bestScore >= 75) {
-            return $bestCandidate;
-        }
-
-        return null;
+        $candidates = ($this->companyCandidates['name:'.$name] ?? []) + ($domain ? ($this->companyCandidates['domain:'.$domain] ?? []) : []);
+        $matches = collect($candidates)->filter(function ($candidate) use ($name, $domain, $job) {
+            $identity = $name === $this->normalizeCompanyName($candidate->name)
+                || ($domain && $candidate->website && $domain === $this->domain($candidate->website));
+            return $identity && $this->locationMatches((string) $job->location, $candidate->area);
+        });
+        // Two plants in one city need more precise evidence, not first-row wins.
+        return $matches->count() === 1 ? $matches->first() : null;
     }
 
     /**
@@ -409,39 +211,6 @@ class IndustrialJobSourceService
         $name = preg_replace('/\s+/u', ' ', $name);
 
         return trim($name);
-    }
-
-    /**
-     * Calculate company similarity.
-     *
-     * Returns a score from 0-100.
-     */
-    private function companySimilarityScore(
-        string $first,
-        string $second
-    ): int {
-        if ($first === '' || $second === '') {
-            return 0;
-        }
-
-        if ($first === $second) {
-            return 100;
-        }
-
-        if (
-            Str::contains($first, $second) ||
-            Str::contains($second, $first)
-        ) {
-            return 90;
-        }
-
-        similar_text(
-            $first,
-            $second,
-            $percentage
-        );
-
-        return (int) round($percentage);
     }
 
     /**
@@ -817,64 +586,19 @@ class IndustrialJobSourceService
     /**
      * Check whether a job location belongs to an industrial area.
      */
-    private function locationMatches(
-        string $location,
-        $area
-    ): bool {
-        if (!$area) {
-            return false;
+    private function locationMatches(string $location, $area): bool
+    {
+        if (!$area) return false;
+        $normalize = function ($value) {
+            $value = Str::lower((string) $value);
+            $value = str_replace(['gurgaon', 'bangalore'], ['gurugram', 'bengaluru'], $value);
+            return trim(preg_replace('/[^\pL\pN]+/u', ' ', $value));
+        };
+        $location = ' '.$normalize($location).' ';
+        foreach ([$area->name, $area->city] as $value) {
+            $term = $normalize($value);
+            if (strlen($term) >= 3 && str_contains($location, ' '.$term.' ')) return true;
         }
-
-        $location = Str::lower(
-            trim($location)
-        );
-
-        $location = preg_replace(
-            '/[,\-\/]+/',
-            ' ',
-            $location
-        );
-
-        foreach (
-            [
-                $area->name,
-                $area->city,
-                $area->district,
-            ] as $value
-        ) {
-            if (!$value) {
-                continue;
-            }
-
-            $value = Str::lower(
-                trim((string) $value)
-            );
-
-            if ($value === '') {
-                continue;
-            }
-
-            if (Str::contains($location, $value)) {
-                return true;
-            }
-        }
-
-        if (
-            $area->state &&
-            !empty($area->state->name)
-        ) {
-            $state = Str::lower(
-                trim((string) $area->state->name)
-            );
-
-            if (
-                $state !== '' &&
-                Str::contains($location, $state)
-            ) {
-                return true;
-            }
-        }
-
         return false;
     }
 }

@@ -12,9 +12,20 @@ class CompanyReview extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'user_id', 'job_id', 'rating', 'title', 'review',
-        'pros', 'cons', 'relationship', 'status', 'is_verified_application',
-        'moderated_by', 'moderated_at', 'moderation_note',
+        'company_id',
+        'user_id',
+        'job_id',
+        'rating',
+        'title',
+        'review',
+        'pros',
+        'cons',
+        'relationship',
+        'status',
+        'is_verified_application',
+        'moderated_by',
+        'moderated_at',
+        'moderation_note',
     ];
 
     protected $casts = [
@@ -23,10 +34,22 @@ class CompanyReview extends Model
         'moderated_at' => 'datetime',
     ];
 
-    public function company(): BelongsTo { return $this->belongsTo(Company::class); }
-    public function reviewer(): BelongsTo { return $this->belongsTo(User::class, 'user_id'); }
-    public function job(): BelongsTo { return $this->belongsTo(Job::class); }
-    public function moderator(): BelongsTo { return $this->belongsTo(User::class, 'moderated_by'); }
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    public function job(): BelongsTo
+    {
+        return $this->belongsTo(Job::class);
+    }
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'moderated_by');
+    }
 
     public function scopePublished(Builder $query): Builder
     {

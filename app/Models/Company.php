@@ -11,14 +11,38 @@ class Company extends Model
 {
     use HasFactory;
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $fillable = [
-        'name','slug','description','website',
-        'careers_url','ats_provider','ats_identifier',
-        'jobs_feed_url','sync_enabled',
-        'last_synced_at','country',
-        'logo_url','industry','sector',
-        'employee_count','company_type','is_active',
-        'company_email','phone_country_code','phone_number','organization_type','business_type',
+        'name',
+        'slug',
+        'description',
+        'website',
+        'careers_url',
+        'ats_provider',
+        'ats_identifier',
+        'jobs_feed_url',
+        'sync_enabled',
+        'last_synced_at',
+        'country',
+        'logo_url',
+        'industry',
+        'sector',
+        'employee_count',
+        'company_type',
+        'is_active',
+        'company_email',
+        'phone_country_code',
+        'phone_number',
+        'organization_type',
+        'business_type',
+        'registry_cin',
+        'registry_status',
+        'registered_state',
+        'registry_source_url',
     ];
 
     protected $casts = [
@@ -32,7 +56,7 @@ class Company extends Model
         if (filled($value)) return $value;
         if (! filled($this->website)) return null;
 
-        return 'https://www.google.com/s2/favicons?domain_url='.rawurlencode($this->website).'&sz=128';
+        return 'https://www.google.com/s2/favicons?domain_url=' . rawurlencode($this->website) . '&sz=128';
     }
     public function jobs(): HasMany
     {

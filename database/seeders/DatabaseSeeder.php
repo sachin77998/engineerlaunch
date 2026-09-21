@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             IndustryNewsCategorySeeder::class,
             InterviewCompanySeeder::class,
             IndustrialDirectorySeeder::class,
+            IndustrialRecruitmentSeeder::class,
         ]);
 
         // Uncomment to create test users

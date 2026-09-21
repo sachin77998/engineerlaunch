@@ -14,64 +14,21 @@ use Illuminate\Support\Facades\Schema;
 
 class IndustrialDirectoryService
 {
-    /**
-     * Get all active industrial states.
-     */
     public function states(): Collection
     {
-        return IndustrialState::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get([
-                'id',
-                'name',
-                'slug',
-            ]);
+        return IndustrialState::query()->where('is_active', true)->orderBy('name')->get(['id','name','slug',]);
     }
-
-    /**
-     * Get cities / districts available inside a state.
-     *
-     * State
-     * └── City / District
-     */
     public function locations(int $stateId): Collection
     {
-        $areas = IndustrialArea::query()
-            ->visible()
-            ->where('state_id', $stateId);
-
+        $areas = IndustrialArea::query()->visible()->where('state_id', $stateId);
         return IndustrialArea::locationNames($areas);
     }
-
-    /**
-     * Get industrial areas for a state.
-     *
-     * State
-     * └── City / District
-     *     └── Industrial Area
-     */
-    public function areas(
-        int $stateId,
-        ?string $location = null
-    ): Collection {
-        return IndustrialArea::query()
-            ->visible()
-            ->where('state_id', $stateId)
-            ->when(
-                $location,
-                fn(Builder $query) => $query->atLocation($location)
-            )
+    public function areas(int $stateId,?string $location = null): Collection {
+        return IndustrialArea::query()->visible()->where('state_id', $stateId)
+            ->when($location,fn(Builder $query) => $query->atLocation($location))
             ->with('state')
-            ->withCount([
-                'companies as companies_count' => fn($query) =>
-                $query->visible(),
-
-                'jobs as live_jobs_count' => fn($query) =>
-                $query->live(),
-            ])
-            ->orderByDesc('is_featured')
-            ->orderBy('name')
+            ->withCount(['companies as companies_count' => fn($query) =>$query->visible(),'jobs as live_jobs_count' => fn($query) =>$query->live(),])
+            ->orderByDesc('is_featured')->orderBy('name')
             ->get([
                 'id',
                 'state_id',

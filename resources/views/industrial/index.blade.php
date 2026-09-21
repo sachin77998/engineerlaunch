@@ -427,6 +427,7 @@
     </div>
 </section>
 @include('partials.visual-explainer')
+@include('industrial.factory-careers')
 <div class="container">
     <p id="industrial-status" class="industrial-status" role="status" aria-live="polite"></p>
     <div id="industrial-taxonomy">@include('industrial.taxonomy')</div>
