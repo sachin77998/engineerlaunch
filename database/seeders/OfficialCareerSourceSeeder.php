@@ -153,6 +153,50 @@ class OfficialCareerSourceSeeder extends Seeder
                 'ats_provider' => 'workday', 'ats_identifier' => 'cat/CaterpillarCareers',
                 'jobs_feed_url' => 'https://cat.wd5.myworkdayjobs.com/wday/cxs/cat/CaterpillarCareers/jobs',
             ],
+            [
+                'name' => 'HCLTech', 'website' => 'https://www.hcltech.com',
+                'careers_url' => 'https://careers.hcltech.com/', 'country' => 'India',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+                'ats_provider' => 'successfactors',
+                'jobs_feed_url' => 'https://careers.hcltech.com/search/?q=&sortColumn=referencedate&sortDirection=desc',
+                'sync_enabled' => false,
+            ],
+            [
+                'name' => 'Capgemini', 'website' => 'https://www.capgemini.com',
+                'careers_url' => 'https://jobs.capgemini.com/', 'country' => 'France',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+                'ats_provider' => 'successfactors',
+                'jobs_feed_url' => 'https://jobs.capgemini.com/search/?q=&sortColumn=referencedate&sortDirection=desc',
+                'sync_enabled' => false,
+            ],
+            [
+                'name' => 'Amdocs', 'website' => 'https://www.amdocs.com',
+                'careers_url' => 'https://jobs.amdocs.com/', 'country' => 'Israel',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+                'ats_provider' => 'successfactors',
+                'jobs_feed_url' => 'https://jobs.amdocs.com/search/?q=&sortColumn=referencedate&sortDirection=desc',
+                'sync_enabled' => false,
+            ],
+            [
+                'name' => 'Infosys', 'website' => 'https://www.infosys.com',
+                'careers_url' => 'https://digitalcareers.infosys.com/', 'country' => 'India',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+            ],
+            [
+                'name' => 'TCS', 'website' => 'https://www.tcs.com',
+                'careers_url' => 'https://ibegin.tcsapps.com/candidate/', 'country' => 'India',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+            ],
+            [
+                'name' => 'Hexaware Technologies', 'website' => 'https://hexaware.com',
+                'careers_url' => 'https://hexaware.com/careers/', 'country' => 'India',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+            ],
+            [
+                'name' => 'Cognizant', 'website' => 'https://www.cognizant.com',
+                'careers_url' => 'https://careers.cognizant.com/india-en/jobs/', 'country' => 'USA',
+                'industry' => 'IT Services', 'sector' => 'IT Services & Consulting',
+            ],
         ];
     }
 
@@ -168,10 +212,10 @@ class OfficialCareerSourceSeeder extends Seeder
                     'country' => $source['country'],
                     'industry' => $source['industry'],
                     'sector' => $source['sector'],
-                    'ats_provider' => $source['ats_provider'],
-                    'ats_identifier' => $source['ats_identifier'],
+                    'ats_provider' => $source['ats_provider'] ?? null,
+                    'ats_identifier' => $source['ats_identifier'] ?? null,
                     'jobs_feed_url' => $source['jobs_feed_url'] ?? null,
-                    'sync_enabled' => true,
+                    'sync_enabled' => $source['sync_enabled'] ?? isset($source['ats_provider']),
                     'is_active' => true,
                 ]
             );

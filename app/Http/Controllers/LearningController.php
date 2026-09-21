@@ -18,6 +18,7 @@ class LearningController extends Controller
 
     public function track(string $track): View
     {
+        $track = $this->canonicalTrack($track);
         $tracks = config('learning_tracks', []);
         abort_unless(isset($tracks[$track]), 404);
 
@@ -26,6 +27,8 @@ class LearningController extends Controller
 
     public function module(string $track, string $module): View
     {
+        $requestedTrack = $track;
+        $track = $this->canonicalTrack($track);
         $tracks = config('learning_tracks', []);
         abort_unless(isset($tracks[$track]['topics'][$module]), 404);
 
@@ -57,15 +60,35 @@ class LearningController extends Controller
             ]);
         }
 
-        $questions = $this->paginateQuestions($tracks[$track]['topics'][$module]['questions']);
+        $questionItems = $tracks[$track]['topics'][$module]['questions'];
+        if ($track === 'java') {
+            $answers = config('java_interview_answers', []);
+            $questionItems = array_map(static function ($question) use ($answers) {
+                if (is_array($question)) {
+                    return $question;
+                }
+
+                return [
+                    'question' => $question,
+                    'answer' => $answers[$question] ?? 'Start with a precise definition, show a short Java example, and explain the relevant runtime behaviour and trade-offs.',
+                ];
+            }, $questionItems);
+        }
+
+        $questions = $this->paginateQuestions($questionItems);
         return view('learning.questions-modular', [
-            'trackSlug' => $track,
+            'trackSlug' => $requestedTrack,
             'track' => $tracks[$track],
             'moduleSlug' => $module,
             'module' => $tracks[$track]['topics'][$module],
             'questions' => $questions,
             'allTracks' => $tracks,
         ]);
+    }
+
+    private function canonicalTrack(string $track): string
+    {
+        return $track === 'mysql' ? 'sql' : $track;
     }
 
     private function paginateQuestions(array $questions): LengthAwarePaginator

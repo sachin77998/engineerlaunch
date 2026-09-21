@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Company;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ImportCompanyRegistry extends Command
@@ -34,11 +35,14 @@ class ImportCompanyRegistry extends Command
                 throw new \RuntimeException('CSV must have company_name and cin columns.');
             }
             $statusColumn = $this->column($header, ['company_status', 'status']);
-            $stateColumn = $this->column($header, ['state', 'registered_state']);
+            $stateColumn = $this->column($header, ['state', 'company_state', 'registered_state']);
             $industryColumn = $this->column($header, ['company_industrial_classification', 'principal_business_activity', 'industry']);
             $source = 'https://www.data.gov.in/catalog/company-master-data';
             $limit = max(0, (int) $this->option('limit'));
-            $created = $matched = $skipped = 0;
+            $before = Company::count();
+            $accepted = $skipped = 0;
+            $batch = [];
+            $now = now();
 
             while (($row = fgetcsv($handle, 0, ',', '"', '')) !== false) {
                 if (count($row) !== count($header)) { $skipped++; continue; }
@@ -48,26 +52,11 @@ class ImportCompanyRegistry extends Command
                 if ($name === '' || strlen($name) > 255 || ! preg_match('/^[A-Z0-9]{21}$/', $cin)) { $skipped++; continue; }
                 if ($status && strcasecmp($status, 'Active') !== 0) { $skipped++; continue; }
 
-                $existing = Company::where('registry_cin', $cin)->orWhere('name', $name)->first();
-                if ($existing) {
-                    if (! $existing->registry_cin) {
-                        $existing->forceFill([
-                            'registry_cin' => $cin,
-                            'registry_status' => $status ?: null,
-                            'registered_state' => $stateColumn === null ? null : trim((string) $row[$stateColumn]),
-                            'registry_source_url' => $source,
-                        ])->save();
-                    }
-                    $matched++;
-                    continue;
-                }
-
                 $slug = Str::slug($name);
                 if ($slug === '') { $skipped++; continue; }
-                if (Company::where('slug', $slug)->exists()) $slug .= '-'.strtolower($cin);
-                Company::create([
+                $batch[] = [
                     'name' => $name,
-                    'slug' => $slug,
+                    'slug' => $slug.'-'.strtolower($cin),
                     'country' => 'India',
                     'industry' => $industryColumn === null ? null : Str::limit(trim((string) $row[$industryColumn]), 255, ''),
                     'is_active' => true,
@@ -76,12 +65,22 @@ class ImportCompanyRegistry extends Command
                     'registry_status' => $status ?: null,
                     'registered_state' => $stateColumn === null ? null : trim((string) $row[$stateColumn]),
                     'registry_source_url' => $source,
-                ]);
-                $created++;
-                if ($limit && $created >= $limit) break;
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+                $accepted++;
+                if (count($batch) >= 1000) {
+                    DB::table('companies')->insertOrIgnore($batch);
+                    $batch = [];
+                }
+                if ($limit && $accepted >= $limit) break;
             }
 
-            $this->info("Created {$created}; matched {$matched}; skipped {$skipped}.");
+            if ($batch) DB::table('companies')->insertOrIgnore($batch);
+
+            $created = Company::count() - $before;
+
+            $this->info("Created {$created}; accepted {$accepted}; skipped {$skipped}.");
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error($e->getMessage());

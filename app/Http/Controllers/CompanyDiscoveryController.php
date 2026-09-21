@@ -21,7 +21,7 @@ class CompanyDiscoveryController extends Controller
         if ($category) $selected->push($category->id);
         $companies = Company::query()->active()->with('categories:id,name,slug,taxonomy,symbol')->withCount('activeJobs')
             ->when($filters['q'] ?? null, fn($q, $term) => $q->where(function ($s) use ($term) {
-                $like = '%' . addcslashes($term, '%_\\') . '%';
+                $like = addcslashes(trim($term), '%_\\') . '%';
                 $s->where('name', 'like', $like)->orWhere('industry', 'like', $like)->orWhere('sector', 'like', $like);
             }))
             ->when($selected->isNotEmpty(), fn($q) => $q->whereHas('categories', fn($c) => $c->whereIn('company_categories.id', $selected)))
@@ -37,7 +37,7 @@ class CompanyDiscoveryController extends Controller
                     });
                 });
             })
-            ->orderByDesc('active_jobs_count')->orderBy('name')->paginate(50)->withQueryString();
+            ->orderBy('name')->paginate(50)->withQueryString();
         $taxonomies = Cache::remember('company-discovery:facets:v3', now()->addHour(), fn() => CompanyCategory::where('is_active', true)
             ->withCount(['companies' => fn($q) => $q->active()])
             ->orderBy('sort_order')->get()->groupBy('taxonomy'));

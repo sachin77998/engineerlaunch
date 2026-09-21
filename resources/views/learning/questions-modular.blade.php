@@ -12,7 +12,7 @@
 <article class="question-card" id="question-{{ $questionNumber }}"><small>Question {{ $questionNumber }} of {{ $questions->total() }}</small><h2>{{ $questionText }}</h2>
 @if(is_array($question)&&filled($question['answer']??null))
 <button type="button" class="primary" data-vl-reveal="answer-{{ $questionNumber }}" hidden>Reveal explanation</button>
-<div class="vl-answer" id="answer-{{ $questionNumber }}"><h3>Key points</h3>@include('learning.partials.answer-blocks',['answerText'=>$question['answer']])</div>
+<div class="vl-answer" id="answer-{{ $questionNumber }}"><h3>Solution and explanation</h3>@include('learning.partials.answer-blocks',['answerText'=>$question['answer']])</div>
 @else
 <span class="vl-practice-label">Practice question &middot; write your own answer</span><ul class="vl-points"><li>Define the concept in one or two sentences.</li><li>Give a small example and trace what happens.</li><li>Explain one limitation, trade-off, or common mistake.</li></ul>
 @endif

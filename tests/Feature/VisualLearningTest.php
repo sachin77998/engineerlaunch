@@ -19,7 +19,8 @@ class VisualLearningTest extends TestCase
         $this->withoutMiddleware(TrackActivity::class);
         $this->get('/learn/kafka/fundamentals')->assertOk()->assertSee('data-vl-recall-mode', false)->assertSee('durable records')->assertSee('data-vl-notes', false);
         $this->get('/learn/sql/fundamentals')->assertOk()->assertSee('SELECT *')->assertSee('Reveal explanation');
-        $this->get('/learn/java/class')->assertOk()->assertSee('Practice question')->assertSee('What is a class in Java?');
+        $this->get('/learn/java/class')->assertOk()->assertSee('Solution and explanation')->assertSee('A class is a blueprint')->assertSee('What is a class in Java?');
+        $this->get('/learn/mysql/fundamentals')->assertOk()->assertSee('SELECT *')->assertSee('Solution');
     }
 
     public function test_answer_formatting_keeps_sql_as_one_code_block_and_escapes_html(): void
