@@ -1,0 +1,23 @@
+---
+deployment:
+  tasks:
+    - export DEPLOY_PATH=/home/ysi7v3owbbpa/career-portal/naukri-com/
+
+    - /bin/cp -R app $DEPLOY_PATH
+    - /bin/cp -R bootstrap $DEPLOY_PATH
+    - /bin/cp -R config $DEPLOY_PATH
+    - /bin/cp -R database $DEPLOY_PATH
+    - /bin/cp -R lang $DEPLOY_PATH
+    - /bin/cp -R resources $DEPLOY_PATH
+    - /bin/cp -R routes $DEPLOY_PATH
+    - /bin/cp -R storage $DEPLOY_PATH
+    - /bin/cp -R tests $DEPLOY_PATH
+    - /bin/cp -R public $DEPLOY_PATH
+
+    - /bin/cp artisan $DEPLOY_PATH
+    - /bin/cp composer.json $DEPLOY_PATH
+    - /bin/cp composer.lock $DEPLOY_PATH
+    - /bin/cp package.json $DEPLOY_PATH
+    - /bin/cp vite.config.js $DEPLOY_PATH
+
+    - /bin/cp -R docs $DEPLOY_PATH
