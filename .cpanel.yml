@@ -23,4 +23,3 @@ deployment:
     - /bin/cp -R docs $DEPLOY_PATH
 
     - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan db:seed --force
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan optimize:clear
