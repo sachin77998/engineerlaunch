@@ -685,7 +685,7 @@ pointer-events:auto
 }
 .hero-stats
 {
-    max-width:640px;
+    max-width:820px;
     gap:12px
 }
 .hero-stats .stat
@@ -850,7 +850,13 @@ pointer-events:auto
                         —
                     --}}</strong>
                     <span>
-                        Companies hiring
+                        Companies listed
+                    </span>
+                </div>
+                <div class="stat">
+                    <strong id="hiring-company-count">{{number_format($homeStats['hiring_companies'])}}</strong>
+                    <span>
+                        Verified hiring feeds
                     </span>
                 </div>
                 <div class="stat">
@@ -858,7 +864,7 @@ pointer-events:auto
                         —
                     --}}</strong>
                     <span>
-                        Skills in demand
+                        Searchable skills
                     </span>
                 </div>
             </div>
@@ -939,7 +945,7 @@ function jobCard(job){const tags=[...(job.technologies||[]).map(x=>x.name),...(j
 function parameters(){const p=new URLSearchParams({per_page:20,sort_by:state.sort,sort_order:'desc'});const values={region:$('#geo-region').value,country:$('#geo-country').value,state:$('#geo-state').value,city:$('#geo-city').value.trim(),q:$('#keyword').value.trim(),location:$('#location').value.trim(),company_id:state.company,work_mode:$('#work-mode').value,job_type:$('#job-type').value,experience_years:$('#experience').value,posted_within_days:$('#posted').value,role_family:$('#role').value,technology_id:$('#technology').value};if(state.preset==='graduate')values.q='graduate';if(state.preset==='remote')values.work_mode='remote';Object.entries(values).forEach(([key,value])=>{if(value!==''&&value!=null)p.set(key,value)});return p}
 let jobsRequest=0;
 async function loadJobs(){const request=++jobsRequest;const list=$('#jobs-list');list.innerHTML='<div class="empty">Loading opportunities…</div>';try{const payload=await api('/api/jobs?'+parameters());if(request!==jobsRequest)return;$('#result-count').textContent=`${payload.pagination.total.toLocaleString()} matching roles`;list.innerHTML=payload.data.length?payload.data.map(jobCard).join(''):'<div class="empty"><strong>No exact matches.</strong><br>Try fewer keywords or clear one of the filters.</div>'}catch(error){if(request!==jobsRequest)return;list.innerHTML='<div class="empty">Jobs could not be loaded. Please retry.</div>'}}
-async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies/top-hiring?limit=12'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data,totalJobs=Number(s.total_jobs||0);$('#job-count').textContent=totalJobs.toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=totalJobs>0?`${totalJobs.toLocaleString()} verified opportunities`:'No verified opportunities available'}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} active jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
+async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies/top-hiring?limit=12'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data,totalJobs=Number(s.total_jobs||0);$('#job-count').textContent=totalJobs.toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#hiring-company-count').textContent=Number(s.hiring_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=totalJobs>0?`${totalJobs.toLocaleString()} verified opportunities`:'No verified opportunities available'}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} active jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
 $('#search-form').addEventListener('submit',event=>{event.preventDefault();state.company='';state.preset='';loadJobs();$('#jobs').scrollIntoView()});$('#company-grid').addEventListener('click',event=>{const card=event.target.closest('[data-company]');if(!card)return;document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));card.classList.add('active');state.company=card.dataset.company;loadJobs();$('#jobs').scrollIntoView()});$('#all-companies').addEventListener('click',()=>{state.company='';document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));loadJobs()});document.querySelectorAll('.tab[data-sort],.tab[data-preset]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.job-toolbar .tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');state.sort=button.dataset.sort||'posted_at';state.preset=button.dataset.preset||'';loadJobs()}));['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).addEventListener('change',loadJobs));$('#clear-filters').addEventListener('click',()=>{['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).value='');$('#keyword').value='';$('#location').value='';['geo-region','geo-country','geo-state','geo-city'].forEach(id=>$('#'+id).value='');updateGeography();state.company='';state.preset='';loadJobs()});initialize();
 
 let geographyRequest=0,cityTimer;

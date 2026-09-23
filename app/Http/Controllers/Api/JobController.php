@@ -117,7 +117,8 @@ class JobController extends Controller
     {
         $data = Cache::remember(DiscoveryCache::key('jobs.stats'), DiscoveryCache::ttl(), fn () => [
             'total_jobs' => Job::active()->count(),
-            'total_companies' => \App\Models\Company::active()->whereHas('activeJobs')->count(),
+            'total_companies' => \App\Models\Company::active()->count(),
+            'hiring_companies' => \App\Models\Company::active()->whereHas('activeJobs')->count(),
             'total_technologies' => Technology::count(),
             'jobs_by_country' => Job::active()->groupBy('country')->selectRaw('country, count(*) as count')->get(),
             'jobs_by_experience_level' => Job::active()->groupBy('experience_level')->selectRaw('experience_level, count(*) as count')->get(),
