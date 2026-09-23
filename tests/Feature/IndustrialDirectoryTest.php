@@ -348,4 +348,39 @@ class IndustrialDirectoryTest extends TestCase
         $this->assertSame(0,IndustrialJob::count());
         $this->get('/industrial-areas/state/haryana/manesar-industrial-area')->assertOk()->assertSee('IMT Manesar')->assertSee('0 live openings');
     }
+
+    public function test_jalandhar_recruitment_seed_is_idempotent_and_publicly_accessible(): void
+    {
+        \Illuminate\Support\Facades\Schema::create('companies', function (\Illuminate\Database\Schema\Blueprint $table): void {
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->string('website')->nullable();
+            $table->string('careers_url')->nullable();
+            $table->string('jobs_feed_url')->nullable();
+            $table->string('ats_provider')->nullable();
+            $table->string('industry')->nullable();
+            $table->string('sector')->nullable();
+            $table->string('country')->default('India');
+            $table->boolean('sync_enabled')->default(false);
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_synced_at')->nullable();
+            $table->timestamps();
+        });
+
+        $this->seed(\Database\Seeders\IndustrialTaxonomySeeder::class);
+        $this->seed(\Database\Seeders\IndustrialRecruitmentSeeder::class);
+
+        $area = \App\Models\IndustrialArea::where('slug', 'jalandhar-industrial-area')->firstOrFail();
+        $this->assertSame(25, $area->companies()->count());
+        $this->assertSame(25, \App\Models\Company::whereIn('name', $area->companies()->pluck('name'))->count());
+
+        $this->get('/industrial-areas/state/punjab/jalandhar-industrial-area')->assertOk();
+        $this->get('/industrial-areas/state/punjab/jalandhar-industrial-area/company/ajay-industries')->assertOk();
+
+        $this->seed(\Database\Seeders\IndustrialRecruitmentSeeder::class);
+        $this->assertSame(25, $area->companies()->count());
+        $this->assertSame(25, \App\Models\Company::whereIn('name', $area->companies()->pluck('name'))->count());
+    }
 }
