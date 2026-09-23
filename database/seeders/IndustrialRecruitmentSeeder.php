@@ -14,6 +14,8 @@ class IndustrialRecruitmentSeeder extends Seeder
             $company->fill($source + ['slug'=>Str::slug($source['name']), 'country'=>'India', 'sector'=>'Manufacturing', 'sync_enabled'=>true, 'is_active'=>true]);
             $company->save();
         }
+
+        $this->seedAjayIndustriesJalandhar();
         $state = \App\Models\IndustrialState::firstOrCreate(['slug'=>'punjab'], ['name'=>'Punjab','is_active'=>true]);
         $source = 'https://www.sonalika.com/manufacturing-excellence.html';
         $area = \App\Models\IndustrialArea::firstOrCreate(['state_id'=>$state->id,'slug'=>'hoshiarpur-manufacturing-cluster'], [
@@ -74,5 +76,75 @@ class IndustrialRecruitmentSeeder extends Seeder
             $role->sectors()->syncWithoutDetaching(IndustrialSector::whereIn('slug',['automobile','auto-components','forging','heavy-engineering'])->pluck('id'));
             $role->processes()->syncWithoutDetaching(IndustrialProcess::whereIn('slug',$processes)->pluck('id'));
         }
+    }
+
+    private function seedAjayIndustriesJalandhar(): void
+    {
+        $website = 'https://www.ajayind.com/';
+        $careers = 'https://www.ajayind.com/career/';
+        $checked = '2026-09-22';
+
+        Company::updateOrCreate(['name' => 'Ajay Industries'], [
+            'slug' => 'ajay-industries',
+            'website' => $website,
+            'careers_url' => $careers,
+            'country' => 'India',
+            'industry' => 'Hand Tools Manufacturing',
+            'sector' => 'Manufacturing',
+            'sync_enabled' => false,
+            'is_active' => true,
+        ]);
+
+        $state = \App\Models\IndustrialState::firstOrCreate(
+            ['slug' => 'punjab'],
+            ['name' => 'Punjab', 'is_active' => true]
+        );
+        $area = \App\Models\IndustrialArea::updateOrCreate(
+            ['state_id' => $state->id, 'slug' => 'jalandhar-industrial-area'],
+            [
+                'name' => 'Jalandhar Industrial Area',
+                'city' => 'Jalandhar',
+                'district' => 'Jalandhar',
+                'area_type' => 'industrial_area',
+                'description' => 'Jalandhar hand tools and engineering manufacturing cluster.',
+                'is_active' => true,
+                'source_name' => 'Ajay Industries official website',
+                'source_url' => $website,
+                'last_verified_at' => $checked,
+                'verification_status' => 'company_source',
+            ]
+        );
+        $plant = \App\Models\IndustrialCompany::updateOrCreate(
+            ['industrial_area_id' => $area->id, 'slug' => 'ajay-industries'],
+            [
+                'name' => 'Ajay Industries',
+                'plant_name' => 'Ajay Nagar, behind Industrial Estate, Pathankot Bye Pass Road',
+                'website' => $website,
+                'careers_url' => $careers,
+                'industry' => 'Hand Tools Manufacturing',
+                'sector' => 'Tools and Engineering',
+                'facility_type' => 'Manufacturing unit',
+                'description' => 'Manufacturer and exporter of hand tools, vices, automobile tools, plumbing tools and lubricating equipment. The official careers page currently accepts general resume submissions but does not list named vacancies.',
+                'is_active' => true,
+                'is_verified' => true,
+                'source_name' => 'Ajay Industries official website and careers page',
+                'source_url' => $website,
+                'last_verified_at' => $checked,
+                'verification_status' => 'company_source',
+            ]
+        );
+        $sectorIds = IndustrialSector::whereIn('slug', ['forging', 'tool-room', 'cnc-machining'])->pluck('id');
+        $plant->sectors()->syncWithoutDetaching($sectorIds);
+        $area->sectorCatalog()->syncWithoutDetaching($sectorIds);
+        $plant->sources()->updateOrCreate(
+            ['source_key' => 'official-careers'],
+            [
+                'title' => 'Official recruitment form',
+                'url' => $careers,
+                'source_period' => $checked,
+                'checked_at' => $checked,
+                'evidence_note' => 'Official page accepts resumes for general recruitment. No named vacancy, department, requirements or closing date was published when checked.',
+            ]
+        );
     }
 }

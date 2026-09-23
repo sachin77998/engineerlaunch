@@ -645,6 +645,20 @@
                 </div>
                 @endif
 
+                @if($company->careers_url && preg_match('~^https?://~i', $company->careers_url))
+                <div style="margin-top:12px;">
+                    <a
+                        href="{{ $company->careers_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="industrial-source">
+                        <i class="fas fa-briefcase"></i>
+                        {{ $company->live_jobs_count ? 'Official careers' : 'Submit resume on official careers page' }}
+                        <span>&nearr;</span>
+                    </a>
+                </div>
+                @endif
+
             </article>
 
             @empty
