@@ -14,7 +14,7 @@ class SiteExplanation
             'industrial'=>['industrial.*'], 'experiences'=>['company.experiences.*'],
             'companies'=>['companies.*'], 'news'=>['news.*'], 'resume'=>['resume.*'],
             'practice'=>['practice'], 'about'=>['about'], 'contact'=>['contact'],
-            'account'=>['login*','register*','otp.*','student.*','owner.*','employer.login','employer.register*'],
+            'account'=>['login*','register*','otp.*','student.*','employer.login','employer.register*'],
             'profile'=>['dashboard','candidate.*'], 'employer'=>['employer.*'], 'admin'=>['admin.*'],
             'jobs'=>['home','jobs.*','opportunities.*','applications.*'],
         ];

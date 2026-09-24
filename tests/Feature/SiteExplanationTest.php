@@ -27,6 +27,8 @@ class SiteExplanationTest extends TestCase
             $this->assertStringNotContainsString('<details',$html);
         }
         $this->assertNull(app(SiteExplanation::class)->forRequest($this->requestFor('learning.show')));
+        $this->assertNull(app(SiteExplanation::class)->forRequest($this->requestFor('owner.login')));
+        $this->assertNull(app(SiteExplanation::class)->forRequest($this->requestFor('owner.register')));
     }
     public function test_explainer_is_after_hero_once_and_not_added_to_json_or_fragments(): void
     {
