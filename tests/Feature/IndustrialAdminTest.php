@@ -36,7 +36,7 @@ class IndustrialAdminTest extends TestCase
 
     private function owner(): void
     {
-        $user = new User(['name' => 'Test owner', 'email' => 'owner@example.test', 'role' => 'admin', 'role_code' => 2]);
+        $user = new User(['name' => 'Test owner', 'email' => config('owner.email'), 'role' => 'admin', 'role_code' => 2]);
         $user->id = 1;
         $this->actingAs($user);
     }
@@ -61,6 +61,17 @@ class IndustrialAdminTest extends TestCase
         $this->post('/admin/industrial-areas/import')->assertForbidden();
         $this->patch('/admin/industrial-areas/cities')->assertForbidden();
         $this->assertSame(0, IndustrialState::count());
+
+        $rogueOwner = new User(['name' => 'Other owner', 'email' => 'other-owner@example.test', 'role' => 'admin', 'role_code' => 2]);
+        $rogueOwner->id = 3;
+        $this->actingAs($rogueOwner);
+        $this->get('/admin/industrial-areas')->assertForbidden();
+    }
+
+    public function test_owner_registration_is_disabled(): void
+    {
+        $this->get('/owner/register')->assertNotFound();
+        $this->post('/owner/register', [])->assertNotFound();
     }
 
     public function test_owner_can_manage_all_record_types_and_review_sources(): void

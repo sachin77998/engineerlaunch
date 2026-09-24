@@ -68,7 +68,6 @@ Route::prefix('auth')->middleware('throttle:auth-api')->group(function () {
     Route::post('/{role}/login', [RoleAuthController::class, 'login'])->whereIn('role', ['student','employer','owner']);
 });
 Route::post('/auth/logout', [RoleAuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::post('/auth/owners/register', [RoleAuthController::class, 'ownerRegister'])->middleware(['auth:sanctum','admin']);
 
 Route::post('/ingestion/jobs', [JobIngestionController::class, 'store'])
     ->middleware('throttle:ingestion')

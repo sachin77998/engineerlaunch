@@ -63,14 +63,6 @@ class RoleAuthController extends Controller
         Cache::forget($key);
         return $this->tokenResponse($user, $pending['role'].'-api');
     }
-    public function ownerRegister(Request $request): JsonResponse
-    {
-        abort_unless($request->user()?->role_code === 2 || $request->user()?->role === 'admin', 403);
-        $data = $this->registrationData($request);
-        $user = User::create($data + ['role' => 'admin', 'role_code' => 2, 'email_verified_at' => now()]);
-        $user->ownerProfile()->create();
-        return response()->json(['data' => $user], 201);
-    }
     public function login(Request $request, string $role): JsonResponse
     {
         abort_unless(in_array($role, ['student','employer','owner'], true), 404);

@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
 use App\Services\VerificationOtpService;
 
 class AuthController extends Controller
@@ -51,8 +50,8 @@ class AuthController extends Controller
         $otp = DB::table('email_otps')->where('email', $pending['email'])->whereNull('used_at')->where('expires_at', '>', now())->latest()->first();
         if (!$otp || !Hash::check($r->code, $otp->code_hash)) return back()->withErrors(['code' => 'The code is invalid or expired.']);
         DB::table('email_otps')->where('id', $otp->id)->update(['used_at' => now()]);
-        $pending['role'] = config('services.admin_email') && strcasecmp($pending['email'], config('services.admin_email')) === 0 ? 'admin' : ($pending['role'] ?? 'student');
-        $pending['role_code'] = $pending['role'] === 'admin' ? 2 : ($pending['role'] === 'employer' ? 0 : 1);
+        $pending['role'] = $pending['role'] ?? 'student';
+        $pending['role_code'] = $pending['role'] === 'employer' ? 0 : 1;
         $employer = $pending['employer_registration'] ?? null;
         unset($pending['employer_registration']);
         $user = DB::transaction(function () use ($pending, $employer) {
@@ -84,36 +83,6 @@ class AuthController extends Controller
     public function ownerLoginForm()
     {
         return view('auth.owner-login', ['hasOwner' => User::where('role_code', 2)->orWhere('role', 'admin')->exists()]);
-    }
-    public function ownerRegisterForm(Request $r)
-    {
-        $hasOwner = User::where(fn($q) => $q->where('role_code', 2)->orWhere('role', 'admin'))->exists();
-        $isOwner = $r->user() && ($r->user()->role_code === 2 || $r->user()->role === 'admin');
-        if ($hasOwner && !$isOwner) return redirect()->route('owner.login')->withErrors(['email' => 'An owner account already exists. Sign in as an owner to create another owner.']);
-        if (!$hasOwner && $r->user()) abort(403, 'Log out before creating the first owner account.');
-        return view('auth.owner-register', compact('hasOwner'));
-    }
-    public function ownerRegister(Request $r)
-    {
-        $data = $r->validate(['name' => 'required|string|max:100', 'email' => 'required|email|max:190|unique:users,email', 'password' => 'required|string|min:8|confirmed']);
-        $wasFirstOwner = false;
-        $user = Cache::lock('owner-registration', 10)->block(3, function () use ($r, $data, &$wasFirstOwner) {
-            $hasOwner = User::where(fn($q) => $q->where('role_code', 2)->orWhere('role', 'admin'))->exists();
-            $isOwner = $r->user() && ($r->user()->role_code === 2 || $r->user()->role === 'admin');
-            abort_unless(!$hasOwner || $isOwner, 403, 'Only an existing owner can create another owner account.');
-            abort_if(!$hasOwner && $r->user(), 403, 'Log out before creating the first owner account.');
-            $wasFirstOwner = !$hasOwner;
-            return DB::transaction(function () use ($data) {
-                $owner = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => 'admin', 'role_code' => 2]);
-                $owner->ownerProfile()->create();
-                return $owner;
-            });
-        });
-        if ($wasFirstOwner) {
-            Auth::login($user);
-            $r->session()->regenerate();
-        }
-        return redirect()->route('admin.dashboard')->with('success', 'Owner account created for ' . $user->email);
     }
     public function login(Request $r)
     {

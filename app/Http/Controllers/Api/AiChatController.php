@@ -14,89 +14,26 @@ use Illuminate\Routing\Controller;
 class AiChatController extends Controller
 {
     protected AgentRouter $router;
-
     protected ConversationService $conversationService;
-
-    public function __construct(
-        AgentRouter $router,
-        ConversationService $conversationService
-    ) {
+    public function __construct(AgentRouter $router,ConversationService $conversationService) {
         $this->router = $router;
         $this->conversationService = $conversationService;
     }
-
-    /**
-     * Main AI chat endpoint.
-     *
-     * POST /api/ai/chat
-     */
-    public function chat(
-        Request $request
-    ): JsonResponse {
-        $validated = $request->validate([
-            'message' => [
-                'required',
-                'string',
-                'min:1',
-                'max:10000',
-            ],
-
-            'agent' => [
-                'nullable',
-                'string',
-                'max:50',
-            ],
-
-            'conversation_id' => [
-                'nullable',
-                'integer',
-                'min:1',
-            ],
-
-            'context' => [
-                'nullable',
-                'array',
-            ],
-
-            'metadata' => [
-                'nullable',
-                'array',
+    public function chat(Request $request): JsonResponse {
+        $validated = $request->validate(['message' => ['required','string','min:1','max:10000',],
+            'agent' => ['nullable','string','max:50',],
+            'conversation_id' => ['nullable','integer','min:1',],
+            'context' => ['nullable','array',],
+            'metadata' => ['nullable','array',
             ],
         ]);
-
         try {
-            /*
-             * Prefer the authenticated user when available.
-             *
-             * We do not trust user_id sent by the browser when an
-             * authenticated session already exists.
-             */
             $userId = Auth::id();
-
-            /*
-             * The browser can provide an existing conversation.
-             */
-            $conversationId =
-                isset($validated['conversation_id'])
-                ? (int) $validated['conversation_id']
-                : null;
-
-            /*
-             * Validate ownership of an existing conversation.
-             *
-             * Authenticated users can only continue their own
-             * conversations.
-             */
+            $conversationId =isset($validated['conversation_id'])? (int) $validated['conversation_id']: null;
             if ($conversationId !== null) {
-                $conversation =
-                    $this->conversationService->get(
-                        $conversationId
-                    );
-
+                $conversation =$this->conversationService->get($conversationId);
                 if ($conversation === null) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'AI conversation not found.',
+                    return response()->json(['success' => false,'message' => 'AI conversation not found.',
                         'agent' => $validated['agent'] ?? null,
                         'data' => [],
                         'sources' => [],
@@ -124,18 +61,7 @@ class AiChatController extends Controller
                 }
             }
 
-            /*
-             * Prepare metadata.
-             *
-             * AgentRouter reads conversation_id from metadata
-             * and automatically:
-             *
-             * 1. Loads previous history
-             * 2. Stores the user message
-             * 3. Executes the selected agent
-             * 4. Stores the assistant response
-             * 5. Returns the conversation_id
-             */
+            
             $metadata =
                 isset($validated['metadata']) &&
                 is_array($validated['metadata'])
@@ -163,11 +89,6 @@ class AiChatController extends Controller
             $response = $this->router->route(
                 $agentRequest
             );
-
-            /*
-             * Ensure the conversation ID is available
-             * at the top level as well as inside metadata.
-             */
             $responseData = $response->toArray();
 
             if (
@@ -222,11 +143,7 @@ class AiChatController extends Controller
         }
     }
 
-    /**
-     * Return the agents currently available to the application.
-     *
-     * GET /api/ai/agents
-     */
+    
     public function agents(): JsonResponse
     {
         return response()->json([
@@ -235,11 +152,7 @@ class AiChatController extends Controller
         ]);
     }
 
-    /**
-     * Check whether an agent is supported.
-     *
-     * GET /api/ai/agents/{agent}
-     */
+   
     public function checkAgent(
         string $agent
     ): JsonResponse {
