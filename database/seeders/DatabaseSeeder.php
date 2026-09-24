@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // Seed technologies, job categories, and companies first
         $this->call([
+            OwnerAccountSeeder::class,
             TechnologySeeder::class,
             JobCategorySeeder::class,
             JobTitleSeeder::class,
@@ -28,7 +29,6 @@ class DatabaseSeeder extends Seeder
             InterviewCompanySeeder::class,
             IndustrialDirectorySeeder::class,
             IndustrialRecruitmentSeeder::class,
-            OwnerAccountSeeder::class,
         ]);
 
         // Uncomment to create test users
