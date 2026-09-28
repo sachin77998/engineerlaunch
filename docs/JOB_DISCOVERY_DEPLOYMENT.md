@@ -5,7 +5,7 @@ The changes and imports are prepared locally. The live site has not been updated
 ## Apply with File Manager and phpMyAdmin
 
 1. In File Manager, find the application's .env and confirm its DB_DATABASE matches the database selected in phpMyAdmin. Export that database before importing this update.
-2. Upload website-update.zip into /home/ysi7v3owbbpa/career-portal/naukri-com/ and extract there, replacing matching files. This is the Laravel application directory, not its public/ subdirectory. The archive contains code only, with no .env, user data, or credentials.
+2. Upload website-update.zip into /home/YOUR_CPANEL_USERNAME/career-portal/naukri-com/ and extract there, replacing matching files. This is the Laravel application directory, not its public/ subdirectory. The archive contains code only, with no .env, user data, or credentials.
 3. In phpMyAdmin, choose that database, select Import, and import career-explorer.sql.gz first, then jobs-and-skills.sql.gz. The first creates the career tables and password reset token table and imports the career catalog. The second imports jobs. It contains current openings from six official Greenhouse feeds, company records, and searchable technology links. It can be re-imported without creating duplicate jobs. It does not remove unrelated jobs or users.
 4. If present, remove only bootstrap/cache/config.php and bootstrap/cache/routes-v7.php through File Manager so Laravel reloads the new configuration and routes. Keep all other files.
 5. Reload the homepage with Ctrl+F5. Check C++, Java, Python, Node JS and Springboot. Click statistic cards, job titles, skill tags, and the DLF Cyber City link.
@@ -26,7 +26,7 @@ The SQL creates tables directly for File Manager users. The guarded migration re
 
 If cPanel provides Cron Jobs, add this command to run daily (for example 02:00):
 
-    /opt/cpanel/ea-php83/root/usr/bin/php /home/ysi7v3owbbpa/career-portal/naukri-com/artisan jobs:refresh-discovery --all >> /home/ysi7v3owbbpa/career-portal/naukri-com/storage/logs/discovery-refresh.log 2>&1
+    /opt/cpanel/ea-php83/root/usr/bin/php /home/YOUR_CPANEL_USERNAME/career-portal/naukri-com/artisan jobs:refresh-discovery --all >> /home/YOUR_CPANEL_USERNAME/career-portal/naukri-com/storage/logs/discovery-refresh.log 2>&1
 
 It seeds skills and company sources, synchronizes enabled feeds, and backfills searchable skills. A lock prevents overlapping instances. It runs directly without a queue worker. Large company feeds can take substantial time; the host must allow the cron process to finish. Inspect the log for failures. Without scheduled refreshes, the SQL import remains a dated snapshot.
 
@@ -47,3 +47,7 @@ Regression tests cover requested skill aliases, C/C++ and Java/JavaScript distin
 The Cyber City page cites each company's official office/careers page. MongoDB, Expedia Group, Dynata, Gartner and Nokia are listed; individual vacancies may have different workplaces. See config/cyber_city.php and verification.json for source URLs.
 
 A connected browser and production database session were unavailable, so live deployment and visual browser verification remain outstanding.
+
+## cPanel Git deployment path correction
+
+The deployment configuration now uses the cPanel HOME directory instead of a hard-coded account name. public_html/index.php must retain its existing ../career-portal/naukri-com paths. CSS, JavaScript and images are copied to public_html separately; its index.php and .htaccess are preserved. Replace YOUR_CPANEL_USERNAME in the examples above with the home-directory name shown in File Manager.
