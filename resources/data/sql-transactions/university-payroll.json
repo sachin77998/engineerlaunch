@@ -1,0 +1,16 @@
+{
+  "title": "University Payroll: 2,000 Employees",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "Tables and calculation",
+      "answer": "employees: id, employee_no, name, department_id, bank_account_id, employment_status.\nsalary_structures: id, employee_id, basic_salary, hra, allowances, deductions, effective_from, effective_to.\npayroll_runs: id, payroll_month, total_employees, total_gross, total_deductions, total_net, status, timestamps.\npayroll_items: id, payroll_run_id, employee_id, gross_salary, deductions, net_salary, status, payment_reference, failure_code.\n\nBasic Rs 50,000 + HRA Rs 20,000 + allowance Rs 10,000 - deductions Rs 5,000 = net Rs 75,000."
+    },
+    {
+      "number": 2,
+      "question": "Approve, freeze and process",
+      "answer": "DRAFT -> CALCULATED -> APPROVED -> PROCESSING -> COMPLETED. Freeze approved amounts; corrections use an audited adjustment, reversal or new run. Enforce a unique run/employee combination and payment reference.\n\nProcess 2,000 employees in controlled groups, for example 200 at a time, while tracking each payment separately. SAL-2026-09-EMP0001 identifies a business payment; adjustments need their own references. Employee 700 failing does not undo successful payments for other employees.\n\nKeep PROCESSING while any payment is pending or unknown. Once all outcomes are terminal, use COMPLETED for all success or PARTIALLY_COMPLETED for a mixture of success and confirmed failure. Generate salary slips after confirmed payment."
+    }
+  ]
+}

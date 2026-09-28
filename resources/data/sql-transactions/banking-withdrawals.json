@@ -1,0 +1,21 @@
+{
+  "title": "Banking: Concurrent Withdrawals",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "Two withdrawals against Rs 5,000",
+      "answer": "Account A has Rs 5,000. W1 requests Rs 5,000; W2 requests Rs 10,000. W2 must fail even if it locks the account first. W1 succeeds if no other valid debit consumes the balance. Final balance is Rs 0.\n\nTransactions give atomicity and consistency; row locks isolate competing balance decisions. Commit makes the result durable. Never decide using an unlocked, stale balance."
+    },
+    {
+      "number": 2,
+      "question": "Safe processing sequence",
+      "answer": "BEGIN -> lock the persisted withdrawal request -> return its existing outcome if already processed -> lock its account with SELECT FOR UPDATE -> verify account is active, amount is positive and funds are sufficient -> debit -> insert a unique ledger entry -> mark SUCCESS -> COMMIT.\n\nBind the account and amount to the persisted request, not independently supplied browser parameters. Authorization must happen before processing. A unique (account_id, idempotency_key) prevents duplicate business requests; repeated keys with different amounts must be rejected.\n\nStatuses: PENDING, PROCESSING, SUCCESS, FAILED, REVERSED. A local ledger debit is not proof that an external cash dispenser or bank paid successfully."
+    },
+    {
+      "number": 3,
+      "question": "Practice",
+      "answer": "Run two sessions against a disposable InnoDB database. Hold the account row lock in session one; verify session two waits. Commit session one, then verify session two reads the updated balance. Test insufficient funds, inactive accounts, duplicate requests and a failure before commit."
+    }
+  ]
+}

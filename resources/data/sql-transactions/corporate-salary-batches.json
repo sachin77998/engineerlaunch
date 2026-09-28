@@ -1,0 +1,21 @@
+{
+  "title": "Corporate Salary: 10,000 Employees",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "Batch structure and approval",
+      "answer": "10,000 employees x Rs 75,000 = Rs 750,000,000 = Rs 75 crore.\n\ncorporate_accounts: id, company_id, bank_account_id, status, available_balance.\nsalary_batches: id, company_id, batch_reference, salary_month, employee_count, total_amount, status, created_by, approved_by, approved_at, submitted_at.\nsalary_batch_items: id, salary_batch_id, employee_id, beneficiary_account, amount, bank_code, status, payment_reference, failure_code.\n\nValidate employee existence and eligibility, beneficiary/account and bank-code formats, positive amount, unique reference, correct employee count and sum of item amounts. Format validation alone cannot prove an account is open or able to receive money. Check available funds/reservations through the supported bank workflow.\n\nMaker creates the batch; a different authorized checker approves the frozen batch. Record both actors and approval timestamps."
+    },
+    {
+      "number": 2,
+      "question": "Lifecycle and partial results",
+      "answer": "DRAFT -> VALIDATED -> APPROVED -> SUBMITTED -> PROCESSING -> COMPLETED. Other outcomes: REJECTED, PARTIALLY_COMPLETED, CANCELLED. Cancellation after submission requires confirmation of what the bank can still cancel.\n\nSUBMITTED does not mean SUCCESS. With 9,970 SUCCESS, 20 FAILED and 10 PENDING, display those counts and keep processing status until the 10 pending results resolve. PARTIALLY_COMPLETED is a terminal mixed result in this lesson's model; never hide unresolved payments behind it.\n\nFailures include INVALID_ACCOUNT, ACCOUNT_CLOSED and BENEFICIARY_BLOCKED. BANK_TIMEOUT means UNKNOWN unless the bank has confirmed failure. Query, await callback or reconcile before any resubmission."
+    },
+    {
+      "number": 3,
+      "question": "Architecture and reconciliation",
+      "answer": "Payroll Service -> Salary Batch Service -> Payment Orchestrator -> Bank Adapter. Keep bank-specific authentication and protocol in the adapter. A reference such as SAL-2026-09-EMP404 stays unchanged across attempts for the same business payment.\n\nQueue notifications and salary-slip generation after confirmed success. End-of-day reconciliation compares batch/payment/bank references, amount, beneficiary and date. Protect bank-account data and audit any manual resolution."
+    }
+  ]
+}

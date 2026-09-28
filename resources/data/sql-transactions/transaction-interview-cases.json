@@ -1,0 +1,56 @@
+{
+  "title": "Transaction Interview Case Studies",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "Rs 5,000 balance; concurrent Rs 5,000 and Rs 10,000 withdrawals",
+      "answer": "Use transaction, row lock, positive-amount validation and idempotency. The Rs 10,000 request fails regardless of lock order; the valid Rs 5,000 debit leaves zero."
+    },
+    {
+      "number": 2,
+      "question": "Gateway timeout after an Rs 80,000 fee payment",
+      "answer": "The result is UNKNOWN. Query the provider, process a verified webhook or reconcile. Never immediately mark it failed or blindly resend."
+    },
+    {
+      "number": 3,
+      "question": "Payroll for 2,000 employees",
+      "answer": "Freeze amounts, approve, process controlled groups, track individual outcomes, queue slips after success and reconcile."
+    },
+    {
+      "number": 4,
+      "question": "Corporate salary for 10,000 employees",
+      "answer": "Use a validated batch, independent maker/checker approval, payment orchestrator and bank adapter. Rs 75,000 per employee totals Rs 75 crore."
+    },
+    {
+      "number": 5,
+      "question": "Why SELECT FOR UPDATE?",
+      "answer": "It locks mutable rows during a transaction when the decision depends on their current values. Keep transactions short; isolation alone does not replace a correct locking strategy."
+    },
+    {
+      "number": 6,
+      "question": "Why idempotency?",
+      "answer": "Repeated delivery of the same business request must not repeat the financial effect. Persist a scoped unique key and reject different payloads reusing it."
+    },
+    {
+      "number": 7,
+      "question": "Why queue receipts?",
+      "answer": "A PDF, email or SMS failure must not undo confirmed payment success. Dispatch after commit; durable outbox and idempotent jobs cover delivery failures."
+    },
+    {
+      "number": 8,
+      "question": "Why keep a ledger?",
+      "answer": "The balance is current state; linked ledger entries provide an auditable history. Transfers require balanced debit and credit entries."
+    },
+    {
+      "number": 9,
+      "question": "What if 9,970 succeed, 20 fail and 10 remain pending?",
+      "answer": "Preserve each result and keep the batch PROCESSING while outcomes remain unresolved. Once terminal, classify all-success as COMPLETED or a mixed outcome as PARTIALLY_COMPLETED."
+    },
+    {
+      "number": 10,
+      "question": "Why cannot database rollback undo a bank payment?",
+      "answer": "The external bank owns its transaction. Local rollback cannot reverse it; use reconciliation and a separately authorized reversal/refund where supported."
+    }
+  ]
+}

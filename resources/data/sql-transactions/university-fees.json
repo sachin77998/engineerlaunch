@@ -1,0 +1,21 @@
+{
+  "title": "University Fees: 5,000 Students",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "Invoices and partial payments",
+      "answer": "Semester fee Rs 80,000; window 1st?10th; 5,000 students. Maximum billed collection: Rs 400,000,000 = Rs 40 crore.\n\nInvoice Rs 80,000 -> first confirmed payment Rs 30,000 -> balance Rs 50,000, PARTIALLY_PAID. A further Rs 50,000 -> balance 0, PAID.\n\nstudents: id, student_no, name, course_id, semester, status.\nfee_invoices: id, student_id, invoice_no, gross_amount, discount_amount, net_amount, paid_amount, balance_amount, status, due_date.\npayments: id, student_id, invoice_id, payment_reference, gateway_reference, amount, currency, status, payment_method, paid_at, failure_code, idempotency_key."
+    },
+    {
+      "number": 2,
+      "question": "Gateway outcome and duplicate callbacks",
+      "answer": "Payment lifecycle: INITIATED -> PENDING -> SUCCESS or confirmed FAILED; cancellation and refunds are separate transitions. A closed browser after gateway success does not mean failure.\n\nVerify webhook signature, event/reference, invoice ownership, amount and currency against the persisted payment intent. Lock the payment and invoice, apply a successful payment once, and persist the gateway reference under a unique constraint. Three deliveries of one callback must cause only one credit. Never trust browser success parameters.\n\nAn overpayment already confirmed by the gateway must be recorded and reconciled/refunded or allocated as credit, not silently discarded."
+    },
+    {
+      "number": 3,
+      "question": "Receipts and reconciliation",
+      "answer": "After confirmed payment and database commit, queue private receipt generation, email, SMS and accounting work. A receipt uses stored university/student/course/semester/invoice/payment details, amount, date, method and a unique receipt number. Authorize downloads of private PDFs.\n\nCompare internal SUCCESS, gateway SUCCESS and bank settlement daily. Timing or amount differences become reconciliation exceptions. One student's failed payment does not roll back other students' payments."
+    }
+  ]
+}

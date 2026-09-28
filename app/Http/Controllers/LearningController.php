@@ -50,7 +50,7 @@ class LearningController extends Controller
 
         if ($track === 'sql') {
             $questions = $this->paginateQuestions($tracks[$track]['topics'][$module]['questions']);
-            return view('learning.sql-questions', [
+            return view($tracks[$track]['topics'][$module]['view'] ?? 'learning.sql-questions', [
                 'trackSlug' => $track,
                 'track' => $tracks[$track],
                 'moduleSlug' => $module,

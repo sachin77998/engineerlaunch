@@ -22,13 +22,13 @@ return [
         'architecture-patterns'=>['title'=>'Architecture Patterns','questions'=>array_slice($kafkaInterview,80,10)],
         'production-scenarios'=>['title'=>'Production Scenarios','questions'=>array_slice($kafkaInterview,90,10)],
     ]],
-    'sql'=>['title'=>'SQL','icon'=>'SQL','color'=>'#0f766e','description'=>'The first 50 SQL interview questions with supplied solutions and practical queries.','topics'=>[
+    'sql'=>['title'=>'SQL','icon'=>'SQL','color'=>'#0f766e','description'=>'SQL interview questions, practical queries and real-world transaction case studies.','topics'=>array_merge([
         'fundamentals'=>['title'=>'SQL Fundamentals','questions'=>array_slice($sqlInterview,0,10)],
         'queries-aggregation'=>['title'=>'Queries and Aggregation','questions'=>array_slice($sqlInterview,10,13)],
         'nulls-joins'=>['title'=>'NULL Values and Joins','questions'=>array_slice($sqlInterview,23,10)],
         'subqueries-ranking'=>['title'=>'Subqueries and Salary Ranking','questions'=>array_slice($sqlInterview,33,7)],
         'window-functions'=>['title'=>'Window Functions','questions'=>array_slice($sqlInterview,40,10)],
-    ]],
+    ], require __DIR__.'/sql_transactions.php')],
     'java' => ['title'=>'Java','icon'=>'J','color'=>'#2563eb','description'=>'Core Java and object-oriented interview preparation from beginner to advanced.','topics'=>[
         'input-output'=>['title'=>'Input and Output','type'=>'tutorial','lessons_config'=>'java_input_output','offset'=>0,'limit'=>1,'questions'=>array_column($javaInputOutputLessons,'title')],
         'class'=>['title'=>'Class','questions'=>['What is a class in Java?','Why do we need a class?','What is the difference between a class and an object?','Can a Java class exist without creating an object?','What are instance variables?','What are instance methods?','What are class variables?','What is a nested class?','What is an inner class?','What is an anonymous class?','Can a top-level class be private?','What is an abstract class?']],

@@ -1,0 +1,16 @@
+{
+  "title": "Account A to B Transfer",
+  "view": "learning.sql-case-studies",
+  "questions": [
+    {
+      "number": 1,
+      "question": "One database transaction",
+      "answer": "Validate source != destination, positive amount, same currency and authorization. Persist a transfer request with a unique business reference. Lock the request, then both account rows in ascending account ID order. Check both accounts are active and source funds are sufficient. Debit source, credit destination, record linked debit/credit ledger entries, mark the request successful and commit together.\n\nUse DECIMAL or integer minor units for money, never binary floating-point arithmetic. The two ledger amounts must balance. Balance is current state; the ledger preserves history."
+    },
+    {
+      "number": 2,
+      "question": "Deadlocks and external boundaries",
+      "answer": "Deterministic lock order reduces deadlocks but does not eliminate all deadlocks. Retry a rolled-back database-only operation with the same idempotency key and bounded attempts. Do not include a bank HTTP call inside a transaction closure that may be retried.\n\nAn external bank transfer is not atomic with your local database. Use a durable payment intent/outbox, bank reference, idempotent adapter, callbacks and reconciliation."
+    }
+  ]
+}
