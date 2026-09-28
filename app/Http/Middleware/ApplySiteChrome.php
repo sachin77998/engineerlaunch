@@ -25,7 +25,7 @@ class ApplySiteChrome
         }
         $html = $response->getContent();
         if (!is_string($html) || !str_contains($html, '<body')) return $response;
-        $explanation = $request->is('admin', 'admin/*', 'learn', 'learn/*', 'career-explorer', 'forgot-password', 'reset-password*') ? null : app(\App\Services\SiteExplanation::class)->forRequest($request);
+        $explanation = ($request->path() === '/' || $request->is('admin', 'admin/*', 'learn', 'learn/*', 'career-explorer', 'forgot-password', 'reset-password*')) ? null : app(\App\Services\SiteExplanation::class)->forRequest($request);
         if ($explanation && !str_contains($html, 'data-visual-explainer=')) {
             $guide = view('partials.visual-explainer', compact('explanation'))->render();
             // Place explanations beside the main content, after the hero when present.
