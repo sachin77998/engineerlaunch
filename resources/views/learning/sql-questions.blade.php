@@ -530,7 +530,7 @@
              EXISTING VISUAL OVERVIEW
         ====================================================== --}}
 
-        @include('learning.partials.visual-overview')
+        @include('learning.partials.visual-assets')
 
 
         {{-- =====================================================

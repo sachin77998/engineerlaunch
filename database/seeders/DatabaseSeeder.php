@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             JobTitleSeeder::class,
             CompanySeeder::class,
             OfficialCareerSourceSeeder::class,
+            CyberCityCompanySeeder::class,
+            CareerExplorerSeeder::class,
             CompanyCategorySeeder::class,
             CompanyDiscoverySeeder::class,
             NewsIntelligenceSeeder::class,

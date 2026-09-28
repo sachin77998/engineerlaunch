@@ -799,7 +799,12 @@ pointer-events:auto
 .search-field input::placeholder{color:#9fb0c8;opacity:1;font-size:15px;font-weight:500}.search-field input{font-size:15px!important;font-weight:500}.search-button{height:58px!important;padding:0 30px!important;border-radius:12px!important;background:#4f7fd8!important;font-size:16px!important;transition:transform .2s ease,filter .2s ease}.search-button:hover{transform:translateY(-1px);filter:brightness(1.08)}
 .navbar{padding:12px 24px!important;gap:14px!important}.navbar .logo{flex:0 0 auto!important}.navbar .nav-links{min-width:0!important;flex:1 1 auto!important;gap:7px!important}.navbar .nav-right{flex:0 0 auto!important;gap:7px!important;margin-left:0!important}@media(max-width:1550px){.navbar .nav-links>.nav-dropdown>.nav-dropdown-toggle,.navbar .nav-links>a,.navbar .nav-right>a{min-width:0!important;padding:0 11px!important;font-size:13px!important}}@media(max-width:1120px){.navbar{align-items:flex-start!important;flex-wrap:wrap!important}.navbar .nav-links{order:3!important;width:100%!important;overflow-x:auto!important;padding:7px 0!important}.navbar .nav-right{margin-left:auto!important}}
 </style>
-                          </head>
+                          <style>
+.hero-stats a.stat{display:block;color:inherit;text-decoration:none}.hero-stats a.stat:hover,.hero-stats a.stat:focus-visible{outline:2px solid #8cb7ff;outline-offset:3px}
+.skill-links{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.skill-links a{text-decoration:none}
+.job-card{position:relative}.job-title a{color:inherit;text-decoration:none}.job-title a:after{content:"";position:absolute;inset:0;border-radius:inherit}.job-title a:focus-visible:after{outline:3px solid #2563eb;outline-offset:3px}.job-card .apply,.job-card .tag,.job-card .company-small a{position:relative;z-index:1}.job-card .tag{text-decoration:none;color:inherit}
+html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box input{min-width:0}
+</style></head>
                           <body>
 @include('partials.shared-header')
         <header class="hero">
@@ -837,40 +842,49 @@ pointer-events:auto
                 </button>
             </form>
             <div class="hero-stats">
-                <div class="stat">
+                <a class="stat" href="#jobs">
                     <strong id="job-count">{{number_format($homeStats['total_jobs'])}}{{--
                         —
                     --}}</strong>
                     <span>
                         Active jobs
                     </span>
-                </div>
-                <div class="stat">
+                </a>
+                <a class="stat" href="/companies">
                     <strong id="company-count">{{number_format($homeStats['total_companies'])}}{{--
                         —
                     --}}</strong>
                     <span>
                         Companies listed
                     </span>
-                </div>
-                <div class="stat">
+                </a>
+                <a class="stat" href="#companies">
                     <strong id="hiring-company-count">{{number_format($homeStats['hiring_companies'])}}</strong>
                     <span>
                         Verified hiring feeds
                     </span>
-                </div>
-                <div class="stat">
+                </a>
+                <a class="stat" href="#skill-directory">
                     <strong id="technology-count">{{number_format($homeStats['total_technologies'])}}{{--
                         —
                     --}}</strong>
                     <span>
                         Searchable skills
                     </span>
-                </div>
+                </a>
             </div>
         </div>
     </header>
 <main class="container">
+<section id="skill-directory" aria-labelledby="skills-heading">
+<h2 id="skills-heading">Browse jobs by skill</h2>
+<div class="skill-links">
+@foreach(['C','C++','Java','Python','PHP','Ruby','Swift','Django','Laravel','Spring Boot','Kubernetes','Kafka','Docker','HTML','CSS','JavaScript','React Native','React Bootstrap','Node.js','TypeScript'] as $skill)
+<a class="tab" href="{{url('/')}}?q={{rawurlencode($skill)}}#jobs">{{$skill}}</a>
+@endforeach
+</div>
+<p><a href="{{route('companies.cyber-city')}}">Explore DLF Cyber City companies and official career pages &rarr;</a></p>
+</section>
     <section id="companies">
         <div class="section-header">
             <div>
@@ -881,9 +895,9 @@ pointer-events:auto
                     Companies with synchronized active openings
                 </p>
             </div>
-            <button class="tab" id="all-companies">
+            <a class="tab" id="all-companies" href="/companies">
                 All companies
-            </button>
+            </a>
         </div>
         <div class="company-grid" id="company-grid">
             <div class="empty">
@@ -937,15 +951,17 @@ pointer-events:auto
       <section class="journey"><div class="section-header"><div><h2>Your complete career journey</h2><p>Everything works from this one homepage.</p></div></div><div class="journey-grid"><a class="journey-card" href="/about"><b>01</b><h3>About EngineerLaunch</h3><p>Our mission, platform model and promise to job seekers.</p><span>Read about us →</span></a><a class="journey-card" href="/learn"><b style="background:#7c3aed">02</b><h3>Learning & interview preparation</h3><p>Java, Spring Boot, Kafka, Laravel, DSA, system design, ML and data science.</p><span>Start learning →</span></a><a class="journey-card" href="/practice"><b style="background:#0891b2">03</b><h3>Live practice editor</h3><p>Write and run browser-safe HTML, CSS and JavaScript.</p><span>Open editor →</span></a></div></section></main>
 <script>
 const state={company:'',sort:'posted_at',preset:''};
+const initialSearch=new URLSearchParams(location.search);
 const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-async function api(path){const key='ascendia:api:v4:'+path,now=Date.now();try{const saved=JSON.parse(sessionStorage.getItem(key)||'null');if(saved&&saved.expires>now)return saved.payload}catch(error){sessionStorage.removeItem(key)}const response=await fetch(path,{headers:{Accept:'application/json'},cache:'no-store'});if(!response.ok)throw new Error('Request failed');const payload=await response.json();try{const total=Number(payload?.pagination?.total??payload?.meta?.total??payload?.total??payload?.data?.total_jobs??0);if(total>0)sessionStorage.setItem(key,JSON.stringify({expires:now+300000,payload}));else sessionStorage.removeItem(key)}catch(error){}return payload}
+async function api(path){const key='ascendia:api:v5:'+path,now=Date.now();try{const saved=JSON.parse(sessionStorage.getItem(key)||'null');if(saved&&saved.expires>now)return saved.payload}catch(error){sessionStorage.removeItem(key)}const response=await fetch(path,{headers:{Accept:'application/json'},cache:'no-store'});if(!response.ok)throw new Error('Request failed');const payload=await response.json();try{const total=Number(payload?.pagination?.total??payload?.meta?.total??payload?.total??payload?.data?.total_jobs??0);if(total>0)sessionStorage.setItem(key,JSON.stringify({expires:now+300000,payload}));else sessionStorage.removeItem(key)}catch(error){}return payload}
 function initials(name){return String(name||'CO').split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
 function companyLogo(company){const fallback=`<span class="logo-fallback">${esc(initials(company?.name))}</span>`;if(!company?.website)return fallback;const source=`https://www.google.com/s2/favicons?domain_url=${encodeURIComponent(company.website)}&sz=128`;return `<img src="${esc(source)}" alt="${esc(company.name)} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">${esc(initials(company.name))}</span>`}
-function jobCard(job){const tags=[...(job.technologies||[]).map(x=>x.name),...(job.categories||[]).map(x=>x.name)].slice(0,5);const description=String(job.description||'Review the complete role requirements on the official company careers page.').replace(/<[^>]*>/g,' ');const isPortal=job.source==='employer'&&job.slug;const applyUrl=isPortal?`/jobs/${encodeURIComponent(job.slug)}`:(job.external_url||job.company?.careers_url||'#');const companyName=job.company?.name||'Company';const reviewCount=Number(job.company?.published_reviews_count||0);const reviewAverage=Number(job.company?.published_reviews_avg_rating||0);const rating=reviewCount?`<span class="company-rating"><span class="star">★</span> ${reviewAverage.toFixed(1)} · ${reviewCount.toLocaleString()} ${reviewCount===1?'review':'reviews'}</span>`:'';return `<article class="job-card"><div class="job-top"><div class="company-info"><div class="job-logo">${esc(initials(companyName))}</div><div><div class="company-small" data-company-name="${esc(companyName)}">${esc(companyName)}${rating}</div><h3 class="job-title">${esc(job.title)}</h3><div class="job-meta"><span>📍 ${esc(job.location||'Not specified')}</span><span>● ${esc(job.job_type||'Full-time')}</span>${job.work_mode?`<span>● ${esc(job.work_mode)}</span>`:''}</div></div></div></div><p class="job-description">${esc(description)}</p><div class="job-bottom"><div class="tags">${tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div><a class="apply" href="${esc(applyUrl)}" ${isPortal?'':'target="_blank" rel="noopener noreferrer"'}>${isPortal?'View & apply →':'View official job →'}</a></div></article>`}
+function safeJobUrl(value){try{const url=new URL(value,location.origin);return /^https?:$/.test(url.protocol)&&value?url.href:null}catch{return null}}
+function jobCard(job){const tags=[...(job.technologies||[]).map(x=>x.name),...(job.categories||[]).map(x=>x.name)].slice(0,5);const description=String(job.description||'Review the complete role requirements on the official company careers page.').replace(/<[^>]*>/g,' ');const isPortal=job.source==='employer'&&job.slug;const applyUrl=isPortal?`/jobs/${encodeURIComponent(job.slug)}`:(safeJobUrl(job.external_url)||safeJobUrl(job.company?.careers_url)||`/opportunities/${Number(job.id)}`);const companyName=job.company?.name||'Company';const reviewCount=Number(job.company?.published_reviews_count||0);const reviewAverage=Number(job.company?.published_reviews_avg_rating||0);const rating=reviewCount?`<span class="company-rating"><span class="star">★</span> ${reviewAverage.toFixed(1)} · ${reviewCount.toLocaleString()} ${reviewCount===1?'review':'reviews'}</span>`:'';return `<article class="job-card"><div class="job-top"><div class="company-info"><div class="job-logo">${esc(initials(companyName))}</div><div><div class="company-small" data-company-name="${esc(companyName)}"><a href="${job.company?.slug?`/companies/${encodeURIComponent(job.company.slug)}`:`/companies?q=${encodeURIComponent(companyName)}`}">${esc(companyName)}</a>${rating}</div><h3 class="job-title"><a href="${esc(applyUrl)}" ${isPortal?'':'target="_blank" rel="noopener noreferrer"'}>${esc(job.title)}</a></h3><div class="job-meta"><span>📍 ${esc(job.location||'Not specified')}</span><span>● ${esc(job.job_type||'Full-time')}</span>${job.work_mode?`<span>● ${esc(job.work_mode)}</span>`:''}</div></div></div></div><p class="job-description">${esc(description)}</p><div class="job-bottom"><div class="tags">${tags.map(tag=>`<a class="tag" href="/?q=${encodeURIComponent(tag)}#jobs">${esc(tag)}</a>`).join('')}</div><a class="apply" href="${esc(applyUrl)}" ${isPortal?'':'target="_blank" rel="noopener noreferrer"'}>${isPortal?'View & apply →':'View official job →'}</a></div></article>`}
 function parameters(){const p=new URLSearchParams({per_page:20,sort_by:state.sort,sort_order:'desc'});const values={region:$('#geo-region').value,country:$('#geo-country').value,state:$('#geo-state').value,city:$('#geo-city').value.trim(),q:$('#keyword').value.trim(),location:$('#location').value.trim(),company_id:state.company,work_mode:$('#work-mode').value,job_type:$('#job-type').value,experience_years:$('#experience').value,posted_within_days:$('#posted').value,role_family:$('#role').value,technology_id:$('#technology').value};if(state.preset==='graduate')values.q='graduate';if(state.preset==='remote')values.work_mode='remote';Object.entries(values).forEach(([key,value])=>{if(value!==''&&value!=null)p.set(key,value)});return p}
 let jobsRequest=0;
-async function loadJobs(){const request=++jobsRequest;const list=$('#jobs-list');list.innerHTML='<div class="empty">Loading opportunities…</div>';try{const payload=await api('/api/jobs?'+parameters());if(request!==jobsRequest)return;$('#result-count').textContent=`${payload.pagination.total.toLocaleString()} matching roles`;list.innerHTML=payload.data.length?payload.data.map(jobCard).join(''):'<div class="empty"><strong>No exact matches.</strong><br>Try fewer keywords or clear one of the filters.</div>'}catch(error){if(request!==jobsRequest)return;list.innerHTML='<div class="empty">Jobs could not be loaded. Please retry.</div>'}}
-async function initialize(){const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies/top-hiring?limit=12'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data,totalJobs=Number(s.total_jobs||0);$('#job-count').textContent=totalJobs.toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#hiring-company-count').textContent=Number(s.hiring_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=totalJobs>0?`${totalJobs.toLocaleString()} verified opportunities`:'No verified opportunities available'}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} active jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
+async function loadJobs(){const request=++jobsRequest;const list=$('#jobs-list');list.innerHTML='<div class="empty">Loading opportunities…</div>';try{const payload=await api('/api/jobs?'+parameters());if(request!==jobsRequest)return;$('#result-count').textContent=`${payload.pagination.total.toLocaleString()} matching roles`;list.innerHTML=payload.data.length?payload.data.map(jobCard).join(''):'<div class="empty"><strong>No exact matches.</strong><br>Try fewer keywords or clear one of the filters.<br><a href="/companies">Browse official company career pages</a> or <a href="/#jobs">browse all jobs</a>.</div>'}catch(error){if(request!==jobsRequest)return;list.innerHTML='<div class="empty">Jobs could not be loaded. Please retry.</div>'}}
+async function initialize(){$('#keyword').value=initialSearch.get('q')||'';$('#location').value=initialSearch.get('location')||'';const[statsResult,companiesResult,technologiesResult]=await Promise.allSettled([api('/api/jobs/stats'),api('/api/companies/top-hiring?limit=12'),api('/api/technologies?per_page=100')]);if(statsResult.status==='fulfilled'){const s=statsResult.value.data,totalJobs=Number(s.total_jobs||0);$('#job-count').textContent=totalJobs.toLocaleString();$('#company-count').textContent=Number(s.total_companies||0).toLocaleString();$('#hiring-company-count').textContent=Number(s.hiring_companies||0).toLocaleString();$('#technology-count').textContent=Number(s.total_technologies||0).toLocaleString();$('#available-label').textContent=totalJobs>0?`${totalJobs.toLocaleString()} verified opportunities`:'No verified opportunities available'}if(companiesResult.status==='fulfilled'){$('#company-grid').innerHTML=companiesResult.value.data.slice(0,12).map(company=>`<button class="company-card" data-company="${company.id}"><span class="company-logo">${esc(initials(company.name))}</span><span class="company-name">${esc(company.name)}</span><span class="company-jobs">${Number(company.active_jobs_count||0).toLocaleString()} active jobs</span></button>`).join('')}else{$('#company-grid').innerHTML='<div class="empty">Company data unavailable.</div>'}if(technologiesResult.status==='fulfilled'){$('#technology').insertAdjacentHTML('beforeend',technologiesResult.value.data.map(item=>`<option value="${item.id}">${esc(item.name)}</option>`).join(''))}loadJobs()}
 $('#search-form').addEventListener('submit',event=>{event.preventDefault();state.company='';state.preset='';loadJobs();$('#jobs').scrollIntoView()});$('#company-grid').addEventListener('click',event=>{const card=event.target.closest('[data-company]');if(!card)return;document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));card.classList.add('active');state.company=card.dataset.company;loadJobs();$('#jobs').scrollIntoView()});$('#all-companies').addEventListener('click',()=>{state.company='';document.querySelectorAll('.company-card').forEach(x=>x.classList.remove('active'));loadJobs()});document.querySelectorAll('.tab[data-sort],.tab[data-preset]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.job-toolbar .tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');state.sort=button.dataset.sort||'posted_at';state.preset=button.dataset.preset||'';loadJobs()}));['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).addEventListener('change',loadJobs));$('#clear-filters').addEventListener('click',()=>{['work-mode','job-type','experience','posted','role','technology'].forEach(id=>$('#'+id).value='');$('#keyword').value='';$('#location').value='';['geo-region','geo-country','geo-state','geo-city'].forEach(id=>$('#'+id).value='');updateGeography();state.company='';state.preset='';loadJobs()});initialize();
 
 let geographyRequest=0,cityTimer;

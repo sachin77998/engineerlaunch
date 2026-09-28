@@ -5,7 +5,7 @@
 @section('content')
 <section class="hero-band"><div class="container"><a href="{{ route('learning.track',$trackSlug) }}" style="color:#bfdbfe">&larr; {{ $track['title'] }}</a><h1>{{ $module['title'] }}</h1><p>Understand the idea. Compare it. Explain it. Test yourself.</p></div></section>
 <div class="learning-shell">@include('learning.partials.module-sidebars')<main class="questions-main">
-@include('learning.partials.visual-overview')
+@include('learning.partials.visual-assets')
 <label class="vl-mode"><input type="checkbox" data-vl-recall-mode> Recall mode: hide answers until I reveal them</label>
 @foreach($questions as $question)
 <?php $questionNumber=$questions->firstItem()+$loop->index; $questionText=is_array($question)?($question['question']??$question['title']??''):$question; ?>

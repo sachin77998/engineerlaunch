@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class OwnerAccountSeeder extends Seeder
 {
@@ -18,16 +20,18 @@ class OwnerAccountSeeder extends Seeder
                 ->whereRaw('LOWER(email) <> ?', [$email])
                 ->update(['role' => 'student', 'role_code' => 1]);
 
-            $owner = User::query()->updateOrCreate(
-                ['email' => $email],
-                [
+            $owner = User::query()->firstOrNew(['email' => $email]);
+            if (! $owner->exists) {
+                // Provision without a shared password; use owner:reset-password to set it.
+                $owner->password = Hash::make(Str::random(64));
+            }
+            $owner->fill([
                     'name' => config('owner.name'),
-                    'password' => '$2y$10$3zKI9v8rYA54rh40X0BefeVYMoANbBU5T82czSt9Q0bTmgtKp/6fC',
                     'role' => 'admin',
                     'role_code' => 2,
                     'email_verified_at' => now(),
-                ]
-            );
+            ]);
+            $owner->save();
 
             $owner->ownerProfile()->firstOrCreate([]);
 

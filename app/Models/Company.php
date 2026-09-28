@@ -64,7 +64,7 @@ class Company extends Model
     }
     public function activeJobs(): HasMany
     {
-        return $this->jobs()->where('is_active', true);
+        return $this->jobs()->active();
     }
     public function categories(): BelongsToMany
     {

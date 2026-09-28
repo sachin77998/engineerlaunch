@@ -86,6 +86,8 @@ class TechnologySeeder extends Seeder
             ['name' => 'Swift', 'category' => 'Mobile', 'slug' => 'swift'],
             ['name' => 'Kotlin', 'category' => 'Mobile', 'slug' => 'kotlin'],
 
+            ['name' => 'Kafka', 'category' => 'Data Infrastructure', 'slug' => 'kafka'],
+            ['name' => 'React Bootstrap', 'category' => 'Frontend', 'slug' => 'react-bootstrap'],
             // Other Technologies
             ['name' => 'GraphQL', 'category' => 'Backend', 'slug' => 'graphql'],
             ['name' => 'REST API', 'category' => 'Backend', 'slug' => 'rest-api'],
@@ -110,6 +112,6 @@ class TechnologySeeder extends Seeder
             );
         }
 
-        $this->command->info('Technologies seeded successfully!');
+        $this->command?->info('Technologies seeded successfully!');
     }
 }

@@ -29,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrapFive();
+        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, string $token) {
+            return rtrim((string) config('app.url'), '/').'/reset-password/'.rawurlencode($token).'?email='.rawurlencode($user->getEmailForPasswordReset());
+        });
 
         if ($this->app->environment('production')) {
             URL::forceScheme('https');

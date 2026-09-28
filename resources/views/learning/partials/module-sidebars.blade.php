@@ -1,3 +1,4 @@
+<style>.course-sidebar .vl-panel{padding:10px;margin:10px 0}.course-sidebar .vl-flow{display:block}.course-sidebar .vl-flow li{margin:10px 0}.course-sidebar .vl-table-wrap{overflow-x:auto}.course-sidebar details{min-width:0}</style>
 <aside class="learning-sidebar topic-sidebar" aria-label="{{$track['title']}} topics">
     <div class="sidebar-title"><span class="sidebar-kicker">CURRENT COURSE</span><h2>{{$track['title']}} topics</h2></div>
     <nav class="sidebar-links">
@@ -11,7 +12,7 @@
     </nav>
 </aside>
 
-<aside class="learning-sidebar course-sidebar" aria-label="Other courses">
+<aside class="learning-sidebar course-sidebar" aria-label="Other courses"><details><summary>Optional study guide</summary>@include('learning.partials.visual-overview')</details>
     <div class="sidebar-title"><span class="sidebar-kicker">EXPLORE MORE</span><h2>Other courses</h2></div>
     <nav class="other-course-links">
         @foreach($allTracks as $otherSlug => $otherTrack)

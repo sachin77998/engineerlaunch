@@ -16,3 +16,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Local deployment snapshots and account recovery files
+/release/

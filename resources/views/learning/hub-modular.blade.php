@@ -1,4 +1,15 @@
 @extends('layouts.app')
-@section('title','Learning Center — '.config('platform.name'))
-@push('styles')<style>.learn-hero{padding:62px 20px;text-align:center;background:linear-gradient(130deg,#eef6ff,#fff,#f3efff)}.learn-wrap{width:min(1180px,calc(100% - 36px));margin:auto}.learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;padding:48px 0 75px}.learn-card{display:flex;min-height:290px;flex-direction:column;padding:25px;border:2px solid transparent;border-radius:18px;background:#fff;color:#10213e;text-decoration:none;box-shadow:0 10px 30px #1635680d;transition:.22s}.learn-card:hover{transform:translateY(-7px);border-color:var(--accent)}.learn-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:15px;background:var(--accent);color:#fff;font-weight:900}.learn-card p{color:#6b7890;line-height:1.65}.learn-open{margin-top:auto;color:var(--accent);font-weight:800}</style>@endpush
-@section('content')<section class="learn-hero"><h1>See it. Understand it. Build it.</h1><p>Learn through diagrams, clear points, comparisons, and active practice.</p></section><section class="learn-wrap">@include('learning.partials.visual-assets')<section class="vl-panel"><span class="vl-eyebrow">A clearer way to learn</span><h2>Turn a concept into something you can explain.</h2><ol class="vl-flow"><li><strong>See the structure</strong><span>Follow a diagram to connect the main ideas.</span></li><li><strong>Compare the details</strong><span>Use tables and key points to separate similar concepts.</span></li><li><strong>Try an example</strong><span>Trace code, predict results, and complete practical tasks.</span></li><li><strong>Recall it yourself</strong><span>Hide supplied answers and write your explanation.</span></li></ol></section><div class="learn-grid">@foreach($tracks as $slug=>$track)<a class="learn-card" style="--accent:{{$track['color']}}" href="{{route('learning.track',$slug)}}"><span class="learn-icon">{{$track['icon']}}</span><h2>{{$track['title']}}</h2><p>{{$track['description']}}</p><small>{{count($track['topics'])}} topics · {{collect($track['topics'])->sum(fn($topic)=>count($topic['questions']))}} questions</small><span class="learn-open">Open learning path →</span></a>@endforeach</div></section>@endsection
+@section('title','Learning topics')
+@push('styles')
+<style>.learn-wrap{width:min(1180px,calc(100% - 36px));margin:28px auto}.learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;padding:18px 0 50px}.learn-card{display:flex;min-height:170px;flex-direction:column;padding:24px;border:1px solid #dce5ef;border-radius:16px;background:#fff;color:#10213e;text-decoration:none}.learn-card:hover,.learn-card:focus-visible{border-color:var(--accent);outline:2px solid var(--accent)}.learn-card h2{margin:12px 0}.learn-icon{color:var(--accent);font-weight:800}.learn-open{margin-top:20px;color:var(--accent);font-weight:750}</style>
+@endpush
+@section('content')
+<main class="learn-wrap"><h1>Learning topics</h1>
+<div class="learn-grid">
+@foreach($tracks as $slug=>$track)
+<a class="learn-card" style="--accent:{{$track['color']}}" href="{{route('learning.track',$slug)}}">
+<span class="learn-icon">{{$track['icon']}}</span><h2>{{$track['title']}}</h2>
+<small>{{count($track['topics'])}} topics</small><span class="learn-open">View topics &rarr;</span></a>
+@endforeach
+</div></main>
+@endsection

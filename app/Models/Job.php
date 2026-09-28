@@ -187,33 +187,9 @@ class Job extends Model
     //     Scope to search by title and description
     public function scopeSearch($query, $term)
     {
-        $normalizedTerm = preg_replace('/[^\pL\pN+#.]+/u', ' ', trim((string) $term));
-        $aliases = [
-            'rect' => 'react',
-            'reactjs' => 'react',
-            'react.js' => 'react',
-            'springboot' => 'spring boot',
-            'nodejs' => 'node.js',
-            'javascript' => 'javascript',
-        ];
-        $tokens = collect(preg_split('/\s+/', mb_strtolower($normalizedTerm)))
-            ->flatMap(function ($token) use ($aliases) {
-                return preg_split('/\s+/', $aliases[$token] ?? $token);
-            })
-            ->filter(fn($token) => mb_strlen($token) >= 2)
-            ->unique()->take(8);
-        foreach ($tokens as $token) {
-            $query->where(function ($searchQuery) use ($token) {
-                $like = "%{$token}%";
-                $searchQuery->where('title', 'LIKE', $like)->orWhere('description', 'LIKE', $like)
-                    ->orWhere('requirements', 'LIKE', $like)
-                    ->orWhere('location', 'LIKE', $like)
-                    ->orWhereHas('company', fn($companyQuery) => $companyQuery->where('name', 'LIKE', $like))
-                    ->orWhereHas('technologies', fn($technologyQuery) => $technologyQuery->where('name', 'LIKE', $like));
-            });
-        }
-        return $query;
+        return \App\Services\JobSkillVocabulary::apply($query, (string) $term);
     }
+
     // Scope to filter by salary range
     public function scopeSalaryRange($query, $min, $max)
     {

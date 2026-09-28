@@ -35,6 +35,7 @@ Route::get('/latest/ajax', [NewsController::class, 'ajax'])->name('news.ajax');
 Route::get('/latest/{slug}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/companies', [CompanyDiscoveryController::class, 'index'])->name('companies.index');
 Route::get('/companies/category/{category:slug}', [CompanyDiscoveryController::class, 'index'])->name('companies.category');
+Route::get('/companies/dlf-cyber-city', [CompanyDiscoveryController::class, 'cyberCity'])->name('companies.cyber-city');
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
 Route::post('/companies/{company:slug}/reviews', [CompanyReviewController::class, 'store'])->middleware(['auth','throttle:6,1'])->name('companies.reviews.store');
 Route::get('/jobs-posted-by-hr',HrJobListingController::class)->name('jobs.hr');
@@ -45,6 +46,13 @@ Route::prefix('company-experiences')->name('company.experiences.')->group(functi
  Route::post('/share',[CompanyExperienceController::class,'store'])->middleware(['auth','throttle:5,1'])->name('store');
  Route::get('/{companySlug}/experience/{experienceId}',[CompanyExperienceController::class,'experience'])->whereNumber('experienceId')->name('experience');
  Route::get('/{slug}',[CompanyExperienceController::class,'company'])->name('company');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'requestForm'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
 });
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
@@ -116,3 +124,6 @@ Route::prefix('admin/industrial-areas')->middleware(['auth', 'admin'])->name('ad
     Route::get('/{type}/{record}/edit', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'form'])->whereNumber('record')->name('edit');
     Route::put('/{type}/{record}', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'save'])->whereNumber('record')->name('update');
 });
+
+Route::get("/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"index"])->name("career-explorer");
+Route::get("/api/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"api"])->middleware("throttle:30,1")->name("career-explorer.api");

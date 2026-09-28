@@ -15,6 +15,7 @@ class EnrichJobFilters extends Command
 
     public function handle(JobClassificationService $classifier): int
     {
+        $this->call('db:seed', ['--class' => \Database\Seeders\TechnologySeeder::class, '--force' => true]);
         $technologies = Technology::query()->get(['id', 'name']);
         $processed = $linked = $experienced = 0;
 
@@ -22,8 +23,7 @@ class EnrichJobFilters extends Command
             foreach ($jobs as $job) {
                 $text = implode(' ', array_filter([$job->title, $job->description, is_array($job->requirements) ? implode(' ', $job->requirements) : $job->requirements]));
                 $technologyIds = $technologies->filter(function ($technology) use ($text) {
-                    $name = preg_quote($technology->name, '/');
-                    return preg_match('/(?<![\pL\pN])'.$name.'(?![\pL\pN])/iu', $text) === 1;
+                    return \App\Services\JobSkillVocabulary::matches($text, $technology->name);
                 })->pluck('id');
                 if ($technologyIds->isNotEmpty()) {
                     $job->technologies()->syncWithoutDetaching($technologyIds);

@@ -16,7 +16,7 @@ final class DiscoveryCache
     public static function key(string $scope, array $parameters = []): string
     {
         ksort($parameters);
-        return 'discovery:v'.Cache::get('discovery:version', 1).':'.$scope.':'.sha1(json_encode($parameters));
+        return 'discovery:skills-20260926:v'.Cache::get('discovery:version', 1).':'.$scope.':'.sha1(json_encode($parameters));
     }
 
     public static function invalidate(): void

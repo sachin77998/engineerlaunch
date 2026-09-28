@@ -18,6 +18,7 @@ class JobScraper
     protected string $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
     protected $technologies;
     protected $categories;
+    protected bool $completeFeed = true;
     protected ?IndustrialJobSourceService $industrialImporter = null;
 
     public function __construct()
@@ -38,6 +39,7 @@ class JobScraper
      */
     public function scrapeCompany(Company $company): array
     {
+        $this->completeFeed = true;
         $results = [
             'success' => false,
             'company' => $company->name,
@@ -72,9 +74,9 @@ class JobScraper
 
             // Never retire an entire company's catalogue because an upstream
             // page temporarily returned an empty response or changed markup.
-            if ($company->sync_enabled && count($jobs) > 0 && $results['errors'] === []) {
+            if ($this->completeFeed && $company->sync_enabled && count($jobs) > 0 && $results['errors'] === []) {
                 $currentUrls = collect($jobs)->pluck('external_url')->filter()->all();
-                $retired = $company->jobs()->whereNotIn('external_url', $currentUrls ?: ['']);
+                $retired = $company->jobs()->whereNotNull('external_url')->where(fn ($q) => $q->whereNull('source')->orWhere('source', '!=', 'employer'))->whereNotIn('external_url', $currentUrls ?: ['']);
                 $retired->chunkById(200, function ($oldJobs) {
                     foreach ($oldJobs as $oldJob) {
                         $oldJob->update(['is_active' => false]);
@@ -84,7 +86,8 @@ class JobScraper
                 $company->forceFill(['last_synced_at' => now()])->save();
             }
 
-            $results['success'] = true;
+            if (!$this->completeFeed) $results['errors'][] = 'Feed incomplete; previous listings were retained.';
+            $results['success'] = $results['errors'] === [];
             DiscoveryCache::invalidate();
         } catch (\Exception $e) {
             $results['errors'][] = "Scraping failed: " . $e->getMessage();
@@ -263,12 +266,16 @@ class JobScraper
         for ($offset = 0; $offset < 10000; $offset += 100) {
             $payload = json_decode($this->getContent($endpoint.'?'.http_build_query(['limit' => 100, 'offset' => $offset])), true, 512, JSON_THROW_ON_ERROR);
             $items = $payload['content'] ?? [];
+            $urls = [];
+            foreach ($items as $item) if (!empty($item['id'])) $urls[$item['id']] = $endpoint.'/'.rawurlencode($item['id']);
+            $details = $this->fetchJobDetails($urls);
             foreach ($items as $item) {
                 $place = $item['location'] ?? [];
                 $externalUrl = "https://jobs.smartrecruiters.com/{$identifier}/".($item['id'] ?? '');
                 $jobs[$externalUrl] = $this->normalizeJob($company, [
                     'title' => $item['name'] ?? 'Untitled',
-                    'description' => implode(' ', array_filter([$item['department']['label'] ?? null, $item['function']['label'] ?? null, $item['industry']['label'] ?? null])),
+                    'description' => strip_tags(html_entity_decode(implode(' ', array_column($details[$item['id']]['jobAd']['sections'] ?? [], 'text')))),
+                    'description_complete' => isset($details[$item['id']]['jobAd']['sections']),
                     'location' => $place['fullLocation'] ?? $place['city'] ?? 'Not specified',
                     'job_type' => $item['typeOfEmployment']['label'] ?? 'Full-time',
                     'experience_level' => $item['experienceLevel']['label'] ?? null,
@@ -297,6 +304,7 @@ class JobScraper
 
         $first = json_decode($this->postJson($endpoint, $makeBody(0)), true, 512, JSON_THROW_ON_ERROR);
         $total = min((int) ($first['total'] ?? 0), 10000);
+        if ((int) ($first['total'] ?? 0) > $total) $this->completeFeed = false;
         $pages = [0 => $first['jobPostings'] ?? []];
 
         $requests = function () use ($endpoint, $makeBody, $total) {
@@ -316,6 +324,7 @@ class JobScraper
                 $pages[$offset] = $payload['jobPostings'] ?? [];
             },
             'rejected' => function ($reason, int $offset) {
+                $this->completeFeed = false;
                 Log::warning("Workday page failed at offset {$offset}: {$reason}");
             },
         ]);
@@ -329,14 +338,21 @@ class JobScraper
         $baseUrl = ($urlParts['scheme'] ?? 'https').'://'.($urlParts['host'] ?? '').'/'.$site;
         $jobs = [];
 
-        foreach (array_merge(...array_values($pages)) as $item) {
+        $items = array_merge(...array_values($pages));
+        $detailUrls = [];
+        foreach ($items as $item) {
+            if (!empty($item['externalPath'])) $detailUrls[$item['externalPath']] = preg_replace('~/jobs$~', '', $endpoint).'/'.ltrim($item['externalPath'], '/');
+        }
+        $details = $this->fetchJobDetails($detailUrls);
+        foreach ($items as $item) {
             $externalPath = $item['externalPath'] ?? null;
             if (!$externalPath) continue;
             $location = $item['locationsText'] ?? collect($item['bulletFields'] ?? [])->last() ?? 'Not specified';
             $externalUrl = rtrim($baseUrl, '/').'/'.ltrim($externalPath, '/');
             $jobs[$externalUrl] = $this->normalizeJob($company, [
                 'title' => $item['title'] ?? 'Untitled',
-                'description' => implode(' ', $item['bulletFields'] ?? []),
+                'description' => html_entity_decode(strip_tags($details[$externalPath]['jobPostingInfo']['jobDescription'] ?? implode(' ', $item['bulletFields'] ?? []))),
+                'description_complete' => isset($details[$externalPath]['jobPostingInfo']['jobDescription']),
                 'location' => $location,
                 'external_url' => $externalUrl,
                 'posted_at' => $this->workdayPostedAt($item['postedOn'] ?? ''),
@@ -345,6 +361,28 @@ class JobScraper
         }
 
         return array_values($jobs);
+    }
+
+    protected function fetchJobDetails(array $urls): array
+    {
+        $details = [];
+        $requests = function () use ($urls) {
+            foreach ($urls as $key => $url) yield $key => new Request('GET', $url, ['Accept' => 'application/json']);
+        };
+        $pool = new Pool($this->httpClient, $requests(), [
+            'concurrency' => 3,
+            'fulfilled' => function ($response, $key) use (&$details) {
+                $payload = json_decode((string) $response->getBody(), true);
+                if (!is_array($payload) || (empty($payload['jobPostingInfo']['jobDescription']) && empty($payload['jobAd']['sections']))) { $this->completeFeed = false; return; }
+                $details[$key] = $payload;
+            },
+            'rejected' => function ($reason, $key) {
+                $this->completeFeed = false;
+                Log::warning('Job detail fetch failed', ['path' => $key, 'reason' => (string) $reason]);
+            },
+        ]);
+        $pool->promise()->wait();
+        return $details;
     }
 
     protected function workdayPostedAt(string $value): Carbon
@@ -421,7 +459,7 @@ class JobScraper
 
         return collect($payload['jobs'] ?? [])->map(function (array $item) use ($company) {
             $location = $item['location']['name'] ?? 'Not specified';
-            $description = html_entity_decode(strip_tags($item['content'] ?? ''));
+            $description = strip_tags(html_entity_decode($item['content'] ?? ''));
             return $this->normalizeJob($company, [
                 'title' => $item['title'] ?? 'Untitled', 'description' => $description,
                 'location' => $location, 'external_url' => $item['absolute_url'] ?? null,
@@ -439,7 +477,7 @@ class JobScraper
             $categories = $item['categories'] ?? [];
             return $this->normalizeJob($company, [
                 'title' => $item['text'] ?? 'Untitled',
-                'description' => strip_tags(($item['descriptionPlain'] ?? '').' '.($item['additionalPlain'] ?? '')),
+                'description' => html_entity_decode(strip_tags(($item['descriptionPlain'] ?? $item['description'] ?? '').' '.($item['additionalPlain'] ?? '').' '.implode(' ', array_column($item['lists'] ?? [], 'content')))),
                 'location' => $categories['location'] ?? 'Not specified',
                 'job_type' => $categories['commitment'] ?? 'Full-time',
                 'external_url' => $item['hostedUrl'] ?? $item['applyUrl'] ?? null,
@@ -450,12 +488,16 @@ class JobScraper
 
     protected function normalizeJob(Company $company, array $job): array
     {
+        if (mb_strlen((string) ($job['location'] ?? '')) > 255) {
+            $job['source_payload']['full_location'] = $job['location'];
+            $job['location'] = mb_substr($job['location'], 0, 252).'...';
+        }
         $searchable = trim(($job['title'] ?? '').' '.($job['description'] ?? ''));
         $job['country'] = $this->countryFromLocation($job['location'] ?? '', $company->country);
         $this->technologies ??= \App\Models\Technology::query()->get();
         $this->categories ??= \App\Models\JobCategory::query()->get();
         $job['technologies'] = $this->technologies->filter(
-            fn ($technology) => preg_match('/\\b'.preg_quote($technology->name, '/').'\\b/i', $searchable)
+            fn ($technology) => JobSkillVocabulary::matches($searchable, $technology->name)
         )->pluck('id')->all();
         $job['categories'] = $this->categories->filter(
             fn ($category) => stripos($searchable, $category->name) !== false
@@ -485,10 +527,16 @@ class JobScraper
             ['title' => $jobData['title'] ?? 'Untitled']
         );
 
+        // A temporary detail-page failure must not erase an existing full description.
+        if (($jobData['description_complete'] ?? true) === false && $job->exists && strlen((string) $job->description) > strlen((string) ($jobData['description'] ?? ''))) {
+            $jobData['description'] = $job->description;
+            $jobData = $this->normalizeJob($company, $jobData);
+        }
         $classification = app(JobClassificationService::class)->classify($jobData, $company);
 
         $job->fill(array_merge([
             'company_id' => $company->id,
+            'source_payload' => $jobData['source_payload'] ?? $job->source_payload,
             'title' => $jobData['title'] ?? 'Untitled',
             'description' => $jobData['description'] ?? null,
             'responsibilities' => $jobData['responsibilities'] ?? null,

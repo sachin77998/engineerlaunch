@@ -20,6 +20,42 @@ class OfficialCareerSourceSeeder extends Seeder
     {
         return [
             [
+                'name' => 'MongoDB', 'website' => 'https://www.mongodb.com',
+                'careers_url' => 'https://www.mongodb.com/company/careers', 'country' => 'Global',
+                'industry' => 'Database Software', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'mongodb',
+            ],
+            [
+                'name' => 'Grafana Labs', 'website' => 'https://grafana.com',
+                'careers_url' => 'https://grafana.com/about/careers/', 'country' => 'Global',
+                'industry' => 'Observability', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'grafanalabs',
+            ],
+            [
+                'name' => 'Canonical', 'website' => 'https://canonical.com',
+                'careers_url' => 'https://canonical.com/careers', 'country' => 'Global',
+                'industry' => 'Open Source Software', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'canonical',
+            ],
+            [
+                'name' => 'Datadog', 'website' => 'https://www.datadoghq.com',
+                'careers_url' => 'https://careers.datadoghq.com', 'country' => 'Global',
+                'industry' => 'Cloud Monitoring', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'datadog',
+            ],
+            [
+                'name' => 'Cloudflare', 'website' => 'https://www.cloudflare.com',
+                'careers_url' => 'https://www.cloudflare.com/careers/', 'country' => 'Global',
+                'industry' => 'Cloud & Networking', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'cloudflare',
+            ],
+            [
+                'name' => 'Discord', 'website' => 'https://discord.com',
+                'careers_url' => 'https://discord.com/careers', 'country' => 'Global',
+                'industry' => 'Communications Software', 'sector' => 'Technology',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'discord',
+            ],
+            [
                 'name' => 'GitLab',
                 'website' => 'https://about.gitlab.com',
                 'careers_url' => 'https://about.gitlab.com/jobs/all-jobs/',
@@ -103,7 +139,7 @@ class OfficialCareerSourceSeeder extends Seeder
                 'name' => 'Postman', 'website' => 'https://www.postman.com',
                 'careers_url' => 'https://www.postman.com/company/careers/', 'country' => 'Global',
                 'industry' => 'Developer Tools', 'sector' => 'Software Product',
-                'ats_provider' => 'greenhouse', 'ats_identifier' => 'postman',
+                'ats_provider' => 'greenhouse', 'ats_identifier' => 'postman', 'sync_enabled' => false,
             ],
             [
                 'name' => 'Rubrik', 'website' => 'https://www.rubrik.com',

@@ -32,7 +32,7 @@
                 </a>
                 <p class="asc-footer-copy">Verified career discovery, practical learning, ATS-ready profiles and employer hiring tools in one connected platform.</p>
                 <div class="asc-footer-social" aria-label="Social links">
-                    <a href="#" aria-label="LinkedIn">in</a><a href="#" aria-label="GitHub">GH</a><a href="#" aria-label="Instagram">IG</a><a href="mailto:{{ config('platform.contact.email', 'sachinsoni77998@gmail.com') }}" aria-label="Email">@</a>
+                    <a href="mailto:{{ config('platform.contact.email', 'sachinsoni77998@gmail.com') }}" aria-label="Email">@</a>
                 </div>
             </section>
             <section><h2 class="asc-footer-title">Company</h2><nav class="asc-footer-links"><a href="{{ route('about') }}">About us</a><a href="{{ route('about') }}#vision">Our vision</a><a href="{{ route('contact') }}">Contact us</a><a href="{{ route('companies.index') }}">Companies</a></nav></section>

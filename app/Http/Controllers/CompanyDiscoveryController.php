@@ -12,9 +12,17 @@ use Illuminate\View\View;
 
 class CompanyDiscoveryController extends Controller
 {
+    public function cyberCity(): View
+    {
+        $companies = Company::active()->whereIn('name', array_column(config('cyber_city.companies', []), 'name'))
+            ->withCount('activeJobs')->get()->keyBy('name');
+        return view('companies.cyber-city', compact('companies'));
+    }
+
     public function index(Request $request, ?CompanyCategory $category = null): View
     {
         $filters = $request->validate(['q' => 'nullable|string|max:100', 'category' => 'nullable|array|max:20', 'category.*' => 'integer', 'country' => 'nullable|array|max:20', 'country.*' => 'string|max:80', 'location' => 'nullable|array|max:20', 'location.*' => 'string|max:100']);
+        if (preg_match('/(?:dlf\s+)?cyber\s*city/i', $filters['q'] ?? '')) return $this->cyberCity();
         $selected = collect($filters['category'] ?? [])->map(fn($id) => (int)$id);
         $locationMap = config('company_discovery.locations', []);
         $selectedLocations = collect($filters['location'] ?? [])->filter(fn($name) => isset($locationMap[$name]))->values();
@@ -69,7 +77,7 @@ class CompanyDiscoveryController extends Controller
         $departments = (clone $base)->selectRaw("COALESCE(NULLIF(department, ''), NULLIF(role_family, ''), NULLIF(category, ''), 'Other') as label, COUNT(*) as jobs_count")->groupBy('label')->orderByDesc('jobs_count')->limit(20)->get();
         $disciplines = (clone $base)->selectRaw("COALESCE(NULLIF(engineering_discipline, ''), 'General / Interdisciplinary') as label, COUNT(*) as jobs_count")->groupBy('label')->orderByDesc('jobs_count')->get();
         $locations = (clone $base)->whereNotNull('location')->where('location', '!=', '')->selectRaw('location as label, COUNT(*) as jobs_count')->groupBy('location')->orderByDesc('jobs_count')->limit(25)->get();
-        $jobs = $company->activeJobs()->with('skills:id,name')
+        $jobs = $company->activeJobs()->with(['skills:id,name', 'technologies:id,name'])
             ->when($filters['department'] ?? null, fn($q, $value) => $q->where(function ($departmentQuery) use ($value) {
                 $departmentQuery->where('department', $value)->orWhere(function ($legacy) use ($value) {
                     $legacy->whereNull('department')->where('category', $value);

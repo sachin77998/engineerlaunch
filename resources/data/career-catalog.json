@@ -1,0 +1,2410 @@
+{
+  "sectors": [
+    "Software & IT",
+    "Sports",
+    "Automobile",
+    "Casting",
+    "Manufacturing",
+    "Insurance",
+    "Banking",
+    "CA & Accounting",
+    "Healthcare",
+    "Pharma",
+    "Construction",
+    "Real Estate",
+    "Retail",
+    "FMCG",
+    "Telecom",
+    "Education",
+    "Food Industry",
+    "Hotel & Tourism",
+    "Airlines",
+    "Textile",
+    "Apparel",
+    "Logistics",
+    "Energy",
+    "Government/PSU",
+    "Fintech"
+  ],
+  "tracks": [
+    {
+      "slug": "software-engineering",
+      "sector": "Software & IT",
+      "department": "Engineering",
+      "name": "Software Engineering",
+      "roles": [
+        {
+          "name": "Intern",
+          "level": "entry",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Trainee Developer"
+          ]
+        },
+        {
+          "name": "Trainee Developer",
+          "level": "entry",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Associate Software Engineer"
+          ]
+        },
+        {
+          "name": "Associate Software Engineer",
+          "level": "entry",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Software Engineer / SDE 1"
+          ]
+        },
+        {
+          "name": "Software Engineer / SDE 1",
+          "level": "experienced",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Software Engineer / SDE 2"
+          ]
+        },
+        {
+          "name": "Software Engineer / SDE 2",
+          "level": "experienced",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Senior Software Engineer / SDE 3"
+          ]
+        },
+        {
+          "name": "Senior Software Engineer / SDE 3",
+          "level": "senior",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Technical Lead",
+            "Engineering Manager",
+            "Solution Architect"
+          ]
+        },
+        {
+          "name": "Technical Lead",
+          "level": "lead",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Principal Engineer"
+          ]
+        },
+        {
+          "name": "Principal Engineer",
+          "level": "lead",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Solution Architect"
+          ]
+        },
+        {
+          "name": "Solution Architect",
+          "level": "lead",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": [
+            "Enterprise Architect"
+          ]
+        },
+        {
+          "name": "Enterprise Architect",
+          "level": "lead",
+          "skills": [
+            "Programming",
+            "Git",
+            "Testing",
+            "System Design"
+          ],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "engineering-management",
+      "sector": "Software & IT",
+      "department": "Engineering",
+      "name": "Engineering Management",
+      "roles": [
+        {
+          "name": "Engineering Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Engineering Manager"
+          ]
+        },
+        {
+          "name": "Senior Engineering Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Engineering Director"
+          ]
+        },
+        {
+          "name": "Engineering Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "VP Engineering"
+          ]
+        },
+        {
+          "name": "VP Engineering",
+          "level": "executive",
+          "skills": [],
+          "next": [
+            "CTO"
+          ]
+        },
+        {
+          "name": "CTO",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "web-development",
+      "sector": "Software & IT",
+      "department": "Development",
+      "name": "Web Development",
+      "roles": [
+        {
+          "name": "Backend Developer",
+          "level": "experienced",
+          "skills": [
+            "PHP",
+            "Laravel",
+            "MySQL",
+            "REST API",
+            "Redis",
+            "Git"
+          ],
+          "next": [
+            "Senior Backend Developer"
+          ]
+        },
+        {
+          "name": "Senior Backend Developer",
+          "level": "senior",
+          "skills": [
+            "PHP",
+            "Laravel",
+            "MySQL",
+            "REST API",
+            "Redis",
+            "Git"
+          ],
+          "next": [
+            "Technical Lead"
+          ]
+        },
+        {
+          "name": "Technical Lead",
+          "level": "lead",
+          "skills": [
+            "PHP",
+            "Laravel",
+            "MySQL",
+            "REST API",
+            "Redis",
+            "Git"
+          ],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "frontend-development",
+      "sector": "Software & IT",
+      "department": "Development",
+      "name": "Frontend Development",
+      "roles": [
+        {
+          "name": "Frontend Developer",
+          "level": "entry",
+          "skills": [
+            "HTML",
+            "CSS",
+            "JavaScript",
+            "TypeScript",
+            "React"
+          ],
+          "next": [
+            "Senior Frontend Developer"
+          ]
+        },
+        {
+          "name": "Senior Frontend Developer",
+          "level": "senior",
+          "skills": [
+            "HTML",
+            "CSS",
+            "JavaScript",
+            "TypeScript",
+            "React"
+          ],
+          "next": [
+            "Frontend Lead"
+          ]
+        },
+        {
+          "name": "Frontend Lead",
+          "level": "lead",
+          "skills": [
+            "HTML",
+            "CSS",
+            "JavaScript",
+            "TypeScript",
+            "React"
+          ],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "testing",
+      "sector": "Software & IT",
+      "department": "Quality",
+      "name": "Software Testing",
+      "roles": [
+        {
+          "name": "QA Intern",
+          "level": "entry",
+          "skills": [
+            "Test automation",
+            "Quality assurance"
+          ],
+          "next": [
+            "Software Tester"
+          ]
+        },
+        {
+          "name": "Software Tester",
+          "level": "experienced",
+          "skills": [
+            "Test automation",
+            "Quality assurance"
+          ],
+          "next": [
+            "Senior QA Engineer"
+          ]
+        },
+        {
+          "name": "Senior QA Engineer",
+          "level": "senior",
+          "skills": [
+            "Test automation",
+            "Quality assurance"
+          ],
+          "next": [
+            "QA Lead"
+          ]
+        },
+        {
+          "name": "QA Lead",
+          "level": "lead",
+          "skills": [
+            "Test automation",
+            "Quality assurance"
+          ],
+          "next": [
+            "QA Manager"
+          ]
+        },
+        {
+          "name": "QA Manager",
+          "level": "manager",
+          "skills": [
+            "Test automation",
+            "Quality assurance"
+          ],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "production-support",
+      "sector": "Software & IT",
+      "department": "Operations",
+      "name": "Production Support",
+      "roles": [
+        {
+          "name": "Support Associate",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Production Support Engineer"
+          ]
+        },
+        {
+          "name": "Production Support Engineer",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Support Engineer"
+          ]
+        },
+        {
+          "name": "Senior Support Engineer",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Support Lead"
+          ]
+        },
+        {
+          "name": "Support Lead",
+          "level": "lead",
+          "skills": [],
+          "next": [
+            "Service Delivery Manager"
+          ]
+        },
+        {
+          "name": "Service Delivery Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "product",
+      "sector": "Software & IT",
+      "department": "Product",
+      "name": "Product Management",
+      "roles": [
+        {
+          "name": "Associate Product Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Product Manager"
+          ]
+        },
+        {
+          "name": "Product Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Product Manager"
+          ]
+        },
+        {
+          "name": "Senior Product Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Product Director"
+          ]
+        },
+        {
+          "name": "Product Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Chief Product Officer"
+          ]
+        },
+        {
+          "name": "Chief Product Officer",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "delivery",
+      "sector": "Software & IT",
+      "department": "Delivery",
+      "name": "Agile Delivery",
+      "roles": [
+        {
+          "name": "Scrum Master",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Senior Scrum Master"
+          ]
+        },
+        {
+          "name": "Senior Scrum Master",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Agile Coach"
+          ]
+        },
+        {
+          "name": "Agile Coach",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Delivery Manager"
+          ]
+        },
+        {
+          "name": "Delivery Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "automotive-engineering",
+      "sector": "Automobile",
+      "department": "Engineering & R&D",
+      "name": "Automotive Engineering",
+      "roles": [
+        {
+          "name": "Intern",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Graduate Engineer Trainee"
+          ]
+        },
+        {
+          "name": "Graduate Engineer Trainee",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Engineer"
+          ]
+        },
+        {
+          "name": "Engineer",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Engineer"
+          ]
+        },
+        {
+          "name": "Senior Engineer",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Technical Lead"
+          ]
+        },
+        {
+          "name": "Technical Lead",
+          "level": "lead",
+          "skills": [],
+          "next": [
+            "Engineering Manager"
+          ]
+        },
+        {
+          "name": "Engineering Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "General Manager"
+          ]
+        },
+        {
+          "name": "General Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "VP Engineering"
+          ]
+        },
+        {
+          "name": "VP Engineering",
+          "level": "executive",
+          "skills": [],
+          "next": [
+            "CTO"
+          ]
+        },
+        {
+          "name": "CTO",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "sales",
+      "sector": "Cross-sector",
+      "department": "Sales",
+      "name": "Sales",
+      "roles": [
+        {
+          "name": "Sales Executive",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Senior Sales Executive"
+          ]
+        },
+        {
+          "name": "Senior Sales Executive",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Area Sales Manager"
+          ]
+        },
+        {
+          "name": "Area Sales Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Regional Sales Manager"
+          ]
+        },
+        {
+          "name": "Regional Sales Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "National Sales Manager"
+          ]
+        },
+        {
+          "name": "National Sales Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Sales Director"
+          ]
+        },
+        {
+          "name": "Sales Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "VP Sales"
+          ]
+        },
+        {
+          "name": "VP Sales",
+          "level": "executive",
+          "skills": [],
+          "next": [
+            "Chief Sales Officer"
+          ]
+        },
+        {
+          "name": "Chief Sales Officer",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "finance",
+      "sector": "Cross-sector",
+      "department": "Finance",
+      "name": "Finance",
+      "roles": [
+        {
+          "name": "Finance Executive",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Senior Finance Executive"
+          ]
+        },
+        {
+          "name": "Senior Finance Executive",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Assistant Manager"
+          ]
+        },
+        {
+          "name": "Assistant Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Finance Manager"
+          ]
+        },
+        {
+          "name": "Finance Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Finance Manager"
+          ]
+        },
+        {
+          "name": "Senior Finance Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Financial Controller"
+          ]
+        },
+        {
+          "name": "Financial Controller",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Finance Director"
+          ]
+        },
+        {
+          "name": "Finance Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "VP Finance"
+          ]
+        },
+        {
+          "name": "VP Finance",
+          "level": "executive",
+          "skills": [],
+          "next": [
+            "CFO"
+          ]
+        },
+        {
+          "name": "CFO",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "foundry-production",
+      "sector": "Casting",
+      "department": "Production",
+      "name": "Foundry Production",
+      "roles": [
+        {
+          "name": "Helper",
+          "level": "entry",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Mould Master Operator",
+          "level": "experienced",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Sand Plant Operator",
+          "level": "experienced",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Melter",
+          "level": "senior",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Core Shooter Machine Operator",
+          "level": "senior",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Production Supervisor",
+          "level": "senior",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Production Manager"
+          ]
+        },
+        {
+          "name": "Production Manager",
+          "level": "manager",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": [
+            "Plant Head"
+          ]
+        },
+        {
+          "name": "Plant Head",
+          "level": "senior",
+          "skills": [
+            "Foundry safety",
+            "Moulding",
+            "Melting"
+          ],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "foundry-quality",
+      "sector": "Casting",
+      "department": "Quality",
+      "name": "Foundry Quality",
+      "roles": [
+        {
+          "name": "Lab Attendant",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Quality Lead"
+          ]
+        },
+        {
+          "name": "Tooling Inspector",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Quality Lead"
+          ]
+        },
+        {
+          "name": "Quality Inspector",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Quality Lead"
+          ]
+        },
+        {
+          "name": "Casting Inspector",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Quality Lead"
+          ]
+        },
+        {
+          "name": "Core Inspector",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Quality Lead"
+          ]
+        },
+        {
+          "name": "Quality Lead",
+          "level": "lead",
+          "skills": [],
+          "next": [
+            "Quality Manager"
+          ]
+        },
+        {
+          "name": "Quality Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "manufacturing-trades",
+      "sector": "Manufacturing",
+      "department": "Maintenance",
+      "name": "Skilled Trades",
+      "roles": [
+        {
+          "name": "Welder",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Fitter",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Electrician",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Pattern Maker",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Milling Operator",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Turner",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "VMC Operator",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "CNC Operator",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Mason",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Supervisor"
+          ]
+        },
+        {
+          "name": "Maintenance Supervisor",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Maintenance Manager"
+          ]
+        },
+        {
+          "name": "Maintenance Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "factory-services",
+      "sector": "Manufacturing",
+      "department": "Administration",
+      "name": "Factory Services",
+      "roles": [
+        {
+          "name": "Driver",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Facilities Coordinator"
+          ]
+        },
+        {
+          "name": "Office Attendant / Peon",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Facilities Coordinator"
+          ]
+        },
+        {
+          "name": "Facilities Coordinator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Facilities Manager"
+          ]
+        },
+        {
+          "name": "Facilities Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "sports-manufacturing",
+      "sector": "Sports",
+      "department": "Manufacturing",
+      "name": "Sports Goods Manufacturing",
+      "roles": [
+        {
+          "name": "Helper",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Stitching Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Ball Moulding Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Quality Tester",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Production Supervisor",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Production Manager"
+          ]
+        },
+        {
+          "name": "Production Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "sports-operations",
+      "sector": "Sports",
+      "department": "Operations",
+      "name": "Sports Operations",
+      "roles": [
+        {
+          "name": "Sports Intern",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Sports Coordinator"
+          ]
+        },
+        {
+          "name": "Sports Coordinator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Sports Operations Executive"
+          ]
+        },
+        {
+          "name": "Sports Operations Executive",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Sports Manager"
+          ]
+        },
+        {
+          "name": "Sports Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Head of Sports Operations"
+          ]
+        },
+        {
+          "name": "Head of Sports Operations",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Sports Director"
+          ]
+        },
+        {
+          "name": "Sports Director",
+          "level": "director",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "insurance-underwriting",
+      "sector": "Insurance",
+      "department": "Underwriting",
+      "name": "Underwriting",
+      "roles": [
+        {
+          "name": "Underwriting Executive",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Underwriter"
+          ]
+        },
+        {
+          "name": "Underwriter",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Underwriter"
+          ]
+        },
+        {
+          "name": "Senior Underwriter",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Underwriting Manager"
+          ]
+        },
+        {
+          "name": "Underwriting Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Head of Underwriting"
+          ]
+        },
+        {
+          "name": "Head of Underwriting",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Chief Underwriting Officer"
+          ]
+        },
+        {
+          "name": "Chief Underwriting Officer",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "insurance-claims",
+      "sector": "Insurance",
+      "department": "Claims",
+      "name": "Claims",
+      "roles": [
+        {
+          "name": "Claims Executive",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Claims Analyst"
+          ]
+        },
+        {
+          "name": "Claims Analyst",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Claims Officer"
+          ]
+        },
+        {
+          "name": "Claims Officer",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Claims Manager"
+          ]
+        },
+        {
+          "name": "Claims Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Head of Claims"
+          ]
+        },
+        {
+          "name": "Head of Claims",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Chief Claims Officer"
+          ]
+        },
+        {
+          "name": "Chief Claims Officer",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "insurance-actuarial",
+      "sector": "Insurance",
+      "department": "Actuarial",
+      "name": "Actuarial",
+      "roles": [
+        {
+          "name": "Actuarial Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Actuarial Analyst"
+          ]
+        },
+        {
+          "name": "Actuarial Analyst",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Actuary"
+          ]
+        },
+        {
+          "name": "Actuary",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Actuary"
+          ]
+        },
+        {
+          "name": "Senior Actuary",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Appointed Actuary"
+          ]
+        },
+        {
+          "name": "Appointed Actuary",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Chief Actuary"
+          ]
+        },
+        {
+          "name": "Chief Actuary",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "insurance-risk",
+      "sector": "Insurance",
+      "department": "Risk",
+      "name": "Risk",
+      "roles": [
+        {
+          "name": "Risk Analyst",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Risk Manager"
+          ]
+        },
+        {
+          "name": "Risk Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Risk Manager"
+          ]
+        },
+        {
+          "name": "Senior Risk Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Chief Risk Officer"
+          ]
+        },
+        {
+          "name": "Chief Risk Officer",
+          "level": "executive",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "banking-branch",
+      "sector": "Banking",
+      "department": "Branch Banking",
+      "name": "Branch Banking",
+      "roles": [
+        {
+          "name": "Junior Associate",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Probationary Officer"
+          ]
+        },
+        {
+          "name": "Probationary Officer",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Assistant Manager"
+          ]
+        },
+        {
+          "name": "Assistant Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Branch Manager"
+          ]
+        },
+        {
+          "name": "Branch Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Regional Manager"
+          ]
+        },
+        {
+          "name": "Regional Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Business Head"
+          ]
+        },
+        {
+          "name": "Business Head",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "accounting-audit",
+      "sector": "CA & Accounting",
+      "department": "Audit",
+      "name": "Audit",
+      "roles": [
+        {
+          "name": "Audit Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Audit Associate"
+          ]
+        },
+        {
+          "name": "Audit Associate",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Audit Associate"
+          ]
+        },
+        {
+          "name": "Senior Audit Associate",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Audit Manager"
+          ]
+        },
+        {
+          "name": "Audit Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Audit Manager"
+          ]
+        },
+        {
+          "name": "Senior Audit Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Audit Director"
+          ]
+        },
+        {
+          "name": "Audit Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Audit Partner"
+          ]
+        },
+        {
+          "name": "Audit Partner",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "accounting-tax",
+      "sector": "CA & Accounting",
+      "department": "Tax",
+      "name": "Tax",
+      "roles": [
+        {
+          "name": "Tax Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Tax Associate"
+          ]
+        },
+        {
+          "name": "Tax Associate",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Tax Associate"
+          ]
+        },
+        {
+          "name": "Senior Tax Associate",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Tax Manager"
+          ]
+        },
+        {
+          "name": "Tax Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Tax Manager"
+          ]
+        },
+        {
+          "name": "Senior Tax Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Tax Director"
+          ]
+        },
+        {
+          "name": "Tax Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Tax Partner"
+          ]
+        },
+        {
+          "name": "Tax Partner",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "accounting-advisory",
+      "sector": "CA & Accounting",
+      "department": "Advisory",
+      "name": "Advisory",
+      "roles": [
+        {
+          "name": "Advisory Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Advisory Associate"
+          ]
+        },
+        {
+          "name": "Advisory Associate",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Advisory Associate"
+          ]
+        },
+        {
+          "name": "Senior Advisory Associate",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Advisory Manager"
+          ]
+        },
+        {
+          "name": "Advisory Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Advisory Manager"
+          ]
+        },
+        {
+          "name": "Senior Advisory Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Advisory Director"
+          ]
+        },
+        {
+          "name": "Advisory Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Advisory Partner"
+          ]
+        },
+        {
+          "name": "Advisory Partner",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "accounting-deals",
+      "sector": "CA & Accounting",
+      "department": "Deals",
+      "name": "Deals",
+      "roles": [
+        {
+          "name": "Deals Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Deals Associate"
+          ]
+        },
+        {
+          "name": "Deals Associate",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Deals Associate"
+          ]
+        },
+        {
+          "name": "Senior Deals Associate",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Deals Manager"
+          ]
+        },
+        {
+          "name": "Deals Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Deals Manager"
+          ]
+        },
+        {
+          "name": "Senior Deals Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Deals Director"
+          ]
+        },
+        {
+          "name": "Deals Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Deals Partner"
+          ]
+        },
+        {
+          "name": "Deals Partner",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "accounting-risk",
+      "sector": "CA & Accounting",
+      "department": "Risk",
+      "name": "Risk",
+      "roles": [
+        {
+          "name": "Risk Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Risk Associate"
+          ]
+        },
+        {
+          "name": "Risk Associate",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Risk Associate"
+          ]
+        },
+        {
+          "name": "Senior Risk Associate",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Risk Manager"
+          ]
+        },
+        {
+          "name": "Risk Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Senior Risk Manager"
+          ]
+        },
+        {
+          "name": "Senior Risk Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Risk Director"
+          ]
+        },
+        {
+          "name": "Risk Director",
+          "level": "director",
+          "skills": [],
+          "next": [
+            "Risk Partner"
+          ]
+        },
+        {
+          "name": "Risk Partner",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "food-industry",
+      "sector": "Food Industry",
+      "department": "Operations",
+      "name": "Food Industry",
+      "roles": [
+        {
+          "name": "Food Production Helper",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Food Processing Operator"
+          ]
+        },
+        {
+          "name": "Food Processing Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Food Quality Tester"
+          ]
+        },
+        {
+          "name": "Food Quality Tester",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Production Supervisor",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Production Manager"
+          ]
+        },
+        {
+          "name": "Production Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "education",
+      "sector": "Education",
+      "department": "Operations",
+      "name": "Education",
+      "roles": [
+        {
+          "name": "Teaching Assistant",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Teacher"
+          ]
+        },
+        {
+          "name": "Teacher",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Senior Teacher"
+          ]
+        },
+        {
+          "name": "Senior Teacher",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Head of Department"
+          ]
+        },
+        {
+          "name": "Head of Department",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Principal"
+          ]
+        },
+        {
+          "name": "Principal",
+          "level": "lead",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "hotel-tourism",
+      "sector": "Hotel & Tourism",
+      "department": "Operations",
+      "name": "Hotel & Tourism",
+      "roles": [
+        {
+          "name": "Hospitality Trainee",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Front Office Executive"
+          ]
+        },
+        {
+          "name": "Front Office Executive",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Chef"
+          ]
+        },
+        {
+          "name": "Chef",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Department Manager"
+          ]
+        },
+        {
+          "name": "Department Manager",
+          "level": "manager",
+          "skills": [],
+          "next": [
+            "Hotel General Manager"
+          ]
+        },
+        {
+          "name": "Hotel General Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "airlines",
+      "sector": "Airlines",
+      "department": "Operations",
+      "name": "Airlines",
+      "roles": [
+        {
+          "name": "Ground Staff",
+          "level": "entry",
+          "skills": [],
+          "next": []
+        },
+        {
+          "name": "Cabin Crew",
+          "level": "experienced",
+          "skills": [],
+          "next": []
+        },
+        {
+          "name": "Operations Officer",
+          "level": "experienced",
+          "skills": [],
+          "next": []
+        },
+        {
+          "name": "Operations Manager",
+          "level": "manager",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "textile",
+      "sector": "Textile",
+      "department": "Operations",
+      "name": "Textile",
+      "roles": [
+        {
+          "name": "Spinning Operator",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Weaving Operator"
+          ]
+        },
+        {
+          "name": "Weaving Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Textile Quality Inspector"
+          ]
+        },
+        {
+          "name": "Textile Quality Inspector",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Production Supervisor",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    },
+    {
+      "slug": "apparel",
+      "sector": "Apparel",
+      "department": "Operations",
+      "name": "Apparel",
+      "roles": [
+        {
+          "name": "Cutting Operator",
+          "level": "entry",
+          "skills": [],
+          "next": [
+            "Sewing Operator"
+          ]
+        },
+        {
+          "name": "Sewing Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Finishing Operator"
+          ]
+        },
+        {
+          "name": "Finishing Operator",
+          "level": "experienced",
+          "skills": [],
+          "next": [
+            "Garment Quality Inspector"
+          ]
+        },
+        {
+          "name": "Garment Quality Inspector",
+          "level": "senior",
+          "skills": [],
+          "next": [
+            "Production Supervisor"
+          ]
+        },
+        {
+          "name": "Production Supervisor",
+          "level": "senior",
+          "skills": [],
+          "next": []
+        }
+      ]
+    }
+  ],
+  "salary_references": [
+    {
+      "sector": "Software & IT",
+      "role_name": "Intern / Software Intern",
+      "experience_label": "0",
+      "salary_label": "\u20b91.5\u20134 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Graduate Engineer Trainee / Trainee Developer",
+      "experience_label": "0\u20131",
+      "salary_label": "\u20b93\u20136 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Associate Software Engineer",
+      "experience_label": "0\u20132",
+      "salary_label": "\u20b94\u20138 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Software Engineer / Developer",
+      "experience_label": "1\u20133",
+      "salary_label": "\u20b96\u201312 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Senior Software Engineer",
+      "experience_label": "3\u20136",
+      "salary_label": "\u20b910\u201322 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Technical Lead / Team Lead",
+      "experience_label": "5\u20138",
+      "salary_label": "\u20b915\u201328 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Engineering Manager / Project Manager",
+      "experience_label": "7\u201311",
+      "salary_label": "\u20b920\u201340 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Senior Engineering Manager",
+      "experience_label": "10\u201315",
+      "salary_label": "\u20b930\u201355 LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Principal Engineer / Solution Architect",
+      "experience_label": "10\u201316",
+      "salary_label": "\u20b930\u201360+ LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "Director / Engineering Director",
+      "experience_label": "12\u201318",
+      "salary_label": "\u20b945\u201390+ LPA"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "VP Engineering / Technology",
+      "experience_label": "15\u201322+",
+      "salary_label": "\u20b960 LPA\u2013\u20b91.5 Cr+"
+    },
+    {
+      "sector": "Software & IT",
+      "role_name": "CTO / CIO",
+      "experience_label": "18\u201325+",
+      "salary_label": "\u20b91 Cr\u2013\u20b95 Cr+"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Sports Intern",
+      "experience_label": "0",
+      "salary_label": "\u20b91\u20133 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Sports Executive / Coordinator",
+      "experience_label": "0\u20132",
+      "salary_label": "\u20b92.5\u20135 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Sports Operations Executive",
+      "experience_label": "1\u20133",
+      "salary_label": "\u20b93\u20137 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Senior Sports Executive",
+      "experience_label": "3\u20135",
+      "salary_label": "\u20b95\u201310 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Assistant Manager",
+      "experience_label": "3\u20136",
+      "salary_label": "\u20b96\u201312 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Sports Manager / Event Manager",
+      "experience_label": "5\u20138",
+      "salary_label": "\u20b98\u201318 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Senior Manager",
+      "experience_label": "7\u201312",
+      "salary_label": "\u20b915\u201330 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Head \u2013 Sports Operations/Marketing",
+      "experience_label": "10\u201315",
+      "salary_label": "\u20b925\u201350 LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "Director \u2013 Sports",
+      "experience_label": "12\u201318",
+      "salary_label": "\u20b935\u201375+ LPA"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "VP / Business Head",
+      "experience_label": "15\u201320+",
+      "salary_label": "\u20b950 LPA\u2013\u20b91.5 Cr+"
+    },
+    {
+      "sector": "Sports",
+      "role_name": "CEO / Managing Director",
+      "experience_label": "18+",
+      "salary_label": "\u20b91 Cr+"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Intern / Apprentice",
+      "experience_label": "0",
+      "salary_label": "\u20b91.5\u20134 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Graduate Engineer Trainee",
+      "experience_label": "0\u20131",
+      "salary_label": "\u20b93\u20137 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Engineer",
+      "experience_label": "1\u20133",
+      "salary_label": "\u20b95\u201310 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Senior Engineer",
+      "experience_label": "3\u20136",
+      "salary_label": "\u20b98\u201316 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Lead Engineer",
+      "experience_label": "5\u20138",
+      "salary_label": "\u20b912\u201322 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Assistant Manager",
+      "experience_label": "5\u20139",
+      "salary_label": "\u20b912\u201322 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Manager",
+      "experience_label": "8\u201312",
+      "salary_label": "\u20b918\u201332 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Senior Manager",
+      "experience_label": "10\u201315",
+      "salary_label": "\u20b925\u201345 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Deputy General Manager",
+      "experience_label": "12\u201317",
+      "salary_label": "\u20b930\u201355 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "General Manager",
+      "experience_label": "15\u201320",
+      "salary_label": "\u20b940\u201375 LPA"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "Vice President",
+      "experience_label": "18\u201325",
+      "salary_label": "\u20b960 LPA\u2013\u20b91.5 Cr+"
+    },
+    {
+      "sector": "Automobile",
+      "role_name": "CEO / MD",
+      "experience_label": "20+",
+      "salary_label": "\u20b91 Cr+"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Insurance Intern / Trainee",
+      "experience_label": "0",
+      "salary_label": "\u20b92\u20134 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Insurance Executive",
+      "experience_label": "0\u20132",
+      "salary_label": "\u20b93\u20136 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Senior Executive",
+      "experience_label": "2\u20134",
+      "salary_label": "\u20b94\u20138 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Assistant Manager",
+      "experience_label": "3\u20136",
+      "salary_label": "\u20b96\u201312 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Deputy Manager",
+      "experience_label": "5\u20138",
+      "salary_label": "\u20b98\u201316 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Manager",
+      "experience_label": "6\u201310",
+      "salary_label": "\u20b910\u201320 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Senior Manager",
+      "experience_label": "8\u201312",
+      "salary_label": "\u20b915\u201328 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Chief Manager / AVP",
+      "experience_label": "10\u201315",
+      "salary_label": "\u20b920\u201340 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "VP / DVP",
+      "experience_label": "12\u201318",
+      "salary_label": "\u20b930\u201360 LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "SVP / EVP",
+      "experience_label": "15\u201322",
+      "salary_label": "\u20b945\u201390+ LPA"
+    },
+    {
+      "sector": "Insurance",
+      "role_name": "Business Head / CXO",
+      "experience_label": "18+",
+      "salary_label": "\u20b975 LPA\u2013\u20b92 Cr+"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Intern / Graduate Trainee",
+      "experience_label": "0",
+      "salary_label": "\u20b92\u20135 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Junior Associate / Clerk",
+      "experience_label": "0\u20133",
+      "salary_label": "\u20b94\u20138 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Officer / PO",
+      "experience_label": "0\u20133",
+      "salary_label": "\u20b96\u201312 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Assistant Manager",
+      "experience_label": "2\u20135",
+      "salary_label": "\u20b97\u201314 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Deputy Manager",
+      "experience_label": "4\u20137",
+      "salary_label": "\u20b910\u201318 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Manager",
+      "experience_label": "5\u20139",
+      "salary_label": "\u20b914\u201325 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Senior Manager",
+      "experience_label": "7\u201312",
+      "salary_label": "\u20b918\u201332 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Chief Manager / AVP",
+      "experience_label": "9\u201314",
+      "salary_label": "\u20b925\u201345 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "DVP / VP",
+      "experience_label": "12\u201318",
+      "salary_label": "\u20b935\u201365 LPA"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "SVP / EVP",
+      "experience_label": "15\u201322",
+      "salary_label": "\u20b950 LPA\u2013\u20b91 Cr+"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "Business Head",
+      "experience_label": "18+",
+      "salary_label": "\u20b975 LPA\u2013\u20b92 Cr+"
+    },
+    {
+      "sector": "Banking",
+      "role_name": "MD & CEO",
+      "experience_label": "20+",
+      "salary_label": "\u20b91 Cr\u2013\u20b910 Cr+"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Article Assistant / Trainee",
+      "experience_label": "0\u20133",
+      "salary_label": "\u20b91.5\u20134 LPA*"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Analyst / Associate",
+      "experience_label": "0\u20132",
+      "salary_label": "\u20b97\u201314 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Senior Associate",
+      "experience_label": "2\u20134",
+      "salary_label": "\u20b912\u201322 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Assistant Manager",
+      "experience_label": "4\u20136",
+      "salary_label": "\u20b918\u201328 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Manager",
+      "experience_label": "5\u20138",
+      "salary_label": "\u20b922\u201340 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Senior Manager",
+      "experience_label": "8\u201311",
+      "salary_label": "\u20b935\u201360 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Director / Associate Director",
+      "experience_label": "10\u201315",
+      "salary_label": "\u20b950\u201390 LPA"
+    },
+    {
+      "sector": "CA & Accounting",
+      "role_name": "Partner",
+      "experience_label": "12\u201318+",
+      "salary_label": "\u20b980 LPA\u2013\u20b93 Cr+"
+    }
+  ],
+  "facilities": [
+    {
+      "slug": "nivia-jalandhar",
+      "company": "Freewill Sports (Nivia)",
+      "name": "Leather Complex",
+      "facility_type": "Manufacturing address",
+      "country": "India",
+      "state": "Punjab",
+      "city": "Jalandhar",
+      "industrial_area": "Leather Complex",
+      "industry": "Sports",
+      "products": "Footballs, volleyballs, sports equipment and apparel",
+      "employee_min": null,
+      "employee_max": null,
+      "employee_scope": null,
+      "website": "https://www.niviasports.com",
+      "careers_url": null,
+      "source_url": "https://www.niviasports.com/products/trainer-trainer",
+      "verified_on": "2026-09-26"
+    },
+    {
+      "slug": "ramkrishna-kolkata",
+      "company": "Ramkrishna Forgings",
+      "name": "Corporate office",
+      "facility_type": "Corporate office; manufacturing across multiple plants",
+      "country": "India",
+      "state": "West Bengal",
+      "city": "Kolkata",
+      "industrial_area": null,
+      "industry": "Automobile / Forging / Casting",
+      "products": "Forged, machined and fabricated automotive, railway and industrial components",
+      "employee_min": 3900,
+      "employee_max": null,
+      "employee_scope": "Company-wide permanent employees and workers; not a plant headcount",
+      "website": "https://ramkrishnaforgings.com",
+      "careers_url": "https://ramkrishnaforgings.com/career-opportunity/",
+      "source_url": "https://ramkrishnaforgings.com/",
+      "verified_on": "2026-09-26"
+    },
+    {
+      "slug": "electrosteel-kolkata",
+      "company": "Electrosteel Castings",
+      "name": "Corporate office",
+      "facility_type": "Corporate office",
+      "country": "India",
+      "state": "West Bengal",
+      "city": "Kolkata",
+      "industrial_area": null,
+      "industry": "Casting",
+      "products": "Ductile iron pipes, fittings, flange pipes and restrained joint pipes",
+      "employee_min": null,
+      "employee_max": null,
+      "employee_scope": null,
+      "website": "https://www.electrosteel.com",
+      "careers_url": "https://www.electrosteel.com/careers/life_electrosteel.php",
+      "source_url": "https://www.electrosteel.com/careers/life_electrosteel.php",
+      "verified_on": "2026-09-26"
+    }
+  ]
+}

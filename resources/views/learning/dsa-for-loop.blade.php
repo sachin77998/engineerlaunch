@@ -822,7 +822,7 @@
     <main>
 
 
-        @include('learning.partials.visual-overview')
+        @include('learning.partials.visual-assets')
 
 
         {{-- =================================================
