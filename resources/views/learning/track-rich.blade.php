@@ -9,7 +9,7 @@
 <div class="topic-grid">
 @foreach($track['topics'] as $topicSlug=>$topic)
 <a class="topic-card" href="{{route('learning.show',[$slug,$topicSlug])}}"><h2>{{$topic['title']}}</h2>
-<span>{{count($topic['questions'])}} {{($topic['type']??null)==='tutorial'?'lessons':'questions'}} &rarr;</span></a>
+<span>{{isset($topic['sections'])?count($topic['sections']):count($topic['questions'])}} {{isset($topic['sections'])?'sections':(($topic['type']??null)==='tutorial'?'lessons':'questions')}} &rarr;</span></a>
 @endforeach
 </div></main><aside class="topic-nav" aria-label="Topic navigation">
 <strong>Topics</strong>

@@ -6,7 +6,7 @@
             <a href="{{route('learning.show',[$trackSlug,$topicSlug])}}" class="{{$topicSlug === $moduleSlug ? 'active' : ''}}" @if($topicSlug === $moduleSlug) aria-current="page" @endif>
                 <span>{{str_pad($loop->iteration,2,'0',STR_PAD_LEFT)}}</span>
                 <b>{{$topic['title']}}</b>
-                <small>{{count($topic['questions'])}} questions</small>
+                <small>{{isset($topic['sections'])?count($topic['sections']):count($topic['questions'])}} {{isset($topic['sections'])?'sections':'questions'}}</small>
             </a>
         @endforeach
     </nav>

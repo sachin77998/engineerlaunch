@@ -12,5 +12,1154 @@
       "question": "Approve, freeze and process",
       "answer": "DRAFT -> CALCULATED -> APPROVED -> PROCESSING -> COMPLETED. Freeze approved amounts; corrections use an audited adjustment, reversal or new run. Enforce a unique run/employee combination and payment reference.\n\nProcess 2,000 employees in controlled groups, for example 200 at a time, while tracking each payment separately. SAL-2026-09-EMP0001 identifies a business payment; adjustments need their own references. Employee 700 failing does not undo successful payments for other employees.\n\nKeep PROCESSING while any payment is pending or unknown. Once all outcomes are terminal, use COMPLETED for all success or PARTIALLY_COMPLETED for a mixture of success and confirmed failure. Generate salary slips after confirmed payment."
     }
+  ],
+  "summary": "Calculate and freeze September payroll for 2,000 employees, process ten groups of 200, and trace one employee through bank confirmation and a salary slip.",
+  "example_label": "Illustrative production scenario \u2014 fictional educational records",
+  "sections": [
+    {
+      "id": "lesson-01",
+      "title": "Business Scenario",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "The illustrative university employs 2,000 people. Each example employee has basic \u20b950,000, HRA \u20b920,000, allowance \u20b910,000 and deductions \u20b95,000. Gross is \u20b980,000 and net is \u20b975,000. At this uniform illustrative rate, total net payroll is \u20b9150,000,000 = \u20b915 crore.",
+            "Payroll calculation and money movement are separate workflows. Freeze the approved salary snapshot so an edit to next month's salary structure cannot change this month's approved bank request.",
+            "Ten scheduling groups contain employees 1\u2013200, 201\u2013400, 401\u2013600, 601\u2013800, 801\u20131000, 1001\u20131200, 1201\u20131400, 1401\u20131600, 1601\u20131800 and 1801\u20132000. A scheduling group is not one atomic bank transaction."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Illustrative values only",
+          "columns": [
+            "Reference",
+            "Amount per main request",
+            "Scope"
+          ],
+          "rows": [
+            [
+              "SAL-2026-09-EMP0001",
+              "\u20b975,000",
+              "External outcome plus local allocation"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-02",
+      "title": "Real Database Tables",
+      "blocks": [
+        {
+          "shared": "block-2"
+        },
+        {
+          "type": "schema",
+          "name": "employees",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "employee_no",
+              "VARCHAR(30) UNIQUE"
+            ],
+            [
+              "name",
+              "VARCHAR(100)"
+            ],
+            [
+              "department_id",
+              "BIGINT"
+            ],
+            [
+              "bank_account_id",
+              "BIGINT FK private beneficiary store"
+            ],
+            [
+              "employment_status",
+              "VARCHAR(20)"
+            ]
+          ],
+          "note": "Bank account numbers are masked in teaching screens and access-controlled in real systems."
+        },
+        {
+          "type": "schema",
+          "name": "salary_structures",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "employee_id",
+              "BIGINT FK"
+            ],
+            [
+              "basic_salary",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "hra",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "allowances",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "deductions",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "effective_from",
+              "DATE"
+            ],
+            [
+              "effective_to",
+              "DATE NULL"
+            ]
+          ],
+          "note": "Select the structure effective for the payroll period; prevent overlapping effective ranges for an employee."
+        },
+        {
+          "type": "schema",
+          "name": "payroll_runs",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "payroll_month",
+              "CHAR(7)"
+            ],
+            [
+              "total_employees",
+              "INT"
+            ],
+            [
+              "total_gross",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "total_deductions",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "total_net",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "status",
+              "VARCHAR(30)"
+            ],
+            [
+              "created_by",
+              "BIGINT"
+            ],
+            [
+              "approved_by",
+              "BIGINT NULL"
+            ],
+            [
+              "approved_at",
+              "TIMESTAMP NULL"
+            ]
+          ],
+          "note": "Maker 11 and authorized checker 22 differ. Approval totals must equal the frozen item sums."
+        },
+        {
+          "type": "schema",
+          "name": "payroll_items",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "payroll_run_id",
+              "BIGINT FK"
+            ],
+            [
+              "employee_id",
+              "BIGINT FK"
+            ],
+            [
+              "gross_salary",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "deductions",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "net_salary",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "status",
+              "VARCHAR(30)"
+            ],
+            [
+              "payment_reference",
+              "VARCHAR(100) UNIQUE"
+            ],
+            [
+              "failure_code",
+              "VARCHAR(100) NULL"
+            ]
+          ],
+          "note": "UNIQUE(payroll_run_id, employee_id). Store calculation snapshot/source version for audit."
+        },
+        {
+          "type": "schema",
+          "name": "bank_payment_requests",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "payroll_item_id",
+              "BIGINT UNIQUE FK"
+            ],
+            [
+              "business_reference",
+              "VARCHAR(100) UNIQUE"
+            ],
+            [
+              "amount",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "status",
+              "VARCHAR(30)"
+            ],
+            [
+              "attempt_count",
+              "INT"
+            ],
+            [
+              "external_reference",
+              "VARCHAR(100) NULL"
+            ],
+            [
+              "failure_code",
+              "VARCHAR(100) NULL"
+            ]
+          ],
+          "note": "Persist before sending. Bank submissions use the saved reference; do not derive a new key on timeout."
+        },
+        {
+          "type": "schema",
+          "name": "salary_slips",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "payroll_item_id",
+              "BIGINT UNIQUE FK"
+            ],
+            [
+              "slip_no",
+              "VARCHAR(60) UNIQUE"
+            ],
+            [
+              "net_salary",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "status",
+              "VARCHAR(20)"
+            ],
+            [
+              "file_path",
+              "VARCHAR(255) NULL"
+            ]
+          ],
+          "note": "Create after confirmed success; generated PDFs remain in private storage."
+        },
+        {
+          "shared": "block-6"
+        },
+        {
+          "shared": "block-7"
+        }
+      ]
+    },
+    {
+      "id": "lesson-03",
+      "title": "Sample Table Data",
+      "blocks": [
+        {
+          "shared": "block-8"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Large-population examples show representative rows, not all 2,000 or 10,000 records. Run totals refer to the complete illustrative population, not the displayed subset."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "employees \u2014 before processing",
+          "columns": [
+            "id",
+            "employee_no",
+            "name",
+            "department_id",
+            "bank_account_id",
+            "employment_status"
+          ],
+          "rows": [
+            [
+              1,
+              "EMP0001",
+              "Neha Verma",
+              10,
+              301,
+              "ACTIVE"
+            ],
+            [
+              700,
+              "EMP0700",
+              "Arun Mehta",
+              20,
+              370,
+              "ACTIVE"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "salary_structures \u2014 before processing",
+          "columns": [
+            "id",
+            "employee_id",
+            "basic_salary",
+            "hra",
+            "allowances",
+            "deductions",
+            "effective_from",
+            "effective_to"
+          ],
+          "rows": [
+            [
+              401,
+              1,
+              "50000.00",
+              "20000.00",
+              "10000.00",
+              "5000.00",
+              "2026-09-01",
+              null
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "payroll_runs \u2014 before processing",
+          "columns": [
+            "id",
+            "payroll_month",
+            "total_employees",
+            "total_gross",
+            "total_deductions",
+            "total_net",
+            "status",
+            "created_by",
+            "approved_by",
+            "approved_at"
+          ],
+          "rows": [
+            [
+              1,
+              "2026-09",
+              2000,
+              "160000000.00",
+              "10000000.00",
+              "150000000.00",
+              "PROCESSING",
+              11,
+              22,
+              "2026-09-28 08:00:00"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "payroll_items \u2014 before processing",
+          "columns": [
+            "id",
+            "payroll_run_id",
+            "employee_id",
+            "gross_salary",
+            "deductions",
+            "net_salary",
+            "status",
+            "payment_reference",
+            "failure_code"
+          ],
+          "rows": [
+            [
+              20001,
+              1,
+              1,
+              "80000.00",
+              "5000.00",
+              "75000.00",
+              "READY",
+              "SAL-2026-09-EMP0001",
+              null
+            ],
+            [
+              20700,
+              1,
+              700,
+              "80000.00",
+              "5000.00",
+              "75000.00",
+              "READY",
+              "SAL-2026-09-EMP0700",
+              null
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "bank_payment_requests \u2014 before processing",
+          "columns": [
+            "id",
+            "payroll_item_id",
+            "business_reference",
+            "amount",
+            "status",
+            "attempt_count",
+            "external_reference",
+            "failure_code"
+          ],
+          "rows": [
+            [
+              30001,
+              20001,
+              "SAL-2026-09-EMP0001",
+              "75000.00",
+              "READY",
+              0,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "salary_slips \u2014 before processing",
+          "columns": [
+            "id",
+            "payroll_item_id",
+            "slip_no",
+            "net_salary",
+            "status",
+            "file_path"
+          ],
+          "rows": []
+        },
+        {
+          "shared": "block-12"
+        }
+      ]
+    },
+    {
+      "id": "lesson-04",
+      "title": "User Action / Request",
+      "blocks": [
+        {
+          "shared": "block-13"
+        },
+        {
+          "type": "flow",
+          "caption": "Button click to recorded result",
+          "steps": [
+            "HR calculates September run",
+            "Service writes frozen payroll_items",
+            "Maker submits totals",
+            "Checker authorizes run",
+            "Outbox dispatches groups of 200",
+            "Worker claims one item",
+            "Bank adapter submits saved reference",
+            "Callback/query confirms",
+            "Slip and notification jobs"
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Request envelope (illustrative)",
+          "columns": [
+            "Field",
+            "Value / rule"
+          ],
+          "rows": [
+            [
+              "reference",
+              "SAL-2026-09-EMP0001"
+            ],
+            [
+              "amount",
+              "\u20b975,000; validate against saved request"
+            ],
+            [
+              "authenticated actor",
+              "PAYROLL-CHECKER-22"
+            ],
+            [
+              "response",
+              "Return saved result on duplicate; show pending while unresolved"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-05",
+      "title": "What Happens Inside the Application",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "The calculation service selects the salary structure valid for September, computes gross and net using decimal arithmetic, and writes 80000.00, 5000.00 and 75000.00 to payroll_items.id=20001. Run totals are sums of the persisted items, not a repeated estimate.",
+            "The approval service locks payroll_runs.id=1, verifies CALCULATED, checks maker/checker permissions and totals, then records approved_by/approved_at and durable outbox work. A second approval sees the new status and returns the existing result.",
+            "A worker atomically claims a READY request before contacting the bank outside the database transaction. A lease expiry or worker crash after a send creates uncertainty: reconcile the saved reference before another submission. The callback applies a terminal item outcome once; it does not reopen the historical payroll calculation."
+          ]
+        },
+        {
+          "shared": "block-80"
+        }
+      ]
+    },
+    {
+      "id": "lesson-06",
+      "title": "Database Transaction",
+      "blocks": [
+        {
+          "type": "flow",
+          "caption": "Transaction boundaries",
+          "steps": [
+            "BEGIN: lock bank request 30001",
+            "Claim READY \u2192 SUBMITTED with lease",
+            "COMMIT before bank HTTP call",
+            "Submit saved business reference",
+            "Verify callback / status query",
+            "BEGIN: lock request then payroll item",
+            "Set confirmed SUCCESS; audit + slip outbox",
+            "COMMIT"
+          ]
+        },
+        {
+          "shared": "block-82"
+        }
+      ]
+    },
+    {
+      "id": "lesson-07",
+      "title": "SQL Query",
+      "blocks": [
+        {
+          "shared": "block-20"
+        },
+        {
+          "type": "code",
+          "caption": "Representative SQL and guarded updates",
+          "language": "sql",
+          "source": "-- Calculation snapshot before approval; bound values come from the effective salary structure.\nSTART TRANSACTION;\nSELECT id, status FROM payroll_runs WHERE id = 1 FOR UPDATE;\nUPDATE payroll_items JOIN payroll_runs ON payroll_runs.id = payroll_items.payroll_run_id\nSET payroll_items.gross_salary = 50000.00 + 20000.00 + 10000.00,\n payroll_items.deductions = 5000.00, payroll_items.net_salary = 50000.00 + 20000.00 + 10000.00 - 5000.00\nWHERE payroll_items.id = 20001 AND payroll_items.status = 'READY'\nAND payroll_runs.status IN ('DRAFT','CALCULATED');\n-- Recalculation is allowed ONLY while the parent run is DRAFT/CALCULATED and locked.\nSELECT SUM(gross_salary), SUM(deductions), SUM(net_salary) FROM payroll_items WHERE payroll_run_id = 1;\nCOMMIT;\n-- The guard prevents recalculating the PROCESSING sample run.\n-- Separate transaction after a verified bank SUCCESS:\nSTART TRANSACTION;\nSELECT * FROM bank_payment_requests WHERE id = 30001 FOR UPDATE;\nSELECT id, status FROM payroll_items WHERE id = 20001 FOR UPDATE;\n-- If already SUCCESS, return existing result without creating a second slip.\nUPDATE bank_payment_requests SET status = 'SUCCESS', external_reference = 'BANK-SAL-001' WHERE id = 30001;\nUPDATE payroll_items SET status = 'SUCCESS' WHERE id = 20001;\nINSERT INTO salary_slips (id, payroll_item_id, slip_no, net_salary, status)\nVALUES (40001, 20001, 'SLIP-2026-09-0001', 75000.00, 'PENDING');\nCOMMIT;"
+        },
+        {
+          "shared": "block-22"
+        }
+      ]
+    },
+    {
+      "id": "lesson-08",
+      "title": "Concurrent Request Scenario",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Concurrent request timeline",
+          "columns": [
+            "Time",
+            "Request / worker A",
+            "Request / worker B or external system"
+          ],
+          "rows": [
+            [
+              "T0",
+              "Worker A locks request 30001",
+              "Worker B sees same queued item"
+            ],
+            [
+              "T1",
+              "Claim READY \u2192 SUBMITTED; COMMIT",
+              "Locks row, sees SUBMITTED; does not send"
+            ],
+            [
+              "T2",
+              "Bank request sent once",
+              "Can query status; cannot invent a retry key"
+            ],
+            [
+              "T3",
+              "Verified success callback locks request/item",
+              "Duplicate callback waits"
+            ],
+            [
+              "T4",
+              "Commit SUCCESS and slip event",
+              "Sees SUCCESS; acknowledge without second effect"
+            ]
+          ]
+        },
+        {
+          "shared": "block-24"
+        }
+      ]
+    },
+    {
+      "id": "lesson-09",
+      "title": "Locking / Isolation",
+      "blocks": [
+        {
+          "shared": "block-25"
+        },
+        {
+          "shared": "block-26"
+        }
+      ]
+    },
+    {
+      "id": "lesson-10",
+      "title": "Calculation",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Calculation and invariants",
+          "columns": [
+            "Value",
+            "Calculation / expected result"
+          ],
+          "rows": [
+            [
+              "gross_salary for item 20001",
+              "50000 + 20000 + 10000 = 80000"
+            ],
+            [
+              "deductions for item 20001",
+              "5000"
+            ],
+            [
+              "net_salary for item 20001",
+              "80000 - 5000 = 75000"
+            ],
+            [
+              "run 1 total_net",
+              "2000 \u00d7 75000 = 150000000 (\u20b915 crore)"
+            ],
+            [
+              "scheduling groups",
+              "2000 / 200 = 10"
+            ]
+          ]
+        },
+        {
+          "shared": "block-28"
+        }
+      ]
+    },
+    {
+      "id": "lesson-11",
+      "title": "Table Update \u2014 Before / After",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Before / request / after",
+          "columns": [
+            "Table or field",
+            "Before",
+            "After"
+          ],
+          "rows": [
+            [
+              "item 20001 net_salary",
+              "Uncalculated",
+              "75000.00 frozen before approval"
+            ],
+            [
+              "bank request 30001",
+              "READY",
+              "SUCCESS / BANK-SAL-001"
+            ],
+            [
+              "item 20001",
+              "READY",
+              "SUCCESS"
+            ],
+            [
+              "item 20700",
+              "READY",
+              "FAILED / ACCOUNT_CLOSED"
+            ],
+            [
+              "run 1",
+              "PROCESSING",
+              "PARTIALLY_COMPLETED after all 2000 outcomes are terminal"
+            ]
+          ]
+        },
+        {
+          "shared": "block-30"
+        }
+      ]
+    },
+    {
+      "id": "lesson-12",
+      "title": "Status Transition",
+      "blocks": [
+        {
+          "shared": "block-87"
+        },
+        {
+          "shared": "block-88"
+        },
+        {
+          "shared": "block-89"
+        },
+        {
+          "shared": "block-90"
+        },
+        {
+          "type": "flow",
+          "caption": "Payroll run lifecycle",
+          "steps": [
+            "DRAFT: editable",
+            "CALCULATED: item totals ready",
+            "APPROVED: snapshot frozen",
+            "PROCESSING: individual bank requests",
+            "COMPLETED: all success / PARTIALLY_COMPLETED: final mixed results"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-13",
+      "title": "Success Flow",
+      "blocks": [
+        {
+          "shared": "block-91"
+        },
+        {
+          "shared": "block-35"
+        }
+      ]
+    },
+    {
+      "id": "lesson-14",
+      "title": "Failure Flow",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Employee 700 returns ACCOUNT_CLOSED: mark only that request/item FAILED. The 1,999 successful payments remain successful. BANK_TIMEOUT is UNKNOWN, not a final failure, and prevents final closure until resolved. An approved payroll item is corrected through a separately audited adjustment, never silent recalculation."
+          ]
+        },
+        {
+          "shared": "block-37"
+        }
+      ]
+    },
+    {
+      "id": "lesson-15",
+      "title": "Retry Flow",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "For a timed-out SAL-2026-09-EMP0001, query the bank by that same reference before retrying. A confirmed pre-submission technical failure can retry safely under the same identity; a changed beneficiary after ACCOUNT_CLOSED requires an authorized correction linked to the original obligation."
+          ]
+        },
+        {
+          "shared": "block-97"
+        },
+        {
+          "shared": "block-40"
+        }
+      ]
+    },
+    {
+      "id": "lesson-16",
+      "title": "Idempotency",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Repeated deliveries",
+          "columns": [
+            "Delivery",
+            "Business reference",
+            "Expected financial effect"
+          ],
+          "rows": [
+            [
+              "First",
+              "SAL-2026-09-EMP0001",
+              "Apply once after validation/confirmation"
+            ],
+            [
+              "Second",
+              "SAL-2026-09-EMP0001",
+              "Return existing result / wait for original"
+            ],
+            [
+              "Third",
+              "SAL-2026-09-EMP0001",
+              "No additional debit, allocation or salary"
+            ]
+          ]
+        },
+        {
+          "shared": "block-42"
+        }
+      ]
+    },
+    {
+      "id": "lesson-17",
+      "title": "Queue / Background Processing",
+      "blocks": [
+        {
+          "shared": "block-43"
+        },
+        {
+          "type": "table",
+          "caption": "outbox_events \u2014 after financial commit",
+          "columns": [
+            "event_key",
+            "aggregate_reference",
+            "event_type",
+            "published_at"
+          ],
+          "rows": [
+            [
+              "SAL-2026-09-EMP0001:document",
+              "SAL-2026-09-EMP0001",
+              "GENERATE_DOCUMENT",
+              "NULL until dispatched"
+            ]
+          ]
+        },
+        {
+          "shared": "block-45"
+        },
+        {
+          "type": "code",
+          "caption": "Laravel dispatch after commit (illustrative job class)",
+          "language": "php",
+          "source": "GenerateSalarySlip::dispatch($payrollItem->id)->afterCommit();\n// Job class is illustrative. Use a durable outbox for reliable publication.\n// Deduplicate by the saved payment/request/document identity."
+        }
+      ]
+    },
+    {
+      "id": "lesson-18",
+      "title": "Receipt / Document Generation",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "SLIP-2026-09-0001 \u00b7 Neha Verma / EMP0001 \u00b7 September 2026 \u00b7 Gross \u20b980,000 \u00b7 Deductions \u20b95,000 \u00b7 Net \u20b975,000 \u00b7 Bank reference BANK-SAL-001 \u00b7 Payment SUCCESS. The PDF worker reads the frozen payroll item and does not recalculate from today's salary structure."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Sample private document \u2014 fictional educational values",
+          "columns": [
+            "Document field",
+            "Stored value"
+          ],
+          "rows": [
+            [
+              "Salary slip",
+              "SLIP-2026-09-0001"
+            ],
+            [
+              "Employee",
+              "EMP0001 / Neha Verma"
+            ],
+            [
+              "Period",
+              "September 2026"
+            ],
+            [
+              "Gross",
+              "INR 80000.00"
+            ],
+            [
+              "Deductions",
+              "INR 5000.00"
+            ],
+            [
+              "Net paid",
+              "INR 75000.00"
+            ],
+            [
+              "Bank reference",
+              "BANK-SAL-001"
+            ],
+            [
+              "Status",
+              "SUCCESS"
+            ]
+          ]
+        },
+        {
+          "shared": "block-48"
+        },
+        {
+          "shared": "block-49"
+        },
+        {
+          "shared": "block-50"
+        }
+      ]
+    },
+    {
+      "id": "lesson-19",
+      "title": "Reconciliation",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Expected net \u20b9150,000,000. With 1,999 confirmed successes, bank-paid total is 1999 \u00d7 75000 = \u20b9149,925,000; unpaid confirmed failure is \u20b975,000. Match each reference to the bank report; distinguish authorized payroll liability from actual settled cash."
+          ]
+        },
+        {
+          "shared": "block-52"
+        },
+        {
+          "type": "table",
+          "caption": "Illustrative reconciliation record",
+          "columns": [
+            "reference",
+            "internal before",
+            "evidence",
+            "status / resolution"
+          ],
+          "rows": [
+            [
+              "SAL-2026-09-EMP0001",
+              "UNKNOWN / missing confirmation",
+              "Verified provider/bank success",
+              "Resolved only after matching identity and amount"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "caption": "Investigate outcomes, never blindly overwrite",
+          "language": "sql",
+          "source": "-- Grouping is a monitoring signal; investigate individual references.\nSELECT status, COUNT(*) AS rows_found, SUM(amount) AS amount_total\nFROM bank_payment_requests\nGROUP BY status;"
+        },
+        {
+          "shared": "block-55"
+        }
+      ]
+    },
+    {
+      "id": "lesson-20",
+      "title": "Audit Log",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Actual illustrative audit records",
+          "columns": [
+            "actor",
+            "action",
+            "entity",
+            "old_status",
+            "new_status",
+            "created_at"
+          ],
+          "rows": [
+            [
+              "PAYROLL-CHECKER-22",
+              "REQUEST_SAVED",
+              "SAL-2026-09-EMP0001",
+              "NULL",
+              "READY",
+              "2026-09-28 09:00:00"
+            ],
+            [
+              "VERIFIED-CALLBACK",
+              "RESULT_APPLIED",
+              "SAL-2026-09-EMP0001",
+              "READY",
+              "SUCCESS",
+              "2026-09-28 12:00:00"
+            ],
+            [
+              "DOCUMENT-WORKER",
+              "DOCUMENT_GENERATED",
+              "SAL-2026-09-EMP0001",
+              "PENDING",
+              "GENERATED",
+              "2026-09-28 12:01:00"
+            ]
+          ]
+        },
+        {
+          "shared": "block-57"
+        }
+      ]
+    },
+    {
+      "id": "lesson-21",
+      "title": "Final Database State",
+      "blocks": [
+        {
+          "shared": "block-58"
+        },
+        {
+          "type": "table",
+          "caption": "payroll_runs \u2014 final",
+          "columns": [
+            "id",
+            "employees",
+            "total_net",
+            "success",
+            "failed",
+            "pending",
+            "status"
+          ],
+          "rows": [
+            [
+              1,
+              2000,
+              "150000000.00",
+              1999,
+              1,
+              0,
+              "PARTIALLY_COMPLETED"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "payroll_items \u2014 final",
+          "columns": [
+            "id",
+            "employee_id",
+            "net_salary",
+            "status",
+            "failure_code"
+          ],
+          "rows": [
+            [
+              20001,
+              1,
+              "75000.00",
+              "SUCCESS",
+              null
+            ],
+            [
+              20700,
+              700,
+              "75000.00",
+              "FAILED",
+              "ACCOUNT_CLOSED"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "salary_slips \u2014 final",
+          "columns": [
+            "slip_no",
+            "net_salary",
+            "status"
+          ],
+          "rows": [
+            [
+              "SLIP-2026-09-0001",
+              "75000.00",
+              "GENERATED"
+            ]
+          ]
+        },
+        {
+          "shared": "block-62"
+        }
+      ]
+    },
+    {
+      "id": "lesson-22",
+      "title": "Interview Questions",
+      "blocks": [
+        {
+          "type": "questions",
+          "items": [
+            [
+              "Does employee 700's failure roll back everyone?",
+              "No. Each external salary payment has its own result. A database rollback cannot reverse earlier bank payments."
+            ],
+            [
+              "Why freeze the approved salary row?",
+              "Historical payroll, receipts and reconciliation must all use the exact amount approved for that month."
+            ],
+            [
+              "Why SELECT FOR UPDATE?",
+              "Protect a mutable row while the transaction makes and applies a decision from its current value."
+            ],
+            [
+              "What does a waiting request read?",
+              "The new committed value after obtaining its lock, not a cached value from before waiting."
+            ],
+            [
+              "Why cannot local rollback reverse a bank payment?",
+              "The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."
+            ],
+            [
+              "How are duplicate webhooks prevented from repeating money effects?",
+              "Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."
+            ],
+            [
+              "What distinguishes FAILED, PENDING and UNKNOWN?",
+              "Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."
+            ],
+            [
+              "How do 5,000 student payments or 10,000 salaries scale?",
+              "Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."
+            ],
+            [
+              "Why queue receipt generation?",
+              "Document availability can retry independently without changing a confirmed financial outcome."
+            ],
+            [
+              "What should a deadlock retry repeat?",
+              "The entire rolled-back local transaction with its original business identity; never an uncertain external payment."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-23",
+      "title": "Related SQL Concepts",
+      "blocks": [
+        {
+          "shared": "block-64"
+        },
+        {
+          "shared": "block-65"
+        }
+      ]
+    }
   ]
 }

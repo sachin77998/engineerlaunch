@@ -17,5 +17,433 @@
       "question": "Architecture and reconciliation",
       "answer": "Payroll Service -> Salary Batch Service -> Payment Orchestrator -> Bank Adapter. Keep bank-specific authentication and protocol in the adapter. A reference such as SAL-2026-09-EMP404 stays unchanged across attempts for the same business payment.\n\nQueue notifications and salary-slip generation after confirmed success. End-of-day reconciliation compares batch/payment/bank references, amount, beneficiary and date. Protect bank-account data and audit any manual resolution."
     }
+  ],
+  "summary": "A corporate submits \u20b975 crore for 10,000 employees. Follow maker/checker approval, individual bank outcomes and an unresolved timeout through reconciliation.",
+  "example_label": "Illustrative production scenario \u2014 fictional educational records",
+  "sections": [
+    {
+      "id": "lesson-01",
+      "title": "Business Scenario",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "A fictional corporation owes 10,000 employees an average \u20b975,000: 10,000 \u00d7 75,000 = \u20b9750,000,000 = \u20b975 crore. The batch is an operational grouping of independent payment obligations, not a single all-or-nothing bank transaction.",
+            "The bank reports 9,970 SUCCESS, 20 FAILED and 10 PENDING/UNKNOWN. This lesson displays status PARTIALLY_COMPLETED with processing_status PROCESSING and is_final = false. The label reports progress, not finality: all ten unresolved items remain visible.",
+            "The eventual illustrated outcome is 9,980 successes and 20 confirmed failures. Only then processing_status becomes CLOSED and is_final=true. Bank balance shown in a local cache is not an authority to spend without the bank's balance/reservation controls."
+          ]
+        },
+        {
+          "shared": "block-109"
+        }
+      ]
+    },
+    {
+      "id": "lesson-02",
+      "title": "Real Database Tables",
+      "blocks": [
+        {
+          "shared": "block-2"
+        },
+        {
+          "shared": "block-110"
+        },
+        {
+          "shared": "block-111"
+        },
+        {
+          "shared": "block-112"
+        },
+        {
+          "shared": "block-113"
+        },
+        {
+          "shared": "block-114"
+        },
+        {
+          "shared": "block-115"
+        },
+        {
+          "shared": "block-6"
+        },
+        {
+          "shared": "block-7"
+        }
+      ]
+    },
+    {
+      "id": "lesson-03",
+      "title": "Sample Table Data",
+      "blocks": [
+        {
+          "shared": "block-8"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Large-population examples show representative rows, not all 2,000 or 10,000 records. Run totals refer to the complete illustrative population, not the displayed subset."
+          ]
+        },
+        {
+          "shared": "block-116"
+        },
+        {
+          "shared": "block-117"
+        },
+        {
+          "shared": "block-118"
+        },
+        {
+          "shared": "block-119"
+        },
+        {
+          "shared": "block-120"
+        },
+        {
+          "shared": "block-121"
+        },
+        {
+          "shared": "block-12"
+        }
+      ]
+    },
+    {
+      "id": "lesson-04",
+      "title": "User Action / Request",
+      "blocks": [
+        {
+          "shared": "block-13"
+        },
+        {
+          "shared": "block-122"
+        },
+        {
+          "shared": "block-123"
+        }
+      ]
+    },
+    {
+      "id": "lesson-05",
+      "title": "What Happens Inside the Application",
+      "blocks": [
+        {
+          "shared": "block-124"
+        },
+        {
+          "shared": "block-80"
+        }
+      ]
+    },
+    {
+      "id": "lesson-06",
+      "title": "Database Transaction",
+      "blocks": [
+        {
+          "shared": "block-125"
+        },
+        {
+          "shared": "block-82"
+        }
+      ]
+    },
+    {
+      "id": "lesson-07",
+      "title": "SQL Query",
+      "blocks": [
+        {
+          "shared": "block-20"
+        },
+        {
+          "shared": "block-126"
+        },
+        {
+          "shared": "block-22"
+        }
+      ]
+    },
+    {
+      "id": "lesson-08",
+      "title": "Concurrent Request Scenario",
+      "blocks": [
+        {
+          "shared": "block-127"
+        },
+        {
+          "shared": "block-24"
+        }
+      ]
+    },
+    {
+      "id": "lesson-09",
+      "title": "Locking / Isolation",
+      "blocks": [
+        {
+          "shared": "block-25"
+        },
+        {
+          "shared": "block-26"
+        }
+      ]
+    },
+    {
+      "id": "lesson-10",
+      "title": "Calculation",
+      "blocks": [
+        {
+          "shared": "block-128"
+        },
+        {
+          "shared": "block-28"
+        }
+      ]
+    },
+    {
+      "id": "lesson-11",
+      "title": "Table Update \u2014 Before / After",
+      "blocks": [
+        {
+          "shared": "block-129"
+        },
+        {
+          "shared": "block-30"
+        }
+      ]
+    },
+    {
+      "id": "lesson-12",
+      "title": "Status Transition",
+      "blocks": [
+        {
+          "shared": "block-87"
+        },
+        {
+          "shared": "block-88"
+        },
+        {
+          "shared": "block-89"
+        },
+        {
+          "shared": "block-90"
+        },
+        {
+          "shared": "block-130"
+        },
+        {
+          "type": "flow",
+          "caption": "Corporate parent batch lifecycle",
+          "steps": [
+            "DRAFT: editable",
+            "VALIDATED: counts and amounts checked",
+            "APPROVED: separate checker authorizes frozen version",
+            "SUBMITTED: no assumed success",
+            "PROCESSING: unresolved items remain",
+            "COMPLETED: all success / PARTIALLY_COMPLETED: inspect finality and counts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-13",
+      "title": "Success Flow",
+      "blocks": [
+        {
+          "shared": "block-91"
+        },
+        {
+          "shared": "block-35"
+        }
+      ]
+    },
+    {
+      "id": "lesson-14",
+      "title": "Failure Flow",
+      "blocks": [
+        {
+          "shared": "block-131"
+        },
+        {
+          "shared": "block-37"
+        }
+      ]
+    },
+    {
+      "id": "lesson-15",
+      "title": "Retry Flow",
+      "blocks": [
+        {
+          "shared": "block-132"
+        },
+        {
+          "shared": "block-97"
+        },
+        {
+          "shared": "block-40"
+        }
+      ]
+    },
+    {
+      "id": "lesson-16",
+      "title": "Idempotency",
+      "blocks": [
+        {
+          "shared": "block-133"
+        },
+        {
+          "shared": "block-42"
+        }
+      ]
+    },
+    {
+      "id": "lesson-17",
+      "title": "Queue / Background Processing",
+      "blocks": [
+        {
+          "shared": "block-43"
+        },
+        {
+          "shared": "block-134"
+        },
+        {
+          "shared": "block-45"
+        },
+        {
+          "type": "code",
+          "caption": "Laravel dispatch after commit (illustrative job class)",
+          "language": "php",
+          "source": "GenerateSalaryAdvice::dispatch($batchItem->id)->afterCommit();\n// Job class is illustrative. Use a durable outbox for reliable publication.\n// Deduplicate by the saved payment/request/document identity."
+        }
+      ]
+    },
+    {
+      "id": "lesson-18",
+      "title": "Receipt / Document Generation",
+      "blocks": [
+        {
+          "shared": "block-135"
+        },
+        {
+          "type": "table",
+          "caption": "Sample private document \u2014 fictional educational values",
+          "columns": [
+            "Document field",
+            "Stored value"
+          ],
+          "rows": [
+            [
+              "Salary advice",
+              "ADVICE-2026-09-EMP005"
+            ],
+            [
+              "Batch",
+              "BATCH-2026-09-44"
+            ],
+            [
+              "Employee",
+              "EMP005"
+            ],
+            [
+              "Reference",
+              "SAL-2026-09-EMP005"
+            ],
+            [
+              "Bank reference",
+              "BANK-005"
+            ],
+            [
+              "Amount paid",
+              "INR 75000.00"
+            ],
+            [
+              "Status",
+              "SUCCESS after reconciliation"
+            ]
+          ]
+        },
+        {
+          "shared": "block-48"
+        },
+        {
+          "shared": "block-49"
+        },
+        {
+          "shared": "block-50"
+        }
+      ]
+    },
+    {
+      "id": "lesson-19",
+      "title": "Reconciliation",
+      "blocks": [
+        {
+          "shared": "block-136"
+        },
+        {
+          "shared": "block-52"
+        },
+        {
+          "shared": "block-137"
+        },
+        {
+          "shared": "block-138"
+        },
+        {
+          "shared": "block-55"
+        }
+      ]
+    },
+    {
+      "id": "lesson-20",
+      "title": "Audit Log",
+      "blocks": [
+        {
+          "shared": "block-139"
+        },
+        {
+          "shared": "block-57"
+        }
+      ]
+    },
+    {
+      "id": "lesson-21",
+      "title": "Final Database State",
+      "blocks": [
+        {
+          "shared": "block-58"
+        },
+        {
+          "shared": "block-140"
+        },
+        {
+          "shared": "block-141"
+        },
+        {
+          "shared": "block-142"
+        },
+        {
+          "shared": "block-62"
+        }
+      ]
+    },
+    {
+      "id": "lesson-22",
+      "title": "Interview Questions",
+      "blocks": [
+        {
+          "shared": "block-143"
+        }
+      ]
+    },
+    {
+      "id": "lesson-23",
+      "title": "Related SQL Concepts",
+      "blocks": [
+        {
+          "shared": "block-64"
+        },
+        {
+          "shared": "block-65"
+        }
+      ]
+    }
   ]
 }

@@ -17,5 +17,389 @@
       "question": "Practice",
       "answer": "Run two sessions against a disposable InnoDB database. Hold the account row lock in session one; verify session two waits. Commit session one, then verify session two reads the updated balance. Test insufficient funds, inactive accounts, duplicate requests and a failure before commit."
     }
+  ],
+  "summary": "Two withdrawal requests compete for the same \u20b95,000 account balance. Follow both requests from the controller to their final ledger and audit records.",
+  "example_label": "Illustrative production scenario \u2014 fictional educational records",
+  "sections": [
+    {
+      "id": "lesson-01",
+      "title": "Business Scenario",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Account 101 belongs to the illustrative customer Rahul Sharma and holds \u20b95,000. Request 7001 asks for \u20b95,000; request 7002 asks for \u20b910,000. Both arrive within milliseconds. They are separate authorized business requests, not duplicate deliveries.",
+            "The \u20b910,000 request cannot succeed even if it acquires the lock first. In the illustrated order, request 7001 acquires the account lock first, commits its debit, and request 7002 then reads \u20b90. The application must never decide from an earlier unlocked balance.",
+            "This lesson models an internal ledger withdrawal. Cash dispensing or an external bank debit would require an additional externally confirmed payment workflow; a local SUCCESS does not prove cash was delivered."
+          ]
+        },
+        {
+          "shared": "block-1"
+        }
+      ]
+    },
+    {
+      "id": "lesson-02",
+      "title": "Real Database Tables",
+      "blocks": [
+        {
+          "shared": "block-2"
+        },
+        {
+          "shared": "block-3"
+        },
+        {
+          "shared": "block-4"
+        },
+        {
+          "shared": "block-5"
+        },
+        {
+          "shared": "block-6"
+        },
+        {
+          "shared": "block-7"
+        }
+      ]
+    },
+    {
+      "id": "lesson-03",
+      "title": "Sample Table Data",
+      "blocks": [
+        {
+          "shared": "block-8"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Large-population examples show representative rows, not all 2,000 or 10,000 records. Run totals refer to the complete illustrative population, not the displayed subset."
+          ]
+        },
+        {
+          "shared": "block-9"
+        },
+        {
+          "shared": "block-10"
+        },
+        {
+          "shared": "block-11"
+        },
+        {
+          "shared": "block-12"
+        }
+      ]
+    },
+    {
+      "id": "lesson-04",
+      "title": "User Action / Request",
+      "blocks": [
+        {
+          "shared": "block-13"
+        },
+        {
+          "shared": "block-14"
+        },
+        {
+          "shared": "block-15"
+        }
+      ]
+    },
+    {
+      "id": "lesson-05",
+      "title": "What Happens Inside the Application",
+      "blocks": [
+        {
+          "shared": "block-16"
+        },
+        {
+          "shared": "block-17"
+        }
+      ]
+    },
+    {
+      "id": "lesson-06",
+      "title": "Database Transaction",
+      "blocks": [
+        {
+          "shared": "block-18"
+        },
+        {
+          "shared": "block-19"
+        }
+      ]
+    },
+    {
+      "id": "lesson-07",
+      "title": "SQL Query",
+      "blocks": [
+        {
+          "shared": "block-20"
+        },
+        {
+          "shared": "block-21"
+        },
+        {
+          "shared": "block-22"
+        }
+      ]
+    },
+    {
+      "id": "lesson-08",
+      "title": "Concurrent Request Scenario",
+      "blocks": [
+        {
+          "shared": "block-23"
+        },
+        {
+          "shared": "block-24"
+        }
+      ]
+    },
+    {
+      "id": "lesson-09",
+      "title": "Locking / Isolation",
+      "blocks": [
+        {
+          "shared": "block-25"
+        },
+        {
+          "shared": "block-26"
+        }
+      ]
+    },
+    {
+      "id": "lesson-10",
+      "title": "Calculation",
+      "blocks": [
+        {
+          "shared": "block-27"
+        },
+        {
+          "shared": "block-28"
+        }
+      ]
+    },
+    {
+      "id": "lesson-11",
+      "title": "Table Update \u2014 Before / After",
+      "blocks": [
+        {
+          "shared": "block-29"
+        },
+        {
+          "shared": "block-30"
+        }
+      ]
+    },
+    {
+      "id": "lesson-12",
+      "title": "Status Transition",
+      "blocks": [
+        {
+          "shared": "block-31"
+        },
+        {
+          "shared": "block-32"
+        },
+        {
+          "shared": "block-33"
+        }
+      ]
+    },
+    {
+      "id": "lesson-13",
+      "title": "Success Flow",
+      "blocks": [
+        {
+          "shared": "block-34"
+        },
+        {
+          "shared": "block-35"
+        }
+      ]
+    },
+    {
+      "id": "lesson-14",
+      "title": "Failure Flow",
+      "blocks": [
+        {
+          "shared": "block-36"
+        },
+        {
+          "shared": "block-37"
+        }
+      ]
+    },
+    {
+      "id": "lesson-15",
+      "title": "Retry Flow",
+      "blocks": [
+        {
+          "shared": "block-38"
+        },
+        {
+          "shared": "block-39"
+        },
+        {
+          "shared": "block-40"
+        }
+      ]
+    },
+    {
+      "id": "lesson-16",
+      "title": "Idempotency",
+      "blocks": [
+        {
+          "shared": "block-41"
+        },
+        {
+          "shared": "block-42"
+        }
+      ]
+    },
+    {
+      "id": "lesson-17",
+      "title": "Queue / Background Processing",
+      "blocks": [
+        {
+          "shared": "block-43"
+        },
+        {
+          "shared": "block-44"
+        },
+        {
+          "shared": "block-45"
+        },
+        {
+          "type": "code",
+          "caption": "Laravel dispatch after commit (illustrative job class)",
+          "language": "php",
+          "source": "GenerateWithdrawalReceipt::dispatch($request->id)->afterCommit();\n// Job class is illustrative. Use a durable outbox for reliable publication.\n// Deduplicate by the saved payment/request/document identity."
+        }
+      ]
+    },
+    {
+      "id": "lesson-18",
+      "title": "Receipt / Document Generation",
+      "blocks": [
+        {
+          "shared": "block-47"
+        },
+        {
+          "type": "table",
+          "caption": "Sample private document \u2014 fictional educational values",
+          "columns": [
+            "Document field",
+            "Stored value"
+          ],
+          "rows": [
+            [
+              "Acknowledgement",
+              "WD-7001"
+            ],
+            [
+              "Account",
+              "Ending 101"
+            ],
+            [
+              "Amount",
+              "INR 5000.00"
+            ],
+            [
+              "Date",
+              "28 Sep 2026"
+            ],
+            [
+              "Status",
+              "SUCCESS (local ledger only)"
+            ]
+          ]
+        },
+        {
+          "shared": "block-48"
+        },
+        {
+          "shared": "block-49"
+        },
+        {
+          "shared": "block-50"
+        }
+      ]
+    },
+    {
+      "id": "lesson-19",
+      "title": "Reconciliation",
+      "blocks": [
+        {
+          "shared": "block-51"
+        },
+        {
+          "shared": "block-52"
+        },
+        {
+          "shared": "block-53"
+        },
+        {
+          "shared": "block-54"
+        },
+        {
+          "shared": "block-55"
+        }
+      ]
+    },
+    {
+      "id": "lesson-20",
+      "title": "Audit Log",
+      "blocks": [
+        {
+          "shared": "block-56"
+        },
+        {
+          "shared": "block-57"
+        }
+      ]
+    },
+    {
+      "id": "lesson-21",
+      "title": "Final Database State",
+      "blocks": [
+        {
+          "shared": "block-58"
+        },
+        {
+          "shared": "block-59"
+        },
+        {
+          "shared": "block-60"
+        },
+        {
+          "shared": "block-61"
+        },
+        {
+          "shared": "block-62"
+        }
+      ]
+    },
+    {
+      "id": "lesson-22",
+      "title": "Interview Questions",
+      "blocks": [
+        {
+          "shared": "block-63"
+        }
+      ]
+    },
+    {
+      "id": "lesson-23",
+      "title": "Related SQL Concepts",
+      "blocks": [
+        {
+          "shared": "block-64"
+        },
+        {
+          "shared": "block-65"
+        }
+      ]
+    }
   ]
 }

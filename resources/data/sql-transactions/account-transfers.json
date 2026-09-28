@@ -12,5 +12,907 @@
       "question": "Deadlocks and external boundaries",
       "answer": "Deterministic lock order reduces deadlocks but does not eliminate all deadlocks. Retry a rolled-back database-only operation with the same idempotency key and bounded attempts. Do not include a bank HTTP call inside a transaction closure that may be retried.\n\nAn external bank transfer is not atomic with your local database. Use a durable payment intent/outbox, bank reference, idempotent adapter, callbacks and reconciliation."
     }
+  ],
+  "summary": "Move \u20b95,000 from account A to B while another request moves \u20b92,000 from B to A. Follow deterministic locks and balanced ledger entries.",
+  "example_label": "Illustrative production scenario \u2014 fictional educational records",
+  "sections": [
+    {
+      "id": "lesson-01",
+      "title": "Business Scenario",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Account A (101) starts with \u20b910,000 and B (202) starts with \u20b93,000, both INR and ACTIVE. Transfer 8001 moves \u20b95,000 A \u2192 B; a separate concurrent transfer 8002 moves \u20b92,000 B \u2192 A. Both are authorized positive-amount internal transfers.",
+            "The combined balance must remain \u20b913,000. In the illustrated order, the first transfer yields A=\u20b95,000/B=\u20b98,000; the second yields A=\u20b97,000/B=\u20b96,000. A partial debit without its matching credit must never commit.",
+            "This lesson is a transfer within one database and currency. Transfers to an external bank need the separate adapter/reconciliation workflow; database atomicity does not cross that boundary."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Illustrative values only",
+          "columns": [
+            "Reference",
+            "Amount per main request",
+            "Scope"
+          ],
+          "rows": [
+            [
+              "TR-8001",
+              "\u20b95,000",
+              "One local database transaction"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-02",
+      "title": "Real Database Tables",
+      "blocks": [
+        {
+          "shared": "block-2"
+        },
+        {
+          "type": "schema",
+          "name": "accounts",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "account_no",
+              "VARCHAR(50) UNIQUE"
+            ],
+            [
+              "balance",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "currency",
+              "CHAR(3)"
+            ],
+            [
+              "status",
+              "VARCHAR(20)"
+            ]
+          ],
+          "note": "Validate ownership, both statuses and same currency; disallow source=destination."
+        },
+        {
+          "type": "schema",
+          "name": "transfer_requests",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "source_id",
+              "BIGINT FK accounts.id"
+            ],
+            [
+              "destination_id",
+              "BIGINT FK accounts.id"
+            ],
+            [
+              "amount",
+              "DECIMAL(19,2) > 0"
+            ],
+            [
+              "status",
+              "VARCHAR(30)"
+            ],
+            [
+              "idempotency_key",
+              "VARCHAR(100) UNIQUE"
+            ]
+          ],
+          "note": "A request key cannot be reused with a different amount or account pair."
+        },
+        {
+          "type": "schema",
+          "name": "account_transactions",
+          "columns": [
+            [
+              "id",
+              "BIGINT PK"
+            ],
+            [
+              "account_id",
+              "BIGINT FK"
+            ],
+            [
+              "transfer_id",
+              "BIGINT FK"
+            ],
+            [
+              "type",
+              "VARCHAR(20)"
+            ],
+            [
+              "amount",
+              "DECIMAL(19,2)"
+            ],
+            [
+              "reference_no",
+              "VARCHAR(100) UNIQUE"
+            ],
+            [
+              "status",
+              "VARCHAR(20)"
+            ]
+          ],
+          "note": "Each completed transfer has equal DEBIT and CREDIT amounts. Also enforce UNIQUE(transfer_id,type)."
+        },
+        {
+          "shared": "block-6"
+        },
+        {
+          "shared": "block-7"
+        }
+      ]
+    },
+    {
+      "id": "lesson-03",
+      "title": "Sample Table Data",
+      "blocks": [
+        {
+          "shared": "block-8"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Large-population examples show representative rows, not all 2,000 or 10,000 records. Run totals refer to the complete illustrative population, not the displayed subset."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "accounts \u2014 before processing",
+          "columns": [
+            "id",
+            "account_no",
+            "balance",
+            "currency",
+            "status"
+          ],
+          "rows": [
+            [
+              101,
+              "ACC-DEMO-A",
+              "10000.00",
+              "INR",
+              "ACTIVE"
+            ],
+            [
+              202,
+              "ACC-DEMO-B",
+              "3000.00",
+              "INR",
+              "ACTIVE"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "transfer_requests \u2014 before processing",
+          "columns": [
+            "id",
+            "source_id",
+            "destination_id",
+            "amount",
+            "status",
+            "idempotency_key"
+          ],
+          "rows": [
+            [
+              8001,
+              101,
+              202,
+              "5000.00",
+              "PENDING",
+              "TR-CLIENT-001"
+            ],
+            [
+              8002,
+              202,
+              101,
+              "2000.00",
+              "PENDING",
+              "TR-CLIENT-002"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "account_transactions \u2014 before processing",
+          "columns": [
+            "id",
+            "account_id",
+            "transfer_id",
+            "type",
+            "amount",
+            "reference_no",
+            "status"
+          ],
+          "rows": []
+        },
+        {
+          "shared": "block-12"
+        }
+      ]
+    },
+    {
+      "id": "lesson-04",
+      "title": "User Action / Request",
+      "blocks": [
+        {
+          "shared": "block-13"
+        },
+        {
+          "type": "flow",
+          "caption": "Button click to recorded result",
+          "steps": [
+            "Authorize transfer 8001",
+            "Validate amount/currency/account pair",
+            "Persist idempotent request",
+            "Lock request",
+            "Lock account 101 then 202",
+            "Debit source / credit destination",
+            "Insert both ledger entries",
+            "COMMIT"
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Request envelope (illustrative)",
+          "columns": [
+            "Field",
+            "Value / rule"
+          ],
+          "rows": [
+            [
+              "reference",
+              "TR-8001"
+            ],
+            [
+              "amount",
+              "\u20b95,000; validate against saved request"
+            ],
+            [
+              "authenticated actor",
+              "CUSTOMER-101"
+            ],
+            [
+              "response",
+              "Return saved result on duplicate; show pending while unresolved"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-05",
+      "title": "What Happens Inside the Application",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "The transfer controller verifies the customer controls the source and the destination is a valid recipient. The service locks transfer_requests.id=8001 and returns the saved outcome on repeated delivery.",
+            "Read source/destination IDs from the saved request, sort their numeric IDs, and lock them with two point reads in that order. Both directions therefore lock 101 before 202. Check statuses, currency and funds after locks are acquired.",
+            "Guard the source debit, credit the destination, insert both uniquely referenced ledger entries, set request SUCCESS and append audit/outbox rows. Any error rolls back every local effect. Send no external HTTP call while these account locks are held."
+          ]
+        },
+        {
+          "shared": "block-17"
+        }
+      ]
+    },
+    {
+      "id": "lesson-06",
+      "title": "Database Transaction",
+      "blocks": [
+        {
+          "type": "flow",
+          "caption": "Transaction boundaries",
+          "steps": [
+            "BEGIN",
+            "Lock transfer_requests 8001",
+            "Lock accounts 101 then 202",
+            "Check ACTIVE, currency, positive amount, funds",
+            "Debit 101 by 5000",
+            "Credit 202 by 5000",
+            "Insert matched debit/credit; SUCCESS + audit",
+            "COMMIT"
+          ]
+        },
+        {
+          "shared": "block-19"
+        }
+      ]
+    },
+    {
+      "id": "lesson-07",
+      "title": "SQL Query",
+      "blocks": [
+        {
+          "shared": "block-20"
+        },
+        {
+          "type": "code",
+          "caption": "Representative SQL and guarded updates",
+          "language": "sql",
+          "source": "START TRANSACTION;\nSELECT * FROM transfer_requests WHERE id = 8001 FOR UPDATE;\n-- Both transfer directions lock account IDs in ascending order.\nSELECT * FROM accounts WHERE id = 101 FOR UPDATE;\nSELECT * FROM accounts WHERE id = 202 FOR UPDATE;\n-- Handler checks persisted request, currency, positive amount and account status.\nUPDATE accounts SET balance = balance - 5000.00 WHERE id = 101 AND balance >= 5000.00;\n-- If ROW_COUNT() != 1: do not credit; roll back/record confirmed business rejection.\nUPDATE accounts SET balance = balance + 5000.00 WHERE id = 202;\nINSERT INTO account_transactions (id,account_id,transfer_id,type,amount,reference_no,status) VALUES\n(9101,101,8001,'DEBIT',5000.00,'TR-8001-D','SUCCESS'),\n(9102,202,8001,'CREDIT',5000.00,'TR-8001-C','SUCCESS');\nUPDATE transfer_requests SET status = 'SUCCESS' WHERE id = 8001;\nCOMMIT;"
+        },
+        {
+          "shared": "block-22"
+        }
+      ]
+    },
+    {
+      "id": "lesson-08",
+      "title": "Concurrent Request Scenario",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Concurrent request timeline",
+          "columns": [
+            "Time",
+            "Request / worker A",
+            "Request / worker B or external system"
+          ],
+          "rows": [
+            [
+              "T0",
+              "A\u2192B: lock request 8001, account 101",
+              "B\u2192A: lock request 8002, wait on account 101"
+            ],
+            [
+              "T1",
+              "Lock 202; read 10000/3000",
+              "Does NOT lock 202 first"
+            ],
+            [
+              "T2",
+              "Debit/credit 5000; COMMIT",
+              "Acquire 101 then 202; read 5000/8000"
+            ],
+            [
+              "T3",
+              "Balances 5000 and 8000",
+              "Debit B 2000 / credit A 2000; COMMIT"
+            ],
+            [
+              "T4",
+              "Final A=7000",
+              "Final B=6000; total=13000"
+            ]
+          ]
+        },
+        {
+          "shared": "block-24"
+        }
+      ]
+    },
+    {
+      "id": "lesson-09",
+      "title": "Locking / Isolation",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "SELECT ... FOR UPDATE is a locking read inside an explicit InnoDB transaction. The row remains protected until COMMIT or ROLLBACK. Use indexed primary/unique lookups so the operation does not scan and lock unrelated data.",
+            "Every handler touching multiple entities must follow the same lock hierarchy. Define it once for workers, callbacks and reconcilers; opposite order can create deadlocks. A deadlock victim must restart the whole local transaction and re-read data.",
+            "Lock transfer request first, then account 101 and 202 in ascending order for both directions. READ COMMITTED or REPEATABLE READ does not fix an application that performs unlocked balance decisions."
+          ]
+        },
+        {
+          "shared": "block-26"
+        }
+      ]
+    },
+    {
+      "id": "lesson-10",
+      "title": "Calculation",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Calculation and invariants",
+          "columns": [
+            "Value",
+            "Calculation / expected result"
+          ],
+          "rows": [
+            [
+              "Opening total",
+              "10000 + 3000 = 13000"
+            ],
+            [
+              "After transfer 8001",
+              "A 5000 / B 8000"
+            ],
+            [
+              "After transfer 8002",
+              "A 7000 / B 6000"
+            ],
+            [
+              "Total invariant",
+              "7000 + 6000 = 13000"
+            ],
+            [
+              "Ledger invariant per transfer",
+              "DEBIT amount = CREDIT amount"
+            ]
+          ]
+        },
+        {
+          "shared": "block-28"
+        }
+      ]
+    },
+    {
+      "id": "lesson-11",
+      "title": "Table Update \u2014 Before / After",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Before / request / after",
+          "columns": [
+            "Table or field",
+            "Before",
+            "After"
+          ],
+          "rows": [
+            [
+              "accounts 101",
+              "10000.00",
+              "7000.00 after both transfers"
+            ],
+            [
+              "accounts 202",
+              "3000.00",
+              "6000.00 after both transfers"
+            ],
+            [
+              "transfer 8001",
+              "PENDING",
+              "SUCCESS"
+            ],
+            [
+              "transfer 8002",
+              "PENDING",
+              "SUCCESS"
+            ],
+            [
+              "ledger",
+              "No entries",
+              "Four entries: two matched pairs"
+            ]
+          ]
+        },
+        {
+          "shared": "block-30"
+        }
+      ]
+    },
+    {
+      "id": "lesson-12",
+      "title": "Status Transition",
+      "blocks": [
+        {
+          "shared": "block-31"
+        },
+        {
+          "shared": "block-32"
+        },
+        {
+          "shared": "block-33"
+        }
+      ]
+    },
+    {
+      "id": "lesson-13",
+      "title": "Success Flow",
+      "blocks": [
+        {
+          "shared": "block-34"
+        },
+        {
+          "shared": "block-35"
+        }
+      ]
+    },
+    {
+      "id": "lesson-14",
+      "title": "Failure Flow",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "If the destination credit or either ledger insert fails, rollback the source debit as well. Inactive account, currency mismatch, same-account transfer and insufficient funds are distinct validation/business failures. Never record a debit-only SUCCESS."
+          ]
+        },
+        {
+          "shared": "block-37"
+        }
+      ]
+    },
+    {
+      "id": "lesson-15",
+      "title": "Retry Flow",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Use TR-CLIENT-001 again for a retry of transfer 8001. A bounded deadlock retry restarts the entire local transaction, re-reads locked balances and inserts no duplicate ledger entries. The original request ID and unique ledger pair prevent repeated effects."
+          ]
+        },
+        {
+          "shared": "block-39"
+        },
+        {
+          "shared": "block-40"
+        }
+      ]
+    },
+    {
+      "id": "lesson-16",
+      "title": "Idempotency",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Repeated deliveries",
+          "columns": [
+            "Delivery",
+            "Business reference",
+            "Expected financial effect"
+          ],
+          "rows": [
+            [
+              "First",
+              "TR-8001",
+              "Apply once after validation/confirmation"
+            ],
+            [
+              "Second",
+              "TR-8001",
+              "Return existing result / wait for original"
+            ],
+            [
+              "Third",
+              "TR-8001",
+              "No additional debit, allocation or salary"
+            ]
+          ]
+        },
+        {
+          "shared": "block-42"
+        }
+      ]
+    },
+    {
+      "id": "lesson-17",
+      "title": "Queue / Background Processing",
+      "blocks": [
+        {
+          "shared": "block-43"
+        },
+        {
+          "type": "table",
+          "caption": "outbox_events \u2014 after financial commit",
+          "columns": [
+            "event_key",
+            "aggregate_reference",
+            "event_type",
+            "published_at"
+          ],
+          "rows": [
+            [
+              "TR-8001:document",
+              "TR-8001",
+              "GENERATE_DOCUMENT",
+              "NULL until dispatched"
+            ]
+          ]
+        },
+        {
+          "shared": "block-45"
+        },
+        {
+          "type": "code",
+          "caption": "Laravel dispatch after commit (illustrative job class)",
+          "language": "php",
+          "source": "GenerateTransferReceipt::dispatch($transfer->id)->afterCommit();\n// Job class is illustrative. Use a durable outbox for reliable publication.\n// Deduplicate by the saved payment/request/document identity."
+        }
+      ]
+    },
+    {
+      "id": "lesson-18",
+      "title": "Receipt / Document Generation",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Transfer acknowledgement TR-8001 shows source ending A, destination ending B, \u20b95,000 INR and SUCCESS. Render from the committed request and its two ledger entries. Do not expose another customer's private account data."
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "Sample private document \u2014 fictional educational values",
+          "columns": [
+            "Document field",
+            "Stored value"
+          ],
+          "rows": [
+            [
+              "Transfer advice",
+              "TR-8001"
+            ],
+            [
+              "From / to",
+              "Account ending A / account ending B"
+            ],
+            [
+              "Amount",
+              "INR 5000.00"
+            ],
+            [
+              "Ledger pair",
+              "TR-8001-D / TR-8001-C"
+            ],
+            [
+              "Status",
+              "SUCCESS (internal transfer)"
+            ]
+          ]
+        },
+        {
+          "shared": "block-48"
+        },
+        {
+          "shared": "block-49"
+        },
+        {
+          "shared": "block-50"
+        }
+      ]
+    },
+    {
+      "id": "lesson-19",
+      "title": "Reconciliation",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "For each transfer, sum DEBIT and CREDIT amounts and require equality. Across the two example accounts the balance remains \u20b913,000. Investigate any successful request with fewer than two ledger entries or any unmatched account movement."
+          ]
+        },
+        {
+          "shared": "block-52"
+        },
+        {
+          "type": "table",
+          "caption": "Illustrative reconciliation record",
+          "columns": [
+            "reference",
+            "internal before",
+            "evidence",
+            "status / resolution"
+          ],
+          "rows": [
+            [
+              "TR-8001",
+              "Committed ledger",
+              "Matched request and balanced ledger",
+              "Resolved only after matching identity and amount"
+            ]
+          ]
+        },
+        {
+          "shared": "block-54"
+        },
+        {
+          "shared": "block-55"
+        }
+      ]
+    },
+    {
+      "id": "lesson-20",
+      "title": "Audit Log",
+      "blocks": [
+        {
+          "type": "table",
+          "caption": "Actual illustrative audit records",
+          "columns": [
+            "actor",
+            "action",
+            "entity",
+            "old_status",
+            "new_status",
+            "created_at"
+          ],
+          "rows": [
+            [
+              "CUSTOMER-101",
+              "REQUEST_SAVED",
+              "TR-8001",
+              "NULL",
+              "PENDING",
+              "2026-09-28 09:00:00"
+            ],
+            [
+              "TRANSACTION-SERVICE",
+              "RESULT_APPLIED",
+              "TR-8001",
+              "PENDING",
+              "SUCCESS",
+              "2026-09-28 12:00:00"
+            ],
+            [
+              "DOCUMENT-WORKER",
+              "DOCUMENT_GENERATED",
+              "TR-8001",
+              "PENDING",
+              "GENERATED",
+              "2026-09-28 12:01:00"
+            ]
+          ]
+        },
+        {
+          "shared": "block-57"
+        }
+      ]
+    },
+    {
+      "id": "lesson-21",
+      "title": "Final Database State",
+      "blocks": [
+        {
+          "shared": "block-58"
+        },
+        {
+          "type": "table",
+          "caption": "accounts \u2014 final",
+          "columns": [
+            "id",
+            "balance",
+            "currency"
+          ],
+          "rows": [
+            [
+              101,
+              "7000.00",
+              "INR"
+            ],
+            [
+              202,
+              "6000.00",
+              "INR"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "account_transactions \u2014 final",
+          "columns": [
+            "reference",
+            "account",
+            "type",
+            "amount"
+          ],
+          "rows": [
+            [
+              "TR-8001-D",
+              101,
+              "DEBIT",
+              "5000.00"
+            ],
+            [
+              "TR-8001-C",
+              202,
+              "CREDIT",
+              "5000.00"
+            ],
+            [
+              "TR-8002-D",
+              202,
+              "DEBIT",
+              "2000.00"
+            ],
+            [
+              "TR-8002-C",
+              101,
+              "CREDIT",
+              "2000.00"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "caption": "transfer_requests \u2014 final",
+          "columns": [
+            "id",
+            "status"
+          ],
+          "rows": [
+            [
+              8001,
+              "SUCCESS"
+            ],
+            [
+              8002,
+              "SUCCESS"
+            ]
+          ]
+        },
+        {
+          "shared": "block-62"
+        }
+      ]
+    },
+    {
+      "id": "lesson-22",
+      "title": "Interview Questions",
+      "blocks": [
+        {
+          "type": "questions",
+          "items": [
+            [
+              "Why lock 101 before 202 for both directions?",
+              "A consistent lock order avoids the classic cycle where each worker holds one account while waiting for the other."
+            ],
+            [
+              "Can one ledger insert be committed if the other fails?",
+              "No. Debit, credit, both ledger entries and request result form one local transaction."
+            ],
+            [
+              "Why SELECT FOR UPDATE?",
+              "Protect a mutable row while the transaction makes and applies a decision from its current value."
+            ],
+            [
+              "What does a waiting request read?",
+              "The new committed value after obtaining its lock, not a cached value from before waiting."
+            ],
+            [
+              "Why cannot local rollback reverse a bank payment?",
+              "The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."
+            ],
+            [
+              "How are duplicate webhooks prevented from repeating money effects?",
+              "Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."
+            ],
+            [
+              "What distinguishes FAILED, PENDING and UNKNOWN?",
+              "Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."
+            ],
+            [
+              "How do 5,000 student payments or 10,000 salaries scale?",
+              "Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."
+            ],
+            [
+              "Why queue receipt generation?",
+              "Document availability can retry independently without changing a confirmed financial outcome."
+            ],
+            [
+              "What should a deadlock retry repeat?",
+              "The entire rolled-back local transaction with its original business identity; never an uncertain external payment."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lesson-23",
+      "title": "Related SQL Concepts",
+      "blocks": [
+        {
+          "shared": "block-64"
+        },
+        {
+          "shared": "block-65"
+        }
+      ]
+    }
   ]
 }

@@ -52,5 +52,426 @@
       "question": "Why cannot database rollback undo a bank payment?",
       "answer": "The external bank owns its transaction. Local rollback cannot reverse it; use reconciliation and a separately authorized reversal/refund where supported."
     }
+  ],
+  "summary": "A guided interview incident: explain each row and decision in a university fee payment, then compare banking, payroll and corporate salary cases.",
+  "example_label": "Illustrative production scenario \u2014 fictional educational records",
+  "sections": [
+    {
+      "id": "lesson-01",
+      "title": "Business Scenario",
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "Interview exercise: the interviewer reports that a student paid but the browser closed and the dashboard still says unpaid. Reconstruct the request, gateway evidence, locks, invoice allocation and receipt instead of answering only with definitions.",
+            "The payment window is 1\u201310 September in this illustrative semester. The maximum billed amount is 5,000 \u00d7 \u20b980,000 = \u20b9400,000,000 = \u20b940 crore. A deadline policy may allow a late payment; it must be an explicit university decision, not a hidden change to history.",
+            "Rahul's invoice 5001 already has \u20b930,000 confirmed and \u20b950,000 remaining. His main request is Pay \u20b950,000, not Pay \u20b980,000 again. Priya's invoice is fully paid. Amit's unpaid \u20b980,000 invoice is the separate browser-closed example.",
+            "The application must handle simultaneous students, double clicks, repeated callbacks, partial payment, unknown gateway outcomes, receipts and daily settlement differences. All identities and payment references here are fictional teaching records."
+          ]
+        },
+        {
+          "shared": "block-66"
+        }
+      ]
+    },
+    {
+      "id": "lesson-02",
+      "title": "Real Database Tables",
+      "blocks": [
+        {
+          "shared": "block-2"
+        },
+        {
+          "shared": "block-67"
+        },
+        {
+          "shared": "block-68"
+        },
+        {
+          "shared": "block-69"
+        },
+        {
+          "shared": "block-70"
+        },
+        {
+          "shared": "block-71"
+        },
+        {
+          "shared": "block-6"
+        },
+        {
+          "shared": "block-7"
+        }
+      ]
+    },
+    {
+      "id": "lesson-03",
+      "title": "Sample Table Data",
+      "blocks": [
+        {
+          "shared": "block-8"
+        },
+        {
+          "type": "text",
+          "paragraphs": [
+            "Large-population examples show representative rows, not all 2,000 or 10,000 records. Run totals refer to the complete illustrative population, not the displayed subset."
+          ]
+        },
+        {
+          "shared": "block-72"
+        },
+        {
+          "shared": "block-73"
+        },
+        {
+          "shared": "block-74"
+        },
+        {
+          "shared": "block-75"
+        },
+        {
+          "shared": "block-76"
+        },
+        {
+          "shared": "block-12"
+        }
+      ]
+    },
+    {
+      "id": "lesson-04",
+      "title": "User Action / Request",
+      "blocks": [
+        {
+          "shared": "block-13"
+        },
+        {
+          "shared": "block-77"
+        },
+        {
+          "shared": "block-78"
+        }
+      ]
+    },
+    {
+      "id": "lesson-05",
+      "title": "What Happens Inside the Application",
+      "blocks": [
+        {
+          "shared": "block-79"
+        },
+        {
+          "shared": "block-80"
+        }
+      ]
+    },
+    {
+      "id": "lesson-06",
+      "title": "Database Transaction",
+      "blocks": [
+        {
+          "shared": "block-81"
+        },
+        {
+          "shared": "block-82"
+        }
+      ]
+    },
+    {
+      "id": "lesson-07",
+      "title": "SQL Query",
+      "blocks": [
+        {
+          "shared": "block-20"
+        },
+        {
+          "shared": "block-83"
+        },
+        {
+          "shared": "block-22"
+        }
+      ]
+    },
+    {
+      "id": "lesson-08",
+      "title": "Concurrent Request Scenario",
+      "blocks": [
+        {
+          "shared": "block-84"
+        },
+        {
+          "shared": "block-24"
+        }
+      ]
+    },
+    {
+      "id": "lesson-09",
+      "title": "Locking / Isolation",
+      "blocks": [
+        {
+          "shared": "block-25"
+        },
+        {
+          "shared": "block-26"
+        }
+      ]
+    },
+    {
+      "id": "lesson-10",
+      "title": "Calculation",
+      "blocks": [
+        {
+          "shared": "block-85"
+        },
+        {
+          "shared": "block-28"
+        }
+      ]
+    },
+    {
+      "id": "lesson-11",
+      "title": "Table Update \u2014 Before / After",
+      "blocks": [
+        {
+          "shared": "block-86"
+        },
+        {
+          "shared": "block-30"
+        }
+      ]
+    },
+    {
+      "id": "lesson-12",
+      "title": "Status Transition",
+      "blocks": [
+        {
+          "shared": "block-87"
+        },
+        {
+          "shared": "block-88"
+        },
+        {
+          "shared": "block-89"
+        },
+        {
+          "shared": "block-90"
+        }
+      ]
+    },
+    {
+      "id": "lesson-13",
+      "title": "Success Flow",
+      "blocks": [
+        {
+          "shared": "block-91"
+        },
+        {
+          "shared": "block-35"
+        }
+      ]
+    },
+    {
+      "id": "lesson-14",
+      "title": "Failure Flow",
+      "blocks": [
+        {
+          "shared": "block-92"
+        },
+        {
+          "shared": "block-37"
+        },
+        {
+          "shared": "block-93"
+        },
+        {
+          "shared": "block-94"
+        },
+        {
+          "shared": "block-95"
+        }
+      ]
+    },
+    {
+      "id": "lesson-15",
+      "title": "Retry Flow",
+      "blocks": [
+        {
+          "shared": "block-96"
+        },
+        {
+          "shared": "block-97"
+        },
+        {
+          "shared": "block-40"
+        }
+      ]
+    },
+    {
+      "id": "lesson-16",
+      "title": "Idempotency",
+      "blocks": [
+        {
+          "shared": "block-98"
+        },
+        {
+          "shared": "block-42"
+        }
+      ]
+    },
+    {
+      "id": "lesson-17",
+      "title": "Queue / Background Processing",
+      "blocks": [
+        {
+          "shared": "block-43"
+        },
+        {
+          "shared": "block-99"
+        },
+        {
+          "shared": "block-45"
+        },
+        {
+          "type": "code",
+          "caption": "Laravel dispatch after commit (illustrative job class)",
+          "language": "php",
+          "source": "GenerateFeeReceipt::dispatch($payment->id)->afterCommit();\n// Job class is illustrative. Use a durable outbox for reliable publication.\n// Deduplicate by the saved payment/request/document identity."
+        }
+      ]
+    },
+    {
+      "id": "lesson-18",
+      "title": "Receipt / Document Generation",
+      "blocks": [
+        {
+          "shared": "block-100"
+        },
+        {
+          "type": "table",
+          "caption": "Sample private document \u2014 fictional educational values",
+          "columns": [
+            "Document field",
+            "Stored value"
+          ],
+          "rows": [
+            [
+              "Receipt No",
+              "REC-2026-000502"
+            ],
+            [
+              "Student",
+              "STU1001 / Rahul Sharma"
+            ],
+            [
+              "Invoice",
+              "INV-2026-5001"
+            ],
+            [
+              "Payment",
+              "PAY-100502"
+            ],
+            [
+              "Amount received",
+              "INR 50000.00"
+            ],
+            [
+              "Previous installment",
+              "INR 30000.00 (receipt 501)"
+            ],
+            [
+              "Date",
+              "28 Sep 2026"
+            ],
+            [
+              "Payment / invoice",
+              "SUCCESS / PAID"
+            ]
+          ]
+        },
+        {
+          "shared": "block-48"
+        },
+        {
+          "shared": "block-49"
+        },
+        {
+          "shared": "block-50"
+        }
+      ]
+    },
+    {
+      "id": "lesson-19",
+      "title": "Reconciliation",
+      "blocks": [
+        {
+          "shared": "block-101"
+        },
+        {
+          "shared": "block-52"
+        },
+        {
+          "shared": "block-102"
+        },
+        {
+          "shared": "block-103"
+        },
+        {
+          "shared": "block-55"
+        }
+      ]
+    },
+    {
+      "id": "lesson-20",
+      "title": "Audit Log",
+      "blocks": [
+        {
+          "shared": "block-104"
+        },
+        {
+          "shared": "block-57"
+        }
+      ]
+    },
+    {
+      "id": "lesson-21",
+      "title": "Final Database State",
+      "blocks": [
+        {
+          "shared": "block-58"
+        },
+        {
+          "shared": "block-105"
+        },
+        {
+          "shared": "block-106"
+        },
+        {
+          "shared": "block-107"
+        },
+        {
+          "shared": "block-62"
+        }
+      ]
+    },
+    {
+      "id": "lesson-22",
+      "title": "Interview Questions",
+      "blocks": [
+        {
+          "shared": "block-108"
+        }
+      ]
+    },
+    {
+      "id": "lesson-23",
+      "title": "Related SQL Concepts",
+      "blocks": [
+        {
+          "shared": "block-64"
+        },
+        {
+          "shared": "block-65"
+        }
+      ]
+    }
   ]
 }
