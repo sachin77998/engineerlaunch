@@ -10,9 +10,9 @@ class AdminController extends Controller
 {
     public function index(Request $request,OwnerAnalyticsService $analytics)
     {
-        $filters=$request->validate(['city'=>'nullable|string|max:100','salary_min'=>'nullable|numeric|min:0','salary_max'=>'nullable|numeric|gte:salary_min']);
+        $filters=$request->validate(['visit_date'=>'nullable|date_format:Y-m-d|before_or_equal:'.now(config('visitor_analytics.timezone'))->toDateString(),'city'=>'nullable|string|max:100','salary_min'=>'nullable|numeric|min:0','salary_max'=>'nullable|numeric|gte:salary_min']);
             return view('admin.dashboard-v2',
-            ['analytics'=>$analytics->summary($filters),
+            ['visitorAnalytics'=>app(\App\Services\VisitorAnalytics::class)->summary($filters['visit_date'] ?? null), 'analytics'=>$analytics->summary($filters),
                 'metrics'=>
                       ['companies'=>DB::table('jobs')->whereNotNull('employer_id')->distinct('company_id')->count('company_id'),
                         'hr'=>User::where(fn($q)=>$q->where('role_code',0)->orWhere('role','employer'))->count(),

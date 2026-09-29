@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <title>
-            Owner Dashboard · EngineerLaunch
+            Owner Dashboard Â· EngineerLaunch
         </title>
         <style>
         :root
@@ -239,6 +239,7 @@
                                                                                                                                                                 </nav>
                                                                                                                                                             </header>
                                                                                                                                                             <main class="page">
+@include("admin.visitor-analytics")
 <div style="padding:18px 0"><a href="{{ route('admin.industrial.index') }}">Manage Industrial Areas, Companies and Openings</a></div>
                                                                                                                                                                 <div class="hero">
                                                                                                                                                                     <div>
