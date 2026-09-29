@@ -6,54 +6,52 @@ use App\Models\Job;
 use App\Support\DiscoveryCache;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use PDO;
 
 /** Offline geography matching. Unspecified locations are never expanded to every country. */
 class JobGeography
 {
-    private PDO $db;
-    public function __construct()
+    private GeographyCatalog $catalog;
+    public function __construct(GeographyCatalog $catalog)
     {
-        $this->db = new PDO('sqlite:'.resource_path('data/job-geography/geography.sqlite'));
-        $this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $this->db->exec('PRAGMA query_only=ON');
+        $this->catalog = $catalog;
     }
     public function key(string $text): string
     {
         return trim(preg_replace('/[^a-z0-9]+/', ' ', strtolower(Str::ascii($text))));
     }
-    private function rows(string $sql, array $args = []): array
-    {
-        $q = $this->db->prepare($sql); $q->execute($args); return $q->fetchAll();
-    }
     public function country(string $value): ?string
     {
-        $rows = $this->rows('SELECT code FROM countries WHERE code = ?', [strtoupper($value)]);
-        return $rows[0]['code'] ?? ($this->rows("SELECT country FROM places WHERE term=? AND kind='country' LIMIT 1", [$this->key($value)])[0]['country'] ?? null);
+        foreach ($this->catalog->table('countries') as $row) if ($row['code'] === strtoupper($value)) return $row['code'];
+        return $this->catalog->places([$this->key($value)], 'country')[0]['country'] ?? null;
     }
     public function options(array $filters): array
     {
         $country = $this->country($filters['country'] ?? '');
         $state = $this->state($filters['state'] ?? '', $country);
-        $region = $filters['region'] ?? '';
-        $countries = $this->rows('SELECT code AS value,name AS label,region FROM countries'.($region ? ' WHERE region=?' : '').' ORDER BY name', $region ? [$region] : []);
-        $states = $country ? $this->rows('SELECT id AS value,name AS label FROM states WHERE country=? ORDER BY name', [$country]) : [];
-        $cities = [];
-        if ($country) {
-            $sql = 'SELECT DISTINCT name AS value,name AS label FROM cities WHERE country=?'; $args = [$country];
-            if ($state) { $sql .= ' AND state=?'; $args[] = $state; }
-            if (!empty($filters['q'])) { $sql .= " AND (term LIKE ? OR name IN (SELECT city FROM places WHERE kind='city' AND term LIKE ?))"; $prefix = str_replace(['%','_'], '', $this->key($filters['q'])).'%'; $args[]=$prefix; $args[]=$prefix; }
-            $cities = $this->rows($sql.' ORDER BY name LIMIT 100', $args);
+        $countries = []; $regions = []; $states = [];
+        foreach ($this->catalog->table('countries') as $row) {
+            $regions[$row['region']] = ['value'=>$row['region'], 'label'=>$row['region']];
+            if (empty($filters['region']) || $row['region'] === $filters['region'])
+                $countries[] = ['value'=>$row['code'], 'label'=>$row['name'], 'region'=>$row['region']];
         }
-        return ['regions' => $this->rows('SELECT DISTINCT region AS value,region AS label FROM countries ORDER BY region'), 'countries' => $countries, 'states' => $states, 'cities' => $cities];
+        if ($country) foreach ($this->catalog->table('states') as $row)
+            if ($row['country'] === $country) $states[] = ['value'=>$row['id'], 'label'=>$row['name']];
+        usort($countries, fn($a,$b)=>strcmp($a['label'],$b['label']));
+        usort($states, fn($a,$b)=>strcmp($a['label'],$b['label']));
+        ksort($regions, SORT_STRING);
+        $cities = $country ? $this->catalog->cities($country, $state, $this->key($filters['q'] ?? '')) : [];
+        return ['regions'=>array_values($regions), 'countries'=>$countries, 'states'=>$states, 'cities'=>$cities];
     }
     private function state(string $value, ?string $country): ?string
     {
         if ($value === '') return null;
-        $rows = $this->rows('SELECT id FROM states WHERE (id=? OR lower(name)=? OR code=?)'.($country ? ' AND country=?' : '').' LIMIT 1', array_merge([$value, strtolower($value), strtoupper($value)], $country ? [$country] : []));
-        if ($rows) return $rows[0]['id'];
-        $rows = $this->rows("SELECT state FROM places WHERE term=? AND kind='state'".($country ? ' AND country=?' : '').' LIMIT 1', array_merge([$this->key($value)], $country ? [$country] : []));
-        return $rows[0]['state'] ?? null;
+        foreach ($this->catalog->table('states') as $row) {
+            if ($country && $row['country'] !== $country) continue;
+            if ($row['id'] === $value || strtolower($row['name']) === strtolower($value) || $row['code'] === strtoupper($value)) return $row['id'];
+        }
+        foreach ($this->catalog->places([$this->key($value)], 'state') as $row)
+            if (!$country || $row['country'] === $country) return $row['state'];
+        return null;
     }
     public function resolve(string $location, string $fallback = ''): array
     {
@@ -65,7 +63,7 @@ class JobGeography
             }
         }
         if (!$terms) return [];
-        $matches = $this->rows('SELECT DISTINCT * FROM places WHERE term IN ('.implode(',',array_fill(0,count($terms),'?')).')', array_keys($terms));
+        $matches = $this->catalog->places(array_keys($terms));
         // Prefer complete place names over shorter names inside them (New Delhi vs Delhi).
         $matches = array_values(array_filter($matches, function ($m) use ($matches) {
             foreach ($matches as $other) if ($m['kind']===$other['kind'] && $m['term']!==$other['term'] && str_contains(' '.$other['term'].' ', ' '.$m['term'].' ')) return false;
@@ -78,7 +76,7 @@ class JobGeography
         foreach ($countries ?: ($fallbackCode ? [$fallbackCode] : []) as $code) {
             foreach (preg_split('/[,;|\s]+/', $location) as $token) {
                 if (!preg_match('/^[A-Z]{2,3}$/', $token)) continue;
-                foreach ($this->rows('SELECT id AS state,country FROM states WHERE country=? AND code=?',[$code,$token]) as $s) $states[]=$s;
+                foreach ($this->catalog->table('states') as $s) if ($s['country']===$code && $s['code']===$token) $states[]=['state'=>$s['id'],'country'=>$s['country']];
             }
         }
         $groups=[];
@@ -123,10 +121,10 @@ class JobGeography
         $country = $this->country($filters['country'] ?? '');
         $state = $this->state($filters['state'] ?? '', $country);
         if ((!empty($filters['country']) && !$country) || (!empty($filters['state']) && !$state)) { $query->whereRaw('1=0'); return; }
-        $regions=array_column($this->rows('SELECT code,region FROM countries'),'region','code');
+        $regions=array_column($this->catalog->table('countries'),'region','code');
         $cityKey=$this->key($filters['city'] ?? '');
         $cityNames=[$cityKey];
-        if ($cityKey) foreach ($this->rows("SELECT city FROM places WHERE term=? AND kind='city'",[$cityKey]) as $c) $cityNames[]=$this->key($c['city']);
+        if ($cityKey) foreach ($this->catalog->places([$cityKey], 'city') as $c) $cityNames[]=$this->key($c['city']);
         $term=$this->key($filters['location'] ?? '');
         $termPlaces=$term ? $this->resolve($filters['location']) : [];
         $ids=[];

@@ -23,3 +23,13 @@ The builder creates a temporary database and replaces geography.sqlite when comp
 - The index uses the discovery cache version and refreshes when official imports invalidate it. There is no external geography API call at search time. PHP PDO SQLite is required.
 - Aliases include Bangalore/Bengaluru, Bombay/Mumbai, Madras/Chennai, Gurgaon/Gurugram, Vancuover/Vancouver, Calfiornia/California and Andra Pradesh/Andhra Pradesh.
 - Run `php artisan test --filter=JobGeographyTest` for isolated regression checks.
+## Shared-hosting runtime
+
+PHP reads the portable/ JSON files, not SQLite. Deploy this directory together with
+the application; PDO SQLite is not required on cPanel. The original database is
+retained as the reference for rebuilding the portable files.
+
+After rebuilding geography.sqlite, run python scripts/export-portable-geography.py.
+Country/state tables are small; city options read one country and exact place
+lookups retain at most 16 hashed shards per service instance. The same ODbL license
+and source attribution above apply to the portable export.
