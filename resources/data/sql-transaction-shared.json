@@ -1,1 +1,2090 @@
-{"block-1":{"type":"table","caption":"Illustrative values only","columns":["Reference","Amount per main request","Scope"],"rows":[["WD-7001","₹5,000","One local database transaction"]]},"block-2":{"type":"text","paragraphs":["These are educational schema definitions, not tables to add to the job portal's live database. PK means primary key; FK means a foreign key to the named parent. Use DECIMAL(19,2) for stored money and integer minor units or decimal-safe arithmetic in application code.","Use MySQL InnoDB for these row-locking examples. NOT NULL, foreign keys and scoped UNIQUE constraints complement application validation. Monetary CHECK constraints require an engine/version that enforces them; the service must still reject invalid amounts."]},"block-3":{"type":"schema","name":"accounts","columns":[["id","BIGINT PK"],["account_no","VARCHAR(50) UNIQUE"],["customer_id","BIGINT NOT NULL"],["balance","DECIMAL(19,2) >= 0"],["currency","CHAR(3)"],["status","VARCHAR(20)"],["updated_at","TIMESTAMP"]],"note":"Use InnoDB. Authorize customer ownership; all amounts in this scenario are INR."},"block-4":{"type":"schema","name":"withdrawal_requests","columns":[["id","BIGINT PK"],["account_id","BIGINT FK accounts.id"],["amount","DECIMAL(19,2) > 0"],["status","VARCHAR(30)"],["idempotency_key","VARCHAR(100)"],["failure_code","VARCHAR(100) NULL"]],"note":"UNIQUE(account_id, idempotency_key). Reusing a key with a different amount is rejected."},"block-5":{"type":"schema","name":"account_transactions","columns":[["id","BIGINT PK"],["account_id","BIGINT FK"],["type","VARCHAR(30)"],["amount","DECIMAL(19,2)"],["reference_no","VARCHAR(100) UNIQUE"],["status","VARCHAR(30)"]],"note":"No entry exists before the requests. The successful debit will create WD-7001. A full general ledger also has a balancing cash/clearing leg."},"block-6":{"type":"schema","name":"audit_logs","columns":[["id","BIGINT PK"],["user_id","BIGINT NULL (system actors allowed)"],["action","VARCHAR(60)"],["entity_type","VARCHAR(60)"],["entity_id","BIGINT"],["old_status","VARCHAR(30) NULL"],["new_status","VARCHAR(30)"],["metadata","JSON redacted"],["created_at","TIMESTAMP"]],"note":"Append-only access policy; timestamps and actor identity explain who changed a result. Avoid full bank details or secrets in metadata."},"block-7":{"type":"schema","name":"outbox_events","columns":[["id","BIGINT PK"],["event_key","VARCHAR(150) UNIQUE"],["aggregate_reference","VARCHAR(100)"],["event_type","VARCHAR(60)"],["payload","JSON"],["created_at","TIMESTAMP"],["published_at","TIMESTAMP NULL"]],"note":"Write in the financial transaction; a dispatcher retries unpublished events. Consumers also deduplicate because queue delivery may repeat."},"block-8":{"type":"text","paragraphs":["The rows below are fictional starting records. NULL means no confirmed value is known. Empty ledger/document tables are intentional before processing; their inserted records appear in Final Database State."]},"block-9":{"type":"table","caption":"accounts — before processing","columns":["id","account_no","customer_id","balance","currency","status","updated_at"],"rows":[[101,"ACC-DEMO-101",101,"5000.00","INR","ACTIVE","2026-09-28 09:00:00"]]},"block-10":{"type":"table","caption":"withdrawal_requests — before processing","columns":["id","account_id","amount","status","idempotency_key","failure_code"],"rows":[[7001,101,"5000.00","PENDING","WD-CLIENT-001",null],[7002,101,"10000.00","PENDING","WD-CLIENT-002",null]]},"block-11":{"type":"table","caption":"account_transactions — before processing","columns":["id","account_id","type","amount","reference_no","status"],"rows":[]},"block-12":{"type":"table","caption":"outbox_events — before processing","columns":["event_key","published_at"],"rows":[]},"block-13":{"type":"text","paragraphs":["The request is a business intent, not an instruction to trust browser-supplied status, owner or balance. The controller authorizes the actor, validates shape and currency, and resolves the saved obligation."]},"block-14":{"type":"flow","caption":"Button click to recorded result","steps":["Customer presses Withdraw ₹5,000","Controller authenticates account owner","Create/reuse request 7001","Withdrawal service locks request","Lock account 101","Validate and debit","Commit ledger and outcome","Queue receipt"]},"block-15":{"type":"table","caption":"Request envelope (illustrative)","columns":["Field","Value / rule"],"rows":[["reference","WD-7001"],["amount","₹5,000; validate against saved request"],["authenticated actor","CUSTOMER-101"],["response","Return saved result on duplicate; show pending while unresolved"]]},"block-16":{"type":"text","paragraphs":["The controller validates a positive decimal amount and a client request key. It resolves account ownership from the authenticated session; it never accepts another customer's account merely because its ID is supplied.","The service loads the persisted request under a row lock. Its saved account_id and amount are authoritative. If a previous delivery already completed, return that result. Next lock the account, check ACTIVE and current funds, and perform a guarded debit.","Insert a uniquely referenced ledger entry and an audit event in the same transaction. Commit before acknowledging success. A duplicate-key or database exception rolls back the debit; it does not leave money removed without a ledger record."]},"block-17":{"type":"flow","caption":"Application responsibility boundaries","steps":["Request","Controller: authorize / validate","Service: business rules / idempotency","Database: locks / constraints / atomic writes","Outbox and document worker"]},"block-18":{"type":"flow","caption":"Transaction boundaries","steps":["BEGIN","Lock withdrawal_requests 7001","Check PENDING and stored amount","Lock accounts 101","Check ACTIVE and balance ≥ 5000","Debit account and insert WD-7001","Set request SUCCESS; add audit/outbox","COMMIT"]},"block-19":{"type":"text","paragraphs":["Atomicity applies to the writes enclosed by one BEGIN/COMMIT. Consistency means the amount, status, ledger/allocation and audit invariants agree. Isolation prevents conflicting decisions on locked rows. Durability means a committed result survives a client disconnect.","On unexpected database errors, roll back the local transaction. A known business rejection can instead be recorded and committed without a financial mutation. Never swallow a database exception and accidentally commit half of the intended changes.","All balance mutations here belong to the same local database transaction. External notifications are deferred until after commit; adding an external transfer changes the atomicity boundary."]},"block-20":{"type":"text","paragraphs":["SQL fragments show the successful branch of an application-controlled transaction. Comments describing checks are real control-flow requirements: the handler must stop/rollback or record the specified exception when a guard fails. Do not paste all branches as one unconditional money-moving script."]},"block-21":{"type":"code","caption":"Representative SQL and guarded updates","language":"sql","source":"START TRANSACTION;\nSELECT id, account_id, amount, status FROM withdrawal_requests WHERE id = 7001 FOR UPDATE;\nSELECT id, balance, status FROM accounts WHERE id = 101 FOR UPDATE;\n-- Handler stops if request is already final, amount <= 0, or account inactive.\nUPDATE accounts SET balance = balance - 5000.00\nWHERE id = 101 AND status = 'ACTIVE' AND balance >= 5000.00;\nSELECT ROW_COUNT() AS debited;\n-- Continue ONLY if debited = 1; otherwise mark request FAILED, with no ledger insert.\nINSERT INTO account_transactions (id, account_id, type, amount, reference_no, status)\nVALUES (9001, 101, 'WITHDRAWAL', 5000.00, 'WD-7001', 'SUCCESS');\nUPDATE withdrawal_requests SET status = 'SUCCESS' WHERE id = 7001;\n-- Insert audit/outbox rows in this same transaction.\nCOMMIT;"},"block-22":{"type":"text","paragraphs":["Use prepared parameters in application code; literal IDs are used here only so learners can track the sample rows. Verify affected-row counts before the next financial write. Unique-reference violations require inspection of the existing saved outcome, not a new debit."]},"block-23":{"type":"table","caption":"Concurrent request timeline","columns":["Time","Request / worker A","Request / worker B or external system"],"rows":[["T0","BEGIN; lock request 7001","BEGIN; lock request 7002"],["T1","Lock account 101; read 5000","Attempt lock account 101; WAIT"],["T2","Debit 5000; insert WD-7001","Still waiting; cannot use a stale read"],["T3","COMMIT; balance = 0","Acquire lock; read NEW balance = 0"],["T4","Return SUCCESS","0 < 10000; set FAILED / INSUFFICIENT_FUNDS; COMMIT"]]},"block-24":{"type":"text","paragraphs":["A waiting worker must re-read the row after it obtains the lock. A value read before waiting cannot authorize a later debit/allocation. A second delivery of one business request differs from a genuinely new request: the former returns the same outcome, while the latter must recheck current funds or remaining obligation."]},"block-25":{"type":"text","paragraphs":["SELECT ... FOR UPDATE is a locking read inside an explicit InnoDB transaction. The row remains protected until COMMIT or ROLLBACK. Use indexed primary/unique lookups so the operation does not scan and lock unrelated data.","Every handler touching multiple entities must follow the same lock hierarchy. Define it once for workers, callbacks and reconcilers; opposite order can create deadlocks. A deadlock victim must restart the whole local transaction and re-read data.","Lock the saved business request/payment first, then its mutable account/invoice/item. Keep the transaction short and use current locked values, even if an earlier page showed a different balance."]},"block-26":{"type":"flow","caption":"Lock lifetime","steps":["BEGIN","Indexed locking read","Validate current row","Guarded mutation","COMMIT / ROLLBACK","Lock released"]},"block-27":{"type":"table","caption":"Calculation and invariants","columns":["Value","Calculation / expected result"],"rows":[["Opening balance","5000.00"],["Successful debit","5000.00"],["Rejected debit (no effect)","10000.00"],["Closing balance","5000.00 - 5000.00 = 0.00"]]},"block-28":{"type":"text","paragraphs":["Amounts shown in tables use two decimal places; commas and ₹ are display formatting, not database values. Round according to the documented currency/payroll rule once at the defined boundary. Do not add salary strings using floating-point arithmetic or silently change approved historical totals."]},"block-29":{"type":"table","caption":"Before / request / after","columns":["Table or field","Before","After"],"rows":[["accounts.balance","5000.00","0.00"],["withdrawal_requests 7001","PENDING","SUCCESS"],["withdrawal_requests 7002","PENDING","FAILED / INSUFFICIENT_FUNDS"],["account_transactions WD-7001","Absent","5000.00 WITHDRAWAL / SUCCESS"]]},"block-30":{"type":"text","paragraphs":["The after rows describe only committed outcomes. A rollback preserves the before financial rows; a separately committed failure/audit record can still describe the rejected request. Background document status changes do not rewrite the financial success."]},"block-31":{"type":"flow","caption":"Success branch","steps":["PENDING","LOCK + VALIDATE","SUCCESS"]},"block-32":{"type":"flow","caption":"Failure / investigation branch","steps":["PENDING","Business validation fails","FAILED; no debit"]},"block-33":{"type":"table","caption":"Meaning of each state","columns":["State","Meaning"],"rows":[["PENDING","Saved request awaits local execution"],["PROCESSING","Optional claimed state; not a final debit"],["SUCCESS","Committed local effects and ledger"],["FAILED","Confirmed validation/business rejection; no debit"],["REVERSED","Separate audited compensating entries; never erase original history"]]},"block-34":{"type":"text","paragraphs":["Success means the defined financial operation and its associated local records are committed. Return the persisted reference and outcome to the client; do not generate a new success on each retry.","A successful response is sent after account/ledger/request writes commit together. If the response is lost, the next delivery reads the same committed success."]},"block-35":{"type":"flow","caption":"Committed success to user","steps":["Saved financial result","COMMIT","Outbox dispatcher","Idempotent document job","Private document ready","Notification / authorized download"]},"block-36":{"type":"text","paragraphs":["Insufficient funds is a confirmed business rejection: persist FAILED / INSUFFICIENT_FUNDS without a debit. An exception before COMMIT rolls back both debit and ledger. A deadlock victim may retry its database-only transaction; another client's completed withdrawal remains committed."]},"block-37":{"type":"table","caption":"Failure classification","columns":["Failure","Local action","Financial interpretation"],"rows":[["Negative amount / invalid payload","REJECTED before submission","No financial operation"],["Insufficient funds / inactive entity","Record confirmed business failure","No local debit"],["Database error before external send","ROLLBACK","Retry only the rolled-back operation"],["Verified ACCOUNT_CLOSED","FAILED","Confirmed external rejection"],["BANK_TIMEOUT / lost response","UNKNOWN; investigate","May already have succeeded"],["PDF / email error","Retry document/notification only","Payment remains SUCCESS"]]},"block-38":{"type":"text","paragraphs":["A repeated client delivery uses WD-CLIENT-001 and returns request 7001's SUCCESS. Retry a rolled-back database attempt only with the same request and bounded attempts. Do not create a fresh request merely because the HTTP response was lost."]},"block-39":{"type":"flow","caption":"Safe retry decision","steps":["Find original saved reference","Was any external request sent?","Only local transaction → inspect committed result","Confirmed success → return; never repeat effect","Confirmed safe failure → bounded authorized retry","Exhausted / unresolved → investigation queue"]},"block-40":{"type":"text","paragraphs":["Use bounded exponential backoff for transient technical errors and expose retry age/attempt count. An exhausted job becomes a failed/dead-letter item for an operator; a queue retry counter is not evidence of bank failure. A corrected obligation or authorized refund is a distinct linked business operation, not a stealth retry."]},"block-41":{"type":"table","caption":"Repeated deliveries","columns":["Delivery","Business reference","Expected financial effect"],"rows":[["First","WD-7001","Apply once after validation/confirmation"],["Second","WD-7001","Return existing result / wait for original"],["Third","WD-7001","No additional debit, allocation or salary"]]},"block-42":{"type":"text","paragraphs":["Persist a unique business key before processing and compare the request payload on key reuse. Apply another unique constraint to the external event/reference and to the document/outbox event. A unique key alone is not enough: the status check and financial mutation must be within the same transaction.","Callback authentication and idempotency solve different problems. Verify signatures/merchant context first; an attacker-controlled reference does not become trusted just because it is unique. Lock the request row before applying its result."]},"block-43":{"type":"flow","caption":"Durable background work","steps":["Financial transaction inserts outbox event","COMMIT","Dispatcher reads unpublished events","Queue accepts event","Idempotent worker executes","Mark completed / retry with same event key"]},"block-44":{"type":"table","caption":"outbox_events — after financial commit","columns":["event_key","aggregate_reference","event_type","published_at"],"rows":[["WD-7001:document","WD-7001","GENERATE_DOCUMENT","NULL until dispatched"]]},"block-45":{"type":"text","paragraphs":["Laravel afterCommit() prevents a worker from reading an uncommitted row, but a process can still crash between database commit and sending to a separate queue. A transactional outbox closes that publication gap; consumers must still handle redelivery.","Separate payment, document, notification and reconciliation queues allow independent retries and limits. Payroll/corporate schedulers paginate or chunk work rather than loading all 10,000 payments into one transaction. Do not submit external payments again just because their notification jobs failed."]},"block-46":{"type":"code","caption":"Laravel dispatch timing (illustrative)","language":"php","source":"GenerateFeeReceipt::dispatch($payment->id)->afterCommit();\n// For durable delivery, insert a unique outbox event in the payment transaction.\n// A separate dispatcher publishes it and an idempotent worker records completion."},"block-47":{"type":"text","paragraphs":["Withdrawal acknowledgement WD-7001 shows ₹5,000, account ending 101, date 28 Sep 2026 and ledger status SUCCESS. It must not claim an external bank or ATM settlement that this example has not modeled."]},"block-48":{"type":"flow","caption":"Private document lifecycle","steps":["Confirmed SUCCESS","Database COMMIT","Pending document / outbox","Queue PDF renderer","Private storage","GENERATED","Authorized download"]},"block-49":{"type":"table","caption":"Document failure is independent","columns":["Payment","Document","Action"],"rows":[["SUCCESS","PENDING","Wait for document worker"],["SUCCESS","FAILED_GENERATION","Retry renderer with same document key"],["SUCCESS","GENERATED","Reuse existing file; authorize each download"]]},"block-50":{"type":"text","paragraphs":["Render from the committed immutable amount/reference and approved payroll snapshot, not client input. Reserve a unique receipt/slip number and link one document to one payment. A failed write to private storage cannot turn the already-confirmed financial payment into FAILED."]},"block-51":{"type":"text","paragraphs":["Check opening balance 5000 minus the one successful debit 5000 equals closing balance 0. Request 7002 has no debit ledger entry. If an external dispenser exists, reconcile its journal separately; internal ledger success is insufficient evidence of dispensing."]},"block-52":{"type":"flow","caption":"Three-way evidence check","steps":["Internal request / ledger / allocation","Compare provider confirmation by reference","Compare bank settlement by date/currency/net policy","Create discrepancy record","Investigate with evidence","Apply idempotent authorized correction","Close exception with audit"]},"block-53":{"type":"table","caption":"Illustrative reconciliation record","columns":["reference","internal before","evidence","status / resolution"],"rows":[["WD-7001","Committed ledger","Matched request and balanced ledger","Resolved only after matching identity and amount"]]},"block-54":{"type":"code","caption":"Investigate outcomes, never blindly overwrite","language":"sql","source":"SELECT account_id, type, SUM(amount) AS total\nFROM account_transactions WHERE status = 'SUCCESS'\nGROUP BY account_id, type;"},"block-55":{"type":"text","paragraphs":["Count mismatches are clues, not sufficient proof. Match identifiers, amounts, currency, beneficiary and dates. Handle settlement lag, fees and refunds explicitly; never change thousands of rows to SUCCESS merely to make dashboard totals agree."]},"block-56":{"type":"table","caption":"Actual illustrative audit records","columns":["actor","action","entity","old_status","new_status","created_at"],"rows":[["CUSTOMER-101","REQUEST_SAVED","WD-7001","NULL","PENDING","2026-09-28 09:00:00"],["TRANSACTION-SERVICE","RESULT_APPLIED","WD-7001","PENDING","SUCCESS","2026-09-28 12:00:00"],["DOCUMENT-WORKER","DOCUMENT_GENERATED","WD-7001","PENDING","GENERATED","2026-09-28 12:01:00"]]},"block-57":{"type":"text","paragraphs":["Each financial status change appends an audit event inside the same local transaction. Metadata includes the request ID, correlation ID, provider evidence reference and reason, with secrets and full beneficiary details removed.","Restrict update/delete permissions on audit history and define retention. A manual reconciliation resolution records the authorized operator, evidence and correction reference. Audit explains who changed a value; the ledger explains the financial entries."]},"block-58":{"type":"text","paragraphs":["These tables describe the completed illustrative main scenario. Independent failure/overpayment exercises above do not silently alter these rows. Batch counts below are derived reporting values where marked."]},"block-59":{"type":"table","caption":"accounts — final","columns":["id","balance","currency","status"],"rows":[[101,"0.00","INR","ACTIVE"]]},"block-60":{"type":"table","caption":"withdrawal_requests — final","columns":["id","amount","status","failure_code"],"rows":[[7001,"5000.00","SUCCESS",null],[7002,"10000.00","FAILED","INSUFFICIENT_FUNDS"]]},"block-61":{"type":"table","caption":"account_transactions — final","columns":["reference_no","account_id","amount","status"],"rows":[["WD-7001",101,"5000.00","SUCCESS"]]},"block-62":{"type":"table","caption":"Document/outbox final checkpoint","columns":["Financial result","Document","Outbox"],"rows":[["SUCCESS","GENERATED after independent job","Published; worker deduplicates redelivery"]]},"block-63":{"type":"questions","items":[["Could the ₹10,000 request win the race?","It may acquire the lock first but still fails: the starting balance is only ₹5,000."],["Why lock the request as well as the account?","The request lock serializes duplicate deliveries; the account lock serializes distinct debits sharing one balance."],["Why SELECT FOR UPDATE?","Protect a mutable row while the transaction makes and applies a decision from its current value."],["What does a waiting request read?","The new committed value after obtaining its lock, not a cached value from before waiting."],["Why cannot local rollback reverse a bank payment?","The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."],["How are duplicate webhooks prevented from repeating money effects?","Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."],["What distinguishes FAILED, PENDING and UNKNOWN?","Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."],["How do 5,000 student payments or 10,000 salaries scale?","Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."],["Why queue receipt generation?","Document availability can retry independently without changing a confirmed financial outcome."],["What should a deadlock retry repeat?","The entire rolled-back local transaction with its original business identity; never an uncertain external payment."]]},"block-64":{"type":"links","items":[["SQL Fundamentals","fundamentals"],["Queries and Aggregation","queries-aggregation"],["NULL Values and Joins","nulls-joins"],["Subqueries and Salary Ranking","subqueries-ranking"],["Window Functions","window-functions"],["Failure, Rollback, Retry & Reconciliation","failure-retry-reconciliation"]]},"block-65":{"type":"text","paragraphs":["Connect the sample to ACID, row locks, isolation levels, foreign keys, UNIQUE constraints, conditional UPDATE, SUM/GROUP BY, joins, NULL external references and state transitions. Use window functions to review ordered attempts while preserving each payment's business identity."]},"block-66":{"type":"table","caption":"Illustrative values only","columns":["Reference","Amount per main request","Scope"],"rows":[["PAY-100502","₹50,000","External outcome plus local allocation"]]},"block-67":{"type":"schema","name":"students","columns":[["id","BIGINT PK"],["student_no","VARCHAR(30) UNIQUE"],["name","VARCHAR(100)"],["course_id","VARCHAR(30)"],["semester","SMALLINT"],["status","VARCHAR(20)"]],"note":"course_id refers to the institution's course catalog."},"block-68":{"type":"schema","name":"fee_structures","columns":[["id","BIGINT PK"],["course_id","VARCHAR(30)"],["semester","SMALLINT"],["academic_year","VARCHAR(10)"],["total_amount","DECIMAL(19,2)"],["due_from","DATE"],["due_to","DATE"]],"note":"UNIQUE(course_id, semester, academic_year). Invoice amounts are snapshots; changing a structure does not rewrite issued invoices."},"block-69":{"type":"schema","name":"student_fee_invoices","columns":[["id","BIGINT PK"],["student_id","BIGINT FK students.id"],["invoice_no","VARCHAR(60) UNIQUE"],["gross_amount","DECIMAL(19,2)"],["discount_amount","DECIMAL(19,2)"],["net_amount","DECIMAL(19,2)"],["paid_amount","DECIMAL(19,2)"],["balance_amount","DECIMAL(19,2)"],["status","VARCHAR(30)"],["due_date","DATE"]],"note":"Validate net = gross - discount and balance = net - allocated paid amount. Refunds/credits need explicit allocation records."},"block-70":{"type":"schema","name":"payments","columns":[["id","BIGINT PK"],["student_id","BIGINT FK"],["invoice_id","BIGINT FK"],["payment_reference","VARCHAR(100) UNIQUE"],["gateway_reference","VARCHAR(100) NULL UNIQUE"],["amount","DECIMAL(19,2)"],["currency","CHAR(3)"],["status","VARCHAR(30)"],["payment_method","VARCHAR(30)"],["paid_at","TIMESTAMP NULL"],["failure_code","VARCHAR(100) NULL"],["idempotency_key","VARCHAR(100) UNIQUE"]],"note":"Scope provider references by provider/merchant in a multi-provider system. Verify callback signature, saved amount, currency and intent."},"block-71":{"type":"schema","name":"receipts","columns":[["id","BIGINT PK"],["payment_id","BIGINT UNIQUE FK payments.id"],["receipt_no","VARCHAR(60) UNIQUE"],["amount","DECIMAL(19,2)"],["generated_at","TIMESTAMP NULL"],["file_path","VARCHAR(255) NULL"],["status","VARCHAR(20)"]],"note":"Receipt amount equals this payment, not the lifetime invoice total. Queue generation after commit; files are private."},"block-72":{"type":"table","caption":"students — before processing","columns":["id","student_no","name","course_id","semester","status"],"rows":[[101,"STU1001","Rahul Sharma","BTECH-CS",6,"ACTIVE"],[102,"STU1002","Priya Singh","BTECH-CS",6,"ACTIVE"],[103,"STU1003","Amit Kumar","BCA",4,"ACTIVE"]]},"block-73":{"type":"table","caption":"fee_structures — before processing","columns":["id","course_id","semester","academic_year","total_amount","due_from","due_to"],"rows":[[60,"BTECH-CS",6,"2026-27","80000.00","2026-09-01","2026-09-10"]]},"block-74":{"type":"table","caption":"student_fee_invoices — before processing","columns":["id","student_id","invoice_no","gross_amount","discount_amount","net_amount","paid_amount","balance_amount","status","due_date"],"rows":[[5001,101,"INV-2026-5001","80000.00","0.00","80000.00","30000.00","50000.00","PARTIALLY_PAID","2026-09-10"],[5002,102,"INV-2026-5002","80000.00","0.00","80000.00","80000.00","0.00","PAID","2026-09-10"],[5003,103,"INV-2026-5003","80000.00","0.00","80000.00","0.00","80000.00","UNPAID","2026-09-10"]]},"block-75":{"type":"table","caption":"payments — before processing","columns":["id","student_id","invoice_id","payment_reference","gateway_reference","amount","currency","status","payment_method","paid_at","failure_code","idempotency_key"],"rows":[[100501,101,5001,"PAY-100501","GW-001","30000.00","INR","SUCCESS","UPI","2026-09-05 10:00:00",null,"FEE-5001-A"],[100502,101,5001,"PAY-100502",null,"50000.00","INR","PENDING","UPI",null,null,"FEE-5001-B"]]},"block-76":{"type":"table","caption":"receipts — before processing","columns":["id","payment_id","receipt_no","amount","generated_at","file_path","status"],"rows":[[501,100501,"REC-2026-000501","30000.00","2026-09-05 10:01:00","private/receipts/501.pdf","GENERATED"]]},"block-77":{"type":"flow","caption":"Button click to recorded result","steps":["Student STU1001","Invoice 5001: due 50000","Controller: Pay ₹50,000","Persist payment intent 100502","Gateway charges saved amount","Verified backend webhook","Allocate once to invoice","COMMIT","Receipt / notification queue"]},"block-78":{"type":"table","caption":"Request envelope (illustrative)","columns":["Field","Value / rule"],"rows":[["reference","PAY-100502"],["amount","₹50,000; validate against saved request"],["authenticated actor","GATEWAY-WEBHOOK"],["response","Return saved result on duplicate; show pending while unresolved"]]},"block-79":{"type":"text","paragraphs":["The controller authorizes the student/invoice relationship and validates the requested amount against the invoice. It creates a unique payment intent before invoking the gateway. A double click with the same key returns the same intent; two different keys must not silently reserve or charge more than the remaining invoice.","The bank/gateway call runs outside a held invoice transaction. Treat the browser return as presentation only. A signed callback or provider status query supplies the external result; match merchant, payment reference, amount and INR currency to the intent.","The callback handler locks payment 100502 then invoice 5001. If the payment is already SUCCESS, return without another allocation. Save the confirmed gateway reference, update the invoice once, and create an audit event plus receipt outbox event in one local transaction. Verified external money with an allocation mismatch must remain traceable in an exception workflow."]},"block-80":{"type":"flow","caption":"Application responsibility boundaries","steps":["Request","Controller: authorize / validate","Service: business rules / idempotency","Database: locks / constraints / atomic writes","Adapter: external protocol","Callback / reconciler: verify evidence","Outbox and document worker"]},"block-81":{"type":"flow","caption":"Transaction boundaries","steps":["Verify callback signature and saved intent","BEGIN","Lock payments 100502","If SUCCESS: return recorded result","Lock invoice 5001","Check verified amount 50000 and balance 50000","Allocate, mark payment SUCCESS, invoice PAID","Create pending receipt / audit / outbox","COMMIT"]},"block-82":{"type":"text","paragraphs":["Atomicity applies to the writes enclosed by one BEGIN/COMMIT. Consistency means the amount, status, ledger/allocation and audit invariants agree. Isolation prevents conflicting decisions on locked rows. Durability means a committed result survives a client disconnect.","On unexpected database errors, roll back the local transaction. A known business rejection can instead be recorded and committed without a financial mutation. Never swallow a database exception and accidentally commit half of the intended changes.","Do not hold an invoice/account/item lock across bank network calls. Persist the intent first, commit it, then call the adapter. Apply verified results in a new short transaction. A database rollback cannot recall money already moved by an external bank."]},"block-83":{"type":"code","caption":"Representative SQL and guarded updates","language":"sql","source":"START TRANSACTION;\nSELECT id, invoice_id, amount, currency, status FROM payments WHERE id = 100502 FOR UPDATE;\nSELECT id, net_amount, paid_amount, balance_amount FROM student_fee_invoices WHERE id = 5001 FOR UPDATE;\n-- Handler has verified the gateway event; stop if payment is already SUCCESS.\n-- Execute the allocation branch ONLY if the locked balance >= verified amount.\nUPDATE student_fee_invoices SET\n paid_amount = paid_amount + 50000.00,\n balance_amount = balance_amount - 50000.00\nWHERE id = 5001 AND balance_amount >= 50000.00;\n-- Handler checks exactly one row changed; otherwise roll back local allocation\n-- and persist the external confirmation as a reconciliation exception.\nUPDATE student_fee_invoices SET status = CASE WHEN balance_amount = 0 THEN 'PAID' ELSE 'PARTIALLY_PAID' END WHERE id = 5001;\nUPDATE payments SET gateway_reference = 'GW-002', status = 'SUCCESS', paid_at = '2026-09-28 10:00:00' WHERE id = 100502;\nINSERT INTO receipts (id, payment_id, receipt_no, amount, status)\nVALUES (502, 100502, 'REC-2026-000502', 50000.00, 'PENDING');\n-- Audit and receipt outbox event are inserted before COMMIT.\nCOMMIT;"},"block-84":{"type":"table","caption":"Concurrent request timeline","columns":["Time","Request / worker A","Request / worker B or external system"],"rows":[["T0","Webhook 1 for GW-002 locks payment 100502","Webhook 2 for GW-002 arrives"],["T1","Lock invoice; allocate 50000","Wait for payment row lock"],["T2","Payment SUCCESS; invoice PAID; COMMIT","Acquire lock; see SUCCESS"],["T3","Receipt outbox event recorded once","Return acknowledgement; no second allocation"],["T4","Webhook 3 sees saved SUCCESS","No extra receipt or invoice increment"]]},"block-85":{"type":"table","caption":"Calculation and invariants","columns":["Value","Calculation / expected result"],"rows":[["Potential collection","5000 × 80000 = 400000000 (₹40 crore)"],["Rahul before","paid 30000; due 50000"],["Confirmed payment","50000"],["Rahul after","paid 30000 + 50000 = 80000; due 0"]]},"block-86":{"type":"table","caption":"Before / request / after","columns":["Table or field","Before","After"],"rows":[["invoice 5001 paid_amount","30000.00","80000.00"],["invoice 5001 balance_amount","50000.00","0.00"],["invoice 5001 status","PARTIALLY_PAID","PAID"],["payment 100502","PENDING","SUCCESS / GW-002"],["receipt 502","Absent","PENDING then GENERATED"]]},"block-87":{"type":"flow","caption":"Success branch","steps":["INITIATED / READY","SUBMITTED","PENDING / PROCESSING","Verified SUCCESS"]},"block-88":{"type":"flow","caption":"Failure / investigation branch","steps":["SUBMITTED","Timeout → UNKNOWN","Query / callback / reconcile","Verified SUCCESS or confirmed FAILED"]},"block-89":{"type":"flow","caption":"Refund branch","steps":["SUCCESS","Authorized REFUND_REQUESTED","Provider confirmation","REFUNDED; retain original payment"]},"block-90":{"type":"table","caption":"Meaning of each state","columns":["State","Meaning"],"rows":[["READY / INITIATED","Saved intent; not proof of bank receipt"],["SUBMITTED","Send attempted; bank outcome not yet final"],["PENDING / PROCESSING","Provider confirms work in progress"],["UNKNOWN","No reliable external final outcome yet"],["SUCCESS","Verified final external success applied once locally"],["FAILED","Confirmed rejection; no blind assumption on timeout"],["REFUND_REQUESTED / REFUNDED","Separate authorized refund workflow with its own result"]]},"block-91":{"type":"text","paragraphs":["Success means the defined financial operation and its associated local records are committed. Return the persisted reference and outcome to the client; do not generate a new success on each retry.","Record verified provider/bank evidence before releasing a success notification. A merely submitted request stays pending or unknown until evidence resolves it."]},"block-92":{"type":"text","paragraphs":["For Amit's independent unpaid invoice 5003, the gateway charges ₹80,000 but the browser closes before success returns. The backend keeps PENDING/UNKNOWN until a verified webhook or query confirms the result. Then it records SUCCESS and PAID; it never treats a browser disconnect as bank failure. A declined payment has confirmed FAILED and leaves invoice 5003 unchanged."]},"block-93":{"type":"flow","caption":"₹80,000 charge, browser closed","steps":["Amit: invoice 5003 unpaid ₹80,000","Gateway charges ₹80,000","Browser closes — no frontend success","Verified gateway webhook","Backend locks payment and invoice","Payment SUCCESS / invoice PAID","Commit and receipt queue"]},"block-94":{"type":"table","caption":"Separate overpayment exception (not Rahul's main installment)","columns":["Confirmed amount","Invoice obligation","Excess","Controlled outcome"],"rows":[["90000.00","80000.00","10000.00","OPEN exception → authorized refund / customer credit / allocation"]]},"block-95":{"type":"text","paragraphs":["If the provider confirms ₹90,000 for an ₹80,000 obligation, keep the full external receipt traceable. Do not erase ₹10,000 or falsely call the whole payment failed. Capture an exception and resolve the excess through explicit ledger/credit/refund records, authorized business rules and provider references."]},"block-96":{"type":"text","paragraphs":["Repeat a status query or process the signed callback with the original PAY-100502 / FEE-5001-B identity. A duplicate notification does not create another payment. If the gateway definitively failed without charging, a customer-authorized new attempt may be recorded according to provider rules, linked to the original intent."]},"block-97":{"type":"flow","caption":"Safe retry decision","steps":["Find original saved reference","Was any external request sent?","Yes / uncertain → query original provider reference","Confirmed success → return; never repeat effect","Confirmed safe failure → bounded authorized retry","Exhausted / unresolved → investigation queue"]},"block-98":{"type":"table","caption":"Repeated deliveries","columns":["Delivery","Business reference","Expected financial effect"],"rows":[["First","PAY-100502","Apply once after validation/confirmation"],["Second","PAY-100502","Return existing result / wait for original"],["Third","PAY-100502","No additional debit, allocation or salary"]]},"block-99":{"type":"table","caption":"outbox_events — after financial commit","columns":["event_key","aggregate_reference","event_type","published_at"],"rows":[["PAY-100502:document","PAY-100502","GENERATE_DOCUMENT","NULL until dispatched"]]},"block-100":{"type":"text","paragraphs":["REC-2026-000502 · Student STU1001 · Invoice INV-2026-5001 · Payment PAY-100502 · Amount ₹50,000 · 28 Sep 2026 · Payment SUCCESS / Invoice PAID. The earlier REC-2026-000501 remains ₹30,000. Two payment receipts total ₹80,000; do not issue a misleading ₹80,000 receipt for the ₹50,000 installment."]},"block-101":{"type":"text","paragraphs":["Illustrative daily totals: internal SUCCESS 4,980, gateway SUCCESS 4,981, bank settlement entries 4,981. Counts alone only flag a discrepancy. Join by provider/payment reference, INR amount, settlement date and fees to locate the missing allocation, verify its authenticity, then apply it once. Settlement lag and net-of-fee values must be compared under a defined policy."]},"block-102":{"type":"table","caption":"Illustrative reconciliation record","columns":["reference","internal before","evidence","status / resolution"],"rows":[["PAY-100502","UNKNOWN / missing confirmation","Verified provider/bank success","Resolved only after matching identity and amount"]]},"block-103":{"type":"code","caption":"Investigate outcomes, never blindly overwrite","language":"sql","source":"-- Grouping is a monitoring signal; investigate individual references.\nSELECT status, COUNT(*) AS rows_found, SUM(amount) AS amount_total\nFROM payments\nGROUP BY status;"},"block-104":{"type":"table","caption":"Actual illustrative audit records","columns":["actor","action","entity","old_status","new_status","created_at"],"rows":[["GATEWAY-WEBHOOK","REQUEST_SAVED","PAY-100502","NULL","PENDING","2026-09-28 09:00:00"],["VERIFIED-CALLBACK","RESULT_APPLIED","PAY-100502","PENDING","SUCCESS","2026-09-28 12:00:00"],["DOCUMENT-WORKER","DOCUMENT_GENERATED","PAY-100502","PENDING","GENERATED","2026-09-28 12:01:00"]]},"block-105":{"type":"table","caption":"payments — final","columns":["payment_reference","amount","status"],"rows":[["PAY-100501","30000.00","SUCCESS"],["PAY-100502","50000.00","SUCCESS"]]},"block-106":{"type":"table","caption":"student_fee_invoices — final","columns":["id","net_amount","paid_amount","balance_amount","status"],"rows":[[5001,"80000.00","80000.00","0.00","PAID"]]},"block-107":{"type":"table","caption":"receipts — final","columns":["receipt_no","payment_id","amount","status"],"rows":[["REC-2026-000501",100501,"30000.00","GENERATED"],["REC-2026-000502",100502,"50000.00","GENERATED"]]},"block-108":{"type":"questions","items":[["Why not mark a browser-closed payment FAILED?","The browser is not the gateway's final record; a verified callback/status query can confirm an already-completed charge."],["What happens if ₹90,000 arrives for an ₹80,000 invoice?","Record the full confirmed ₹90,000; allocate only the authorized ₹80,000 and track the ₹10,000 excess as an exception, credit or refund. Never silently discard it."],["Why SELECT FOR UPDATE?","Protect a mutable row while the transaction makes and applies a decision from its current value."],["What does a waiting request read?","The new committed value after obtaining its lock, not a cached value from before waiting."],["Why cannot local rollback reverse a bank payment?","The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."],["How are duplicate webhooks prevented from repeating money effects?","Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."],["What distinguishes FAILED, PENDING and UNKNOWN?","Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."],["How do 5,000 student payments or 10,000 salaries scale?","Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."],["Why queue receipt generation?","Document availability can retry independently without changing a confirmed financial outcome."],["What should a deadlock retry repeat?","The entire rolled-back local transaction with its original business identity; never an uncertain external payment."]]},"block-109":{"type":"table","caption":"Illustrative values only","columns":["Reference","Amount per main request","Scope"],"rows":[["SAL-2026-09-EMP005","₹75,000","External outcome plus local allocation"]]},"block-110":{"type":"schema","name":"corporate_accounts","columns":[["id","BIGINT PK"],["company_id","BIGINT"],["bank_account_id","BIGINT FK protected bank account"],["status","VARCHAR(20)"],["available_balance","DECIMAL(19,2)"],["balance_as_of","TIMESTAMP"]],"note":"₹80 crore is an illustrative bank-reported snapshot. Bank reservations and fees affect actual available cash."},"block-111":{"type":"schema","name":"salary_batches","columns":[["id","BIGINT PK"],["company_id","BIGINT"],["batch_reference","VARCHAR(100) UNIQUE"],["salary_month","CHAR(7)"],["employee_count","INT"],["total_amount","DECIMAL(19,2)"],["status","VARCHAR(30)"],["processing_status","VARCHAR(20)"],["is_final","BOOLEAN"],["created_by","BIGINT"],["approved_by","BIGINT NULL"],["created_at","TIMESTAMP"],["approved_at","TIMESTAMP NULL"],["submitted_at","TIMESTAMP NULL"]],"note":"created_by 11 != approved_by 22. A valid permission check is required in addition to different IDs."},"block-112":{"type":"schema","name":"salary_batch_items","columns":[["id","BIGINT PK"],["salary_batch_id","BIGINT FK"],["employee_id","BIGINT"],["beneficiary_account","VARCHAR(100) encrypted/tokenized"],["amount","DECIMAL(19,2)"],["bank_code","VARCHAR(30)"],["status","VARCHAR(30)"],["payment_reference","VARCHAR(100) UNIQUE"],["failure_code","VARCHAR(100) NULL"]],"note":"Beneficiaries and bank codes are deliberately non-routable example tokens. Validate actual identifiers using the bank's supported scheme."},"block-113":{"type":"schema","name":"bank_payment_requests","columns":[["id","BIGINT PK"],["batch_item_id","BIGINT UNIQUE FK"],["business_reference","VARCHAR(100) UNIQUE"],["amount","DECIMAL(19,2)"],["status","VARCHAR(30)"],["attempt_count","INT"],["external_reference","VARCHAR(100) NULL"]],"note":"The same business reference remains on every investigation or safe retry."},"block-114":{"type":"schema","name":"bank_responses","columns":[["id","BIGINT PK"],["request_id","BIGINT FK"],["provider_event_id","VARCHAR(100) UNIQUE"],["bank_reference","VARCHAR(100)"],["status","VARCHAR(30)"],["amount","DECIMAL(19,2)"],["received_at","TIMESTAMP"]],"note":"Append verified responses; prevent duplicate event application. A response is evidence, not permission to double-pay."},"block-115":{"type":"schema","name":"reconciliation_records","columns":[["id","BIGINT PK"],["payment_reference","VARCHAR(100)"],["internal_status","VARCHAR(30)"],["external_status","VARCHAR(30)"],["amount","DECIMAL(19,2)"],["status","VARCHAR(30)"],["resolution","VARCHAR(255) NULL"]],"note":"Resolve only after matching company, beneficiary, amount, currency, date and bank reference."},"block-116":{"type":"table","caption":"corporate_accounts — before processing","columns":["id","company_id","bank_account_id","status","available_balance","balance_as_of"],"rows":[[90,44,900,"ACTIVE","800000000.00","2026-09-28 08:00:00"]]},"block-117":{"type":"table","caption":"salary_batches — before processing","columns":["id","company_id","batch_reference","salary_month","employee_count","total_amount","status","processing_status","is_final","created_by","approved_by","created_at","approved_at","submitted_at"],"rows":[[50,44,"BATCH-2026-09-44","2026-09",10000,"750000000.00","PARTIALLY_COMPLETED","PROCESSING",false,11,22,"2026-09-28 08:10:00","2026-09-28 08:30:00","2026-09-28 09:00:00"]]},"block-118":{"type":"table","caption":"salary_batch_items — before processing","columns":["id","salary_batch_id","employee_id","beneficiary_account","amount","bank_code","status","payment_reference","failure_code"],"rows":[[50001,50,1,"TOKEN-EMP001","75000.00","DEMO-BANK","SUCCESS","SAL-2026-09-EMP001",null],[50002,50,2,"TOKEN-EMP002","75000.00","DEMO-BANK","SUCCESS","SAL-2026-09-EMP002",null],[50003,50,3,"TOKEN-EMP003","75000.00","DEMO-BANK","FAILED","SAL-2026-09-EMP003","ACCOUNT_CLOSED"],[50004,50,4,"TOKEN-EMP004","75000.00","DEMO-BANK","FAILED","SAL-2026-09-EMP004","INVALID_ACCOUNT"],[50005,50,5,"TOKEN-EMP005","75000.00","DEMO-BANK","UNKNOWN","SAL-2026-09-EMP005","BANK_TIMEOUT"],[50006,50,6,"TOKEN-EMP006","75000.00","DEMO-BANK","SUCCESS","SAL-2026-09-EMP006",null]]},"block-119":{"type":"table","caption":"bank_payment_requests — before processing","columns":["id","batch_item_id","business_reference","amount","status","attempt_count","external_reference"],"rows":[[60005,50005,"SAL-2026-09-EMP005","75000.00","UNKNOWN",1,null]]},"block-120":{"type":"table","caption":"bank_responses — before processing","columns":["id","request_id","provider_event_id","bank_reference","status","amount","received_at"],"rows":[[61005,60005,"EVT-STATUS-005","BANK-005","SUCCESS","75000.00","2026-09-28 12:00:00"]]},"block-121":{"type":"table","caption":"reconciliation_records — before processing","columns":["id","payment_reference","internal_status","external_status","amount","status","resolution"],"rows":[[62005,"SAL-2026-09-EMP005","UNKNOWN","SUCCESS","75000.00","OPEN",null]]},"block-122":{"type":"flow","caption":"Button click to recorded result","steps":["Corporate payroll freezes amounts","Maker 11 creates batch","Validate 10000 items and sum","Checker 22 approves","Outbox and payment orchestrator","Bank-specific adapter","Independent bank outcomes","Status query for EMP005","Reconciliation","Salary documents"]},"block-123":{"type":"table","caption":"Request envelope (illustrative)","columns":["Field","Value / rule"],"rows":[["reference","SAL-2026-09-EMP005"],["amount","₹75,000; validate against saved request"],["authenticated actor","BANK-STATUS-RECONCILER"],["response","Return saved result on duplicate; show pending while unresolved"]]},"block-124":{"type":"text","paragraphs":["Validate count, sum, positive amounts, employee eligibility, beneficiary scheme and unique payment references before approval. Reject malformed rows without any financial operation. Bind the maker's payload and version to the checker approval so editing a batch invalidates approval.","The orchestrator claims one saved request, records submission intent, commits, and calls the bank adapter. Only the adapter knows the bank's protocol and authentication. No worker may silently invent SAL-2026-09-EMP005-RETRY-2 after a timeout.","The reconciler verifies response EVT-STATUS-005 against the saved ₹75,000 obligation. It locks request 60005 and item 50005 in the standard order, records BANK-005 and SUCCESS once, resolves exception 62005, and creates document/audit outbox work. Derived batch counts still retain the other nine unresolved items until each is confirmed."]},"block-125":{"type":"flow","caption":"Transaction boundaries","steps":["Verified bank query returns BANK-005 SUCCESS","BEGIN","Lock request 60005","Lock item 50005","Check matching amount/reference and current state","UNKNOWN → SUCCESS, save bank reference","Resolve reconciliation 62005; audit/outbox","COMMIT","Recompute batch outcome counts"]},"block-126":{"type":"code","caption":"Representative SQL and guarded updates","language":"sql","source":"START TRANSACTION;\nSELECT * FROM bank_payment_requests WHERE id = 60005 FOR UPDATE;\nSELECT id, amount, payment_reference, status FROM salary_batch_items WHERE id = 50005 FOR UPDATE;\n-- Apply only a verified matching bank result; an existing SUCCESS is a no-op.\nUPDATE bank_payment_requests SET status = 'SUCCESS', external_reference = 'BANK-005' WHERE id = 60005;\nUPDATE salary_batch_items SET status = 'SUCCESS', failure_code = NULL WHERE id = 50005;\nUPDATE reconciliation_records SET status = 'RESOLVED', resolution = 'Verified BANK-005; no resubmission' WHERE id = 62005;\n-- Audit/outbox entry records UNKNOWN -> SUCCESS.\nCOMMIT;\nSELECT status, COUNT(*) AS items, SUM(amount) AS total\nFROM salary_batch_items WHERE salary_batch_id = 50 GROUP BY status;\n-- Close the parent only when PENDING/UNKNOWN/READY/SUBMITTED/PROCESSING count is zero."},"block-127":{"type":"table","caption":"Concurrent request timeline","columns":["Time","Request / worker A","Request / worker B or external system"],"rows":[["T0","Worker sends EMP005 using saved reference","Bank accepts request"],["T1","HTTP response times out; record UNKNOWN","Bank may already have paid"],["T2","Retry worker claims investigation, not payment","Query original reference"],["T3","Query returns BANK-005 SUCCESS; lock request","Concurrent callback waits on same request"],["T4","Commit SUCCESS once; resolve exception","Duplicate result becomes a no-op"]]},"block-128":{"type":"table","caption":"Calculation and invariants","columns":["Value","Calculation / expected result"],"rows":[["Batch total","10000 × 75000 = 750000000 (₹75 crore)"],["Initial successes","9970 × 75000 = 747750000"],["Confirmed failures","20 × 75000 = 1500000"],["Unresolved amount","10 × 75000 = 750000"],["Final successes","9980 × 75000 = 748500000"],["Final unpaid failures","1500000; not rolled back successful cash"]]},"block-129":{"type":"table","caption":"Before / request / after","columns":["Table or field","Before","After"],"rows":[["EMP005","UNKNOWN / BANK_TIMEOUT","SUCCESS / BANK-005"],["request 60005 attempts","1","1 (status inquiry is not a second payment)"],["reconciliation 62005","OPEN","RESOLVED"],["batch 50 pending/unknown count","10","9 after EMP005; 0 after all ten resolutions"],["batch 50 is_final","false","true only after zero unresolved items"]]},"block-130":{"type":"text","paragraphs":["Batch summary PARTIALLY_COMPLETED is deliberately non-final while processing_status=PROCESSING and is_final=false. Success, failed and unresolved counters remain visible. Close only after all unresolved items reach an evidenced final result."]},"block-131":{"type":"text","paragraphs":["ACCOUNT_CLOSED, INVALID_ACCOUNT and BENEFICIARY_BLOCKED are confirmed failures only when the bank reports a terminal rejection. BANK_TIMEOUT is UNKNOWN. PENDING means the bank says processing; UNKNOWN means the application does not know. Record each item result and keep unresolved amounts visible."]},"block-132":{"type":"text","paragraphs":["Do not create SAL-2026-09-EMP005-RETRY-2 merely to get a new request accepted. Query the original reference, await signed callback or compare the bank statement. Retry transmission only when the adapter/provider contract establishes it is safe; preserve the original business key and record each attempt separately."]},"block-133":{"type":"table","caption":"Repeated deliveries","columns":["Delivery","Business reference","Expected financial effect"],"rows":[["First","SAL-2026-09-EMP005","Apply once after validation/confirmation"],["Second","SAL-2026-09-EMP005","Return existing result / wait for original"],["Third","SAL-2026-09-EMP005","No additional debit, allocation or salary"]]},"block-134":{"type":"table","caption":"outbox_events — after financial commit","columns":["event_key","aggregate_reference","event_type","published_at"],"rows":[["SAL-2026-09-EMP005:document","SAL-2026-09-EMP005","GENERATE_DOCUMENT","NULL until dispatched"]]},"block-135":{"type":"text","paragraphs":["Salary advice for EMP005 includes batch BATCH-2026-09-44, ₹75,000, business reference SAL-2026-09-EMP005 and bank reference BANK-005. Generate after confirmation and commit; restrict download to the employee or authorized payroll staff."]},"block-136":{"type":"text","paragraphs":["Join internal items and the bank report by business reference and bank reference, then verify beneficiary token, amount, currency and date. Initial successes 9970 differ from bank-confirmed 9980; the ten missing confirmations are resolved individually. Compare cash totals with settlement/fees, not just counts. Twenty confirmed failures remain liabilities to investigate."]},"block-137":{"type":"table","caption":"Illustrative reconciliation record","columns":["reference","internal before","evidence","status / resolution"],"rows":[["SAL-2026-09-EMP005","UNKNOWN / missing confirmation","Verified provider/bank success","Resolved only after matching identity and amount"]]},"block-138":{"type":"code","caption":"Investigate outcomes, never blindly overwrite","language":"sql","source":"-- Grouping is a monitoring signal; investigate individual references.\nSELECT status, COUNT(*) AS rows_found, SUM(amount) AS amount_total\nFROM salary_batch_items\nGROUP BY status;"},"block-139":{"type":"table","caption":"Actual illustrative audit records","columns":["actor","action","entity","old_status","new_status","created_at"],"rows":[["BANK-STATUS-RECONCILER","REQUEST_SAVED","SAL-2026-09-EMP005","NULL","UNKNOWN","2026-09-28 09:00:00"],["VERIFIED-CALLBACK","RESULT_APPLIED","SAL-2026-09-EMP005","UNKNOWN","SUCCESS","2026-09-28 12:00:00"],["DOCUMENT-WORKER","DOCUMENT_GENERATED","SAL-2026-09-EMP005","PENDING","GENERATED","2026-09-28 12:01:00"]]},"block-140":{"type":"table","caption":"salary_batches (derived totals) — final","columns":["id","success","failed","unresolved","status","processing_status","is_final"],"rows":[[50,9980,20,0,"PARTIALLY_COMPLETED","CLOSED",true]]},"block-141":{"type":"table","caption":"salary_batch_items — final","columns":["employee","amount","status","reference"],"rows":[["EMP005","75000.00","SUCCESS","SAL-2026-09-EMP005"],["EMP003","75000.00","FAILED","SAL-2026-09-EMP003"]]},"block-142":{"type":"table","caption":"reconciliation_records — final","columns":["id","status","resolution"],"rows":[[62005,"RESOLVED","BANK-005 confirmed; no duplicate submission"]]},"block-143":{"type":"questions","items":[["Can PARTIALLY_COMPLETED hide ten pending items?","No. In this explicit model the summary coexists with PROCESSING and is_final=false until every item is resolved."],["What does the checker approve?","The frozen company/month/count/amount/beneficiary payload version, after independent authorization; not an editable batch that the maker can later change."],["Why SELECT FOR UPDATE?","Protect a mutable row while the transaction makes and applies a decision from its current value."],["What does a waiting request read?","The new committed value after obtaining its lock, not a cached value from before waiting."],["Why cannot local rollback reverse a bank payment?","The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."],["How are duplicate webhooks prevented from repeating money effects?","Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."],["What distinguishes FAILED, PENDING and UNKNOWN?","Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."],["How do 5,000 student payments or 10,000 salaries scale?","Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."],["Why queue receipt generation?","Document availability can retry independently without changing a confirmed financial outcome."],["What should a deadlock retry repeat?","The entire rolled-back local transaction with its original business identity; never an uncertain external payment."]]}}
+{
+    "block-1": {
+        "type": "table",
+        "caption": "Illustrative values only",
+        "columns": ["Reference", "Amount per main request", "Scope"],
+        "rows": [["WD-7001", "₹5,000", "One local database transaction"]]
+    },
+    "block-2": {
+        "type": "text",
+        "paragraphs": [
+            "These are educational schema definitions, not tables to add to the job portal's live database. PK means primary key; FK means a foreign key to the named parent. Use DECIMAL(19,2) for stored money and integer minor units or decimal-safe arithmetic in application code.",
+            "Use MySQL InnoDB for these row-locking examples. NOT NULL, foreign keys and scoped UNIQUE constraints complement application validation. Monetary CHECK constraints require an engine/version that enforces them; the service must still reject invalid amounts."
+        ]
+    },
+    "block-3": {
+        "type": "schema",
+        "name": "accounts",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["account_no", "VARCHAR(50) UNIQUE"],
+            ["customer_id", "BIGINT NOT NULL"],
+            ["balance", "DECIMAL(19,2) >= 0"],
+            ["currency", "CHAR(3)"],
+            ["status", "VARCHAR(20)"],
+            ["updated_at", "TIMESTAMP"]
+        ],
+        "note": "Use InnoDB. Authorize customer ownership; all amounts in this scenario are INR."
+    },
+    "block-4": {
+        "type": "schema",
+        "name": "withdrawal_requests",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["account_id", "BIGINT FK accounts.id"],
+            ["amount", "DECIMAL(19,2) > 0"],
+            ["status", "VARCHAR(30)"],
+            ["idempotency_key", "VARCHAR(100)"],
+            ["failure_code", "VARCHAR(100) NULL"]
+        ],
+        "note": "UNIQUE(account_id, idempotency_key). Reusing a key with a different amount is rejected."
+    },
+    "block-5": {
+        "type": "schema",
+        "name": "account_transactions",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["account_id", "BIGINT FK"],
+            ["type", "VARCHAR(30)"],
+            ["amount", "DECIMAL(19,2)"],
+            ["reference_no", "VARCHAR(100) UNIQUE"],
+            ["status", "VARCHAR(30)"]
+        ],
+        "note": "No entry exists before the requests. The successful debit will create WD-7001. A full general ledger also has a balancing cash/clearing leg."
+    },
+    "block-6": {
+        "type": "schema",
+        "name": "audit_logs",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["user_id", "BIGINT NULL (system actors allowed)"],
+            ["action", "VARCHAR(60)"],
+            ["entity_type", "VARCHAR(60)"],
+            ["entity_id", "BIGINT"],
+            ["old_status", "VARCHAR(30) NULL"],
+            ["new_status", "VARCHAR(30)"],
+            ["metadata", "JSON redacted"],
+            ["created_at", "TIMESTAMP"]
+        ],
+        "note": "Append-only access policy; timestamps and actor identity explain who changed a result. Avoid full bank details or secrets in metadata."
+    },
+    "block-7": {
+        "type": "schema",
+        "name": "outbox_events",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["event_key", "VARCHAR(150) UNIQUE"],
+            ["aggregate_reference", "VARCHAR(100)"],
+            ["event_type", "VARCHAR(60)"],
+            ["payload", "JSON"],
+            ["created_at", "TIMESTAMP"],
+            ["published_at", "TIMESTAMP NULL"]
+        ],
+        "note": "Write in the financial transaction; a dispatcher retries unpublished events. Consumers also deduplicate because queue delivery may repeat."
+    },
+    "block-8": {
+        "type": "text",
+        "paragraphs": [
+            "The rows below are fictional starting records. NULL means no confirmed value is known. Empty ledger/document tables are intentional before processing; their inserted records appear in Final Database State."
+        ]
+    },
+    "block-9": {
+        "type": "table",
+        "caption": "accounts — before processing",
+        "columns": [
+            "id",
+            "account_no",
+            "customer_id",
+            "balance",
+            "currency",
+            "status",
+            "updated_at"
+        ],
+        "rows": [
+            [
+                101,
+                "ACC-DEMO-101",
+                101,
+                "5000.00",
+                "INR",
+                "ACTIVE",
+                "2026-09-28 09:00:00"
+            ]
+        ]
+    },
+    "block-10": {
+        "type": "table",
+        "caption": "withdrawal_requests — before processing",
+        "columns": [
+            "id",
+            "account_id",
+            "amount",
+            "status",
+            "idempotency_key",
+            "failure_code"
+        ],
+        "rows": [
+            [7001, 101, "5000.00", "PENDING", "WD-CLIENT-001", null],
+            [7002, 101, "10000.00", "PENDING", "WD-CLIENT-002", null]
+        ]
+    },
+    "block-11": {
+        "type": "table",
+        "caption": "account_transactions — before processing",
+        "columns": [
+            "id",
+            "account_id",
+            "type",
+            "amount",
+            "reference_no",
+            "status"
+        ],
+        "rows": []
+    },
+    "block-12": {
+        "type": "table",
+        "caption": "outbox_events — before processing",
+        "columns": ["event_key", "published_at"],
+        "rows": []
+    },
+    "block-13": {
+        "type": "text",
+        "paragraphs": [
+            "The request is a business intent, not an instruction to trust browser-supplied status, owner or balance. The controller authorizes the actor, validates shape and currency, and resolves the saved obligation."
+        ]
+    },
+    "block-14": {
+        "type": "flow",
+        "caption": "Button click to recorded result",
+        "steps": [
+            "Customer presses Withdraw ₹5,000",
+            "Controller authenticates account owner",
+            "Create/reuse request 7001",
+            "Withdrawal service locks request",
+            "Lock account 101",
+            "Validate and debit",
+            "Commit ledger and outcome",
+            "Queue receipt"
+        ]
+    },
+    "block-15": {
+        "type": "table",
+        "caption": "Request envelope (illustrative)",
+        "columns": ["Field", "Value / rule"],
+        "rows": [
+            ["reference", "WD-7001"],
+            ["amount", "₹5,000; validate against saved request"],
+            ["authenticated actor", "CUSTOMER-101"],
+            [
+                "response",
+                "Return saved result on duplicate; show pending while unresolved"
+            ]
+        ]
+    },
+    "block-16": {
+        "type": "text",
+        "paragraphs": [
+            "The controller validates a positive decimal amount and a client request key. It resolves account ownership from the authenticated session; it never accepts another customer's account merely because its ID is supplied.",
+            "The service loads the persisted request under a row lock. Its saved account_id and amount are authoritative. If a previous delivery already completed, return that result. Next lock the account, check ACTIVE and current funds, and perform a guarded debit.",
+            "Insert a uniquely referenced ledger entry and an audit event in the same transaction. Commit before acknowledging success. A duplicate-key or database exception rolls back the debit; it does not leave money removed without a ledger record."
+        ]
+    },
+    "block-17": {
+        "type": "flow",
+        "caption": "Application responsibility boundaries",
+        "steps": [
+            "Request",
+            "Controller: authorize / validate",
+            "Service: business rules / idempotency",
+            "Database: locks / constraints / atomic writes",
+            "Outbox and document worker"
+        ]
+    },
+    "block-18": {
+        "type": "flow",
+        "caption": "Transaction boundaries",
+        "steps": [
+            "BEGIN",
+            "Lock withdrawal_requests 7001",
+            "Check PENDING and stored amount",
+            "Lock accounts 101",
+            "Check ACTIVE and balance ≥ 5000",
+            "Debit account and insert WD-7001",
+            "Set request SUCCESS; add audit/outbox",
+            "COMMIT"
+        ]
+    },
+    "block-19": {
+        "type": "text",
+        "paragraphs": [
+            "Atomicity applies to the writes enclosed by one BEGIN/COMMIT. Consistency means the amount, status, ledger/allocation and audit invariants agree. Isolation prevents conflicting decisions on locked rows. Durability means a committed result survives a client disconnect.",
+            "On unexpected database errors, roll back the local transaction. A known business rejection can instead be recorded and committed without a financial mutation. Never swallow a database exception and accidentally commit half of the intended changes.",
+            "All balance mutations here belong to the same local database transaction. External notifications are deferred until after commit; adding an external transfer changes the atomicity boundary."
+        ]
+    },
+    "block-20": {
+        "type": "text",
+        "paragraphs": [
+            "SQL fragments show the successful branch of an application-controlled transaction. Comments describing checks are real control-flow requirements: the handler must stop/rollback or record the specified exception when a guard fails. Do not paste all branches as one unconditional money-moving script."
+        ]
+    },
+    "block-21": {
+        "type": "code",
+        "caption": "Representative SQL and guarded updates",
+        "language": "sql",
+        "source": "START TRANSACTION;\nSELECT id, account_id, amount, status FROM withdrawal_requests WHERE id = 7001 FOR UPDATE;\nSELECT id, balance, status FROM accounts WHERE id = 101 FOR UPDATE;\n-- Handler stops if request is already final, amount <= 0, or account inactive.\nUPDATE accounts SET balance = balance - 5000.00\nWHERE id = 101 AND status = 'ACTIVE' AND balance >= 5000.00;\nSELECT ROW_COUNT() AS debited;\n-- Continue ONLY if debited = 1; otherwise mark request FAILED, with no ledger insert.\nINSERT INTO account_transactions (id, account_id, type, amount, reference_no, status)\nVALUES (9001, 101, 'WITHDRAWAL', 5000.00, 'WD-7001', 'SUCCESS');\nUPDATE withdrawal_requests SET status = 'SUCCESS' WHERE id = 7001;\n-- Insert audit/outbox rows in this same transaction.\nCOMMIT;"
+    },
+    "block-22": {
+        "type": "text",
+        "paragraphs": [
+            "Use prepared parameters in application code; literal IDs are used here only so learners can track the sample rows. Verify affected-row counts before the next financial write. Unique-reference violations require inspection of the existing saved outcome, not a new debit."
+        ]
+    },
+    "block-23": {
+        "type": "table",
+        "caption": "Concurrent request timeline",
+        "columns": [
+            "Time",
+            "Request / worker A",
+            "Request / worker B or external system"
+        ],
+        "rows": [
+            ["T0", "BEGIN; lock request 7001", "BEGIN; lock request 7002"],
+            [
+                "T1",
+                "Lock account 101; read 5000",
+                "Attempt lock account 101; WAIT"
+            ],
+            [
+                "T2",
+                "Debit 5000; insert WD-7001",
+                "Still waiting; cannot use a stale read"
+            ],
+            ["T3", "COMMIT; balance = 0", "Acquire lock; read NEW balance = 0"],
+            [
+                "T4",
+                "Return SUCCESS",
+                "0 < 10000; set FAILED / INSUFFICIENT_FUNDS; COMMIT"
+            ]
+        ]
+    },
+    "block-24": {
+        "type": "text",
+        "paragraphs": [
+            "A waiting worker must re-read the row after it obtains the lock. A value read before waiting cannot authorize a later debit/allocation. A second delivery of one business request differs from a genuinely new request: the former returns the same outcome, while the latter must recheck current funds or remaining obligation."
+        ]
+    },
+    "block-25": {
+        "type": "text",
+        "paragraphs": [
+            "SELECT ... FOR UPDATE is a locking read inside an explicit InnoDB transaction. The row remains protected until COMMIT or ROLLBACK. Use indexed primary/unique lookups so the operation does not scan and lock unrelated data.",
+            "Every handler touching multiple entities must follow the same lock hierarchy. Define it once for workers, callbacks and reconcilers; opposite order can create deadlocks. A deadlock victim must restart the whole local transaction and re-read data.",
+            "Lock the saved business request/payment first, then its mutable account/invoice/item. Keep the transaction short and use current locked values, even if an earlier page showed a different balance."
+        ]
+    },
+    "block-26": {
+        "type": "flow",
+        "caption": "Lock lifetime",
+        "steps": [
+            "BEGIN",
+            "Indexed locking read",
+            "Validate current row",
+            "Guarded mutation",
+            "COMMIT / ROLLBACK",
+            "Lock released"
+        ]
+    },
+    "block-27": {
+        "type": "table",
+        "caption": "Calculation and invariants",
+        "columns": ["Value", "Calculation / expected result"],
+        "rows": [
+            ["Opening balance", "5000.00"],
+            ["Successful debit", "5000.00"],
+            ["Rejected debit (no effect)", "10000.00"],
+            ["Closing balance", "5000.00 - 5000.00 = 0.00"]
+        ]
+    },
+    "block-28": {
+        "type": "text",
+        "paragraphs": [
+            "Amounts shown in tables use two decimal places; commas and ₹ are display formatting, not database values. Round according to the documented currency/payroll rule once at the defined boundary. Do not add salary strings using floating-point arithmetic or silently change approved historical totals."
+        ]
+    },
+    "block-29": {
+        "type": "table",
+        "caption": "Before / request / after",
+        "columns": ["Table or field", "Before", "After"],
+        "rows": [
+            ["accounts.balance", "5000.00", "0.00"],
+            ["withdrawal_requests 7001", "PENDING", "SUCCESS"],
+            [
+                "withdrawal_requests 7002",
+                "PENDING",
+                "FAILED / INSUFFICIENT_FUNDS"
+            ],
+            [
+                "account_transactions WD-7001",
+                "Absent",
+                "5000.00 WITHDRAWAL / SUCCESS"
+            ]
+        ]
+    },
+    "block-30": {
+        "type": "text",
+        "paragraphs": [
+            "The after rows describe only committed outcomes. A rollback preserves the before financial rows; a separately committed failure/audit record can still describe the rejected request. Background document status changes do not rewrite the financial success."
+        ]
+    },
+    "block-31": {
+        "type": "flow",
+        "caption": "Success branch",
+        "steps": ["PENDING", "LOCK + VALIDATE", "SUCCESS"]
+    },
+    "block-32": {
+        "type": "flow",
+        "caption": "Failure / investigation branch",
+        "steps": ["PENDING", "Business validation fails", "FAILED; no debit"]
+    },
+    "block-33": {
+        "type": "table",
+        "caption": "Meaning of each state",
+        "columns": ["State", "Meaning"],
+        "rows": [
+            ["PENDING", "Saved request awaits local execution"],
+            ["PROCESSING", "Optional claimed state; not a final debit"],
+            ["SUCCESS", "Committed local effects and ledger"],
+            ["FAILED", "Confirmed validation/business rejection; no debit"],
+            [
+                "REVERSED",
+                "Separate audited compensating entries; never erase original history"
+            ]
+        ]
+    },
+    "block-34": {
+        "type": "text",
+        "paragraphs": [
+            "Success means the defined financial operation and its associated local records are committed. Return the persisted reference and outcome to the client; do not generate a new success on each retry.",
+            "A successful response is sent after account/ledger/request writes commit together. If the response is lost, the next delivery reads the same committed success."
+        ]
+    },
+    "block-35": {
+        "type": "flow",
+        "caption": "Committed success to user",
+        "steps": [
+            "Saved financial result",
+            "COMMIT",
+            "Outbox dispatcher",
+            "Idempotent document job",
+            "Private document ready",
+            "Notification / authorized download"
+        ]
+    },
+    "block-36": {
+        "type": "text",
+        "paragraphs": [
+            "Insufficient funds is a confirmed business rejection: persist FAILED / INSUFFICIENT_FUNDS without a debit. An exception before COMMIT rolls back both debit and ledger. A deadlock victim may retry its database-only transaction; another client's completed withdrawal remains committed."
+        ]
+    },
+    "block-37": {
+        "type": "table",
+        "caption": "Failure classification",
+        "columns": ["Failure", "Local action", "Financial interpretation"],
+        "rows": [
+            [
+                "Negative amount / invalid payload",
+                "REJECTED before submission",
+                "No financial operation"
+            ],
+            [
+                "Insufficient funds / inactive entity",
+                "Record confirmed business failure",
+                "No local debit"
+            ],
+            [
+                "Database error before external send",
+                "ROLLBACK",
+                "Retry only the rolled-back operation"
+            ],
+            [
+                "Verified ACCOUNT_CLOSED",
+                "FAILED",
+                "Confirmed external rejection"
+            ],
+            [
+                "BANK_TIMEOUT / lost response",
+                "UNKNOWN; investigate",
+                "May already have succeeded"
+            ],
+            [
+                "PDF / email error",
+                "Retry document/notification only",
+                "Payment remains SUCCESS"
+            ]
+        ]
+    },
+    "block-38": {
+        "type": "text",
+        "paragraphs": [
+            "A repeated client delivery uses WD-CLIENT-001 and returns request 7001's SUCCESS. Retry a rolled-back database attempt only with the same request and bounded attempts. Do not create a fresh request merely because the HTTP response was lost."
+        ]
+    },
+    "block-39": {
+        "type": "flow",
+        "caption": "Safe retry decision",
+        "steps": [
+            "Find original saved reference",
+            "Was any external request sent?",
+            "Only local transaction → inspect committed result",
+            "Confirmed success → return; never repeat effect",
+            "Confirmed safe failure → bounded authorized retry",
+            "Exhausted / unresolved → investigation queue"
+        ]
+    },
+    "block-40": {
+        "type": "text",
+        "paragraphs": [
+            "Use bounded exponential backoff for transient technical errors and expose retry age/attempt count. An exhausted job becomes a failed/dead-letter item for an operator; a queue retry counter is not evidence of bank failure. A corrected obligation or authorized refund is a distinct linked business operation, not a stealth retry."
+        ]
+    },
+    "block-41": {
+        "type": "table",
+        "caption": "Repeated deliveries",
+        "columns": [
+            "Delivery",
+            "Business reference",
+            "Expected financial effect"
+        ],
+        "rows": [
+            ["First", "WD-7001", "Apply once after validation/confirmation"],
+            ["Second", "WD-7001", "Return existing result / wait for original"],
+            ["Third", "WD-7001", "No additional debit, allocation or salary"]
+        ]
+    },
+    "block-42": {
+        "type": "text",
+        "paragraphs": [
+            "Persist a unique business key before processing and compare the request payload on key reuse. Apply another unique constraint to the external event/reference and to the document/outbox event. A unique key alone is not enough: the status check and financial mutation must be within the same transaction.",
+            "Callback authentication and idempotency solve different problems. Verify signatures/merchant context first; an attacker-controlled reference does not become trusted just because it is unique. Lock the request row before applying its result."
+        ]
+    },
+    "block-43": {
+        "type": "flow",
+        "caption": "Durable background work",
+        "steps": [
+            "Financial transaction inserts outbox event",
+            "COMMIT",
+            "Dispatcher reads unpublished events",
+            "Queue accepts event",
+            "Idempotent worker executes",
+            "Mark completed / retry with same event key"
+        ]
+    },
+    "block-44": {
+        "type": "table",
+        "caption": "outbox_events — after financial commit",
+        "columns": [
+            "event_key",
+            "aggregate_reference",
+            "event_type",
+            "published_at"
+        ],
+        "rows": [
+            [
+                "WD-7001:document",
+                "WD-7001",
+                "GENERATE_DOCUMENT",
+                "NULL until dispatched"
+            ]
+        ]
+    },
+    "block-45": {
+        "type": "text",
+        "paragraphs": [
+            "Laravel afterCommit() prevents a worker from reading an uncommitted row, but a process can still crash between database commit and sending to a separate queue. A transactional outbox closes that publication gap; consumers must still handle redelivery.",
+            "Separate payment, document, notification and reconciliation queues allow independent retries and limits. Payroll/corporate schedulers paginate or chunk work rather than loading all 10,000 payments into one transaction. Do not submit external payments again just because their notification jobs failed."
+        ]
+    },
+    "block-46": {
+        "type": "code",
+        "caption": "Laravel dispatch timing (illustrative)",
+        "language": "php",
+        "source": "GenerateFeeReceipt::dispatch($payment->id)->afterCommit();\n// For durable delivery, insert a unique outbox event in the payment transaction.\n// A separate dispatcher publishes it and an idempotent worker records completion."
+    },
+    "block-47": {
+        "type": "text",
+        "paragraphs": [
+            "Withdrawal acknowledgement WD-7001 shows ₹5,000, account ending 101, date 28 Sep 2026 and ledger status SUCCESS. It must not claim an external bank or ATM settlement that this example has not modeled."
+        ]
+    },
+    "block-48": {
+        "type": "flow",
+        "caption": "Private document lifecycle",
+        "steps": [
+            "Confirmed SUCCESS",
+            "Database COMMIT",
+            "Pending document / outbox",
+            "Queue PDF renderer",
+            "Private storage",
+            "GENERATED",
+            "Authorized download"
+        ]
+    },
+    "block-49": {
+        "type": "table",
+        "caption": "Document failure is independent",
+        "columns": ["Payment", "Document", "Action"],
+        "rows": [
+            ["SUCCESS", "PENDING", "Wait for document worker"],
+            [
+                "SUCCESS",
+                "FAILED_GENERATION",
+                "Retry renderer with same document key"
+            ],
+            [
+                "SUCCESS",
+                "GENERATED",
+                "Reuse existing file; authorize each download"
+            ]
+        ]
+    },
+    "block-50": {
+        "type": "text",
+        "paragraphs": [
+            "Render from the committed immutable amount/reference and approved payroll snapshot, not client input. Reserve a unique receipt/slip number and link one document to one payment. A failed write to private storage cannot turn the already-confirmed financial payment into FAILED."
+        ]
+    },
+    "block-51": {
+        "type": "text",
+        "paragraphs": [
+            "Check opening balance 5000 minus the one successful debit 5000 equals closing balance 0. Request 7002 has no debit ledger entry. If an external dispenser exists, reconcile its journal separately; internal ledger success is insufficient evidence of dispensing."
+        ]
+    },
+    "block-52": {
+        "type": "flow",
+        "caption": "Three-way evidence check",
+        "steps": [
+            "Internal request / ledger / allocation",
+            "Compare provider confirmation by reference",
+            "Compare bank settlement by date/currency/net policy",
+            "Create discrepancy record",
+            "Investigate with evidence",
+            "Apply idempotent authorized correction",
+            "Close exception with audit"
+        ]
+    },
+    "block-53": {
+        "type": "table",
+        "caption": "Illustrative reconciliation record",
+        "columns": [
+            "reference",
+            "internal before",
+            "evidence",
+            "status / resolution"
+        ],
+        "rows": [
+            [
+                "WD-7001",
+                "Committed ledger",
+                "Matched request and balanced ledger",
+                "Resolved only after matching identity and amount"
+            ]
+        ]
+    },
+    "block-54": {
+        "type": "code",
+        "caption": "Investigate outcomes, never blindly overwrite",
+        "language": "sql",
+        "source": "SELECT account_id, type, SUM(amount) AS total\nFROM account_transactions WHERE status = 'SUCCESS'\nGROUP BY account_id, type;"
+    },
+    "block-55": {
+        "type": "text",
+        "paragraphs": [
+            "Count mismatches are clues, not sufficient proof. Match identifiers, amounts, currency, beneficiary and dates. Handle settlement lag, fees and refunds explicitly; never change thousands of rows to SUCCESS merely to make dashboard totals agree."
+        ]
+    },
+    "block-56": {
+        "type": "table",
+        "caption": "Actual illustrative audit records",
+        "columns": [
+            "actor",
+            "action",
+            "entity",
+            "old_status",
+            "new_status",
+            "created_at"
+        ],
+        "rows": [
+            [
+                "CUSTOMER-101",
+                "REQUEST_SAVED",
+                "WD-7001",
+                "NULL",
+                "PENDING",
+                "2026-09-28 09:00:00"
+            ],
+            [
+                "TRANSACTION-SERVICE",
+                "RESULT_APPLIED",
+                "WD-7001",
+                "PENDING",
+                "SUCCESS",
+                "2026-09-28 12:00:00"
+            ],
+            [
+                "DOCUMENT-WORKER",
+                "DOCUMENT_GENERATED",
+                "WD-7001",
+                "PENDING",
+                "GENERATED",
+                "2026-09-28 12:01:00"
+            ]
+        ]
+    },
+    "block-57": {
+        "type": "text",
+        "paragraphs": [
+            "Each financial status change appends an audit event inside the same local transaction. Metadata includes the request ID, correlation ID, provider evidence reference and reason, with secrets and full beneficiary details removed.",
+            "Restrict update/delete permissions on audit history and define retention. A manual reconciliation resolution records the authorized operator, evidence and correction reference. Audit explains who changed a value; the ledger explains the financial entries."
+        ]
+    },
+    "block-58": {
+        "type": "text",
+        "paragraphs": [
+            "These tables describe the completed illustrative main scenario. Independent failure/overpayment exercises above do not silently alter these rows. Batch counts below are derived reporting values where marked."
+        ]
+    },
+    "block-59": {
+        "type": "table",
+        "caption": "accounts — final",
+        "columns": ["id", "balance", "currency", "status"],
+        "rows": [[101, "0.00", "INR", "ACTIVE"]]
+    },
+    "block-60": {
+        "type": "table",
+        "caption": "withdrawal_requests — final",
+        "columns": ["id", "amount", "status", "failure_code"],
+        "rows": [
+            [7001, "5000.00", "SUCCESS", null],
+            [7002, "10000.00", "FAILED", "INSUFFICIENT_FUNDS"]
+        ]
+    },
+    "block-61": {
+        "type": "table",
+        "caption": "account_transactions — final",
+        "columns": ["reference_no", "account_id", "amount", "status"],
+        "rows": [["WD-7001", 101, "5000.00", "SUCCESS"]]
+    },
+    "block-62": {
+        "type": "table",
+        "caption": "Document/outbox final checkpoint",
+        "columns": ["Financial result", "Document", "Outbox"],
+        "rows": [
+            [
+                "SUCCESS",
+                "GENERATED after independent job",
+                "Published; worker deduplicates redelivery"
+            ]
+        ]
+    },
+    "block-63": {
+        "type": "questions",
+        "items": [
+            [
+                "Could the ₹10,000 request win the race?",
+                "It may acquire the lock first but still fails: the starting balance is only ₹5,000."
+            ],
+            [
+                "Why lock the request as well as the account?",
+                "The request lock serializes duplicate deliveries; the account lock serializes distinct debits sharing one balance."
+            ],
+            [
+                "Why SELECT FOR UPDATE?",
+                "Protect a mutable row while the transaction makes and applies a decision from its current value."
+            ],
+            [
+                "What does a waiting request read?",
+                "The new committed value after obtaining its lock, not a cached value from before waiting."
+            ],
+            [
+                "Why cannot local rollback reverse a bank payment?",
+                "The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."
+            ],
+            [
+                "How are duplicate webhooks prevented from repeating money effects?",
+                "Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."
+            ],
+            [
+                "What distinguishes FAILED, PENDING and UNKNOWN?",
+                "Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."
+            ],
+            [
+                "How do 5,000 student payments or 10,000 salaries scale?",
+                "Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."
+            ],
+            [
+                "Why queue receipt generation?",
+                "Document availability can retry independently without changing a confirmed financial outcome."
+            ],
+            [
+                "What should a deadlock retry repeat?",
+                "The entire rolled-back local transaction with its original business identity; never an uncertain external payment."
+            ]
+        ]
+    },
+    "block-64": {
+        "type": "links",
+        "items": [
+            ["SQL Fundamentals", "fundamentals"],
+            ["Queries and Aggregation", "queries-aggregation"],
+            ["NULL Values and Joins", "nulls-joins"],
+            ["Subqueries and Salary Ranking", "subqueries-ranking"],
+            ["Window Functions", "window-functions"],
+            [
+                "Failure, Rollback, Retry & Reconciliation",
+                "failure-retry-reconciliation"
+            ]
+        ]
+    },
+    "block-65": {
+        "type": "text",
+        "paragraphs": [
+            "Connect the sample to ACID, row locks, isolation levels, foreign keys, UNIQUE constraints, conditional UPDATE, SUM/GROUP BY, joins, NULL external references and state transitions. Use window functions to review ordered attempts while preserving each payment's business identity."
+        ]
+    },
+    "block-66": {
+        "type": "table",
+        "caption": "Illustrative values only",
+        "columns": ["Reference", "Amount per main request", "Scope"],
+        "rows": [
+            ["PAY-100502", "₹50,000", "External outcome plus local allocation"]
+        ]
+    },
+    "block-67": {
+        "type": "schema",
+        "name": "students",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["student_no", "VARCHAR(30) UNIQUE"],
+            ["name", "VARCHAR(100)"],
+            ["course_id", "VARCHAR(30)"],
+            ["semester", "SMALLINT"],
+            ["status", "VARCHAR(20)"]
+        ],
+        "note": "course_id refers to the institution's course catalog."
+    },
+    "block-68": {
+        "type": "schema",
+        "name": "fee_structures",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["course_id", "VARCHAR(30)"],
+            ["semester", "SMALLINT"],
+            ["academic_year", "VARCHAR(10)"],
+            ["total_amount", "DECIMAL(19,2)"],
+            ["due_from", "DATE"],
+            ["due_to", "DATE"]
+        ],
+        "note": "UNIQUE(course_id, semester, academic_year). Invoice amounts are snapshots; changing a structure does not rewrite issued invoices."
+    },
+    "block-69": {
+        "type": "schema",
+        "name": "student_fee_invoices",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["student_id", "BIGINT FK students.id"],
+            ["invoice_no", "VARCHAR(60) UNIQUE"],
+            ["gross_amount", "DECIMAL(19,2)"],
+            ["discount_amount", "DECIMAL(19,2)"],
+            ["net_amount", "DECIMAL(19,2)"],
+            ["paid_amount", "DECIMAL(19,2)"],
+            ["balance_amount", "DECIMAL(19,2)"],
+            ["status", "VARCHAR(30)"],
+            ["due_date", "DATE"]
+        ],
+        "note": "Validate net = gross - discount and balance = net - allocated paid amount. Refunds/credits need explicit allocation records."
+    },
+    "block-70": {
+        "type": "schema",
+        "name": "payments",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["student_id", "BIGINT FK"],
+            ["invoice_id", "BIGINT FK"],
+            ["payment_reference", "VARCHAR(100) UNIQUE"],
+            ["gateway_reference", "VARCHAR(100) NULL UNIQUE"],
+            ["amount", "DECIMAL(19,2)"],
+            ["currency", "CHAR(3)"],
+            ["status", "VARCHAR(30)"],
+            ["payment_method", "VARCHAR(30)"],
+            ["paid_at", "TIMESTAMP NULL"],
+            ["failure_code", "VARCHAR(100) NULL"],
+            ["idempotency_key", "VARCHAR(100) UNIQUE"]
+        ],
+        "note": "Scope provider references by provider/merchant in a multi-provider system. Verify callback signature, saved amount, currency and intent."
+    },
+    "block-71": {
+        "type": "schema",
+        "name": "receipts",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["payment_id", "BIGINT UNIQUE FK payments.id"],
+            ["receipt_no", "VARCHAR(60) UNIQUE"],
+            ["amount", "DECIMAL(19,2)"],
+            ["generated_at", "TIMESTAMP NULL"],
+            ["file_path", "VARCHAR(255) NULL"],
+            ["status", "VARCHAR(20)"]
+        ],
+        "note": "Receipt amount equals this payment, not the lifetime invoice total. Queue generation after commit; files are private."
+    },
+    "block-72": {
+        "type": "table",
+        "caption": "students — before processing",
+        "columns": [
+            "id",
+            "student_no",
+            "name",
+            "course_id",
+            "semester",
+            "status"
+        ],
+        "rows": [
+            [101, "STU1001", "Rahul Sharma", "BTECH-CS", 6, "ACTIVE"],
+            [102, "STU1002", "Priya Singh", "BTECH-CS", 6, "ACTIVE"],
+            [103, "STU1003", "Amit Kumar", "BCA", 4, "ACTIVE"]
+        ]
+    },
+    "block-73": {
+        "type": "table",
+        "caption": "fee_structures — before processing",
+        "columns": [
+            "id",
+            "course_id",
+            "semester",
+            "academic_year",
+            "total_amount",
+            "due_from",
+            "due_to"
+        ],
+        "rows": [
+            [
+                60,
+                "BTECH-CS",
+                6,
+                "2026-27",
+                "80000.00",
+                "2026-09-01",
+                "2026-09-10"
+            ]
+        ]
+    },
+    "block-74": {
+        "type": "table",
+        "caption": "student_fee_invoices — before processing",
+        "columns": [
+            "id",
+            "student_id",
+            "invoice_no",
+            "gross_amount",
+            "discount_amount",
+            "net_amount",
+            "paid_amount",
+            "balance_amount",
+            "status",
+            "due_date"
+        ],
+        "rows": [
+            [
+                5001,
+                101,
+                "INV-2026-5001",
+                "80000.00",
+                "0.00",
+                "80000.00",
+                "30000.00",
+                "50000.00",
+                "PARTIALLY_PAID",
+                "2026-09-10"
+            ],
+            [
+                5002,
+                102,
+                "INV-2026-5002",
+                "80000.00",
+                "0.00",
+                "80000.00",
+                "80000.00",
+                "0.00",
+                "PAID",
+                "2026-09-10"
+            ],
+            [
+                5003,
+                103,
+                "INV-2026-5003",
+                "80000.00",
+                "0.00",
+                "80000.00",
+                "0.00",
+                "80000.00",
+                "UNPAID",
+                "2026-09-10"
+            ]
+        ]
+    },
+    "block-75": {
+        "type": "table",
+        "caption": "payments — before processing",
+        "columns": [
+            "id",
+            "student_id",
+            "invoice_id",
+            "payment_reference",
+            "gateway_reference",
+            "amount",
+            "currency",
+            "status",
+            "payment_method",
+            "paid_at",
+            "failure_code",
+            "idempotency_key"
+        ],
+        "rows": [
+            [
+                100501,
+                101,
+                5001,
+                "PAY-100501",
+                "GW-001",
+                "30000.00",
+                "INR",
+                "SUCCESS",
+                "UPI",
+                "2026-09-05 10:00:00",
+                null,
+                "FEE-5001-A"
+            ],
+            [
+                100502,
+                101,
+                5001,
+                "PAY-100502",
+                null,
+                "50000.00",
+                "INR",
+                "PENDING",
+                "UPI",
+                null,
+                null,
+                "FEE-5001-B"
+            ]
+        ]
+    },
+    "block-76": {
+        "type": "table",
+        "caption": "receipts — before processing",
+        "columns": [
+            "id",
+            "payment_id",
+            "receipt_no",
+            "amount",
+            "generated_at",
+            "file_path",
+            "status"
+        ],
+        "rows": [
+            [
+                501,
+                100501,
+                "REC-2026-000501",
+                "30000.00",
+                "2026-09-05 10:01:00",
+                "private/receipts/501.pdf",
+                "GENERATED"
+            ]
+        ]
+    },
+    "block-77": {
+        "type": "flow",
+        "caption": "Button click to recorded result",
+        "steps": [
+            "Student STU1001",
+            "Invoice 5001: due 50000",
+            "Controller: Pay ₹50,000",
+            "Persist payment intent 100502",
+            "Gateway charges saved amount",
+            "Verified backend webhook",
+            "Allocate once to invoice",
+            "COMMIT",
+            "Receipt / notification queue"
+        ]
+    },
+    "block-78": {
+        "type": "table",
+        "caption": "Request envelope (illustrative)",
+        "columns": ["Field", "Value / rule"],
+        "rows": [
+            ["reference", "PAY-100502"],
+            ["amount", "₹50,000; validate against saved request"],
+            ["authenticated actor", "GATEWAY-WEBHOOK"],
+            [
+                "response",
+                "Return saved result on duplicate; show pending while unresolved"
+            ]
+        ]
+    },
+    "block-79": {
+        "type": "text",
+        "paragraphs": [
+            "The controller authorizes the student/invoice relationship and validates the requested amount against the invoice. It creates a unique payment intent before invoking the gateway. A double click with the same key returns the same intent; two different keys must not silently reserve or charge more than the remaining invoice.",
+            "The bank/gateway call runs outside a held invoice transaction. Treat the browser return as presentation only. A signed callback or provider status query supplies the external result; match merchant, payment reference, amount and INR currency to the intent.",
+            "The callback handler locks payment 100502 then invoice 5001. If the payment is already SUCCESS, return without another allocation. Save the confirmed gateway reference, update the invoice once, and create an audit event plus receipt outbox event in one local transaction. Verified external money with an allocation mismatch must remain traceable in an exception workflow."
+        ]
+    },
+    "block-80": {
+        "type": "flow",
+        "caption": "Application responsibility boundaries",
+        "steps": [
+            "Request",
+            "Controller: authorize / validate",
+            "Service: business rules / idempotency",
+            "Database: locks / constraints / atomic writes",
+            "Adapter: external protocol",
+            "Callback / reconciler: verify evidence",
+            "Outbox and document worker"
+        ]
+    },
+    "block-81": {
+        "type": "flow",
+        "caption": "Transaction boundaries",
+        "steps": [
+            "Verify callback signature and saved intent",
+            "BEGIN",
+            "Lock payments 100502",
+            "If SUCCESS: return recorded result",
+            "Lock invoice 5001",
+            "Check verified amount 50000 and balance 50000",
+            "Allocate, mark payment SUCCESS, invoice PAID",
+            "Create pending receipt / audit / outbox",
+            "COMMIT"
+        ]
+    },
+    "block-82": {
+        "type": "text",
+        "paragraphs": [
+            "Atomicity applies to the writes enclosed by one BEGIN/COMMIT. Consistency means the amount, status, ledger/allocation and audit invariants agree. Isolation prevents conflicting decisions on locked rows. Durability means a committed result survives a client disconnect.",
+            "On unexpected database errors, roll back the local transaction. A known business rejection can instead be recorded and committed without a financial mutation. Never swallow a database exception and accidentally commit half of the intended changes.",
+            "Do not hold an invoice/account/item lock across bank network calls. Persist the intent first, commit it, then call the adapter. Apply verified results in a new short transaction. A database rollback cannot recall money already moved by an external bank."
+        ]
+    },
+    "block-83": {
+        "type": "code",
+        "caption": "Representative SQL and guarded updates",
+        "language": "sql",
+        "source": "START TRANSACTION;\nSELECT id, invoice_id, amount, currency, status FROM payments WHERE id = 100502 FOR UPDATE;\nSELECT id, net_amount, paid_amount, balance_amount FROM student_fee_invoices WHERE id = 5001 FOR UPDATE;\n-- Handler has verified the gateway event; stop if payment is already SUCCESS.\n-- Execute the allocation branch ONLY if the locked balance >= verified amount.\nUPDATE student_fee_invoices SET\n paid_amount = paid_amount + 50000.00,\n balance_amount = balance_amount - 50000.00\nWHERE id = 5001 AND balance_amount >= 50000.00;\n-- Handler checks exactly one row changed; otherwise roll back local allocation\n-- and persist the external confirmation as a reconciliation exception.\nUPDATE student_fee_invoices SET status = CASE WHEN balance_amount = 0 THEN 'PAID' ELSE 'PARTIALLY_PAID' END WHERE id = 5001;\nUPDATE payments SET gateway_reference = 'GW-002', status = 'SUCCESS', paid_at = '2026-09-28 10:00:00' WHERE id = 100502;\nINSERT INTO receipts (id, payment_id, receipt_no, amount, status)\nVALUES (502, 100502, 'REC-2026-000502', 50000.00, 'PENDING');\n-- Audit and receipt outbox event are inserted before COMMIT.\nCOMMIT;"
+    },
+    "block-84": {
+        "type": "table",
+        "caption": "Concurrent request timeline",
+        "columns": [
+            "Time",
+            "Request / worker A",
+            "Request / worker B or external system"
+        ],
+        "rows": [
+            [
+                "T0",
+                "Webhook 1 for GW-002 locks payment 100502",
+                "Webhook 2 for GW-002 arrives"
+            ],
+            ["T1", "Lock invoice; allocate 50000", "Wait for payment row lock"],
+            [
+                "T2",
+                "Payment SUCCESS; invoice PAID; COMMIT",
+                "Acquire lock; see SUCCESS"
+            ],
+            [
+                "T3",
+                "Receipt outbox event recorded once",
+                "Return acknowledgement; no second allocation"
+            ],
+            [
+                "T4",
+                "Webhook 3 sees saved SUCCESS",
+                "No extra receipt or invoice increment"
+            ]
+        ]
+    },
+    "block-85": {
+        "type": "table",
+        "caption": "Calculation and invariants",
+        "columns": ["Value", "Calculation / expected result"],
+        "rows": [
+            ["Potential collection", "5000 × 80000 = 400000000 (₹40 crore)"],
+            ["Rahul before", "paid 30000; due 50000"],
+            ["Confirmed payment", "50000"],
+            ["Rahul after", "paid 30000 + 50000 = 80000; due 0"]
+        ]
+    },
+    "block-86": {
+        "type": "table",
+        "caption": "Before / request / after",
+        "columns": ["Table or field", "Before", "After"],
+        "rows": [
+            ["invoice 5001 paid_amount", "30000.00", "80000.00"],
+            ["invoice 5001 balance_amount", "50000.00", "0.00"],
+            ["invoice 5001 status", "PARTIALLY_PAID", "PAID"],
+            ["payment 100502", "PENDING", "SUCCESS / GW-002"],
+            ["receipt 502", "Absent", "PENDING then GENERATED"]
+        ]
+    },
+    "block-87": {
+        "type": "flow",
+        "caption": "Success branch",
+        "steps": [
+            "INITIATED / READY",
+            "SUBMITTED",
+            "PENDING / PROCESSING",
+            "Verified SUCCESS"
+        ]
+    },
+    "block-88": {
+        "type": "flow",
+        "caption": "Failure / investigation branch",
+        "steps": [
+            "SUBMITTED",
+            "Timeout → UNKNOWN",
+            "Query / callback / reconcile",
+            "Verified SUCCESS or confirmed FAILED"
+        ]
+    },
+    "block-89": {
+        "type": "flow",
+        "caption": "Refund branch",
+        "steps": [
+            "SUCCESS",
+            "Authorized REFUND_REQUESTED",
+            "Provider confirmation",
+            "REFUNDED; retain original payment"
+        ]
+    },
+    "block-90": {
+        "type": "table",
+        "caption": "Meaning of each state",
+        "columns": ["State", "Meaning"],
+        "rows": [
+            ["READY / INITIATED", "Saved intent; not proof of bank receipt"],
+            ["SUBMITTED", "Send attempted; bank outcome not yet final"],
+            ["PENDING / PROCESSING", "Provider confirms work in progress"],
+            ["UNKNOWN", "No reliable external final outcome yet"],
+            ["SUCCESS", "Verified final external success applied once locally"],
+            ["FAILED", "Confirmed rejection; no blind assumption on timeout"],
+            [
+                "REFUND_REQUESTED / REFUNDED",
+                "Separate authorized refund workflow with its own result"
+            ]
+        ]
+    },
+    "block-91": {
+        "type": "text",
+        "paragraphs": [
+            "Success means the defined financial operation and its associated local records are committed. Return the persisted reference and outcome to the client; do not generate a new success on each retry.",
+            "Record verified provider/bank evidence before releasing a success notification. A merely submitted request stays pending or unknown until evidence resolves it."
+        ]
+    },
+    "block-92": {
+        "type": "text",
+        "paragraphs": [
+            "For Amit's independent unpaid invoice 5003, the gateway charges ₹80,000 but the browser closes before success returns. The backend keeps PENDING/UNKNOWN until a verified webhook or query confirms the result. Then it records SUCCESS and PAID; it never treats a browser disconnect as bank failure. A declined payment has confirmed FAILED and leaves invoice 5003 unchanged."
+        ]
+    },
+    "block-93": {
+        "type": "flow",
+        "caption": "₹80,000 charge, browser closed",
+        "steps": [
+            "Amit: invoice 5003 unpaid ₹80,000",
+            "Gateway charges ₹80,000",
+            "Browser closes — no frontend success",
+            "Verified gateway webhook",
+            "Backend locks payment and invoice",
+            "Payment SUCCESS / invoice PAID",
+            "Commit and receipt queue"
+        ]
+    },
+    "block-94": {
+        "type": "table",
+        "caption": "Separate overpayment exception (not Rahul's main installment)",
+        "columns": [
+            "Confirmed amount",
+            "Invoice obligation",
+            "Excess",
+            "Controlled outcome"
+        ],
+        "rows": [
+            [
+                "90000.00",
+                "80000.00",
+                "10000.00",
+                "OPEN exception → authorized refund / customer credit / allocation"
+            ]
+        ]
+    },
+    "block-95": {
+        "type": "text",
+        "paragraphs": [
+            "If the provider confirms ₹90,000 for an ₹80,000 obligation, keep the full external receipt traceable. Do not erase ₹10,000 or falsely call the whole payment failed. Capture an exception and resolve the excess through explicit ledger/credit/refund records, authorized business rules and provider references."
+        ]
+    },
+    "block-96": {
+        "type": "text",
+        "paragraphs": [
+            "Repeat a status query or process the signed callback with the original PAY-100502 / FEE-5001-B identity. A duplicate notification does not create another payment. If the gateway definitively failed without charging, a customer-authorized new attempt may be recorded according to provider rules, linked to the original intent."
+        ]
+    },
+    "block-97": {
+        "type": "flow",
+        "caption": "Safe retry decision",
+        "steps": [
+            "Find original saved reference",
+            "Was any external request sent?",
+            "Yes / uncertain → query original provider reference",
+            "Confirmed success → return; never repeat effect",
+            "Confirmed safe failure → bounded authorized retry",
+            "Exhausted / unresolved → investigation queue"
+        ]
+    },
+    "block-98": {
+        "type": "table",
+        "caption": "Repeated deliveries",
+        "columns": [
+            "Delivery",
+            "Business reference",
+            "Expected financial effect"
+        ],
+        "rows": [
+            ["First", "PAY-100502", "Apply once after validation/confirmation"],
+            [
+                "Second",
+                "PAY-100502",
+                "Return existing result / wait for original"
+            ],
+            ["Third", "PAY-100502", "No additional debit, allocation or salary"]
+        ]
+    },
+    "block-99": {
+        "type": "table",
+        "caption": "outbox_events — after financial commit",
+        "columns": [
+            "event_key",
+            "aggregate_reference",
+            "event_type",
+            "published_at"
+        ],
+        "rows": [
+            [
+                "PAY-100502:document",
+                "PAY-100502",
+                "GENERATE_DOCUMENT",
+                "NULL until dispatched"
+            ]
+        ]
+    },
+    "block-100": {
+        "type": "text",
+        "paragraphs": [
+            "REC-2026-000502 · Student STU1001 · Invoice INV-2026-5001 · Payment PAY-100502 · Amount ₹50,000 · 28 Sep 2026 · Payment SUCCESS / Invoice PAID. The earlier REC-2026-000501 remains ₹30,000. Two payment receipts total ₹80,000; do not issue a misleading ₹80,000 receipt for the ₹50,000 installment."
+        ]
+    },
+    "block-101": {
+        "type": "text",
+        "paragraphs": [
+            "Illustrative daily totals: internal SUCCESS 4,980, gateway SUCCESS 4,981, bank settlement entries 4,981. Counts alone only flag a discrepancy. Join by provider/payment reference, INR amount, settlement date and fees to locate the missing allocation, verify its authenticity, then apply it once. Settlement lag and net-of-fee values must be compared under a defined policy."
+        ]
+    },
+    "block-102": {
+        "type": "table",
+        "caption": "Illustrative reconciliation record",
+        "columns": [
+            "reference",
+            "internal before",
+            "evidence",
+            "status / resolution"
+        ],
+        "rows": [
+            [
+                "PAY-100502",
+                "UNKNOWN / missing confirmation",
+                "Verified provider/bank success",
+                "Resolved only after matching identity and amount"
+            ]
+        ]
+    },
+    "block-103": {
+        "type": "code",
+        "caption": "Investigate outcomes, never blindly overwrite",
+        "language": "sql",
+        "source": "-- Grouping is a monitoring signal; investigate individual references.\nSELECT status, COUNT(*) AS rows_found, SUM(amount) AS amount_total\nFROM payments\nGROUP BY status;"
+    },
+    "block-104": {
+        "type": "table",
+        "caption": "Actual illustrative audit records",
+        "columns": [
+            "actor",
+            "action",
+            "entity",
+            "old_status",
+            "new_status",
+            "created_at"
+        ],
+        "rows": [
+            [
+                "GATEWAY-WEBHOOK",
+                "REQUEST_SAVED",
+                "PAY-100502",
+                "NULL",
+                "PENDING",
+                "2026-09-28 09:00:00"
+            ],
+            [
+                "VERIFIED-CALLBACK",
+                "RESULT_APPLIED",
+                "PAY-100502",
+                "PENDING",
+                "SUCCESS",
+                "2026-09-28 12:00:00"
+            ],
+            [
+                "DOCUMENT-WORKER",
+                "DOCUMENT_GENERATED",
+                "PAY-100502",
+                "PENDING",
+                "GENERATED",
+                "2026-09-28 12:01:00"
+            ]
+        ]
+    },
+    "block-105": {
+        "type": "table",
+        "caption": "payments — final",
+        "columns": ["payment_reference", "amount", "status"],
+        "rows": [
+            ["PAY-100501", "30000.00", "SUCCESS"],
+            ["PAY-100502", "50000.00", "SUCCESS"]
+        ]
+    },
+    "block-106": {
+        "type": "table",
+        "caption": "student_fee_invoices — final",
+        "columns": [
+            "id",
+            "net_amount",
+            "paid_amount",
+            "balance_amount",
+            "status"
+        ],
+        "rows": [[5001, "80000.00", "80000.00", "0.00", "PAID"]]
+    },
+    "block-107": {
+        "type": "table",
+        "caption": "receipts — final",
+        "columns": ["receipt_no", "payment_id", "amount", "status"],
+        "rows": [
+            ["REC-2026-000501", 100501, "30000.00", "GENERATED"],
+            ["REC-2026-000502", 100502, "50000.00", "GENERATED"]
+        ]
+    },
+    "block-108": {
+        "type": "questions",
+        "items": [
+            [
+                "Why not mark a browser-closed payment FAILED?",
+                "The browser is not the gateway's final record; a verified callback/status query can confirm an already-completed charge."
+            ],
+            [
+                "What happens if ₹90,000 arrives for an ₹80,000 invoice?",
+                "Record the full confirmed ₹90,000; allocate only the authorized ₹80,000 and track the ₹10,000 excess as an exception, credit or refund. Never silently discard it."
+            ],
+            [
+                "Why SELECT FOR UPDATE?",
+                "Protect a mutable row while the transaction makes and applies a decision from its current value."
+            ],
+            [
+                "What does a waiting request read?",
+                "The new committed value after obtaining its lock, not a cached value from before waiting."
+            ],
+            [
+                "Why cannot local rollback reverse a bank payment?",
+                "The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."
+            ],
+            [
+                "How are duplicate webhooks prevented from repeating money effects?",
+                "Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."
+            ],
+            [
+                "What distinguishes FAILED, PENDING and UNKNOWN?",
+                "Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."
+            ],
+            [
+                "How do 5,000 student payments or 10,000 salaries scale?",
+                "Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."
+            ],
+            [
+                "Why queue receipt generation?",
+                "Document availability can retry independently without changing a confirmed financial outcome."
+            ],
+            [
+                "What should a deadlock retry repeat?",
+                "The entire rolled-back local transaction with its original business identity; never an uncertain external payment."
+            ]
+        ]
+    },
+    "block-109": {
+        "type": "table",
+        "caption": "Illustrative values only",
+        "columns": ["Reference", "Amount per main request", "Scope"],
+        "rows": [
+            [
+                "SAL-2026-09-EMP005",
+                "₹75,000",
+                "External outcome plus local allocation"
+            ]
+        ]
+    },
+    "block-110": {
+        "type": "schema",
+        "name": "corporate_accounts",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["company_id", "BIGINT"],
+            ["bank_account_id", "BIGINT FK protected bank account"],
+            ["status", "VARCHAR(20)"],
+            ["available_balance", "DECIMAL(19,2)"],
+            ["balance_as_of", "TIMESTAMP"]
+        ],
+        "note": "₹80 crore is an illustrative bank-reported snapshot. Bank reservations and fees affect actual available cash."
+    },
+    "block-111": {
+        "type": "schema",
+        "name": "salary_batches",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["company_id", "BIGINT"],
+            ["batch_reference", "VARCHAR(100) UNIQUE"],
+            ["salary_month", "CHAR(7)"],
+            ["employee_count", "INT"],
+            ["total_amount", "DECIMAL(19,2)"],
+            ["status", "VARCHAR(30)"],
+            ["processing_status", "VARCHAR(20)"],
+            ["is_final", "BOOLEAN"],
+            ["created_by", "BIGINT"],
+            ["approved_by", "BIGINT NULL"],
+            ["created_at", "TIMESTAMP"],
+            ["approved_at", "TIMESTAMP NULL"],
+            ["submitted_at", "TIMESTAMP NULL"]
+        ],
+        "note": "created_by 11 != approved_by 22. A valid permission check is required in addition to different IDs."
+    },
+    "block-112": {
+        "type": "schema",
+        "name": "salary_batch_items",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["salary_batch_id", "BIGINT FK"],
+            ["employee_id", "BIGINT"],
+            ["beneficiary_account", "VARCHAR(100) encrypted/tokenized"],
+            ["amount", "DECIMAL(19,2)"],
+            ["bank_code", "VARCHAR(30)"],
+            ["status", "VARCHAR(30)"],
+            ["payment_reference", "VARCHAR(100) UNIQUE"],
+            ["failure_code", "VARCHAR(100) NULL"]
+        ],
+        "note": "Beneficiaries and bank codes are deliberately non-routable example tokens. Validate actual identifiers using the bank's supported scheme."
+    },
+    "block-113": {
+        "type": "schema",
+        "name": "bank_payment_requests",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["batch_item_id", "BIGINT UNIQUE FK"],
+            ["business_reference", "VARCHAR(100) UNIQUE"],
+            ["amount", "DECIMAL(19,2)"],
+            ["status", "VARCHAR(30)"],
+            ["attempt_count", "INT"],
+            ["external_reference", "VARCHAR(100) NULL"]
+        ],
+        "note": "The same business reference remains on every investigation or safe retry."
+    },
+    "block-114": {
+        "type": "schema",
+        "name": "bank_responses",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["request_id", "BIGINT FK"],
+            ["provider_event_id", "VARCHAR(100) UNIQUE"],
+            ["bank_reference", "VARCHAR(100)"],
+            ["status", "VARCHAR(30)"],
+            ["amount", "DECIMAL(19,2)"],
+            ["received_at", "TIMESTAMP"]
+        ],
+        "note": "Append verified responses; prevent duplicate event application. A response is evidence, not permission to double-pay."
+    },
+    "block-115": {
+        "type": "schema",
+        "name": "reconciliation_records",
+        "columns": [
+            ["id", "BIGINT PK"],
+            ["payment_reference", "VARCHAR(100)"],
+            ["internal_status", "VARCHAR(30)"],
+            ["external_status", "VARCHAR(30)"],
+            ["amount", "DECIMAL(19,2)"],
+            ["status", "VARCHAR(30)"],
+            ["resolution", "VARCHAR(255) NULL"]
+        ],
+        "note": "Resolve only after matching company, beneficiary, amount, currency, date and bank reference."
+    },
+    "block-116": {
+        "type": "table",
+        "caption": "corporate_accounts — before processing",
+        "columns": [
+            "id",
+            "company_id",
+            "bank_account_id",
+            "status",
+            "available_balance",
+            "balance_as_of"
+        ],
+        "rows": [[90, 44, 900, "ACTIVE", "800000000.00", "2026-09-28 08:00:00"]]
+    },
+    "block-117": {
+        "type": "table",
+        "caption": "salary_batches — before processing",
+        "columns": [
+            "id",
+            "company_id",
+            "batch_reference",
+            "salary_month",
+            "employee_count",
+            "total_amount",
+            "status",
+            "processing_status",
+            "is_final",
+            "created_by",
+            "approved_by",
+            "created_at",
+            "approved_at",
+            "submitted_at"
+        ],
+        "rows": [
+            [
+                50,
+                44,
+                "BATCH-2026-09-44",
+                "2026-09",
+                10000,
+                "750000000.00",
+                "PARTIALLY_COMPLETED",
+                "PROCESSING",
+                false,
+                11,
+                22,
+                "2026-09-28 08:10:00",
+                "2026-09-28 08:30:00",
+                "2026-09-28 09:00:00"
+            ]
+        ]
+    },
+    "block-118": {
+        "type": "table",
+        "caption": "salary_batch_items — before processing",
+        "columns": [
+            "id",
+            "salary_batch_id",
+            "employee_id",
+            "beneficiary_account",
+            "amount",
+            "bank_code",
+            "status",
+            "payment_reference",
+            "failure_code"
+        ],
+        "rows": [
+            [
+                50001,
+                50,
+                1,
+                "TOKEN-EMP001",
+                "75000.00",
+                "DEMO-BANK",
+                "SUCCESS",
+                "SAL-2026-09-EMP001",
+                null
+            ],
+            [
+                50002,
+                50,
+                2,
+                "TOKEN-EMP002",
+                "75000.00",
+                "DEMO-BANK",
+                "SUCCESS",
+                "SAL-2026-09-EMP002",
+                null
+            ],
+            [
+                50003,
+                50,
+                3,
+                "TOKEN-EMP003",
+                "75000.00",
+                "DEMO-BANK",
+                "FAILED",
+                "SAL-2026-09-EMP003",
+                "ACCOUNT_CLOSED"
+            ],
+            [
+                50004,
+                50,
+                4,
+                "TOKEN-EMP004",
+                "75000.00",
+                "DEMO-BANK",
+                "FAILED",
+                "SAL-2026-09-EMP004",
+                "INVALID_ACCOUNT"
+            ],
+            [
+                50005,
+                50,
+                5,
+                "TOKEN-EMP005",
+                "75000.00",
+                "DEMO-BANK",
+                "UNKNOWN",
+                "SAL-2026-09-EMP005",
+                "BANK_TIMEOUT"
+            ],
+            [
+                50006,
+                50,
+                6,
+                "TOKEN-EMP006",
+                "75000.00",
+                "DEMO-BANK",
+                "SUCCESS",
+                "SAL-2026-09-EMP006",
+                null
+            ]
+        ]
+    },
+    "block-119": {
+        "type": "table",
+        "caption": "bank_payment_requests — before processing",
+        "columns": [
+            "id",
+            "batch_item_id",
+            "business_reference",
+            "amount",
+            "status",
+            "attempt_count",
+            "external_reference"
+        ],
+        "rows": [
+            [60005, 50005, "SAL-2026-09-EMP005", "75000.00", "UNKNOWN", 1, null]
+        ]
+    },
+    "block-120": {
+        "type": "table",
+        "caption": "bank_responses — before processing",
+        "columns": [
+            "id",
+            "request_id",
+            "provider_event_id",
+            "bank_reference",
+            "status",
+            "amount",
+            "received_at"
+        ],
+        "rows": [
+            [
+                61005,
+                60005,
+                "EVT-STATUS-005",
+                "BANK-005",
+                "SUCCESS",
+                "75000.00",
+                "2026-09-28 12:00:00"
+            ]
+        ]
+    },
+    "block-121": {
+        "type": "table",
+        "caption": "reconciliation_records — before processing",
+        "columns": [
+            "id",
+            "payment_reference",
+            "internal_status",
+            "external_status",
+            "amount",
+            "status",
+            "resolution"
+        ],
+        "rows": [
+            [
+                62005,
+                "SAL-2026-09-EMP005",
+                "UNKNOWN",
+                "SUCCESS",
+                "75000.00",
+                "OPEN",
+                null
+            ]
+        ]
+    },
+    "block-122": {
+        "type": "flow",
+        "caption": "Button click to recorded result",
+        "steps": [
+            "Corporate payroll freezes amounts",
+            "Maker 11 creates batch",
+            "Validate 10000 items and sum",
+            "Checker 22 approves",
+            "Outbox and payment orchestrator",
+            "Bank-specific adapter",
+            "Independent bank outcomes",
+            "Status query for EMP005",
+            "Reconciliation",
+            "Salary documents"
+        ]
+    },
+    "block-123": {
+        "type": "table",
+        "caption": "Request envelope (illustrative)",
+        "columns": ["Field", "Value / rule"],
+        "rows": [
+            ["reference", "SAL-2026-09-EMP005"],
+            ["amount", "₹75,000; validate against saved request"],
+            ["authenticated actor", "BANK-STATUS-RECONCILER"],
+            [
+                "response",
+                "Return saved result on duplicate; show pending while unresolved"
+            ]
+        ]
+    },
+    "block-124": {
+        "type": "text",
+        "paragraphs": [
+            "Validate count, sum, positive amounts, employee eligibility, beneficiary scheme and unique payment references before approval. Reject malformed rows without any financial operation. Bind the maker's payload and version to the checker approval so editing a batch invalidates approval.",
+            "The orchestrator claims one saved request, records submission intent, commits, and calls the bank adapter. Only the adapter knows the bank's protocol and authentication. No worker may silently invent SAL-2026-09-EMP005-RETRY-2 after a timeout.",
+            "The reconciler verifies response EVT-STATUS-005 against the saved ₹75,000 obligation. It locks request 60005 and item 50005 in the standard order, records BANK-005 and SUCCESS once, resolves exception 62005, and creates document/audit outbox work. Derived batch counts still retain the other nine unresolved items until each is confirmed."
+        ]
+    },
+    "block-125": {
+        "type": "flow",
+        "caption": "Transaction boundaries",
+        "steps": [
+            "Verified bank query returns BANK-005 SUCCESS",
+            "BEGIN",
+            "Lock request 60005",
+            "Lock item 50005",
+            "Check matching amount/reference and current state",
+            "UNKNOWN → SUCCESS, save bank reference",
+            "Resolve reconciliation 62005; audit/outbox",
+            "COMMIT",
+            "Recompute batch outcome counts"
+        ]
+    },
+    "block-126": {
+        "type": "code",
+        "caption": "Representative SQL and guarded updates",
+        "language": "sql",
+        "source": "START TRANSACTION;\nSELECT * FROM bank_payment_requests WHERE id = 60005 FOR UPDATE;\nSELECT id, amount, payment_reference, status FROM salary_batch_items WHERE id = 50005 FOR UPDATE;\n-- Apply only a verified matching bank result; an existing SUCCESS is a no-op.\nUPDATE bank_payment_requests SET status = 'SUCCESS', external_reference = 'BANK-005' WHERE id = 60005;\nUPDATE salary_batch_items SET status = 'SUCCESS', failure_code = NULL WHERE id = 50005;\nUPDATE reconciliation_records SET status = 'RESOLVED', resolution = 'Verified BANK-005; no resubmission' WHERE id = 62005;\n-- Audit/outbox entry records UNKNOWN -> SUCCESS.\nCOMMIT;\nSELECT status, COUNT(*) AS items, SUM(amount) AS total\nFROM salary_batch_items WHERE salary_batch_id = 50 GROUP BY status;\n-- Close the parent only when PENDING/UNKNOWN/READY/SUBMITTED/PROCESSING count is zero."
+    },
+    "block-127": {
+        "type": "table",
+        "caption": "Concurrent request timeline",
+        "columns": [
+            "Time",
+            "Request / worker A",
+            "Request / worker B or external system"
+        ],
+        "rows": [
+            [
+                "T0",
+                "Worker sends EMP005 using saved reference",
+                "Bank accepts request"
+            ],
+            [
+                "T1",
+                "HTTP response times out; record UNKNOWN",
+                "Bank may already have paid"
+            ],
+            [
+                "T2",
+                "Retry worker claims investigation, not payment",
+                "Query original reference"
+            ],
+            [
+                "T3",
+                "Query returns BANK-005 SUCCESS; lock request",
+                "Concurrent callback waits on same request"
+            ],
+            [
+                "T4",
+                "Commit SUCCESS once; resolve exception",
+                "Duplicate result becomes a no-op"
+            ]
+        ]
+    },
+    "block-128": {
+        "type": "table",
+        "caption": "Calculation and invariants",
+        "columns": ["Value", "Calculation / expected result"],
+        "rows": [
+            ["Batch total", "10000 × 75000 = 750000000 (₹75 crore)"],
+            ["Initial successes", "9970 × 75000 = 747750000"],
+            ["Confirmed failures", "20 × 75000 = 1500000"],
+            ["Unresolved amount", "10 × 75000 = 750000"],
+            ["Final successes", "9980 × 75000 = 748500000"],
+            [
+                "Final unpaid failures",
+                "1500000; not rolled back successful cash"
+            ]
+        ]
+    },
+    "block-129": {
+        "type": "table",
+        "caption": "Before / request / after",
+        "columns": ["Table or field", "Before", "After"],
+        "rows": [
+            ["EMP005", "UNKNOWN / BANK_TIMEOUT", "SUCCESS / BANK-005"],
+            [
+                "request 60005 attempts",
+                "1",
+                "1 (status inquiry is not a second payment)"
+            ],
+            ["reconciliation 62005", "OPEN", "RESOLVED"],
+            [
+                "batch 50 pending/unknown count",
+                "10",
+                "9 after EMP005; 0 after all ten resolutions"
+            ],
+            [
+                "batch 50 is_final",
+                "false",
+                "true only after zero unresolved items"
+            ]
+        ]
+    },
+    "block-130": {
+        "type": "text",
+        "paragraphs": [
+            "Batch summary PARTIALLY_COMPLETED is deliberately non-final while processing_status=PROCESSING and is_final=false. Success, failed and unresolved counters remain visible. Close only after all unresolved items reach an evidenced final result."
+        ]
+    },
+    "block-131": {
+        "type": "text",
+        "paragraphs": [
+            "ACCOUNT_CLOSED, INVALID_ACCOUNT and BENEFICIARY_BLOCKED are confirmed failures only when the bank reports a terminal rejection. BANK_TIMEOUT is UNKNOWN. PENDING means the bank says processing; UNKNOWN means the application does not know. Record each item result and keep unresolved amounts visible."
+        ]
+    },
+    "block-132": {
+        "type": "text",
+        "paragraphs": [
+            "Do not create SAL-2026-09-EMP005-RETRY-2 merely to get a new request accepted. Query the original reference, await signed callback or compare the bank statement. Retry transmission only when the adapter/provider contract establishes it is safe; preserve the original business key and record each attempt separately."
+        ]
+    },
+    "block-133": {
+        "type": "table",
+        "caption": "Repeated deliveries",
+        "columns": [
+            "Delivery",
+            "Business reference",
+            "Expected financial effect"
+        ],
+        "rows": [
+            [
+                "First",
+                "SAL-2026-09-EMP005",
+                "Apply once after validation/confirmation"
+            ],
+            [
+                "Second",
+                "SAL-2026-09-EMP005",
+                "Return existing result / wait for original"
+            ],
+            [
+                "Third",
+                "SAL-2026-09-EMP005",
+                "No additional debit, allocation or salary"
+            ]
+        ]
+    },
+    "block-134": {
+        "type": "table",
+        "caption": "outbox_events — after financial commit",
+        "columns": [
+            "event_key",
+            "aggregate_reference",
+            "event_type",
+            "published_at"
+        ],
+        "rows": [
+            [
+                "SAL-2026-09-EMP005:document",
+                "SAL-2026-09-EMP005",
+                "GENERATE_DOCUMENT",
+                "NULL until dispatched"
+            ]
+        ]
+    },
+    "block-135": {
+        "type": "text",
+        "paragraphs": [
+            "Salary advice for EMP005 includes batch BATCH-2026-09-44, ₹75,000, business reference SAL-2026-09-EMP005 and bank reference BANK-005. Generate after confirmation and commit; restrict download to the employee or authorized payroll staff."
+        ]
+    },
+    "block-136": {
+        "type": "text",
+        "paragraphs": [
+            "Join internal items and the bank report by business reference and bank reference, then verify beneficiary token, amount, currency and date. Initial successes 9970 differ from bank-confirmed 9980; the ten missing confirmations are resolved individually. Compare cash totals with settlement/fees, not just counts. Twenty confirmed failures remain liabilities to investigate."
+        ]
+    },
+    "block-137": {
+        "type": "table",
+        "caption": "Illustrative reconciliation record",
+        "columns": [
+            "reference",
+            "internal before",
+            "evidence",
+            "status / resolution"
+        ],
+        "rows": [
+            [
+                "SAL-2026-09-EMP005",
+                "UNKNOWN / missing confirmation",
+                "Verified provider/bank success",
+                "Resolved only after matching identity and amount"
+            ]
+        ]
+    },
+    "block-138": {
+        "type": "code",
+        "caption": "Investigate outcomes, never blindly overwrite",
+        "language": "sql",
+        "source": "-- Grouping is a monitoring signal; investigate individual references.\nSELECT status, COUNT(*) AS rows_found, SUM(amount) AS amount_total\nFROM salary_batch_items\nGROUP BY status;"
+    },
+    "block-139": {
+        "type": "table",
+        "caption": "Actual illustrative audit records",
+        "columns": [
+            "actor",
+            "action",
+            "entity",
+            "old_status",
+            "new_status",
+            "created_at"
+        ],
+        "rows": [
+            [
+                "BANK-STATUS-RECONCILER",
+                "REQUEST_SAVED",
+                "SAL-2026-09-EMP005",
+                "NULL",
+                "UNKNOWN",
+                "2026-09-28 09:00:00"
+            ],
+            [
+                "VERIFIED-CALLBACK",
+                "RESULT_APPLIED",
+                "SAL-2026-09-EMP005",
+                "UNKNOWN",
+                "SUCCESS",
+                "2026-09-28 12:00:00"
+            ],
+            [
+                "DOCUMENT-WORKER",
+                "DOCUMENT_GENERATED",
+                "SAL-2026-09-EMP005",
+                "PENDING",
+                "GENERATED",
+                "2026-09-28 12:01:00"
+            ]
+        ]
+    },
+    "block-140": {
+        "type": "table",
+        "caption": "salary_batches (derived totals) — final",
+        "columns": [
+            "id",
+            "success",
+            "failed",
+            "unresolved",
+            "status",
+            "processing_status",
+            "is_final"
+        ],
+        "rows": [[50, 9980, 20, 0, "PARTIALLY_COMPLETED", "CLOSED", true]]
+    },
+    "block-141": {
+        "type": "table",
+        "caption": "salary_batch_items — final",
+        "columns": ["employee", "amount", "status", "reference"],
+        "rows": [
+            ["EMP005", "75000.00", "SUCCESS", "SAL-2026-09-EMP005"],
+            ["EMP003", "75000.00", "FAILED", "SAL-2026-09-EMP003"]
+        ]
+    },
+    "block-142": {
+        "type": "table",
+        "caption": "reconciliation_records — final",
+        "columns": ["id", "status", "resolution"],
+        "rows": [
+            [62005, "RESOLVED", "BANK-005 confirmed; no duplicate submission"]
+        ]
+    },
+    "block-143": {
+        "type": "questions",
+        "items": [
+            [
+                "Can PARTIALLY_COMPLETED hide ten pending items?",
+                "No. In this explicit model the summary coexists with PROCESSING and is_final=false until every item is resolved."
+            ],
+            [
+                "What does the checker approve?",
+                "The frozen company/month/count/amount/beneficiary payload version, after independent authorization; not an editable batch that the maker can later change."
+            ],
+            [
+                "Why SELECT FOR UPDATE?",
+                "Protect a mutable row while the transaction makes and applies a decision from its current value."
+            ],
+            [
+                "What does a waiting request read?",
+                "The new committed value after obtaining its lock, not a cached value from before waiting."
+            ],
+            [
+                "Why cannot local rollback reverse a bank payment?",
+                "The bank is outside the local transaction boundary; use verified reconciliation and a separate authorized reversal/refund."
+            ],
+            [
+                "How are duplicate webhooks prevented from repeating money effects?",
+                "Authenticate the event, persist unique provider/business keys, lock the saved payment and apply the final result once."
+            ],
+            [
+                "What distinguishes FAILED, PENDING and UNKNOWN?",
+                "Confirmed rejection; confirmed work in progress; and unresolved external outcome, respectively."
+            ],
+            [
+                "How do 5,000 student payments or 10,000 salaries scale?",
+                "Persist independent obligations, use controlled idempotent workers, avoid long global locks, and reconcile each result."
+            ],
+            [
+                "Why queue receipt generation?",
+                "Document availability can retry independently without changing a confirmed financial outcome."
+            ],
+            [
+                "What should a deadlock retry repeat?",
+                "The entire rolled-back local transaction with its original business identity; never an uncertain external payment."
+            ]
+        ]
+    }
+}
