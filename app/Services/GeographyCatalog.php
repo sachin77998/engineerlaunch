@@ -6,6 +6,8 @@ class GeographyCatalog
 {
     private array $shards = [];
     private array $tables = [];
+    private array $terms = [];
+    private ?array $stateCodes = null;
     private function read(string $file): array
     {
         return json_decode(file_get_contents(resource_path('data/job-geography/portable/'.$file.'.json')), true, 512, JSON_THROW_ON_ERROR);
@@ -18,18 +20,33 @@ class GeographyCatalog
     {
         $result = [];
         foreach (array_unique($terms) as $term) {
-            $bucket = 'p'.substr(sha1($term), 0, 2);
-            if (!isset($this->shards[$bucket])) {
-                if (count($this->shards) >= 16) array_shift($this->shards);
-                $this->shards[$bucket] = $this->read('places/'.substr($bucket, 1));
+            $termKey = 't:'.$term;
+            if (!array_key_exists($termKey, $this->terms)) {
+                $bucket = 'p'.substr(sha1($term), 0, 2);
+                if (!isset($this->shards[$bucket])) {
+                    if (count($this->shards) >= 16) array_shift($this->shards);
+                    $this->shards[$bucket] = $this->read('places/'.substr($bucket, 1));
+                }
+                if (count($this->terms) >= 4096) array_shift($this->terms);
+                $this->terms[$termKey] = $this->shards[$bucket][$term] ?? [];
             }
-            foreach ($this->shards[$bucket][$term] ?? [] as $row) {
+            foreach ($this->terms[$termKey] as $row) {
                 if ($kind !== null && $row[3] !== $kind) continue;
                 $result[] = array_combine(['term','country','state','city','kind','population'], array_merge([$term], $row));
             }
         }
         return $result;
     }
+    public function statesForCode(string $country, string $code): array
+    {
+        if ($this->stateCodes === null) {
+            $this->stateCodes = [];
+            foreach ($this->table('states') as $row)
+                $this->stateCodes[$row['country'].'/'.$row['code']][] = ['country'=>$row['country'], 'state'=>$row['id']];
+        }
+        return $this->stateCodes[$country.'/'.$code] ?? [];
+    }
+
     public function cities(string $country, ?string $state, string $prefix): array
     {
         $result = [];

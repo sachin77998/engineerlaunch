@@ -70,4 +70,17 @@ class JobGeographyTest extends TestCase
         DB::table('jobs')->where('id',1)->update(['is_active'=>false]);
         $this->assertSame([6,10],$this->ids(['country'=>'IN']));
     }
+    public function test_large_catalogue_preserves_matches_across_chunks(): void
+    {
+        $rows = [];
+        for ($id=11; $id<=1210; $id++) {
+            $rows[] = ['id'=>$id, 'location'=>$id % 2 ? 'Bengaluru, India' : 'Berlin, Germany', 'country'=>'Global'];
+        }
+        foreach (array_chunk($rows, 200) as $chunk) DB::table('jobs')->insert($chunk);
+        $ids = $this->ids(['country'=>'IN']);
+        $this->assertCount(603, $ids);
+        $this->assertContains(1209, $ids);
+        $this->assertNotContains(1210, $ids);
+        $this->assertSame($ids, $this->ids(['country'=>'IN']));
+    }
 }

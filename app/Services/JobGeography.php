@@ -76,7 +76,7 @@ class JobGeography
         foreach ($countries ?: ($fallbackCode ? [$fallbackCode] : []) as $code) {
             foreach (preg_split('/[,;|\s]+/', $location) as $token) {
                 if (!preg_match('/^[A-Z]{2,3}$/', $token)) continue;
-                foreach ($this->catalog->table('states') as $s) if ($s['country']===$code && $s['code']===$token) $states[]=['state'=>$s['id'],'country'=>$s['country']];
+                foreach ($this->catalog->statesForCode($code, $token) as $s) $states[]=$s;
             }
         }
         $groups=[];
@@ -109,42 +109,45 @@ class JobGeography
     public function apply($query, array $filters): void
     {
         if (!collect($filters)->only(['region','country','state','city','location'])->filter(fn($v)=>$v!==null && $v!=='')->count()) return;
-        $index = Cache::remember(DiscoveryCache::key('job-geography.v2'), DiscoveryCache::ttl(), function () {
-            $rows=[]; $resolved=[];
-            foreach (Job::active()->select('id','location','country')->get() as $job) {
-                $key=$job->location.'|'.$job->country;
-                $resolved[$key] ??= $this->resolve((string)$job->location,(string)$job->country);
-                $rows[]=['id'=>$job->id,'text'=>$this->key((string)$job->location),'places'=>$resolved[$key]];
+        $parameters = array_intersect_key($filters, array_flip(['region','country','state','city','location']));
+        $ids = Cache::remember(DiscoveryCache::key('job-geography.matches.v3', $parameters), DiscoveryCache::ttl(), function () use ($filters) {
+            $country = $this->country($filters['country'] ?? '');
+            $state = $this->state($filters['state'] ?? '', $country);
+            if ((!empty($filters['country']) && !$country) || (!empty($filters['state']) && !$state)) { return []; }
+            $regions=array_column($this->catalog->table('countries'),'region','code');
+            $cityKey=$this->key($filters['city'] ?? '');
+            $cityNames=[$cityKey];
+            if ($cityKey) foreach ($this->catalog->places([$cityKey], 'city') as $c) $cityNames[]=$this->key($c['city']);
+            $term=$this->key($filters['location'] ?? '');
+            $termPlaces=$term ? $this->resolve($filters['location']) : [];
+            $ids=[];
+            $resolved = [];
+            foreach (Job::active()->select('id','location','country')->toBase()->lazyById(500) as $job) {
+                $locationKey = $job->location.'|'.$job->country;
+                if (!isset($resolved[$locationKey])) {
+                    if (count($resolved) >= 4096) array_shift($resolved);
+                    $resolved[$locationKey] = $this->resolve((string)$job->location, (string)$job->country);
+                }
+                $row = ['id'=>$job->id, 'text'=>$this->key((string)$job->location), 'places'=>$resolved[$locationKey]];
+
+                $geographic = empty($filters['region']) && !$country && !$state && !$cityKey;
+                foreach ($row['places'] as $p) {
+                    if (!empty($filters['region']) && ($regions[$p['country']]??'')!==$filters['region']) continue;
+                    if ($country && $p['country']!==$country) continue;
+                    if ($state && $p['state']!==$state) continue;
+                    if ($cityKey && !in_array($p['city'],$cityNames,true)) continue;
+                    $geographic=true; break;
+                }
+                if (!$geographic) continue;
+                if ($term && !str_contains($row['text'],$term)) {
+                    $matched=false;
+                    foreach ($termPlaces as $t) foreach ($row['places'] as $p) if ($t['country']===$p['country'] && (!$t['state'] || $t['state']===$p['state']) && (!$t['city'] || $t['city']===$p['city'])) $matched=true;
+                    if (!$matched) continue;
+                }
+                $ids[]=(int)$row['id'];
             }
-            return $rows;
+            return $ids;
         });
-        $country = $this->country($filters['country'] ?? '');
-        $state = $this->state($filters['state'] ?? '', $country);
-        if ((!empty($filters['country']) && !$country) || (!empty($filters['state']) && !$state)) { $query->whereRaw('1=0'); return; }
-        $regions=array_column($this->catalog->table('countries'),'region','code');
-        $cityKey=$this->key($filters['city'] ?? '');
-        $cityNames=[$cityKey];
-        if ($cityKey) foreach ($this->catalog->places([$cityKey], 'city') as $c) $cityNames[]=$this->key($c['city']);
-        $term=$this->key($filters['location'] ?? '');
-        $termPlaces=$term ? $this->resolve($filters['location']) : [];
-        $ids=[];
-        foreach ($index as $row) {
-            $geographic = empty($filters['region']) && !$country && !$state && !$cityKey;
-            foreach ($row['places'] as $p) {
-                if (!empty($filters['region']) && ($regions[$p['country']]??'')!==$filters['region']) continue;
-                if ($country && $p['country']!==$country) continue;
-                if ($state && $p['state']!==$state) continue;
-                if ($cityKey && !in_array($p['city'],$cityNames,true)) continue;
-                $geographic=true; break;
-            }
-            if (!$geographic) continue;
-            if ($term && !str_contains($row['text'],$term)) {
-                $matched=false;
-                foreach ($termPlaces as $t) foreach ($row['places'] as $p) if ($t['country']===$p['country'] && (!$t['state'] || $t['state']===$p['state']) && (!$t['city'] || $t['city']===$p['city'])) $matched=true;
-                if (!$matched) continue;
-            }
-            $ids[]=(int)$row['id'];
-        }
         $query->whereIntegerInRaw('jobs.id',$ids);
     }
 }
