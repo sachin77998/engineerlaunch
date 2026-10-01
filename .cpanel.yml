@@ -1,34 +1,38 @@
 ---
 deployment:
   tasks:
-    - export DEPLOY_PATH="$HOME/career-portal/naukri-com/"
+    - export DEPLOY_PATH="$HOME/career-portal/naukri-com"
 
-    - /bin/cp -R app $DEPLOY_PATH
-    - /bin/cp -R bootstrap $DEPLOY_PATH
-    - /bin/cp -R config $DEPLOY_PATH
-    - /bin/cp -R database $DEPLOY_PATH
-    - /bin/cp -R lang $DEPLOY_PATH
-    - /bin/cp -R resources $DEPLOY_PATH
-    - /bin/cp -R routes $DEPLOY_PATH
-    - /bin/cp -R storage $DEPLOY_PATH
-    - /bin/cp -R tests $DEPLOY_PATH
-    - /bin/cp -R public $DEPLOY_PATH
+    - /bin/cp -R app "$DEPLOY_PATH"
+    - /bin/cp -R bootstrap "$DEPLOY_PATH"
+    - /bin/cp -R config "$DEPLOY_PATH"
+    - /bin/cp -R database "$DEPLOY_PATH"
+    - /bin/cp -R lang "$DEPLOY_PATH"
+    - /bin/cp -R resources "$DEPLOY_PATH"
+    - /bin/cp -R routes "$DEPLOY_PATH"
+    - /bin/cp -R storage "$DEPLOY_PATH"
+    - /bin/cp -R tests "$DEPLOY_PATH"
+    - /bin/cp -R public "$DEPLOY_PATH"
 
-    # The main domain serves public_html; preserve its custom Laravel index.php.
     - /bin/cp -R public/css public/js public/images "$HOME/public_html/"
     - /bin/cp public/favicon.ico public/robots.txt "$HOME/public_html/"
 
-    - /bin/cp artisan $DEPLOY_PATH
-    - /bin/cp composer.json $DEPLOY_PATH
-    - /bin/cp composer.lock $DEPLOY_PATH
-    - /bin/cp package.json $DEPLOY_PATH
-    - /bin/cp vite.config.js $DEPLOY_PATH
+    - /bin/cp artisan "$DEPLOY_PATH"
+    - /bin/cp composer.json "$DEPLOY_PATH"
+    - /bin/cp composer.lock "$DEPLOY_PATH"
+    - /bin/cp package.json "$DEPLOY_PATH"
+    - /bin/cp vite.config.js "$DEPLOY_PATH"
 
-    - /bin/cp -R docs $DEPLOY_PATH
+    - /bin/cp -R docs "$DEPLOY_PATH"
 
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan optimize:clear
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan migrate --force
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan db:seed --class=TechnologySeeder --force
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan db:seed --class=OwnerAccountSeeder --force
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan db:seed --force
-    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOY_PATH/artisan optimize:clear
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" optimize:clear
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" migrate --force
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --class=TechnologySeeder --force
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --class=OwnerAccountSeeder --force
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --force
+
+    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" optimize:clear
