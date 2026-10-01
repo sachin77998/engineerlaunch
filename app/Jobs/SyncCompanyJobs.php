@@ -37,6 +37,25 @@ class SyncCompanyJobs implements ShouldQueue
         $item = $this->batchRunId ? $audit->startItem($this->batchRunId, $this->companyId) : null;
         try {
             $result = $scraper->scrapeCompany($company);
+            if (!empty($result['continuation']) && $this->batch()) {
+                if ($item) $item->update(['status'=>'pending',
+                    'records_found'=>$item->records_found+($result['jobs_found'] ?? 0),
+                    'records_created'=>$item->records_created+($result['jobs_added'] ?? 0),
+                    'records_updated'=>$item->records_updated+($result['jobs_updated'] ?? 0),
+                    'context'=>['warnings'=>array_slice(array_merge($item->context['warnings'] ?? [],$result['errors'] ?? []),0,10)]]);
+                $this->batch()->add([new self($this->companyId,$this->batchRunId)]);
+                if ($item) $audit->refreshRun($item->batch_run_id);
+                return;
+            }
+            if ($item) {
+                if (!empty($item->context['warnings'])) {
+                    $result['success']=false;
+                    $result['errors']=array_merge($result['errors'],$item->context['warnings']);
+                }
+                $result['jobs_found'] += $item->records_found;
+                $result['jobs_added'] += $item->records_created;
+                $result['jobs_updated'] += $item->records_updated;
+            }
             if (!$result['success']) throw new RuntimeException(implode('; ', $result['errors']), 0, $result['exception'] ?? null);
             if ($item) $audit->completeItem($item, $result);
         } catch (Throwable $exception) {

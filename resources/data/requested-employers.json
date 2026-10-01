@@ -1,0 +1,922 @@
+[
+  {
+    "name": "Infosys",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.infosys.com",
+    "careers_url": "https://digitalcareers.infosys.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Bebo Technologies",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.bebotechnologies.com",
+    "careers_url": "https://www.bebotechnologies.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "HCLTech",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.hcltech.com",
+    "careers_url": "https://careers.hcltech.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Hexaware Technologies",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://hexaware.com",
+    "careers_url": "https://hexaware.com/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "TCS",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.tcs.com",
+    "careers_url": "https://www.tcs.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Wipro",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.wipro.com",
+    "careers_url": "https://careers.wipro.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tata Technologies",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.tatatechnologies.com",
+    "careers_url": "https://www.tatatechnologies.com/in/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tech Mahindra",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.techmahindra.com",
+    "careers_url": "https://careers.techmahindra.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Amdocs",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://jobs.amdocs.com",
+    "careers_url": "https://jobs.amdocs.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Capgemini",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.capgemini.com",
+    "careers_url": "https://careers.capgemini.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Atos",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://atos.net",
+    "careers_url": "https://atos.net/en/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Sopra Steria",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.soprasteria.com",
+    "careers_url": "https://careers.soprasteria.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Reply",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.reply.com",
+    "careers_url": "https://www.reply.com/de/about/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "GFT Technologies",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.gft.com",
+    "careers_url": "https://jobs.gft.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tietoevry",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.tietoevry.com",
+    "careers_url": "https://www.tietoevry.com/en/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Alten",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.alten.com",
+    "careers_url": "https://www.alten.com/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Accenture",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.accenture.com",
+    "careers_url": "https://www.accenture.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "CGI",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.cgi.com",
+    "careers_url": "https://www.cgi.com/en/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Inetum",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.inetum.com",
+    "careers_url": "https://www.inetum.com/en/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Devoteam",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.devoteam.com",
+    "careers_url": "https://www.devoteam.com/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Neurones",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.neurones.net",
+    "careers_url": "https://www.neurones.net/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Wavestone",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.wavestone.com",
+    "careers_url": "https://www.wavestone.com/en/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "IBM",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.ibm.com",
+    "careers_url": "https://www.ibm.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "msg group",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.msg.group",
+    "careers_url": "https://www.msg.group/en/career",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "adesso",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.adesso.de",
+    "careers_url": "https://www.adesso.de/en/jobs-karriere/unsere-stellenangebote/index.jsp",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Ferchau",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.ferchau.com",
+    "careers_url": "https://www.ferchau.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Bechtle",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.bechtle.com",
+    "careers_url": "https://www.bechtle.com/career",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Cancom",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://karriere.cancom.de",
+    "careers_url": "https://karriere.cancom.de/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Cognizant",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.cognizant.com",
+    "careers_url": "https://careers.cognizant.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "DXC Technology",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.dxc.com",
+    "careers_url": "https://careers.dxc.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "EPAM Systems",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://www.epam.com",
+    "careers_url": "https://www.epam.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Peraton",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.peraton.com",
+    "careers_url": "https://careers.peraton.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Leidos",
+    "industry": "Software & IT",
+    "country": "Global",
+    "website": "https://careers.leidos.com",
+    "careers_url": "https://careers.leidos.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "BNP Paribas",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://group.bnpparibas",
+    "careers_url": "https://group.bnpparibas/en/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "UBS",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.ubs.com",
+    "careers_url": "https://www.ubs.com/global/en/careers.html",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Raiffeisen Switzerland",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.raiffeisen.ch",
+    "careers_url": "https://www.raiffeisen.ch/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Zurcher Kantonalbank",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.zkb.ch",
+    "careers_url": "https://www.zkb.ch/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Banque Cantonale Vaudoise",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.bcv.ch",
+    "careers_url": "https://www.bcv.ch/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Pictet",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.group.pictet",
+    "careers_url": "https://www.group.pictet/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Julius Baer",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.juliusbaer.com",
+    "careers_url": "https://www.juliusbaer.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "NatWest Group",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://jobs.natwestgroup.com",
+    "careers_url": "https://jobs.natwestgroup.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Lloyds Banking Group",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.lloydsbankinggroup.com",
+    "careers_url": "https://www.lloydsbankinggroup.com/careers.html",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "TSB Bank",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.tsbcareers.co.uk",
+    "careers_url": "https://www.tsbcareers.co.uk/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Virgin Money",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://uk.virginmoney.com",
+    "careers_url": "https://uk.virginmoney.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "JPMorgan Chase",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://careers.jpmorgan.com",
+    "careers_url": "https://careers.jpmorgan.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Bank of America",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://careers.bankofamerica.com",
+    "careers_url": "https://careers.bankofamerica.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Citigroup",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://jobs.citi.com",
+    "careers_url": "https://jobs.citi.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Wells Fargo",
+    "industry": "Banking",
+    "country": "Global",
+    "website": "https://www.wellsfargojobs.com",
+    "careers_url": "https://www.wellsfargojobs.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "NBC Bearings",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://www.nbcbearings.com",
+    "careers_url": "https://www.nbcbearings.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "SKF",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://www.skf.com",
+    "careers_url": "https://www.skf.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Timken",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://careers.timken.com",
+    "careers_url": "https://careers.timken.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Schaeffler",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://jobs.schaeffler.com",
+    "careers_url": "https://jobs.schaeffler.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "NRB Bearings",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://www.nrbbearings.com",
+    "careers_url": "https://www.nrbbearings.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Ramkrishna Forgings",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://www.ramkrishnaforgings.com",
+    "careers_url": "https://www.ramkrishnaforgings.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Electrosteel",
+    "industry": "Bearings & Forging",
+    "country": "Global",
+    "website": "https://www.electrosteel.com",
+    "careers_url": "https://www.electrosteel.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Havells",
+    "industry": "Electrical",
+    "country": "Global",
+    "website": "https://www.havells.com",
+    "careers_url": "https://www.havells.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Crompton",
+    "industry": "Electrical",
+    "country": "Global",
+    "website": "https://www.crompton.co.in",
+    "careers_url": "https://www.crompton.co.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Schneider Electric",
+    "industry": "Electrical",
+    "country": "Global",
+    "website": "https://www.se.com",
+    "careers_url": "https://www.se.com/ww/en/about-us/careers/overview.jsp",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tata Steel",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.tatasteel.com",
+    "careers_url": "https://www.tatasteel.com/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "JSW Steel",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.jsw.in",
+    "careers_url": "https://www.jsw.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "SAIL",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.sail.co.in",
+    "careers_url": "https://www.sail.co.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Jindal Steel",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.jindalsteel.com",
+    "careers_url": "https://www.jindalsteel.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "AM/NS India",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.amns.in",
+    "careers_url": "https://www.amns.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Jindal Stainless",
+    "industry": "Steel",
+    "country": "Global",
+    "website": "https://www.jindalstainless.com",
+    "careers_url": "https://www.jindalstainless.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Amul",
+    "industry": "Dairy & Food",
+    "country": "Global",
+    "website": "https://amul.com",
+    "careers_url": "https://amul.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Verka",
+    "industry": "Dairy & Food",
+    "country": "Global",
+    "website": "https://verka.coop",
+    "careers_url": "https://verka.coop/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Kwality Walls",
+    "industry": "Dairy & Food",
+    "country": "Global",
+    "website": "https://www.kwalitywalls.in",
+    "careers_url": "https://www.kwalitywalls.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Fortune",
+    "industry": "Dairy & Food",
+    "country": "Global",
+    "website": "https://www.awl.in",
+    "careers_url": "https://www.awl.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Reliance Industries",
+    "industry": "Petroleum & Gas",
+    "country": "Global",
+    "website": "https://careers.ril.com",
+    "careers_url": "https://careers.ril.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Hindustan Petroleum",
+    "industry": "Petroleum & Gas",
+    "country": "Global",
+    "website": "https://www.hindustanpetroleum.com",
+    "careers_url": "https://www.hindustanpetroleum.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Bharat Petroleum",
+    "industry": "Petroleum & Gas",
+    "country": "Global",
+    "website": "https://www.bharatpetroleum.in",
+    "careers_url": "https://www.bharatpetroleum.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Gujarat Gas",
+    "industry": "Petroleum & Gas",
+    "country": "Global",
+    "website": "https://www.gujaratgas.com",
+    "careers_url": "https://www.gujaratgas.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Texas Instruments",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://careers.ti.com",
+    "careers_url": "https://careers.ti.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Analog Devices",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://www.analog.com",
+    "careers_url": "https://www.analog.com/en/about-adi/careers.html",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "NXP Semiconductors",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://www.nxp.com",
+    "careers_url": "https://www.nxp.com/company/about-nxp/careers%3ACAREERS",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Infineon",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://www.infineon.com",
+    "careers_url": "https://www.infineon.com/cms/en/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Microchip Technology",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://careers.microchip.com",
+    "careers_url": "https://careers.microchip.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "onsemi",
+    "industry": "Semiconductors",
+    "country": "Global",
+    "website": "https://www.onsemi.com",
+    "careers_url": "https://www.onsemi.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Star Health",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://www.starhealth.in",
+    "careers_url": "https://www.starhealth.in/careers/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "HDFC Life",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://www.hdfclife.com",
+    "careers_url": "https://www.hdfclife.com/hdfc-careers/find-your-fit.html",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "HDFC ERGO",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://www.hdfcergo.com",
+    "careers_url": "https://www.hdfcergo.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Oriental Insurance",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://orientalinsurance.org.in",
+    "careers_url": "https://orientalinsurance.org.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "PNB MetLife",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://www.pnbmetlife.com",
+    "careers_url": "https://www.pnbmetlife.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "LIC",
+    "industry": "Insurance",
+    "country": "Global",
+    "website": "https://licindia.in",
+    "careers_url": "https://licindia.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Adani Green Energy",
+    "industry": "Renewable Energy",
+    "country": "Global",
+    "website": "https://www.adanigreenenergy.com",
+    "careers_url": "https://www.adanigreenenergy.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tata Power",
+    "industry": "Renewable Energy",
+    "country": "Global",
+    "website": "https://www.tatapower.com",
+    "careers_url": "https://www.tatapower.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "NTPC Green Energy",
+    "industry": "Renewable Energy",
+    "country": "Global",
+    "website": "https://ngEL.in",
+    "careers_url": "https://ngEL.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "ReNew",
+    "industry": "Renewable Energy",
+    "country": "Global",
+    "website": "https://www.renew.com",
+    "careers_url": "https://www.renew.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "CATL",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.catl.com",
+    "careers_url": "https://www.catl.com/en/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "BYD",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.bydglobal.com",
+    "careers_url": "https://www.bydglobal.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "LG Energy Solution",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.lgensol.com",
+    "careers_url": "https://www.lgensol.com/kr/career/career-recruit",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Panasonic",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://holdings.panasonic",
+    "careers_url": "https://holdings.panasonic/global/corporate/careers.html",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Samsung SDI",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.samsungsdi.com",
+    "careers_url": "https://www.samsungsdi.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "SK On",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.sk-on.com",
+    "careers_url": "https://www.sk-on.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Exide Industries",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.exideindustries.com",
+    "careers_url": "https://www.exideindustries.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Amara Raja Energy & Mobility",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.amararajaeandm.com",
+    "careers_url": "https://www.amararajaeandm.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Eastman Auto & Power",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.eaplworld.com",
+    "careers_url": "https://www.eaplworld.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Eveready Industries",
+    "industry": "Batteries",
+    "country": "Global",
+    "website": "https://www.evereadyindia.com",
+    "careers_url": "https://www.evereadyindia.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Waaree Energies",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://waaree.com",
+    "careers_url": "https://waaree.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Tata Power Solar",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://www.tatapowersolar.com",
+    "careers_url": "https://www.tatapowersolar.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Adani Solar",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://www.adanisolar.com",
+    "careers_url": "https://www.adanisolar.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Vikram Solar",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://www.vikramsolar.com",
+    "careers_url": "https://www.vikramsolar.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Loom Solar",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://www.loomsolar.com",
+    "careers_url": "https://www.loomsolar.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Luminous",
+    "industry": "Solar",
+    "country": "Global",
+    "website": "https://www.luminousindia.com",
+    "careers_url": "https://www.luminousindia.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Hindustan Unilever",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://careers.unilever.com",
+    "careers_url": "https://careers.unilever.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Godrej Consumer Products",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://www.godrejcp.com",
+    "careers_url": "https://www.godrejcp.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Wipro Consumer Care",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://wiproconsumercare.com",
+    "careers_url": "https://wiproconsumercare.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Himalaya Wellness",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://himalayawellness.in",
+    "careers_url": "https://himalayawellness.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Anuspa Heritage",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://anuspaheritage.com",
+    "careers_url": "https://anuspaheritage.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "HCP Wellness",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://www.hcpwellness.in",
+    "careers_url": "https://www.hcpwellness.in/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Duke Soaps",
+    "industry": "Consumer Products",
+    "country": "Global",
+    "website": "https://duke-soaps.com",
+    "careers_url": "https://duke-soaps.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Vardhman Textiles",
+    "industry": "Textiles & Apparel",
+    "country": "Global",
+    "website": "https://www.vardhman.com",
+    "careers_url": "https://www.vardhman.com/Careers/LifeAtVardhman",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "DHL",
+    "industry": "Logistics",
+    "country": "Global",
+    "website": "https://careers.dhl.com",
+    "careers_url": "https://careers.dhl.com/",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Maersk",
+    "industry": "Logistics",
+    "country": "Global",
+    "website": "https://www.maersk.com",
+    "careers_url": "https://www.maersk.com/careers",
+    "source_status": "discovery_pending"
+  },
+  {
+    "name": "Delhivery",
+    "industry": "Logistics",
+    "country": "Global",
+    "website": "https://www.delhivery.com",
+    "careers_url": "https://www.delhivery.com/",
+    "source_status": "discovery_pending"
+  }
+]

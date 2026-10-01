@@ -2,26 +2,21 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        // Seed technologies, job categories, and companies first
         $this->call([
             OwnerAccountSeeder::class,
             TechnologySeeder::class,
             JobCategorySeeder::class,
             JobTitleSeeder::class,
             CompanySeeder::class,
+            RequestedEmployerInventorySeeder::class,
             OfficialCareerSourceSeeder::class,
+            RequestedCompanySourceSeeder::class,
             CyberCityCompanySeeder::class,
             CareerExplorerSeeder::class,
             CompanyCategorySeeder::class,
@@ -32,12 +27,5 @@ class DatabaseSeeder extends Seeder
             IndustrialDirectorySeeder::class,
             IndustrialRecruitmentSeeder::class,
         ]);
-
-        // Uncomment to create test users
-        // \App\Models\User::factory(10)->create();
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }

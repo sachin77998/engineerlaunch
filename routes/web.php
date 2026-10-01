@@ -127,3 +127,6 @@ Route::prefix('admin/industrial-areas')->middleware(['auth', 'admin'])->name('ad
 
 Route::get("/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"index"])->name("career-explorer");
 Route::get("/api/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"api"])->middleware("throttle:30,1")->name("career-explorer.api");
+
+Route::get('/admin/job-sources', [\App\Http\Controllers\AdminJobSourcesController::class,'index'])->middleware(['auth','admin'])->name('admin.job-sources');
+Route::post('/admin/job-sources/refresh', [\App\Http\Controllers\AdminJobSourcesController::class,'refresh'])->middleware(['auth','admin','throttle:2,1,job-source-refresh:'])->name('admin.job-sources.refresh');

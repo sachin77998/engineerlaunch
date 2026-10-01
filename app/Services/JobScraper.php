@@ -14,11 +14,14 @@ use Illuminate\Support\Str;
 
 class JobScraper
 {
+    use RequestedCareerFeeds;
     protected Client $httpClient;
     protected string $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
     protected $technologies;
     protected $categories;
     protected bool $completeFeed = true;
+    protected bool $allowRetirement = true;
+    protected bool $continueFeed = false;
     protected ?IndustrialJobSourceService $industrialImporter = null;
 
     public function __construct()
@@ -30,19 +33,21 @@ class JobScraper
             'timeout' => 30,
             'connect_timeout' => 10,
             'http_errors' => true,
+            'cookies' => true,
             'verify' => config('industrial_sources.ca_bundle', true),
         ]);
     }
 
-    /**
-     * Scrape jobs for a specific company
-     */
     public function scrapeCompany(Company $company): array
     {
         $this->completeFeed = true;
+        $this->allowRetirement = true;
+        $this->continueFeed = false;
+
         $results = [
             'success' => false,
             'company' => $company->name,
+            'provider' => $company->ats_provider,
             'jobs_found' => 0,
             'jobs_added' => 0,
             'jobs_updated' => 0,
@@ -51,61 +56,242 @@ class JobScraper
         ];
 
         try {
-            // Each company requires its own scraper logic
-            // This is a template - implement company-specific logic
-            $jobs = $this->scrapeCompanyJobs($company);
-            if ($jobs === []) {
-                throw new \RuntimeException('The feed returned no recognizable jobs; existing listings were preserved.');
+            /*
+         * Automatically determine the recruitment source when the
+         * company is using the generic official_discovery provider.
+         *
+         * Explicitly configured providers are preserved.
+         */
+            if (
+                blank($company->ats_provider) ||
+                $company->ats_provider === 'official_discovery'
+            ) {
+                $source = app(CareerSourceDetector::class)->detect($company);
+
+                if ($source['provider'] !== null) {
+                    $company->forceFill([
+                        'ats_provider' => $source['provider'],
+                        'ats_identifier' => $source['identifier'],
+                        'jobs_feed_url' => $source['jobs_feed_url'],
+                        'sync_enabled' => true,
+                    ])->save();
+
+                    $company->refresh();
+                }
             }
 
+            /*
+         * If URL-only detection could not identify the provider,
+         * keep official_discovery as the safe fallback.
+         */
+            if (blank($company->ats_provider)) {
+                $company->forceFill([
+                    'ats_provider' => 'official_discovery',
+                    'sync_enabled' => true,
+                ])->save();
+
+                $company->refresh();
+            }
+
+            $results['provider'] = $company->ats_provider;
+
+            $jobs = $this->scrapeCompanyJobs($company);
+
+            if ($jobs === []) {
+                throw new \RuntimeException(
+                    'The feed returned no recognizable jobs; existing listings were preserved.'
+                );
+            }
+
+            $currentUrls = [];
             foreach ($jobs as $jobData) {
+                if (!empty($jobData['external_url'])) $currentUrls[] = $jobData['external_url'];
                 try {
-                    $job = $this->createOrUpdateJob($company, $jobData);
+                    $job = $this->createOrUpdateJob(
+                        $company,
+                        $jobData
+                    );
+
                     if ($job->wasRecentlyCreated) {
                         $results['jobs_added']++;
                     } else {
                         $results['jobs_updated']++;
                     }
+
                     $results['jobs_found']++;
-                } catch (\Exception $e) {
-                    $results['errors'][] = "Error processing job: " . $e->getMessage();
+                } catch (\Throwable $e) {
+                    $this->completeFeed = false;
+                    $results['errors'][] =
+                        $company->name
+                        . ': '
+                        . $e->getMessage();
+
+                    Log::warning(
+                        'Job import failed',
+                        [
+                            'company' => $company->name,
+                            'provider' => $company->ats_provider,
+                            'url' => $jobData['external_url'] ?? null,
+                            'error' => $e->getMessage(),
+                        ]
+                    );
                 }
             }
 
-            // Never retire an entire company's catalogue because an upstream
-            // page temporarily returned an empty response or changed markup.
-            if ($this->completeFeed && $company->sync_enabled && count($jobs) > 0 && $results['errors'] === []) {
-                $currentUrls = collect($jobs)->pluck('external_url')->filter()->all();
-                $retired = $company->jobs()->whereNotNull('external_url')->where(fn ($q) => $q->whereNull('source')->orWhere('source', '!=', 'employer'))->whereNotIn('external_url', $currentUrls ?: ['']);
-                $retired->chunkById(200, function ($oldJobs) {
-                    foreach ($oldJobs as $oldJob) {
-                        $oldJob->update(['is_active' => false]);
-                        ($this->industrialImporter ??= app(IndustrialJobSourceService::class))->ingest($oldJob);
+            if (!$currentUrls) throw new \RuntimeException('No recognizable vacancies; existing jobs retained.');
+
+            /*
+         * Never retire existing jobs when the source response is
+         * incomplete or partially failed.
+         */
+            if (
+                $this->completeFeed && $this->allowRetirement && !$this->continueFeed &&
+                $company->sync_enabled &&
+                count($currentUrls) > 0 &&
+                $results['errors'] === []
+            ) {
+                $retired = $company
+                    ->jobs()
+                    ->whereNotNull('external_url')
+                    ->where(function ($query) {
+                        $query
+                            ->whereNull('source')
+                            ->orWhere(
+                                'source',
+                                '!=',
+                                'employer'
+                            );
+                    })
+                    ->whereNotIn(
+                        'external_url',
+                        $currentUrls ?: ['']
+                    );
+
+                $retired->chunkById(
+                    200,
+                    function ($chunk) {
+                        foreach ($chunk as $job) {
+                            $job->forceFill([
+                                'is_active' => false,
+                            ])->save();
+                            ($this->industrialImporter ??= app(IndustrialJobSourceService::class))->ingest($job);
+                        }
                     }
-                });
-                $company->forceFill(['last_synced_at' => now()])->save();
+                );
+
+                $company->forceFill([
+                    'last_synced_at' => now(),
+                ])->save();
             }
 
-            if (!$this->completeFeed) $results['errors'][] = 'Feed incomplete; previous listings were retained.';
-            $results['success'] = $results['errors'] === [];
+            if (! $this->completeFeed) {
+                $results['errors'][] =
+                    'Feed incomplete; previous listings were retained.';
+            }
+
+            $results['continuation'] = $this->continueFeed;
+            if (!$this->continueFeed && $this->completeFeed && $results['errors'] === [] && $currentUrls) {
+                $company->forceFill(['last_synced_at'=>now()])->save();
+            }
+            $results['success'] =
+                $results['errors'] === [];
+
             DiscoveryCache::invalidate();
-        } catch (\Exception $e) {
-            $results['errors'][] = "Scraping failed: " . $e->getMessage();
+        } catch (\Throwable $e) {
             $results['exception'] = $e;
+
+            $results['errors'][] = $e->getMessage();
+
+            Log::error(
+                'Company job discovery failed',
+                [
+                    'company' => $company->name,
+                    'provider' => $company->ats_provider,
+                    'careers_url' => $company->careers_url,
+                    'error' => $e->getMessage(),
+                ]
+            );
         }
 
         return $results;
     }
+    // public function scrapeCompany(Company $company): array
+    // {
+    //     $this->completeFeed = true;
+    //     $results = [
+    //         'success' => false,
+    //         'company' => $company->name,
+    //         'jobs_found' => 0,
+    //         'jobs_added' => 0,
+    //         'jobs_updated' => 0,
+    //         'errors' => [],
+    //         'exception' => null,
+    //     ];
+    //
+    //     try {
+    //         // Each company requires its own scraper logic
+    //         // This is a template - implement company-specific logic
+    //         $jobs = $this->scrapeCompanyJobs($company);
+    //         if ($jobs === []) {
+    //             throw new \RuntimeException('The feed returned no recognizable jobs; existing listings were preserved.');
+    //         }
 
-    /**
-     * Scrape jobs from company careers page (override in child classes)
-     */
-    protected function scrapeCompanyJobs(Company $company): array
+    //         foreach ($jobs as $jobData) {
+    // //             try {
+    // //                 $job = $this->createOrUpdateJob($company, $jobData);
+    //                 if ($job->wasRecentlyCreated) {
+    //                     $results['jobs_added']++;
+    //                 } else {
+    //                     $results['jobs_updated']++;
+    //                 }
+    //                 $results['jobs_found']++;
+    //             } catch (\Exception $e) {
+    //                 $results['errors'][] = "Error processing job: " . $e->getMessage();
+    // //             }
+    //         }
+
+    //         // Never retire an entire company's catalogue because an upstream
+    //         // page temporarily returned an empty response or changed markup.
+    //         if ($this->completeFeed && $company->sync_enabled && count($jobs) > 0 && $results['errors'] === []) {
+    //             $currentUrls = collect($jobs)->pluck('external_url')->filter()->all();
+    //             $retired = $company->jobs()->whereNotNull('external_url')->where(fn ($q) => $q->whereNull('source')->orWhere('source', '!=', 'employer'))->whereNotIn('external_url', $currentUrls ?: ['']);
+    //             $retired->chunkById(200, function ($oldJobs) {
+    //                 foreach ($oldJobs as $oldJob) {
+    // //                     $oldJob->update(['is_active' => false]);
+    //                     ($this->industrialImporter ??= app(IndustrialJobSourceService::class))->ingest($oldJob);
+    //                 }
+    //             });
+    //             $company->forceFill(['last_synced_at' => now()])->save();
+    // //         }
+
+    //         if (!$this->completeFeed) $results['errors'][] = 'Feed incomplete; previous listings were retained.';
+    //         $results['success'] = $results['errors'] === [];
+    //         DiscoveryCache::invalidate();
+    //     } catch (\Exception $e) {
+    //         $results['errors'][] = "Scraping failed: " . $e->getMessage();
+    //         $results['exception'] = $e;
+    //     }
+
+    //     return $results;
+    // }
+    protected function scrapeCompanyJobs(Company $company): iterable
     {
         return match ($company->ats_provider) {
+            'official_discovery' => $this->scrapeOfficialDiscovery($company),
+            'bebo' => $this->scrapeBebo($company),
+            'infosys_algolia' => $this->scrapeInfosys($company),
+            'oracle_recruiting' => $this->scrapeOracleRecruiting($company),
             'happy_forgings' => $this->scrapeHappyForgings($company),
-            'sonalika' => app(IndustrialCareerParser::class)->sonalika($this->getContent($company->careers_url)),
-            'structured_industrial' => app(IndustrialCareerParser::class)->structured($this->getContent($company->careers_url), $company->careers_url),
+
+            'sonalika' => app(IndustrialCareerParser::class)->sonalika(
+                $this->getContent($company->careers_url)
+            ),
+
+            'structured_industrial' => app(IndustrialCareerParser::class)->structured(
+                $this->getContent($company->careers_url),
+                $company->careers_url
+            ),
+
             'greenhouse' => $this->scrapeGreenhouse($company),
             'lever' => $this->scrapeLever($company),
             'successfactors' => $this->scrapeSuccessFactors($company),
@@ -113,7 +299,16 @@ class JobScraper
             'smartrecruiters' => $this->scrapeSmartRecruiters($company),
             'amazon' => $this->scrapeAmazon($company),
             'icims_jibe' => $this->scrapeIcimsJibe($company),
-            default => throw new \RuntimeException('No supported ATS feed is configured.'),
+
+            /*
+         * Used for requested employers where a dedicated ATS adapter
+         * has not yet been configured.
+         */
+
+
+            default => throw new \RuntimeException(
+                'No supported ATS feed is configured.'
+            ),
         };
     }
 
@@ -126,15 +321,21 @@ class JobScraper
             $text = html_entity_decode(strip_tags(preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/is', '', $html)));
             $text = trim(preg_replace('/\s+/u', ' ', $text));
             $start = stripos($text, 'Job Description:');
-            if ($start === false) throw new \RuntimeException('Unrecognized vacancy details at '.$url);
+            if ($start === false) throw new \RuntimeException('Unrecognized vacancy details at ' . $url);
             $text = substr($text, $start);
             $end = stripos($text, 'Apply Now');
             if ($end !== false) $text = substr($text, 0, $end);
             preg_match('/(\d+)\s*[-\x{2013}]\s*(\d+)\s*years? of experience/iu', $text, $experience);
-            $jobs[] = ['title'=>$title,'external_url'=>$url,'location'=>'Not specified','country'=>'India',
-                'description'=>Str::limit($text, 900).' See the official listing for full requirements and confirm the work location.',
-                'experience_min'=>$experience[1] ?? null,'experience_max'=>$experience[2] ?? null,
-                'posting_source'=>'official_company'];
+            $jobs[] = [
+                'title' => $title,
+                'external_url' => $url,
+                'location' => 'Not specified',
+                'country' => 'India',
+                'description' => Str::limit($text, 900) . ' See the official listing for full requirements and confirm the work location.',
+                'experience_min' => $experience[1] ?? null,
+                'experience_max' => $experience[2] ?? null,
+                'posting_source' => 'official_company'
+            ];
         }
         return $jobs;
     }
@@ -145,7 +346,7 @@ class JobScraper
         if (!$endpoint) throw new \RuntimeException('An iCIMS/Jibe jobs endpoint is required.');
         $separator = str_contains($endpoint, '?') ? '&' : '?';
         $limit = 100;
-        $makeUrl = fn (int $page) => $endpoint.$separator.http_build_query(['limit' => $limit, 'page' => $page]);
+        $makeUrl = fn(int $page) => $endpoint . $separator . http_build_query(['limit' => $limit, 'page' => $page]);
         $first = json_decode($this->getContent($makeUrl(1)), true, 512, JSON_THROW_ON_ERROR);
         $total = min((int) ($first['totalCount'] ?? count($first['jobs'] ?? [])), 10000);
         $pages = [1 => $first['jobs'] ?? []];
@@ -153,7 +354,8 @@ class JobScraper
         $requests = function () use ($makeUrl, $pageCount) {
             for ($page = 2; $page <= $pageCount; $page++) {
                 yield $page => new Request('GET', $makeUrl($page), [
-                    'Accept' => 'application/json', 'User-Agent' => $this->userAgent,
+                    'Accept' => 'application/json',
+                    'User-Agent' => $this->userAgent,
                 ]);
             }
         };
@@ -163,7 +365,7 @@ class JobScraper
                 $payload = json_decode((string) $response->getBody(), true);
                 $pages[$page] = $payload['jobs'] ?? [];
             },
-            'rejected' => fn ($reason, int $page) => Log::warning("iCIMS/Jibe page failed at page {$page}: {$reason}"),
+            'rejected' => fn($reason, int $page) => Log::warning("iCIMS/Jibe page failed at page {$page}: {$reason}"),
         ]);
         $pool->promise()->wait();
         ksort($pages);
@@ -173,16 +375,19 @@ class JobScraper
             $data = $item['data'] ?? $item;
             $externalUrl = $data['apply_url'] ?? null;
             if (!$externalUrl && !empty($data['slug'])) {
-                $externalUrl = rtrim($company->careers_url, '/').'/jobs/'.$data['slug'];
+                $externalUrl = rtrim($company->careers_url, '/') . '/jobs/' . $data['slug'];
             }
             $location = $data['full_location'] ?? $data['location_name'] ?? implode(', ', array_filter([
-                $data['city'] ?? null, $data['state'] ?? null, $data['country'] ?? null,
+                $data['city'] ?? null,
+                $data['state'] ?? null,
+                $data['country'] ?? null,
             ]));
 
             return $this->normalizeJob($company, [
                 'title' => $data['title'] ?? 'Untitled',
                 'description' => strip_tags(implode(' ', array_filter([
-                    $data['description'] ?? null, $data['responsibilities'] ?? null,
+                    $data['description'] ?? null,
+                    $data['responsibilities'] ?? null,
                     $data['qualifications'] ?? null,
                 ]))),
                 'location' => $location ?: 'Not specified',
@@ -191,7 +396,7 @@ class JobScraper
                 'posted_at' => $data['posted_date'] ?? $data['create_date'] ?? now(),
                 'posting_source' => 'official_company',
             ]);
-        })->filter(fn ($job) => !empty($job['external_url']))->values()->all();
+        })->filter(fn($job) => !empty($job['external_url']))->values()->all();
     }
 
     /**
@@ -205,18 +410,19 @@ class JobScraper
         $jobs = [];
         $limit = 100;
 
-        $makeUrl = fn (int $offset) => $endpoint.'?'.http_build_query([
-                'offset' => $offset,
-                'result_limit' => $limit,
-                'sort' => 'recent',
-            ]);
+        $makeUrl = fn(int $offset) => $endpoint . '?' . http_build_query([
+            'offset' => $offset,
+            'result_limit' => $limit,
+            'sort' => 'recent',
+        ]);
         $first = json_decode($this->getContent($makeUrl(0)), true, 512, JSON_THROW_ON_ERROR);
         $total = min((int) ($first['hits'] ?? 0), 10000);
         $pages = [0 => $first['jobs'] ?? []];
         $requests = function () use ($makeUrl, $limit, $total) {
             for ($offset = $limit; $offset < $total; $offset += $limit) {
                 yield $offset => new Request('GET', $makeUrl($offset), [
-                    'Accept' => 'application/json', 'User-Agent' => $this->userAgent,
+                    'Accept' => 'application/json',
+                    'User-Agent' => $this->userAgent,
                 ]);
             }
         };
@@ -226,32 +432,32 @@ class JobScraper
                 $payload = json_decode((string) $response->getBody(), true);
                 $pages[$offset] = $payload['jobs'] ?? [];
             },
-            'rejected' => fn ($reason, int $offset) => Log::warning("Amazon jobs page failed at offset {$offset}: {$reason}"),
+            'rejected' => fn($reason, int $offset) => Log::warning("Amazon jobs page failed at offset {$offset}: {$reason}"),
         ]);
         $pool->promise()->wait();
         ksort($pages);
 
         foreach (array_merge(...array_values($pages)) as $item) {
 
-                $path = $item['job_path'] ?? null;
-                if (!$path) continue;
-                $externalUrl = 'https://www.amazon.jobs'.($path[0] === '/' ? $path : '/'.$path);
-                $description = implode(' ', array_filter([
-                    $item['description_short'] ?? null,
-                    $item['description'] ?? null,
-                    $item['basic_qualifications'] ?? null,
-                    $item['preferred_qualifications'] ?? null,
-                ]));
+            $path = $item['job_path'] ?? null;
+            if (!$path) continue;
+            $externalUrl = 'https://www.amazon.jobs' . ($path[0] === '/' ? $path : '/' . $path);
+            $description = implode(' ', array_filter([
+                $item['description_short'] ?? null,
+                $item['description'] ?? null,
+                $item['basic_qualifications'] ?? null,
+                $item['preferred_qualifications'] ?? null,
+            ]));
 
-                $jobs[$externalUrl] = $this->normalizeJob($company, [
-                    'title' => $item['title'] ?? 'Untitled',
-                    'description' => strip_tags($description),
-                    'location' => $item['location'] ?? 'Not specified',
-                    'job_type' => $item['job_schedule_type'] ?? 'Full-time',
-                    'external_url' => $externalUrl,
-                    'posted_at' => $item['posted_date'] ?? now(),
-                    'posting_source' => 'official_company',
-                ]);
+            $jobs[$externalUrl] = $this->normalizeJob($company, [
+                'title' => $item['title'] ?? 'Untitled',
+                'description' => strip_tags($description),
+                'location' => $item['location'] ?? 'Not specified',
+                'job_type' => $item['job_schedule_type'] ?? 'Full-time',
+                'external_url' => $externalUrl,
+                'posted_at' => $item['posted_date'] ?? now(),
+                'posting_source' => 'official_company',
+            ]);
         }
 
         return array_values($jobs);
@@ -264,14 +470,14 @@ class JobScraper
         $endpoint = $company->jobs_feed_url ?: "https://api.smartrecruiters.com/v1/companies/{$identifier}/postings";
         $jobs = [];
         for ($offset = 0; $offset < 10000; $offset += 100) {
-            $payload = json_decode($this->getContent($endpoint.'?'.http_build_query(['limit' => 100, 'offset' => $offset])), true, 512, JSON_THROW_ON_ERROR);
+            $payload = json_decode($this->getContent($endpoint . '?' . http_build_query(['limit' => 100, 'offset' => $offset])), true, 512, JSON_THROW_ON_ERROR);
             $items = $payload['content'] ?? [];
             $urls = [];
-            foreach ($items as $item) if (!empty($item['id'])) $urls[$item['id']] = $endpoint.'/'.rawurlencode($item['id']);
+            foreach ($items as $item) if (!empty($item['id'])) $urls[$item['id']] = $endpoint . '/' . rawurlencode($item['id']);
             $details = $this->fetchJobDetails($urls);
             foreach ($items as $item) {
                 $place = $item['location'] ?? [];
-                $externalUrl = "https://jobs.smartrecruiters.com/{$identifier}/".($item['id'] ?? '');
+                $externalUrl = "https://jobs.smartrecruiters.com/{$identifier}/" . ($item['id'] ?? '');
                 $jobs[$externalUrl] = $this->normalizeJob($company, [
                     'title' => $item['name'] ?? 'Untitled',
                     'description' => strip_tags(html_entity_decode(implode(' ', array_column($details[$item['id']]['jobAd']['sections'] ?? [], 'text')))),
@@ -295,7 +501,7 @@ class JobScraper
         $endpoint = $company->jobs_feed_url;
         if (!$endpoint) throw new \RuntimeException('A Workday jobs endpoint is required.');
 
-        $makeBody = fn (int $offset) => json_encode([
+        $makeBody = fn(int $offset) => json_encode([
             'appliedFacets' => (object) [],
             'limit' => 20,
             'offset' => $offset,
@@ -335,20 +541,20 @@ class JobScraper
         $path = $urlParts['path'] ?? '';
         preg_match('~/wday/cxs/[^/]+/([^/]+)/jobs~', $path, $matches);
         $site = $matches[1] ?? '';
-        $baseUrl = ($urlParts['scheme'] ?? 'https').'://'.($urlParts['host'] ?? '').'/'.$site;
+        $baseUrl = ($urlParts['scheme'] ?? 'https') . '://' . ($urlParts['host'] ?? '') . '/' . $site;
         $jobs = [];
 
         $items = array_merge(...array_values($pages));
         $detailUrls = [];
         foreach ($items as $item) {
-            if (!empty($item['externalPath'])) $detailUrls[$item['externalPath']] = preg_replace('~/jobs$~', '', $endpoint).'/'.ltrim($item['externalPath'], '/');
+            if (!empty($item['externalPath'])) $detailUrls[$item['externalPath']] = preg_replace('~/jobs$~', '', $endpoint) . '/' . ltrim($item['externalPath'], '/');
         }
         $details = $this->fetchJobDetails($detailUrls);
         foreach ($items as $item) {
             $externalPath = $item['externalPath'] ?? null;
             if (!$externalPath) continue;
             $location = $item['locationsText'] ?? collect($item['bulletFields'] ?? [])->last() ?? 'Not specified';
-            $externalUrl = rtrim($baseUrl, '/').'/'.ltrim($externalPath, '/');
+            $externalUrl = rtrim($baseUrl, '/') . '/' . ltrim($externalPath, '/');
             $jobs[$externalUrl] = $this->normalizeJob($company, [
                 'title' => $item['title'] ?? 'Untitled',
                 'description' => html_entity_decode(strip_tags($details[$externalPath]['jobPostingInfo']['jobDescription'] ?? implode(' ', $item['bulletFields'] ?? []))),
@@ -373,7 +579,10 @@ class JobScraper
             'concurrency' => 3,
             'fulfilled' => function ($response, $key) use (&$details) {
                 $payload = json_decode((string) $response->getBody(), true);
-                if (!is_array($payload) || (empty($payload['jobPostingInfo']['jobDescription']) && empty($payload['jobAd']['sections']))) { $this->completeFeed = false; return; }
+                if (!is_array($payload) || (empty($payload['jobPostingInfo']['jobDescription']) && empty($payload['jobAd']['sections']))) {
+                    $this->completeFeed = false;
+                    return;
+                }
                 $details[$key] = $payload;
             },
             'rejected' => function ($reason, $key) {
@@ -392,7 +601,7 @@ class JobScraper
         return now();
     }
 
-    protected function scrapeSuccessFactors(Company $company): array
+    protected function scrapeSuccessFactors(Company $company): iterable
     {
         $baseUrl = rtrim($company->jobs_feed_url ?: $company->careers_url, '/');
         $jobs = [];
@@ -401,45 +610,52 @@ class JobScraper
         // A hard ceiling prevents a broken pagination response looping forever.
         for ($start = 0; $start < 10000;) {
             $separator = str_contains($baseUrl, '?') ? '&' : '?';
-            $url = $baseUrl.$separator.'startrow='.$start;
+            $url = $baseUrl . $separator . 'startrow=' . $start;
             $document = new \DOMDocument();
-            @$document->loadHTML($this->getContent($url), LIBXML_NOERROR | LIBXML_NOWARNING);
+            $html = $this->getContent($url);
+            if ($start === 0 && str_contains($html, 'xweb/rmk-jobs-search')) {
+                return $this->scrapeSuccessFactorsWidget($company, $html, 'https://'.parse_url($url, PHP_URL_HOST));
+            }
+            @$document->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
             $xpath = new \DOMXPath($document);
             $pageJobs = [];
 
             $links = $xpath->query('//a[contains(concat(" ", normalize-space(@class), " "), " jobTitle-link ") or @data-careersite-propertyid="title" or contains(@href, "/job/")]');
             foreach ($links as $link) {
-                    $title = trim($link->textContent);
-                    $href = trim((string) $link->getAttribute('href'));
-                    if ($title === '' || $href === '') continue;
+                $title = trim($link->textContent);
+                $href = trim((string) $link->getAttribute('href'));
+                if ($title === '' || $href === '') continue;
 
-                    $row = $link;
-                    while ($row && strtolower($row->nodeName) !== 'tr') $row = $row->parentNode;
-                    $rowText = trim(preg_replace('/\s+/', ' ', $row?->textContent ?? ''));
-                    $location = 'Not specified';
-                    if ($row) {
-                        $locationNodes = $xpath->query('.//*[contains(concat(" ", normalize-space(@class), " "), " jobLocation ") or @data-careersite-propertyid="location"]', $row);
-                        if ($locationNodes->length) $location = trim($locationNodes->item(0)->textContent);
-                    }
+                $row = $link;
+                while ($row && strtolower($row->nodeName) !== 'tr') $row = $row->parentNode;
+                $rowText = trim(preg_replace('/\s+/', ' ', $row?->textContent ?? ''));
+                $location = 'Not specified';
+                if ($row) {
+                    $locationNodes = $xpath->query('.//*[contains(concat(" ", normalize-space(@class), " "), " jobLocation ") or @data-careersite-propertyid="location"]', $row);
+                    if ($locationNodes->length) $location = trim($locationNodes->item(0)->textContent);
+                }
 
-                    $postedAt = null;
-                    if ($row) {
-                        $dates = $xpath->query('.//*[@data-careersite-propertyid="date" or contains(concat(" ", normalize-space(@class), " "), " jobDate ")]', $row);
-                        if ($dates->length) {
-                            try { $postedAt = Carbon::parse(trim($dates->item(0)->textContent)); } catch (\Throwable $e) {}
+                $postedAt = null;
+                if ($row) {
+                    $dates = $xpath->query('.//*[@data-careersite-propertyid="date" or contains(concat(" ", normalize-space(@class), " "), " jobDate ")]', $row);
+                    if ($dates->length) {
+                        try {
+                            $postedAt = Carbon::parse(trim($dates->item(0)->textContent));
+                        } catch (\Throwable $e) {
                         }
                     }
-                    $absoluteUrl = str_starts_with($href, 'http')
-                        ? $href
-                        : rtrim((string) parse_url($url, PHP_URL_SCHEME).'://'.parse_url($url, PHP_URL_HOST), '/').'/'.ltrim($href, '/');
+                }
+                $absoluteUrl = str_starts_with($href, 'http')
+                    ? $href
+                    : rtrim((string) parse_url($url, PHP_URL_SCHEME) . '://' . parse_url($url, PHP_URL_HOST), '/') . '/' . ltrim($href, '/');
 
-                    $pageJobs[$absoluteUrl] = $this->normalizeJob($company, [
-                        'title' => $title,
-                        'description' => $rowText,
-                        'location' => $location,
-                        'external_url' => $absoluteUrl,
-                        'posted_at' => $postedAt,
-                    ]);
+                $pageJobs[$absoluteUrl] = $this->normalizeJob($company, [
+                    'title' => $title,
+                    'description' => $rowText,
+                    'location' => $location,
+                    'external_url' => $absoluteUrl,
+                    'posted_at' => $postedAt,
+                ]);
             }
 
             if ($pageJobs === []) break;
@@ -449,7 +665,8 @@ class JobScraper
             $start += count($pageJobs);
         }
 
-        return array_values($jobs);
+        if ($start >= 10000) $this->completeFeed = false;
+        return $this->withHtmlDescriptions($company, $jobs, '//*[@itemprop="description" or @data-careersite-propertyid="description" or contains(concat(" ",normalize-space(@class)," ")," jobdescription ")]');
     }
 
     protected function scrapeGreenhouse(Company $company): array
@@ -461,11 +678,13 @@ class JobScraper
             $location = $item['location']['name'] ?? 'Not specified';
             $description = strip_tags(html_entity_decode($item['content'] ?? ''));
             return $this->normalizeJob($company, [
-                'title' => $item['title'] ?? 'Untitled', 'description' => $description,
-                'location' => $location, 'external_url' => $item['absolute_url'] ?? null,
+                'title' => $item['title'] ?? 'Untitled',
+                'description' => $description,
+                'location' => $location,
+                'external_url' => $item['absolute_url'] ?? null,
                 'posted_at' => $item['updated_at'] ?? now(),
             ]);
-        })->filter(fn ($job) => $job['external_url'])->values()->all();
+        })->filter(fn($job) => $job['external_url'])->values()->all();
     }
 
     protected function scrapeLever(Company $company): array
@@ -477,30 +696,457 @@ class JobScraper
             $categories = $item['categories'] ?? [];
             return $this->normalizeJob($company, [
                 'title' => $item['text'] ?? 'Untitled',
-                'description' => html_entity_decode(strip_tags(($item['descriptionPlain'] ?? $item['description'] ?? '').' '.($item['additionalPlain'] ?? '').' '.implode(' ', array_column($item['lists'] ?? [], 'content')))),
+                'description' => html_entity_decode(strip_tags(($item['descriptionPlain'] ?? $item['description'] ?? '') . ' ' . ($item['additionalPlain'] ?? '') . ' ' . implode(' ', array_column($item['lists'] ?? [], 'content')))),
                 'location' => $categories['location'] ?? 'Not specified',
                 'job_type' => $categories['commitment'] ?? 'Full-time',
                 'external_url' => $item['hostedUrl'] ?? $item['applyUrl'] ?? null,
                 'posted_at' => isset($item['createdAt']) ? Carbon::createFromTimestampMs($item['createdAt']) : now(),
             ]);
-        })->filter(fn ($job) => $job['external_url'])->values()->all();
+        })->filter(fn($job) => $job['external_url'])->values()->all();
+    }
+    /**
+     * Discover vacancies directly from the employer's official career website.
+     *
+     * Rules:
+     * - Only the configured employer domain is crawled.
+     * - JobPosting JSON-LD is treated as the primary source.
+     * - No fake job is generated.
+     * - A listing must contain a title and description before import.
+     * - Existing ATS-specific adapters are never replaced by this fallback.
+     */
+    protected function scrapeOfficialDiscovery(Company $company): array
+    {
+        return $this->scrapeBoundedOfficialDiscovery($company);
     }
 
+    protected function extractOfficialJobPostings(
+        string $html,
+        string $pageUrl
+    ): array {
+        $document = new \DOMDocument();
+
+        @$document->loadHTML(
+            $html,
+            LIBXML_NOERROR | LIBXML_NOWARNING
+        );
+
+        $xpath = new \DOMXPath($document);
+
+        $scripts = $xpath->query(
+            '//script[contains(
+            translate(
+                @type,
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                "abcdefghijklmnopqrstuvwxyz"
+            ),
+            "ld+json"
+        )]'
+        );
+
+        $jobs = [];
+
+        foreach ($scripts as $script) {
+            $json = trim((string) $script->textContent);
+
+            if ($json === '') {
+                continue;
+            }
+
+            $json = preg_replace(
+                '/^\xEF\xBB\xBF/',
+                '',
+                $json
+            );
+
+            try {
+                $payload = json_decode(
+                    $json,
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+            } catch (\Throwable) {
+                continue;
+            }
+
+            foreach (
+                $this->flattenOfficialJsonLd($payload)
+                as $item
+            ) {
+                $types = $item['@type'] ?? [];
+
+                $types = is_array($types)
+                    ? $types
+                    : [$types];
+
+                $isJobPosting = false;
+
+                foreach ($types as $type) {
+                    if (
+                        strtolower((string) $type)
+                        === 'jobposting'
+                    ) {
+                        $isJobPosting = true;
+                        break;
+                    }
+                }
+
+                if (!$isJobPosting) {
+                    continue;
+                }
+
+                $externalUrl = $this->resolveOfficialUrl(
+                    $pageUrl,
+                    (string) (
+                        $item['url'] ?? $pageUrl
+                    )
+                );
+
+                if (!$externalUrl) {
+                    continue;
+                }
+
+                $description = trim(
+                    html_entity_decode(
+                        strip_tags(
+                            (string) (
+                                $item['description'] ?? ''
+                            )
+                        ),
+                        ENT_QUOTES | ENT_HTML5,
+                        'UTF-8'
+                    )
+                );
+
+                $jobs[$externalUrl] = [
+                    'external_url' => $externalUrl,
+
+                    'title' => trim(
+                        (string) (
+                            $item['title'] ?? ''
+                        )
+                    ),
+
+                    'description' => $description,
+
+                    'date_posted' =>
+                    $item['datePosted'] ?? null,
+
+                    'valid_through' =>
+                    $item['validThrough'] ?? null,
+
+                    'location' =>
+                    $this->extractJobPostingLocation(
+                        $item['jobLocation'] ?? null
+                    ),
+
+                    'job_type' => is_array(
+                        $item['employmentType'] ?? null
+                    )
+                        ? implode(
+                            ', ',
+                            $item['employmentType']
+                        )
+                        : (
+                            $item['employmentType']
+                            ?? 'Full-time'
+                        ),
+
+                    'work_mode' =>
+                    $this->extractJobPostingWorkMode(
+                        $item
+                    ),
+
+                    'source_payload' => $item,
+                ];
+            }
+        }
+
+        return array_values($jobs);
+    }
+
+    protected function flattenOfficialJsonLd(
+        mixed $payload
+    ): array {
+        if (!is_array($payload)) {
+            return [];
+        }
+
+        $items = [];
+
+        if (array_is_list($payload)) {
+            foreach ($payload as $item) {
+                $items = array_merge(
+                    $items,
+                    $this->flattenOfficialJsonLd($item)
+                );
+            }
+
+            return $items;
+        }
+
+        if (
+            isset($payload['@graph']) &&
+            is_array($payload['@graph'])
+        ) {
+            $items = array_merge(
+                $items,
+                $this->flattenOfficialJsonLd(
+                    $payload['@graph']
+                )
+            );
+        }
+
+        if (isset($payload['@type'])) {
+            $items[] = $payload;
+        }
+
+        return $items;
+    }
+
+    protected function extractJobPostingLocation(
+        mixed $location
+    ): string {
+        if (
+            is_array($location) &&
+            array_is_list($location)
+        ) {
+            return collect($location)
+                ->map(
+                    fn($item) =>
+                    $this->extractJobPostingLocation($item)
+                )
+                ->filter()
+                ->unique()
+                ->implode(' | ')
+                ?: 'Not specified';
+        }
+
+        if (!is_array($location)) {
+            return trim((string) $location)
+                ?: 'Not specified';
+        }
+
+        $address = $location['address']
+            ?? $location;
+
+        if (is_string($address)) {
+            return trim($address)
+                ?: 'Not specified';
+        }
+
+        return collect([
+            $address['streetAddress'] ?? null,
+            $address['addressLocality'] ?? null,
+            $address['addressRegion'] ?? null,
+            $address['postalCode'] ?? null,
+            $address['addressCountry'] ?? null,
+        ])
+            ->filter()
+            ->implode(', ')
+            ?: 'Not specified';
+    }
+
+    protected function extractJobPostingWorkMode(
+        array $job
+    ): ?string {
+        $text = strtolower(
+            json_encode(
+                [
+                    $job['jobLocationType'] ?? null,
+                    $job['description'] ?? null,
+                ],
+                JSON_UNESCAPED_SLASHES
+            )
+        );
+
+        if (
+            str_contains($text, 'telecommute') ||
+            str_contains($text, 'remote')
+        ) {
+            return 'remote';
+        }
+
+        if (str_contains($text, 'hybrid')) {
+            return 'hybrid';
+        }
+
+        return null;
+    }
+
+    protected function looksLikeJobUrl(
+        string $url
+    ): bool {
+        $path = strtolower(
+            (string) parse_url(
+                $url,
+                PHP_URL_PATH
+            )
+        );
+
+        return (bool) preg_match(
+            '~/(?:job|jobs|career|careers|vacanc(?:y|ies)|opening(?:s)?|position(?:s)?|opportunit(?:y|ies)|requisition(?:s)?|employment|apply)(?:/|[-_?]|$)~i',
+            $path
+        );
+    }
+
+    protected function looksLikeCareerListingUrl(
+        string $url
+    ): bool {
+        $path = strtolower(
+            (string) parse_url(
+                $url,
+                PHP_URL_PATH
+            )
+        );
+
+        return (bool) preg_match(
+            '~/(?:career|careers|jobs|vacancies|openings|opportunities|positions)(?:/|$)~i',
+            $path
+        );
+    }
+
+    protected function isOfficialDiscoveryUrl(
+        string $url,
+        string $allowedHost
+    ): bool {
+        $host = strtolower(
+            (string) parse_url(
+                $url,
+                PHP_URL_HOST
+            )
+        );
+
+        if (
+            $host === '' ||
+            $allowedHost === ''
+        ) {
+            return false;
+        }
+
+        return $host === $allowedHost
+            || str_ends_with(
+                $host,
+                '.' . $allowedHost
+            )
+            || str_ends_with(
+                $allowedHost,
+                '.' . $host
+            );
+    }
+
+    protected function resolveOfficialUrl(
+        string $baseUrl,
+        string $url
+    ): ?string {
+        $url = trim(
+            html_entity_decode(
+                $url,
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            )
+        );
+
+        if ($url === '') {
+            return null;
+        }
+
+        if (
+            preg_match(
+                '~^https?://~i',
+                $url
+            )
+        ) {
+            return strtok($url, '#') ?: $url;
+        }
+
+        if (str_starts_with($url, '//')) {
+            $scheme = parse_url(
+                $baseUrl,
+                PHP_URL_SCHEME
+            ) ?: 'https';
+
+            return $scheme . ':' . (
+                strtok($url, '#') ?: $url
+            );
+        }
+
+        $base = parse_url($baseUrl);
+
+        if (
+            !$base ||
+            empty($base['host'])
+        ) {
+            return null;
+        }
+
+        $scheme = $base['scheme'] ?? 'https';
+        $host = $base['host'];
+        $port = isset($base['port'])
+            ? ':' . $base['port']
+            : '';
+
+        if (str_starts_with($url, '/')) {
+            return $scheme . '://' . $host . $port . $url;
+        }
+
+        $basePath = $base['path'] ?? '/';
+
+        $directory = rtrim(
+            str_replace(
+                '\\',
+                '/',
+                dirname($basePath)
+            ),
+            '/'
+        );
+
+        $path = (
+            $directory === '' ||
+            $directory === '.'
+        )
+            ? '/' . $url
+            : $directory . '/' . $url;
+
+        $segments = [];
+
+        foreach (
+            explode('/', $path)
+            as $segment
+        ) {
+            if (
+                $segment === '' ||
+                $segment === '.'
+            ) {
+                continue;
+            }
+
+            if ($segment === '..') {
+                array_pop($segments);
+                continue;
+            }
+
+            $segments[] = $segment;
+        }
+
+        return $scheme . '://' . $host . $port . '/'
+            . implode('/', $segments);
+    }
     protected function normalizeJob(Company $company, array $job): array
     {
         if (mb_strlen((string) ($job['location'] ?? '')) > 255) {
             $job['source_payload']['full_location'] = $job['location'];
-            $job['location'] = mb_substr($job['location'], 0, 252).'...';
+            $job['location'] = mb_substr($job['location'], 0, 252) . '...';
         }
-        $searchable = trim(($job['title'] ?? '').' '.($job['description'] ?? ''));
+        $searchable = trim(($job['title'] ?? '') . ' ' . ($job['description'] ?? ''));
         $job['country'] = $this->countryFromLocation($job['location'] ?? '', $company->country);
         $this->technologies ??= \App\Models\Technology::query()->get();
         $this->categories ??= \App\Models\JobCategory::query()->get();
         $job['technologies'] = $this->technologies->filter(
-            fn ($technology) => JobSkillVocabulary::matches($searchable, $technology->name)
+            fn($technology) => JobSkillVocabulary::matches($searchable, $technology->name)
         )->pluck('id')->all();
         $job['categories'] = $this->categories->filter(
-            fn ($category) => stripos($searchable, $category->name) !== false
+            fn($category) => stripos($searchable, $category->name) !== false
         )->pluck('id')->all();
         return $job;
     }
@@ -582,7 +1228,7 @@ class JobScraper
 
     protected function detectWorkMode(array $job): ?string
     {
-        $text = strtolower(($job['title'] ?? '').' '.($job['description'] ?? '').' '.($job['location'] ?? ''));
+        $text = strtolower(($job['title'] ?? '') . ' ' . ($job['description'] ?? '') . ' ' . ($job['location'] ?? ''));
         if (str_contains($text, 'hybrid')) return 'hybrid';
         if (preg_match('/\b(remote|work from home|wfh)\b/', $text)) return 'remote';
         if (str_contains($text, 'on-site') || str_contains($text, 'onsite')) return 'office';
@@ -627,8 +1273,7 @@ class JobScraper
             ]);
             return $response->getBody()->getContents();
         } catch (\Exception $e) {
-            throw new \Exception("Failed to fetch content from {$url}: ".$e->getMessage());
+            throw new \Exception("Failed to fetch content from {$url}: " . $e->getMessage());
         }
     }
-
 }

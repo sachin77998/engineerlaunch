@@ -19,6 +19,19 @@ class DispatchDailyJobSync extends Command
 
     public function handle(): int
     {
+        $lock=\Illuminate\Support\Facades\Cache::lock('official-job-batch-dispatch',300);
+        if (!$lock->get()) { $this->warn('An ingestion batch is being dispatched.'); return self::FAILURE; }
+        try {
+            $active=\Illuminate\Support\Facades\DB::table('job_batches')
+                ->whereNull('finished_at')->whereNull('cancelled_at')->where('pending_jobs','>',0)
+                ->whereIn('id',BatchRun::where('batch_type','official_job_ingestion')->select('queue_batch_id'))->exists();
+            if ($active) { $this->warn('An official job batch is already queued or running.'); return self::FAILURE; }
+            return $this->dispatchSources();
+        } finally { $lock->release(); }
+    }
+
+    private function dispatchSources(): int
+    {
         $companies = Company::active()->where('sync_enabled', true)->get(['id', 'name']);
         $userId = $this->option('user-id') ? (int) $this->option('user-id') : null;
         $run = BatchRun::create([
@@ -65,7 +78,7 @@ class DispatchDailyJobSync extends Command
                     BatchRun::whereKey($runId)->update(['status' => 'partially_failed', 'failure_stage' => 'queue_batch', 'failure_reason' => $exception->getMessage()]);
                 })
                 ->finally(fn (Batch $batch) => app(BatchAuditService::class)->refreshRun($runId, true))
-                ->allowFailures()->onQueue('ingestion')->dispatch();
+                ->allowFailures()->onConnection('database')->onQueue('ingestion')->dispatch();
         } catch (Throwable $exception) {
             $run->update(['status' => 'failed', 'failure_stage' => 'dispatch', 'failure_reason' => $exception->getMessage(), 'finished_at' => now()]);
             report($exception);

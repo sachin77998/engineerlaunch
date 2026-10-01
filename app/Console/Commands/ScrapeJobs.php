@@ -84,7 +84,13 @@ class ScrapeJobs extends Command
             $this->info("Scraping: {$company->name}");
 
             try {
-                $results = $scraper->scrapeCompany($company);
+                $totals=['jobs_found'=>0,'jobs_added'=>0,'jobs_updated'=>0];
+                do {
+                    $results = $scraper->scrapeCompany($company);
+                    foreach ($totals as $key=>$value) $totals[$key] += $results[$key] ?? 0;
+                    if (!empty($results['continuation'])) $this->line('Continuing '.$company->name.': '.$totals['jobs_found'].' processed');
+                } while (!empty($results['continuation']) && $results['success']);
+                $results=array_replace($results,$totals);
 
                 if ($results['success']) {
                     $this->line(

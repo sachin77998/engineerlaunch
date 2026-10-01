@@ -224,7 +224,7 @@
                                                                                                                                                                         Launch
                                                                                                                                                                     </span>
                                                                                                                                                                 </a>
-                                                                                                                                                                <nav>
+                                                                                                                                                                <nav><a href="{{ route('admin.job-sources') }}">Employer job feeds</a>
                                                                                                                                                                     <a href="{{route('home')}}">
                                                                                                                                                                         Public portal
                                                                                                                                                                     </a>
