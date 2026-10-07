@@ -4,9 +4,12 @@ namespace App\Services\News;
 
 use App\Models\NewsSource;
 
-class NewsFetcherService
+class NewsFetcherService implements \App\Contracts\NewsFetcher
 {
-    public function __construct(private RssNewsFetcher $rss, private ApiNewsFetcher $api, private OfficialNewsFetcher $official, private GovernmentNewsFetcher $government) {}
+    public function __construct(private RssNewsFetcher $rss, private ApiNewsFetcher $api, private OfficialNewsFetcher $official, private GovernmentNewsFetcher $government)
+    {
+    }
+
     public function fetch(NewsSource $source): array
     {
         return match ($source->source_type) {

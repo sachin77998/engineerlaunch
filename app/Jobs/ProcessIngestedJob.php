@@ -14,9 +14,17 @@ class ProcessIngestedJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public array $backoff = [30, 120, 600];
 
-    public function __construct(public array $payload) {}
+    public int $timeout = 120;
+
+    public function __construct(public array $payload)
+    {
+        $this->onConnection('database');
+        $this->onQueue('ingestion');
+        $this->afterCommit();
+    }
 
     public function handle(JobIngestionService $service): void
     {

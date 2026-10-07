@@ -1,4 +1,39 @@
 <?php
+
 namespace App\Console\Commands;
-use App\Models\Resume;use App\Services\ResumeJobMatchingService;use Illuminate\Console\Command;use Illuminate\Support\Facades\DB;
-class RunCandidateAutoApply extends Command{protected $signature='candidates:auto-apply';protected $description='Match consented candidate resumes to eligible HR-posted portal jobs';public function handle(ResumeJobMatchingService $service):int{$processed=0;$applied=0;DB::table('candidate_auto_apply_preferences')->where('enabled',true)->orderBy('user_id')->chunkById(100,function($preferences)use($service,&$processed,&$applied){foreach($preferences as $preference){$resume=Resume::whereHas('profile',fn($q)=>$q->where('user_id',$preference->user_id))->where('is_primary',true)->where('parsing_status','processed')->latest('parsed_at')->first();if(!$resume)continue;$result=$service->process($resume);$processed++;$applied+=$result['applied'];}});$this->info("Processed {$processed} resumes; submitted {$applied} internal applications.");return self::SUCCESS;}}
+
+use App\Jobs\MatchResumeToHrJobs;
+use App\Models\Resume;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+
+class RunCandidateAutoApply extends Command
+{
+    protected $signature = 'candidates:auto-apply';
+
+    protected $description = 'Queue matching for consented candidates with processed primary resumes';
+
+    public function handle(): int
+    {
+        $queued = 0;
+        DB::table('candidate_auto_apply_preferences')
+            ->where('enabled', true)
+            ->whereNotNull('consented_at')
+            ->chunkById(100, function ($preferences) use (&$queued) {
+                foreach ($preferences as $preference) {
+                    $resume = Resume::whereHas('profile', fn ($query) => $query->where('user_id', $preference->user_id))
+                        ->where('is_primary', true)
+                        ->where('parsing_status', 'processed')
+                        ->latest('parsed_at')
+                        ->first();
+                    if ($resume) {
+                        MatchResumeToHrJobs::dispatch($resume->id);
+                        $queued++;
+                    }
+                }
+            });
+        $this->info("Queued {$queued} resumes for matching and candidate-authorized internal applications.");
+
+        return self::SUCCESS;
+    }
+}

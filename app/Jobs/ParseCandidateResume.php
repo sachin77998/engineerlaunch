@@ -1,6 +1,93 @@
 <?php
-namespace App\Jobs;use App\Models\Resume;use Illuminate\Bus\Queueable;use Illuminate\Contracts\Queue\ShouldQueue;use Illuminate\Foundation\Bus\Dispatchable;use Illuminate\Queue\InteractsWithQueue;use Illuminate\Queue\SerializesModels;use Illuminate\Support\Facades\Storage;use Symfony\Component\Process\ExecutableFinder;use Symfony\Component\Process\Process;
-class ParseCandidateResume implements ShouldQueue{use Dispatchable,InteractsWithQueue,Queueable,SerializesModels;public int $tries=2;public function __construct(public int $resumeId){}public function handle():void{$resume=Resume::with('profile.user')->find($this->resumeId);if(!$resume)return;$resume->update(['parsing_status'=>'processing','parse_error'=>null]);try{$text=$this->extractText(Storage::disk($resume->disk)->path($resume->path));$data=app(\App\Services\CandidateResumeTextParser::class)->parse($text,config('recruitment.skills',[]));$data['name']=$data['name']??$resume->profile->user->name;$data['email']=$data['email']??$resume->profile->user->email;$data['phone']=$data['phone']??$resume->profile->phone;$updates=[];$phoneAvailable=blank($data['phone']??null)||!\App\Models\CandidateProfile::where('id','<>',$resume->profile->id)->where('phone',$data['phone'])->exists();foreach(['first_name'=>'first_name','last_name'=>'last_name','phone'=>'phone','location'=>'location','address'=>'address','headline'=>'headline','current_company'=>'current_company','designation'=>'current_designation','experience'=>'experience_years','education'=>'education','preferred_role'=>'preferred_role'] as $source=>$target){if((app()->isLocal()||blank($resume->profile->{$target}))&&filled($data[$source]??null)&&($source!=='phone'||$phoneAvailable))$updates[$target]=$source==='experience'?(int)round($data[$source]):$data[$source];}if($updates){$current=$resume->profile->toArray();$updates['profile_completion']=$this->completion($updates+$current);$resume->profile->update($updates);}$hasExtracted=collect($data)->except(['companies'])->filter(fn($value)=>filled($value))->isNotEmpty();$resume->update(['parsing_status'=>$hasExtracted?'processed':'needs_review','parsed_data'=>$data,'parsed_at'=>now()]);}catch(\Throwable $e){$resume->update(['parsing_status'=>'failed','parse_error'=>substr($e->getMessage(),0,2000)]);throw $e;}}
-private function extractText(string $path):string{$binary=(new ExecutableFinder)->find('pdftotext');if(!$binary)throw new \RuntimeException('PDF text extractor is not installed.');$process=new Process([$binary,'-layout','-enc','UTF-8',$path,'-']);$process->setTimeout(30);$process->mustRun();return trim($process->getOutput());}
-private function matchingLine(string $text,string $pattern):?string{foreach(preg_split('/\R/',$text) as $line){$line=trim(preg_replace('/\s+/',' ',$line));if(strlen($line)>=4&&strlen($line)<=180&&preg_match($pattern,$line))return $line;}return null;}
-private function completion(array $d):int{$fields=['first_name','last_name','phone','address','headline','bio','current_company','current_designation','experience_years','expected_salary','notice_period','location'];return (int)round(collect($fields)->filter(fn($f)=>filled($d[$f]??null))->count()/count($fields)*100);}}
+
+namespace App\Jobs;
+
+use App\Models\Resume;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
+
+class ParseCandidateResume implements ShouldQueue
+{
+    use Dispatchable,InteractsWithQueue,Queueable,SerializesModels;
+
+    public int $tries = 2;
+
+    public int $timeout = 120;
+
+    public array $backoff = [30, 120];
+
+    public function __construct(public int $resumeId)
+    {
+        $this->onQueue('resume-processing');
+        $this->afterCommit();
+    }
+
+    public function handle(\App\Services\CandidateResumeTextParser $parser): void
+    {
+        $resume = Resume::with('profile.user')->find($this->resumeId);
+        if (! $resume) {
+            return;
+        }
+
+        $resume->update(['parsing_status' => 'processing', 'parse_error' => null]);
+        try {
+            $text = $this->extractText(Storage::disk($resume->disk)->path($resume->path));
+            $data = $parser->parse($text, config('recruitment.skills', []));
+            $data['name'] = $data['name'] ?? $resume->profile->user->name;
+            $data['email'] = $data['email'] ?? $resume->profile->user->email;
+            $data['phone'] = $data['phone'] ?? $resume->profile->phone;
+            $updates = [];
+            $phoneAvailable = blank($data['phone'] ?? null) || ! \App\Models\CandidateProfile::where('id', '<>', $resume->profile->id)->where('phone', $data['phone'])->exists();
+            foreach (['first_name' => 'first_name', 'last_name' => 'last_name', 'phone' => 'phone', 'location' => 'location', 'address' => 'address', 'headline' => 'headline', 'current_company' => 'current_company', 'designation' => 'current_designation', 'experience' => 'experience_years', 'education' => 'education', 'preferred_role' => 'preferred_role'] as $source => $target) {
+                if ((app()->isLocal() || blank($resume->profile->{$target})) && filled($data[$source] ?? null) && ($source !== 'phone' || $phoneAvailable)) {
+                    $updates[$target] = $source === 'experience' ? (int) round($data[$source]) : $data[$source];
+                }
+            }if ($updates) {
+                $current = $resume->profile->toArray();
+                $updates['profile_completion'] = $this->completion($updates + $current);
+                $resume->profile->update($updates);
+            }$hasExtracted = collect($data)->except(['companies'])->filter(fn ($value) => filled($value))->isNotEmpty();
+            $resume->update(['parsing_status' => $hasExtracted ? 'processed' : 'needs_review', 'parsed_data' => $data, 'parsed_at' => now()]);
+        } catch(\Throwable $e) {
+            $resume->update(['parsing_status' => 'failed', 'parse_error' => substr($e->getMessage(), 0, 2000)]);
+            throw $e;
+        }
+    }
+
+    private function extractText(string $path): string
+    {
+        $binary = (new ExecutableFinder)->find('pdftotext');
+        if (! $binary) {
+            throw new \RuntimeException('PDF text extractor is not installed.');
+        }$process = new Process([$binary, '-layout', '-enc', 'UTF-8', $path, '-']);
+        $process->setTimeout(30);
+        $process->mustRun();
+
+        return trim($process->getOutput());
+    }
+
+    private function matchingLine(string $text, string $pattern): ?string
+    {
+        foreach (preg_split('/\R/', $text) as $line) {
+            $line = trim(preg_replace('/\s+/', ' ', $line));
+            if (strlen($line) >= 4 && strlen($line) <= 180 && preg_match($pattern, $line)) {
+                return $line;
+            }
+        }
+
+        return null;
+    }
+
+    private function completion(array $d): int
+    {
+        $fields = ['first_name', 'last_name', 'phone', 'address', 'headline', 'bio', 'current_company', 'current_designation', 'experience_years', 'expected_salary', 'notice_period', 'location'];
+
+        return (int) round(collect($fields)->filter(fn ($f) => filled($d[$f] ?? null))->count() / count($fields) * 100);
+    }
+}

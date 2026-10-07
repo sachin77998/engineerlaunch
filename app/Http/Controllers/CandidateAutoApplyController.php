@@ -15,7 +15,10 @@ class CandidateAutoApplyController extends Controller
         $enabled = $r->boolean('enabled');
         DB::table('candidate_auto_apply_preferences')->updateOrInsert(['user_id' => $r->user()->id], ['enabled' => $enabled, 'minimum_match_score' => $d['minimum_match_score'], 'daily_limit' => $d['daily_limit'], 'consented_at' => $enabled ? now() : null, 'created_at' => now(), 'updated_at' => now()]);
         $resume = $r->user()->candidateProfile?->resumes()->where('is_primary', true)->latest()->first();
-        if ($enabled && $resume) app()->isLocal() ? MatchResumeToHrJobs::dispatchSync($resume->id) : MatchResumeToHrJobs::dispatch($resume->id)->onQueue('resume-processing');
+        if ($enabled && $resume) {
+            MatchResumeToHrJobs::dispatch($resume->id);
+        }
+
         return back()->with('success', $enabled ? 'Skill matching and internal auto-apply are enabled.' : 'Automatic applications are disabled.');
     }
 }

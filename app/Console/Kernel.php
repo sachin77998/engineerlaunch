@@ -10,7 +10,6 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -21,7 +20,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work database --queue=ingestion --stop-when-empty --max-time=300 --tries=3 --timeout=900')
             ->everyMinute()
             ->withoutOverlapping(180);
-        $schedule->command('queue:work database --queue=resume-processing --stop-when-empty --tries=2 --timeout=300')
+        $schedule->command('queue:work --queue=resume-processing,emails,default --stop-when-empty --max-time=300 --tries=3 --timeout=300')
             ->everyMinute()
             ->withoutOverlapping(15);
         $schedule->command('premium:build-recommendations')

@@ -1,0 +1,13 @@
+# Services and queues
+
+DomainServiceProvider owns interface bindings and scoped lookup services. NewsFetcher binds to NewsFetcherService, allowing replacement in tests or alternative implementations. GeographyCatalog and IndustrialCareerMatcher are shared within each request or queue job; Laravel clears scoped instances between jobs so cached data does not leak across lifecycles. Other concrete services use Laravel automatic resolution. Inject services into constructors or controller/job handle methods; avoid adding bindings for every concrete class or making mutable services global singletons.
+
+Resume upload and the processed-resume observer dispatch jobs on resume-processing in every environment. Parsing receives its parser from the container. Jobs wait until database transactions commit. Use QUEUE_CONNECTION=database for background processing; sync is available explicitly for tests or debugging and executes work inline.
+
+Run `php artisan migrate` to create jobs_queue, job_batches, and failed_jobs using the existing migrations. Run `php artisan schedule:work` locally, or configure the server scheduler to invoke `php artisan schedule:run` every minute. Scheduled workers drain database ingestion and the configured connection's resume-processing, emails, and default queues. Existing ingestion batches and API fallback ingestion jobs explicitly use database. No migration or production process is started by this code change.
+
+For supervised production workers use `php artisan queue:work database --queue=ingestion --timeout=900 --tries=3` and `php artisan queue:work --queue=resume-processing,emails,default --timeout=300 --tries=3`. Choose scheduled or supervised workers according to deployment. The queue retry_after is 1200 seconds, exceeding the longest 900-second job timeout. Supervisor shutdown grace should also exceed the longest job. Run `php artisan queue:restart` after deployments, inspect `php artisan queue:failed`, and retry selected failures with `php artisan queue:retry <id>`.
+
+News fetch commands retain their existing console output and preview-only behavior. Authentication OTP email remains synchronous so delivery errors can be returned immediately. Kafka producers/consumers and existing scraping batches retain their transport semantics. SQL search, validation, and rendering remain synchronous because their results are required for the response.
+
+The candidates:auto-apply command queues each eligible processed primary resume instead of processing the entire batch inline. Worker execution rechecks current consent and preferences through ResumeJobMatchingService. Its console output now reports queued resumes rather than completed applications.

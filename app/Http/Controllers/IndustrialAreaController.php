@@ -16,25 +16,39 @@ use Illuminate\Validation\ValidationException;
 
 class IndustrialAreaController extends Controller
 {
+    public function __construct(
+        private \App\Services\IndustrialTaxonomy $taxonomyService,
+        private IndustrialSearch $search,
+        private IndustrialIntelligence $intelligence,
+        private \App\Services\IndustrialPresentation $presentation
+    ) {
+    }
+
     public function index(Request $request)
     {
         $data = $this->data($request);
+
         return view('industrial.index', $data);
     }
+
      public function ajax(Request $request)
-    {
-        $data = $this->data($request);
-        return response()->json(['html' => view('industrial.results', $data)->render(),'options' => $data['options'],'taxonomyHtml' => view('industrial.taxonomy', $data)->render(),'hero' => $data['heroUrl'],'heroText' => $data['heroText'],'heroCaption' => $data['heroCaption'],'filters' => $data['filters'],'heading' => $data['contextCompany']->name ?? $data['contextArea']->name ?? 'Industrial India',]);
-    }
+     {
+         $data = $this->data($request);
+
+         return response()->json(['html' => view('industrial.results', $data)->render(), 'options' => $data['options'], 'taxonomyHtml' => view('industrial.taxonomy', $data)->render(), 'hero' => $data['heroUrl'], 'heroText' => $data['heroText'], 'heroCaption' => $data['heroCaption'], 'filters' => $data['filters'], 'heading' => $data['contextCompany']->name ?? $data['contextArea']->name ?? 'Industrial India']);
+     }
+
     private function data(Request $request): array
     {
-        foreach (['state_id' => 'state', 'city' => 'location', 'area_id' => 'area', 'department_id' => 'department',] as $alias => $name) {
-            if (! $request->has($name) && $request->has($alias)) {$request->merge([$name => $request->input($alias),]);}
+        foreach (['state_id' => 'state', 'city' => 'location', 'area_id' => 'area', 'department_id' => 'department'] as $alias => $name) {
+            if (! $request->has($name) && $request->has($alias)) {
+                $request->merge([$name => $request->input($alias)]);
+            }
         }
         $filters = $request->validate([
-            'experience' => ['nullable', Rule::in(['fresher', '0-2', '2-5', '5-10',]),],
-            'qualification' => ['nullable', Rule::in(['10th', '12th', 'ITI', 'Diploma', 'B.Tech', 'Graduate',]),],
-            'salary' => ['nullable',Rule::in(['10000-20000', '20000-30000', '30000-50000', '50000+',]),],
+            'experience' => ['nullable', Rule::in(['fresher', '0-2', '2-5', '5-10'])],
+            'qualification' => ['nullable', Rule::in(['10th', '12th', 'ITI', 'Diploma', 'B.Tech', 'Graduate'])],
+            'salary' => ['nullable', Rule::in(['10000-20000', '20000-30000', '30000-50000', '50000+'])],
             'sector' => 'nullable|integer|min:1',
             'subsector' => 'nullable|integer|min:1',
             'process' => 'nullable|integer|min:1',
@@ -50,10 +64,10 @@ class IndustrialAreaController extends Controller
             'companies_page' => 'nullable|integer|min:1',
             'jobs_page' => 'nullable|integer|min:1',
         ]);
-        $taxonomyService = app(\App\Services\IndustrialTaxonomy::class);
+        $taxonomyService = $this->taxonomyService;
         $taxonomy = $taxonomyService->prepare($filters);
-        $states = IndustrialState::query()->where('is_active', true)->orderBy('name')->get(['id', 'name',]);
-        if (!empty($filters['state']) && ! $states->contains('id', $filters['state'])) {
+        $states = IndustrialState::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        if (! empty($filters['state']) && ! $states->contains('id', $filters['state'])) {
             $this->invalid('state');
         }
         $baseAreas = IndustrialArea::visible();
@@ -67,9 +81,12 @@ class IndustrialAreaController extends Controller
             }
             $baseAreas->atLocation($filters['location']);
         }
-        if (! empty($filters['area'])) {if (!(clone $baseAreas)->whereKey($filters['area'])->exists()) {$this->invalid('area');}
+        if (! empty($filters['area'])) {
+            if (! (clone $baseAreas)->whereKey($filters['area'])->exists()) {
+                $this->invalid('area');
+            }
         }
-        $areaOptions = ! empty($filters['state']) ? (clone $baseAreas)->orderBy('name')->get(['id', 'name',]) : collect();
+        $areaOptions = ! empty($filters['state']) ? (clone $baseAreas)->orderBy('name')->get(['id', 'name']) : collect();
         if (! empty($filters['area'])) {
             $baseAreas->whereKey($filters['area']);
         }
@@ -78,10 +95,10 @@ class IndustrialAreaController extends Controller
         if (! empty($filters['company']) && (empty($filters['area']) || ! (clone $companiesQuery)->whereKey($filters['company'])->exists())) {
             $this->invalid('company');
         }
-        $companyOptions = ! empty($filters['area']) ? (clone $companiesQuery)->orderBy('name')->get(['id', 'name',]) : collect();
-         $jobsQuery = IndustrialJob::live()->whereIn('industrial_area_id', (clone $baseAreas)->select('id'));
+        $companyOptions = ! empty($filters['area']) ? (clone $companiesQuery)->orderBy('name')->get(['id', 'name']) : collect();
+        $jobsQuery = IndustrialJob::live()->whereIn('industrial_area_id', (clone $baseAreas)->select('id'));
         if ($taxonomy['sector']) {
-            $jobsQuery->whereHas('company', fn($q) => $taxonomyService->companies($q, $taxonomy));
+            $jobsQuery->whereHas('company', fn ($q) => $taxonomyService->companies($q, $taxonomy));
         }
         if (! empty($filters['company'])) {
             $companiesQuery->whereKey($filters['company']);
@@ -91,14 +108,14 @@ class IndustrialAreaController extends Controller
         if (! empty($filters['company'])) {
             $departmentsQuery->whereIn('id', (clone $jobsQuery)->select('department_id'));
         }
-        $departments = $departmentsQuery->orderBy('name')->get(['id', 'name',]);
+        $departments = $departmentsQuery->orderBy('name')->get(['id', 'name']);
         if (! empty($filters['department'])) {
-            if (!$departments->contains('id', $filters['department'])) {
+            if (! $departments->contains('id', $filters['department'])) {
                 $this->invalid('department');
             }
             $jobsQuery->where('department_id', $filters['department']);
         }
-        $rolesQuery = IndustrialJobRole::query()->where('is_active', true)->whereHas('department', fn($q) => $q->where('is_active', true));
+        $rolesQuery = IndustrialJobRole::query()->where('is_active', true)->whereHas('department', fn ($q) => $q->where('is_active', true));
         if (! empty($filters['department'])) {
             $rolesQuery->where('department_id', $filters['department']);
         }
@@ -109,11 +126,11 @@ class IndustrialAreaController extends Controller
             if (empty($filters['department']) || ! (clone $rolesQuery)->whereKey($filters['role'])->exists()) {
                 $this->invalid('role');
             }
-            $jobsQuery->where('job_role_id',$filters['role']);
+            $jobsQuery->where('job_role_id', $filters['role']);
         }
-        $roles = ! empty($filters['department']) ? $rolesQuery->orderBy('name')->get(['id', 'name',]) : collect();
+        $roles = ! empty($filters['department']) ? $rolesQuery->orderBy('name')->get(['id', 'name']) : collect();
         //   SEARCH
-        $search = app(IndustrialSearch::class);
+        $search = $this->search;
         $tokens = $search->tokens($filters['search'] ?? '');
         $search->areas($baseAreas, $tokens);
         $search->companies($companiesQuery, $tokens);
@@ -126,18 +143,18 @@ class IndustrialAreaController extends Controller
             } else {
                 [$min, $max] = array_map('intval', explode('-', $filters['experience']));
             }
-            $jobsQuery->whereNotNull('experience_min')->where('experience_min', '<=', $max)->where(fn($q) => $q->whereNull('experience_max')->orWhere('experience_max', '>=', $min));
+            $jobsQuery->whereNotNull('experience_min')->where('experience_min', '<=', $max)->where(fn ($q) => $q->whereNull('experience_max')->orWhere('experience_max', '>=', $min));
         }
         //  QUALIFICATION FILTER
         if (! empty($filters['qualification'])) {
-            $jobsQuery->where('qualification', 'like', '%' . $filters['qualification'] . '%');
+            $jobsQuery->where('qualification', 'like', '%'.$filters['qualification'].'%');
         }
         //   SKILL FILTER
         if (! empty($filters['skill'])) {
             if ($jobsQuery->getConnection()->getDriverName() === 'sqlite') {
                 $jobsQuery->whereRaw(
                     'EXISTS (SELECT 1 FROM json_each(industrial_jobs.skills) WHERE json_each.value = ?)',
-                    [$filters['skill'],]
+                    [$filters['skill']]
                 );
             } else {
                 $jobsQuery->whereJsonContains('skills', $filters['skill']);
@@ -150,15 +167,15 @@ class IndustrialAreaController extends Controller
             } else {
                 [$min, $max] = array_map('intval', explode('-', $filters['salary']));
             }
-            $jobsQuery->whereIn('salary_period', ['monthly', 'annual',])->whereNotNull('salary_min');
+            $jobsQuery->whereIn('salary_period', ['monthly', 'annual'])->whereNotNull('salary_min');
             if ($max !== null) {
                 $jobsQuery->whereRaw(
                     "salary_min / CASE
                         WHEN salary_period = 'annual' THEN 12 ELSE 1 END <= ?",
-                    [$max,]
+                    [$max]
                 );
             }
-            $jobsQuery->whereRaw("COALESCE(salary_max, salary_min) /CASE WHEN salary_period = 'annual' THEN 12 ELSE 1 END >= ?", [$min,]);
+            $jobsQuery->whereRaw("COALESCE(salary_max, salary_min) /CASE WHEN salary_period = 'annual' THEN 12 ELSE 1 END >= ?", [$min]);
         }
         //   SECTOR → AREA RELATION
         if ($taxonomy['sector']) {
@@ -172,17 +189,17 @@ class IndustrialAreaController extends Controller
                         }
                     );
                     if (! $taxonomy['sub'] && ! $taxonomy['process']) {
-                        $q->orWhereHas('sectorCatalog', fn($s) => $s->whereKey($taxonomy['sector']->id));
+                        $q->orWhereHas('sectorCatalog', fn ($s) => $s->whereKey($taxonomy['sector']->id));
                     }
                 }
             );
         }
         //   INDUSTRIAL AREAS RESULT
-        $areas = $baseAreas->with('state')->withCount(['companies' => fn($q) => $q->visible(), 'jobs as live_jobs_count' => fn($q) => $q->live(),])
+        $areas = $baseAreas->with('state')->withCount(['companies' => fn ($q) => $q->visible(), 'jobs as live_jobs_count' => fn ($q) => $q->live()])
             ->orderByDesc('is_featured')->orderBy('name')->orderBy('id')->paginate(12)->withQueryString();
         //   COMPANIES RESULT
 
-        $companies = $companiesQuery->with('area.state', 'sources', 'sectors')->withCount(['jobs as live_jobs_count' => fn($q) => $q->live(),])
+        $companies = $companiesQuery->with('area.state', 'sources', 'sectors')->withCount(['jobs as live_jobs_count' => fn ($q) => $q->live()])
             ->orderBy('name')->orderBy('id')->paginate(12, ['*'], 'companies_page')->withQueryString();
         //   LIVE JOBS RESULT
         $careerMatches = $taxonomy['careerMatch']['matches'];
@@ -194,19 +211,19 @@ class IndustrialAreaController extends Controller
                 $bindings[] = $roleId;
                 $bindings[] = $match['score'];
             }
-            $jobsQuery->orderByRaw('CASE job_role_id ' . implode(' ', $cases) . ' ELSE 0 END DESC', $bindings);
+            $jobsQuery->orderByRaw('CASE job_role_id '.implode(' ', $cases).' ELSE 0 END DESC', $bindings);
         }
-        $jobs = $jobsQuery->with(['area.state', 'company', 'department', 'role',])->latest('id')->paginate(12, ['*'], 'jobs_page')->withQueryString();
+        $jobs = $jobsQuery->with(['area.state', 'company', 'department', 'role'])->latest('id')->paginate(12, ['*'], 'jobs_page')->withQueryString();
         //  FEATURED INDUSTRIAL HUBS
         $hubs = IndustrialArea::visible()->where('is_featured', true)->with('state')->orderBy('state_id')
             ->orderBy('city')->limit(200)->get()->groupBy('state.name');
-        //  FILTER OPTIONS        
+        //  FILTER OPTIONS
         $options = [
             'state' => $states,
 
             'location' => $locations
                 ->map(
-                    fn($name) => [
+                    fn ($name) => [
                         'id' => $name,
                         'name' => $name,
                     ]
@@ -265,22 +282,19 @@ class IndustrialAreaController extends Controller
         |--------------------------------------------------------------------------
         */
         if ($data['contextArea']) {
-            $data += app(
-                IndustrialIntelligence::class
-            )->summary(
+            $data += $this->intelligence->summary(
                 $data['contextArea'],
                 $data['contextCompany']?->id
             );
 
-            $data += app(
-                IndustrialIntelligence::class
-            )->nearby(
+            $data += $this->intelligence->nearby(
                 $data['contextArea']
             );
         }
 
         $data['careerMatches'] = $careerMatches;
-        $data += app(\App\Services\IndustrialPresentation::class)->build($filters, $taxonomy, $data['contextArea'], $data['contextCompany']);
+        $data += $this->presentation->build($filters, $taxonomy, $data['contextArea'], $data['contextCompany']);
+
         return $data;
     }
 
@@ -290,10 +304,9 @@ class IndustrialAreaController extends Controller
     private function invalid(string $field): void
     {
         throw ValidationException::withMessages([
-            $field =>
-            'Choose an available '
-                . $field
-                . ' within the selected hierarchy.',
+            $field => 'Choose an available '
+                .$field
+                .' within the selected hierarchy.',
         ]);
     }
 
@@ -367,7 +380,7 @@ class IndustrialAreaController extends Controller
                 ->visible()
                 ->when(
                     ! empty($data['city']),
-                    fn($q) => $q->atLocation(
+                    fn ($q) => $q->atLocation(
                         $data['city']
                     )
                 )
@@ -398,8 +411,7 @@ class IndustrialAreaController extends Controller
                 ->companies()
                 ->visible()
                 ->withCount([
-                    'jobs as live_jobs_count' =>
-                    fn($q) => $q->live(),
+                    'jobs as live_jobs_count' => fn ($q) => $q->live(),
                 ])
                 ->orderBy('name')
                 ->get()
@@ -420,7 +432,7 @@ class IndustrialAreaController extends Controller
             )
             ->whereHas(
                 'state',
-                fn($q) => $q->where(
+                fn ($q) => $q->where(
                     'slug',
                     $stateSlug
                 )
@@ -445,8 +457,7 @@ class IndustrialAreaController extends Controller
         $request->merge([
             'state' => $area->state_id,
 
-            'location' =>
-            $area->city
+            'location' => $area->city
                 ?: $area->district,
 
             'area' => $area->id,
@@ -486,8 +497,7 @@ class IndustrialAreaController extends Controller
         $request->merge([
             'state' => $area->state_id,
 
-            'location' =>
-            $area->city
+            'location' => $area->city
                 ?: $area->district,
 
             'area' => $area->id,
@@ -520,7 +530,7 @@ class IndustrialAreaController extends Controller
         if ($request->filled('state')) {
             $query->whereHas(
                 'state',
-                fn($q) => $q->where(
+                fn ($q) => $q->where(
                     'slug',
                     $request->query('state')
                 )

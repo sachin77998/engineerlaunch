@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use App\Models\Resume;
 use App\Observers\ResumeObserver;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->scoped(\App\Services\IndustrialCareerMatcher::class, fn () => new \App\Services\IndustrialCareerMatcher());
-        //
+        // Domain bindings live in DomainServiceProvider.
     }
 
     /**
