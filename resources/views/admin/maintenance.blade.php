@@ -39,26 +39,51 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
 (() => {
     const token = '{{ csrf_token() }}';
     const url = step => '{{ url('/admin/maintenance/run') }}/' + step;
+    const pause = ms => new Promise(r => setTimeout(r, ms));
+    async function call(step) {
+        const res = await fetch(url(step), {method: 'POST', headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}});
+        return res.json().catch(() => ({exit: 1, http: res.status, output: 'HTTP ' + res.status + ' - the server stopped this request (time or resource limit). Wait a minute, then press Run on this step again.'}));
+    }
+    // Long seeders work in ~18 s slices and print [continue]; keep calling until they finish.
     async function run(step) {
         const row = document.querySelector(`[data-step="${step}"]`);
         const dot = row.querySelector('.mt-dot'), out = row.querySelector('.mt-out'), time = row.querySelector('.mt-time');
         dot.className = 'mt-dot run'; out.textContent = ''; time.textContent = 'running…';
+        let total = 0, pass = 0, data;
         try {
-            const res = await fetch(url(step), {method: 'POST', headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}});
-            const data = await res.json().catch(() => ({exit: 1, output: 'HTTP ' + res.status + ' (the server may have timed out; check again or run the step on its own)'}));
+            do {
+                pass++;
+                data = await call(step);
+                total += Number(data.seconds || 0);
+                out.textContent += (pass > 1 ? '\n--- pass ' + pass + ' ---\n' : '') + (data.output || '(no output)');
+                out.scrollTop = out.scrollHeight;
+                time.textContent = `· ${total.toFixed(1)}s · pass ${pass}` + (data.exit !== undefined ? ` · exit ${data.exit}` : '');
+                if (data.exit === 0 && /\[continue\]/.test(data.output || '')) await pause(1500); else break;
+            } while (pass < 100);
             dot.className = 'mt-dot ' + (data.exit === 0 ? 'ok' : 'fail');
-            out.textContent = data.output || '(no output)';
-            time.textContent = data.seconds !== undefined ? `· ${data.seconds}s · exit ${data.exit}` : '';
-            return data.exit === 0;
+            return data.exit === 0 ? 'ok' : (data.http ? 'down' : 'fail');
         } catch (e) {
-            dot.className = 'mt-dot fail'; out.textContent = String(e); time.textContent = ''; return false;
+            dot.className = 'mt-dot fail'; out.textContent += '\nThe server did not respond (' + e + '). Wait a minute and run this step again.'; time.textContent = '';
+            return 'down';
         }
     }
     document.querySelectorAll('[data-run]').forEach(b => b.addEventListener('click', () => run(b.dataset.run)));
     document.getElementById('mt-all').addEventListener('click', async e => {
         e.target.disabled = true;
-        for (const row of document.querySelectorAll('[data-step]')) await run(row.dataset.step);
+        let downInARow = 0;
+        for (const row of document.querySelectorAll('[data-step]')) {
+            const result = await run(row.dataset.step);
+            downInARow = result === 'down' ? downInARow + 1 : 0;
+            // Shared hosting throttles bursts: stop instead of failing every remaining step.
+            if (downInARow >= 2) { alertBox('The server is busy or throttling requests. Wait 2-3 minutes, then press Run on the first red step and continue from there.'); break; }
+            await pause(1200);
+        }
         e.target.disabled = false;
     });
+    function alertBox(text) {
+        let box = document.getElementById('mt-alert');
+        if (!box) { box = document.createElement('p'); box.id = 'mt-alert'; box.style.cssText = 'padding:12px 14px;border-radius:10px;background:#fff6dc;border:1px solid #f4b400;color:#0b2545;font-weight:600'; document.querySelector('.mt-actions').after(box); }
+        box.textContent = text; box.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
 })();
 </script>@endpush

@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 
 class CompanyDiscoveryTaxonomySeeder extends Seeder
 {
+    use Concerns\ResumableSeeding;
+
     private const COLLECTIONS = [
         'Global Companies' => 'GL', 'Indian Enterprises' => 'IN',
         'Product Companies' => 'PR', 'Service Companies' => 'SV',
@@ -27,8 +29,15 @@ class CompanyDiscoveryTaxonomySeeder extends Seeder
             );
         }
 
-        Company::query()->select(['id','name','country','industry','sector','company_type','organization_type','business_type'])
-            ->chunkById(200, fn($companies) => $companies->each(fn(Company $company) => $this->classify($company)));
+        $after = $this->startSlice();
+        $paused = false;
+        Company::query()->select(['id','name','country','industry','sector','company_type','organization_type','business_type'])->where('id', '>', $after)
+            ->chunkById(200, function ($companies) use (&$paused) {
+                $companies->each(fn(Company $company) => $this->classify($company));
+                $this->rememberProgress($companies->last()->id);
+                if ($this->sliceExhausted()) { $paused = true; return false; }
+            });
+        $this->finishSlices($paused);
     }
 
     private function classify(Company $company): void

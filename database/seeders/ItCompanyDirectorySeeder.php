@@ -16,12 +16,15 @@ use Illuminate\Support\Str;
  */
 class ItCompanyDirectorySeeder extends Seeder
 {
+    use Concerns\ResumableSeeding;
+
     private const SECTOR = 'IT Services & Software';
     private const EUROPE = ['United Kingdom', 'Germany', 'France', 'Spain', 'Netherlands', 'Italy', 'Sweden', 'Switzerland', 'Ireland', 'Poland',
         'Finland', 'Norway', 'Denmark', 'Belgium', 'Austria', 'Portugal', 'Czech Republic', 'Estonia', 'Romania', 'Greece', 'Hungary', 'Luxembourg'];
 
     public function run(): void
     {
+        $this->startSlice();
         $path = resource_path('data/it-software-companies.json');
         if (!is_file($path)) { $this->command?->warn('No IT company directory file; run php artisan companies:snapshot-it'); return; }
         $companies = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR)['companies'] ?? [];
@@ -58,11 +61,14 @@ class ItCompanyDirectorySeeder extends Seeder
             $subsectorBySlug[$slug] = $subsector;
         }
 
-        foreach (array_chunk($rows, 500) as $chunk) DB::table('companies')->insertOrIgnore($chunk);
-
-        // File every new company under the IT sector and its subsector.
+        // Insert and categorise in slices of 500; a paused run resumes because added companies are skipped next time.
         $categoryIds = $this->categoryIds(array_unique(array_values($subsectorBySlug)));
-        foreach (array_chunk(array_keys($subsectorBySlug), 500) as $slugs) {
+        $added = 0;
+        $paused = false;
+        foreach (array_chunk($rows, 500) as $chunk) {
+            DB::table('companies')->insertOrIgnore($chunk);
+            $slugs = array_column($chunk, 'slug');
+            $added += count($chunk);
             $pivot = [];
             foreach (DB::table('companies')->whereIn('slug', $slugs)->pluck('id', 'slug') as $slug => $id) {
                 foreach ([$categoryIds['__sector'], $categoryIds[$subsectorBySlug[$slug]]] as $categoryId) {
@@ -70,9 +76,11 @@ class ItCompanyDirectorySeeder extends Seeder
                 }
             }
             if ($pivot) DB::table('company_category_company')->insertOrIgnore($pivot);
+            if ($this->sliceExhausted()) { $paused = true; break; }
         }
         SectorDirectory::flush();
-        $this->command?->info(count($rows) . ' IT & software companies added (' . (count($companies) - count($rows)) . ' already listed).');
+        $this->command?->info($added . ' IT & software companies added (' . (count($companies) - count($rows)) . ' already listed).');
+        $this->finishSlices($paused, (count($rows) - $added) . ' remaining');
     }
 
     private function subsector(array $entry): string

@@ -55,15 +55,15 @@ class CompanyDiscoveryController extends Controller
             ->sortBy(fn($item) => $featuredOrder[$item->name])->values();
         $countries = Cache::remember('company-discovery:countries:v3', now()->addHour(), fn() => Company::active()->whereNotNull('country')->selectRaw('country,count(*) companies_count')->groupBy('country')->orderByDesc('companies_count')->limit(50)->get());
         $locationFacets = Cache::remember('company-discovery:locations:v3', now()->addHour(), function () use ($locationMap) {
+            // Distinct (location, company) pairs, and each distinct location string is matched once:
+            // scanning every job row against every alias timed out on production (~30k jobs).
             $companiesByLocation = collect(array_keys($locationMap))->mapWithKeys(fn($name) => [$name => []])->all();
-            Job::query()->active()->whereNotNull('location')->select(['id', 'company_id', 'location'])->chunkById(1000, function ($jobs) use (&$companiesByLocation, $locationMap) {
-                foreach ($jobs as $job) {
-                    $value = Str::lower($job->location);
-                    foreach ($locationMap as $name => $aliases) {
-                        if ($job->company_id && Str::contains($value, $aliases)) $companiesByLocation[$name][$job->company_id] = true;
-                    }
-                }
-            });
+            $matchedNames = [];
+            foreach (Job::query()->active()->whereNotNull('location')->whereNotNull('company_id')->distinct()->toBase()->get(['location', 'company_id']) as $pair) {
+                $value = Str::lower($pair->location);
+                $matchedNames[$value] ??= array_keys(array_filter($locationMap, fn ($aliases) => Str::contains($value, $aliases)));
+                foreach ($matchedNames[$value] as $name) $companiesByLocation[$name][$pair->company_id] = true;
+            }
             return collect($companiesByLocation)->map(fn($ids, $name) => (object)['name' => $name, 'companies_count' => count($ids)])->sortByDesc('companies_count')->values();
         });
         return view('companies.index', compact('companies', 'taxonomies', 'featuredCategories', 'countries', 'locationFacets', 'selectedLocations', 'selected', 'category', 'filters'));

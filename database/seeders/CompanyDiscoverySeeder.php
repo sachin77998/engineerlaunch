@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class CompanyDiscoverySeeder extends Seeder
 {
+    use Concerns\ResumableSeeding;
+
     public function run(): void
     {
         $collections = [
@@ -47,9 +49,12 @@ class CompanyDiscoverySeeder extends Seeder
             ->get()
             ->keyBy(fn (CompanyCategory $category) => $category->taxonomy.':'.$category->name);
 
+        $after = $this->startSlice();
+        $paused = false;
         Company::query()
             ->select(['id', 'name', 'industry', 'sector', 'country', 'organization_type', 'business_type', 'company_type'])
-            ->chunkById(250, function ($companies) use ($categories): void {
+            ->where('id', '>', $after)
+            ->chunkById(250, function ($companies) use ($categories, &$paused) {
                 foreach ($companies as $company) {
                     $text = Str::lower(implode(' ', array_filter([
                         $company->name,
@@ -73,7 +78,10 @@ class CompanyDiscoverySeeder extends Seeder
 
                     $company->categories()->syncWithoutDetaching($ids);
                 }
+                $this->rememberProgress($companies->last()->id);
+                if ($this->sliceExhausted()) { $paused = true; return false; }
             });
+        $this->finishSlices($paused);
 
         Cache::forget('company-discovery:facets:v3');
         Cache::forget('company-discovery:countries:v2');

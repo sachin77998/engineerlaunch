@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 
 class CompanyCategorySeeder extends Seeder
 {
+    use Concerns\ResumableSeeding;
+
     public function run(): void
     {
         $groups = [
@@ -43,9 +45,14 @@ class CompanyCategorySeeder extends Seeder
             }
         }
 
-        Company::query()->select(['id','name','country','industry','sector','company_type','organization_type','business_type'])->chunkById(200, function ($companies) {
+        $after = $this->startSlice();
+        $paused = false;
+        Company::query()->select(['id','name','country','industry','sector','company_type','organization_type','business_type'])->where('id', '>', $after)->chunkById(200, function ($companies) use (&$paused) {
             foreach ($companies as $company) $this->classify($company);
+            $this->rememberProgress($companies->last()->id);
+            if ($this->sliceExhausted()) { $paused = true; return false; }
         });
+        $this->finishSlices($paused);
     }
 
     private function category(string $taxonomy, string $name, ?int $parent, string $symbol, int $order): CompanyCategory
