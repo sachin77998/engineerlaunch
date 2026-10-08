@@ -9,8 +9,8 @@ class CompanyClassifier
 
     // Ordered: the first matching rule wins, so specific trades come before broad words like "engineering".
     private const RULES = [
-        ['forg', 'Auto Components, Forging & Casting', 'Forging'],
-        ['casting|foundry|die-cast|die cast|technocast|metal melt', 'Auto Components, Forging & Casting', 'Casting & Die Casting (India)'],
+        ['\\bforg', 'Auto Components, Forging & Casting', 'Forging'],
+        ['(?<![a-z])casting|foundry|die-cast|die cast|technocast|metal melt', 'Auto Components, Forging & Casting', 'Casting & Die Casting (India)'],
         ['bearing', 'Auto Components, Forging & Casting', 'Bearings'],
         ['fastener|bolt|screws|rivet', 'Auto Components, Forging & Casting', 'Fasteners'],
         ['wiring|harness|auto electric', 'Auto Components, Forging & Casting', 'Electricals, Wiring & Electronics'],
@@ -20,7 +20,7 @@ class CompanyClassifier
         ['auto part|automotive_parts|auto component|automotive component|axle|gear|steering|brake|clutch|piston|radiator|shock absorber|diesel component|engine component|rubber component|automotive', 'Auto Components, Forging & Casting', 'Gears, Steering, Brakes & Systems'],
         ['automobile|automaker|car manufactur|motor vehicle|motors\b', 'Automobile Manufacturers', 'Passenger Cars'],
         ['stainless|alumin|zinc|copper|non-ferrous|brass', 'Steel, Metals & Pipes', 'Stainless Steel & Non-Ferrous Metals'],
-        ['pipe|tube', 'Steel, Metals & Pipes', 'Pipes & Tubes'],
+        ['\\bpipes?\\b|\\btubes?\\b|tubular', 'Steel, Metals & Pipes', 'Pipes & Tubes'],
         ['steel|rolling mill|tmt|\biron\b|ispat|metals', 'Steel, Metals & Pipes', 'TMT Bars & Secondary Steel'],
         ['cement', 'Cement, Building Materials & Polymers', 'Cement'],
         ['paint|adhesive|plywood|laminate|construction chemical', 'Cement, Building Materials & Polymers', 'Paints, Panels & Construction Chemicals'],

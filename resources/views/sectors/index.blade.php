@@ -2,6 +2,7 @@
 @section('title', ($sector ? $sector->name.' Companies' : 'Companies by Sector').' — Ascendia')
 @push('styles')<style>
 .sd{display:grid;grid-template-columns:260px minmax(0,1fr) 280px;gap:22px;padding:26px 0 56px;width:min(1360px,calc(100% - 32px));margin:auto}
+.sd>*{min-width:0}
 .sd-side{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto}
 .sd-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
 .sd-box h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
@@ -32,9 +33,8 @@
 .sd-roles h4{margin:10px 0 6px;font-size:12px;color:var(--ink)}.sd-roles a{display:inline-block;margin:0 5px 6px 0;padding:4px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue);font-size:12px;text-decoration:none}
 .sd-roles a.on{background:var(--blue);color:#fff}
 .sd-open{display:block;padding:9px 0;border-top:1px solid #eef2f7;text-decoration:none;color:var(--ink)}.sd-open:first-of-type{border-top:0}.sd-open strong{display:block;font-size:13px}.sd-open span{font-size:12px;color:var(--muted)}
-.sd-flow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 10px;margin-bottom:18px;counter-reset:stage}
-.sd-stage{flex:0 0 210px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;position:relative}
-.sd-stage:not(:last-child)::after{content:'→';position:absolute;right:-9px;top:14px;color:var(--blue);font-weight:800;background:var(--bg);line-height:1}
+.sd-flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:18px;counter-reset:stage}
+.sd-stage{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
 .sd-stage b{display:block;font-size:13px;margin-bottom:3px}.sd-stage b::before{counter-increment:stage;content:counter(stage) '. ';color:var(--blue)}
 .sd-stage small{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}
 .sd-stage a{display:inline-block;margin:0 4px 5px 0;padding:3px 8px;border-radius:999px;background:var(--blue-soft);color:var(--blue);font-size:11px;text-decoration:none}.sd-stage a.on{background:var(--blue);color:#fff}
@@ -47,7 +47,7 @@
 .sd-crumb{font-size:13px;color:var(--muted);margin-bottom:8px}.sd-crumb a{color:var(--blue);text-decoration:none}
 .sd-empty{padding:30px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}
 @media(max-width:1100px){.sd{grid-template-columns:240px minmax(0,1fr)}.sd-right{grid-column:1/-1;position:static;max-height:none}}
-@media(max-width:760px){.sd{grid-template-columns:1fr}.sd-side{position:static;max-height:none}.sd-nav{display:flex;overflow-x:auto;gap:4px}.sd-nav a{white-space:nowrap}}
+@media(max-width:760px){.sd{grid-template-columns:minmax(0,1fr)}.sd-side{position:static;max-height:none}.sd-nav{display:flex;overflow-x:auto;gap:4px}.sd-nav a{white-space:nowrap}}
 </style>@endpush
 @php
     $base = $sector ? route('sectors.show', $sector->slug) : route('sectors.index');

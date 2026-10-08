@@ -1,4 +1,4 @@
-@include('industrial.learning-examples')
+@if(config('platform.show_explainers'))@include('industrial.learning-examples')@endif
 @if($cities->isNotEmpty())<section class="industrial-block"><h2>Explore industrial cities</h2><div class="industrial-cards">@foreach($cities as $city=>$cityAreas)<?php $cityArea=$cityAreas->first(); ?><a class="industrial-card" href="{{ route('industrial.index',['state'=>$cityArea->state_id,'location'=>$city]) }}"><?php $visual=$cityAreas->flatMap(fn($a)=>$a->sectorCatalog)->flatMap(fn($s)=>$s->assets)->firstWhere('asset_type','hero'); ?>@if($visual?->url)<img src="{{ $visual->url }}" alt="" loading="lazy" style="width:100%;height:140px;object-fit:cover;border-radius:7px">@endif<h3>{{ $city }}</h3><p>{{ $cityAreas->flatMap(fn($a)=>$a->sectors??[])->unique()->take(5)->join(' / ') }}</p><small>{{ $cityAreas->sum('companies_count') }} companies &middot; {{ $cityAreas->sum('openings_count') }} openings</small></a>@endforeach</div></section>@endif
 <section class="industrial-block industry-explore">
 

@@ -32,6 +32,7 @@ class SiteExplanationTest extends TestCase
     }
     public function test_explainer_is_after_hero_once_and_not_added_to_json_or_fragments(): void
     {
+        config(['platform.show_explainers'=>true]);
         $middleware=new ApplySiteChrome;$request=$this->requestFor('about');
         $page='<html><head></head><body><header data-shared-header>Header</header><main><section class="hero-band"><h1>About</h1></section><p>Content</p><script>const example="</body>";</script></main></body></html>';
         $response=$middleware->handle($request,fn()=>response($page,200,['Content-Type'=>'text/html']));$html=$response->getContent();

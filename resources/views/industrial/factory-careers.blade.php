@@ -1,4 +1,5 @@
-<section class="container" aria-labelledby="factory-careers-title" style="padding-top:24px;padding-bottom:24px">
+<section class="container" aria-label="Official recruitment sources" style="padding-top:16px;padding-bottom:8px">
+    @if(config('platform.show_explainers'))
     <h2 id="factory-careers-title">Follow the work through a factory</h2>
     <p>A typical manufacturing route. The actual sequence and qualifications depend on the plant and product.</p>
     <ol style="display:flex;flex-wrap:wrap;gap:12px;padding-left:24px">
@@ -16,6 +17,7 @@
         </tbody>
     </table></div>
     <ul><li>Example roles explain careers; they are not advertised vacancies.</li><li>Opening counts come from active job records. Use the employer link to check requirements and apply.</li><li>A job is assigned to a plant only when the company and location match.</li></ul>
+    @endif
     <details><summary>Official recruitment sources and coverage</summary>
         <p>Coverage is growing. This directory does not yet cover every company or every industrial estate.</p>
         <ul>@foreach(config('industrial_sources.feeds',[]) as $source)<li><a href="{{ $source['careers_url'] }}" target="_blank" rel="noopener noreferrer">{{ $source['name'] }} ? official job board</a></li>@endforeach</ul>

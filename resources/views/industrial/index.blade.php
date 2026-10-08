@@ -393,15 +393,15 @@
         }
     }
 .industry-tile span{flex-direction:column;justify-content:end;align-items:start}.industry-tile small{font-size:11px;margin-top:6px}.industry-career-card{padding:16px;background:#f1f5f9;border-radius:8px;font-size:13px;line-height:1.6}.industry-career-card h3{margin:0}.industry-career-card a{display:inline-block}.industry-pathway{display:flex;gap:10px;flex-wrap:wrap}.industry-pathway a{padding:9px 13px;background:#edf4fc;border-radius:5px}.industry-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.industry-tile{height:170px}@media(max-width:800px){.industry-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.industrial-hero{padding-top:34px!important;padding-bottom:34px!important}
 </style>
 @endpush
 @section('content')
 <section class="industrial-hero" id="industry-hero" @if($heroUrl) style="--industry-image:url('{{ $heroUrl }}')" @endif><div class="container">
-        <div class="industrial-path">INDUSTRIAL INDIA &middot; PEOPLE. PROCESS. PROGRESS.</div>
-        <p class="industry-intro">Discover the industries, companies, skills and jobs powering each industrial cluster.</p>
-        <h1 id="industrial-heading">{{ $heroText }}</h1>
-        <p id="industrial-hero-caption">{{ $heroCaption }}</p>
-        <ol class="industrial-learning-path" aria-label="Industrial discovery diagram"><li>State &rarr; City &rarr; Cluster</li><li>Sector &rarr; Product &rarr; Process</li><li>Company &rarr; Department</li><li>Role &rarr; Opening</li></ol>
+        {{-- Heading kept for screen readers and the live-search script; the marketing copy was removed. --}}
+        <h1 id="industrial-heading" class="visually-hidden">{{ $heroText }}</h1>
+        <p id="industrial-hero-caption" class="visually-hidden">{{ $heroCaption }}</p>
         <form class="industrial-form" id="industrial-filters" action="{{ route('industrial.index') }}" method="get">
             <div class="industrial-search">
                 <div><label for="industrial-search">Search company, industrial area, skill or job</label><input class="field" id="industrial-search" name="search" maxlength="120" value="{{ $filters['search'] ?? '' }}" placeholder="e.g. Focal Point, company name, CNC Operator"></div><button class="primary" type="submit">Search</button>
@@ -426,7 +426,7 @@
         </form>
     </div>
 </section>
-@include('partials.visual-explainer')
+@if(config('platform.show_explainers'))@include('partials.visual-explainer')@endif
 @include('industrial.factory-careers')
 <div class="container">
     <p id="industrial-status" class="industrial-status" role="status" aria-live="polite"></p>

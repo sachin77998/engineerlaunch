@@ -1,0 +1,70 @@
+/*
+ * Ascendia brand theme: navy + gold (from the logo), applied to every HTML page by ApplySiteChrome.
+ * Loaded last so it wins over per-page styles and the older blue/dark themes.
+ */
+:root{
+  --brand-navy:#0b2545;--brand-navy-2:#13315c;--brand-gold:#f4b400;--brand-gold-2:#ffc933;
+  --ink:#0f1c2e;--blue:#1d5fd1;--blue-dark:#174bb0;--blue-soft:#eaf1fd;--muted:#5b6b82;--line:#dde5f0;--bg:#f4f6fb;
+  --accent:#1d5fd1;--accent-strong:#174bb0;
+}
+
+/* Hero bands: one consistent navy gradient with a gold edge */
+.hero,.hero-band,.industrial-hero,.company-intro,.company-hero{
+  background:linear-gradient(120deg,#0b2545 0%,#13315c 55%,#1d4f9c 100%)!important;
+  color:#fff!important;border-bottom:3px solid var(--brand-gold)!important;
+}
+.industrial-hero{background:linear-gradient(120deg,rgba(11,37,69,.92),rgba(19,49,92,.86)),var(--industry-image,none) center/cover!important}
+.hero h1,.hero-band h1,.industrial-hero h1,.company-intro h1,.company-hero h1,.hero h2,.hero-band h2{color:#fff!important}
+.hero p,.hero-band p,.company-intro p,.company-hero p,.company-hero .company-title div{color:#dbe5f3!important}
+.hero h1 span,.hero-copy h1 span,.hero h1 em{color:var(--brand-gold)!important}
+.company-hero .company-trail,.company-hero .company-facts{color:#dbe5f3!important}
+.company-hero .company-trail a{color:var(--brand-gold)!important}
+.company-hero .company-chip{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.25)!important;color:#fff!important}
+.company-hero .company-chip-row strong,.company-hero .company-tabs a{color:#fff!important}
+.company-hero .company-tabs a.active{color:var(--brand-gold)!important;border-color:var(--brand-gold)!important}
+
+/* Primary actions: gold with navy text */
+.primary,.btn-primary,.btn.btn-primary,button.primary,a.primary,.sd-btn,.ea-btn,.hero button[type=submit],.hero .search-btn,.hero-search button{
+  background:var(--brand-gold)!important;color:var(--brand-navy)!important;border-color:var(--brand-gold)!important;
+  box-shadow:0 6px 16px rgba(244,180,0,.28)!important;font-weight:800!important
+}
+.primary:hover,.btn-primary:hover,.btn.btn-primary:hover,button.primary:hover,a.primary:hover,.sd-btn:hover,.ea-btn:hover,.hero button[type=submit]:hover{background:var(--brand-gold-2)!important}
+
+/* Secondary buttons and tabs: navy outline */
+.btn-outline-secondary,.btn.btn-outline-secondary,.ea-ghost,.tab{border:1px solid var(--brand-navy)!important;color:var(--brand-navy)!important;background:#fff!important}
+.btn-outline-secondary:hover,.ea-ghost:hover,.tab:hover,.tab.active{background:var(--brand-navy)!important;color:#fff!important}
+
+/* Cards and panels: clean white surfaces */
+.panel,.card,.sd-box,.sd-card,.sd-tile,.sd-hub,.hs-card,.company-card,.ea-card{background:#fff!important;border-color:var(--line)!important;border-radius:14px!important}
+.sd-card:hover,.sd-hub:hover,.hs-card:hover{border-color:var(--brand-gold)!important;box-shadow:0 10px 24px rgba(11,37,69,.1)!important}
+
+/* Accents on sector pages and chips */
+.sd-sym,.hs-sym{background:#fff6dc!important;color:#8a6200!important}
+.sd-nav a.on,.sd-nav a:hover{background:#fff6dc!important;color:var(--brand-navy)!important}
+.sd-roles a,.sd-stage a{background:var(--blue-soft)!important;color:var(--blue)!important}
+.sd-roles a.on,.sd-stage a.on{background:var(--brand-navy)!important;color:#fff!important}
+.sd-stage b::before{color:var(--brand-gold)!important}
+
+/* Form focus ring in brand gold */
+.field:focus,input:focus,select:focus,textarea:focus{border-color:var(--brand-gold)!important;box-shadow:0 0 0 3px rgba(244,180,0,.22)!important;outline:0!important}
+
+/* Footer: navy */
+.asc-site-footer{background:var(--brand-navy)!important;border-top:3px solid var(--brand-gold)!important;color:#dbe5f3!important}
+.asc-site-footer .asc-footer-brand,.asc-site-footer h3{color:#fff!important}
+.asc-site-footer .asc-footer-title{color:var(--brand-gold)!important}
+.asc-site-footer .asc-footer-links a,.asc-site-footer .asc-footer-legal a{color:#c7d3e6!important}
+.asc-site-footer .asc-footer-links a:hover,.asc-site-footer .asc-footer-legal a:hover{color:var(--brand-gold)!important}
+.asc-site-footer .asc-footer-copy,.asc-site-footer .asc-footer-bottom{color:#9fb0c8!important;border-color:rgba(255,255,255,.12)!important}
+.asc-site-footer .asc-footer-tools{background:var(--brand-navy-2)!important;border-color:rgba(255,255,255,.12)!important}
+.asc-site-footer .asc-footer-tools p{color:#c7d3e6!important}
+.asc-site-footer .asc-footer-social a{background:transparent!important;border-color:rgba(255,255,255,.25)!important;color:#fff!important}
+.asc-site-footer .asc-footer-actions a{background:transparent!important;border-color:var(--brand-gold)!important;color:var(--brand-gold)!important}
+.asc-site-footer .asc-footer-actions a:first-child{background:var(--brand-gold)!important;color:var(--brand-navy)!important}
+
+/* Links inside navy heroes */
+.company-hero a:not(.primary):not(.company-chip):not(.btn),.hero-band a:not(.primary):not(.btn){color:#fff!important;text-decoration:underline;text-underline-offset:3px}
+a.primary{display:inline-block;padding:10px 16px!important;border-radius:9px!important;text-decoration:none!important}
+/* Homepage hero details */
+.hero-label{color:var(--brand-gold)!important;border-color:rgba(244,180,0,.45)!important;background:rgba(244,180,0,.08)!important}
+.hero-stats strong,.hero-stats b,.hero-stats .stat-value{color:var(--brand-gold)!important}
+.sitebar[data-shared-header]{border-bottom:3px solid var(--brand-gold)!important}

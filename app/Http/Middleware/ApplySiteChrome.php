@@ -25,7 +25,7 @@ class ApplySiteChrome
         }
         $html = $response->getContent();
         if (!is_string($html) || !str_contains($html, '<body')) return $response;
-        $explanation = ($request->path() === '/' || $request->is('admin', 'admin/*', 'learn', 'learn/*', 'career-explorer', 'forgot-password', 'reset-password*')) ? null : app(\App\Services\SiteExplanation::class)->forRequest($request);
+        $explanation = (!config('platform.show_explainers') || $request->path() === '/' || $request->is('admin', 'admin/*', 'learn', 'learn/*', 'career-explorer', 'forgot-password', 'reset-password*')) ? null : app(\App\Services\SiteExplanation::class)->forRequest($request);
         if ($explanation && !str_contains($html, 'data-visual-explainer=')) {
             $guide = view('partials.visual-explainer', compact('explanation'))->render();
             // Place explanations beside the main content, after the hero when present.
@@ -33,6 +33,11 @@ class ApplySiteChrome
             if (preg_match($hero, $html)) $html = preg_replace_callback($hero, fn($m) => $m[1].$guide, $html, 1);
             elseif (preg_match('/<main\b[^>]*>/i', $html)) $html = preg_replace_callback('/<main\b[^>]*>/i', fn($m) => $m[0].$guide, $html, 1);
             elseif (preg_match('/<form\b/i', $html)) $html = preg_replace_callback('/<form\b/i', fn($m) => $guide.$m[0], $html, 1);
+        }
+        // Brand theme last in <head> so it wins over page-level and older theme styles.
+        if (!str_contains($html, 'css/ascendia-theme.css')) {
+            $theme = '<link rel="stylesheet" href="'.asset('css/ascendia-theme.css').'?v=20261008-2">';
+            $html = preg_replace('/<\/head>/i', $theme.'</head>', $html, 1);
         }
         if (str_contains($html, 'data-visual-explainer=') || str_contains($html, 'data-industrial-examples')) {
             $assets='<link rel="stylesheet" href="'.asset('css/site-explanations.css').'">';
