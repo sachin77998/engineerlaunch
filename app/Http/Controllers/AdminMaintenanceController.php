@@ -24,6 +24,7 @@ class AdminMaintenanceController extends Controller
         'wikidata' => ['Discover Indian companies (Wikidata)', 'companies:discover', ['source' => 'wikidata', '--country' => ['IN'], '--pages' => 1, '--now' => true]],
         'osm' => ['Queue industrial hub discovery (OpenStreetMap)', 'companies:discover', ['source' => 'osm']],
         'status' => ['Show migration status', 'migrate:status', []],
+        'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
     ];
 
     public function index()

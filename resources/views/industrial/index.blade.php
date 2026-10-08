@@ -431,6 +431,20 @@
 <div class="container">
     <p id="industrial-status" class="industrial-status" role="status" aria-live="polite"></p>
     <div id="industrial-taxonomy">@include('industrial.taxonomy')</div>
+    @if(isset($areaCatalog) && $areaCatalog->isNotEmpty())
+    <section class="industrial-block" id="area-companies">
+        <h2>Companies in {{ optional($areaCatalog->first())->city }} <small style="color:#64748b;font-weight:500">({{ $areaCatalog->count() }})</small></h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+            @foreach($areaCatalog as $facility)
+                <a href="{{ route('companies.show', $facility->company->slug) }}" style="display:flex;flex-direction:column;gap:4px;padding:12px 14px;border:1px solid #dde5f0;border-radius:12px;background:#fff;color:#0f1c2e;text-decoration:none">
+                    <strong>{{ $facility->company->name }}</strong>
+                    <small style="color:#5b6b82">{{ $facility->industrial_area ?: $facility->city }} · {{ $facility->industry }}</small>
+                </a>
+            @endforeach
+        </div>
+        <p style="margin-top:12px"><a href="{{ route('sectors.index', ['city' => optional($areaCatalog->first())->city]) }}">See these companies and their openings by sector →</a></p>
+    </section>
+    @endif
     <div id="industrial-results" aria-live="polite">@include('industrial.results')</div>
     @if($hubs->isNotEmpty())<section class="industrial-block">
         <h2>Popular Industrial Hubs</h2>

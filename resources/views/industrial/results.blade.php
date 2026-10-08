@@ -93,6 +93,13 @@
         margin-bottom: 15px;
     }
 
+    .industrial-card { position: relative; }
+    .industrial-card h3 a { color: inherit; text-decoration: none; }
+    .industrial-card h3 a::after { content: ""; position: absolute; inset: 0; z-index: 0; border-radius: inherit; }
+    .industrial-card:hover h3 a { color: #1d5fd1; }
+    .industrial-card a:not(h3 a), .industrial-card details, .industrial-card summary, .industrial-card button { position: relative; z-index: 1; }
+    .industrial-stat-link { color: inherit; text-decoration: none; }
+    .industrial-stat-link:hover { color: #1d5fd1; text-decoration: underline; }
     .industrial-card-icon {
         width: 42px;
         height: 42px;
@@ -465,12 +472,9 @@
                 <div class="industrial-card-footer">
 
                     <div class="industrial-stat">
-                        <strong>{{ number_format($area->companies_count) }}</strong>
-                        companies / plants
+                        <a class="industrial-stat-link" href="{{ route('sectors.index', ['city' => $area->activity_city]) }}"><strong>{{ number_format(($area->companies_count ?? 0) + ($area->catalog_companies_count ?? 0)) }}</strong> companies / plants</a>
                         <br>
-
-                        <strong>{{ number_format($area->live_jobs_count) }}</strong>
-                        live openings
+                        <a class="industrial-stat-link" href="{{ route('sectors.index', ['city' => $area->activity_city]) }}"><strong>{{ number_format(($area->live_jobs_count ?? 0) + ($area->city_jobs_count ?? 0)) }}</strong> live openings</a>
                     </div>
 
                     <a

@@ -19,10 +19,11 @@ class EnsureEnvironmentSettings extends Command
         'JOOBLE_HOST' => 'jooble.org',
         'JOOBLE_COUNTRY' => '"United States"',
         'DISCOVERY_RADIUS' => '4500',
+        'APP_FORCE_HTTPS' => 'false',
     ];
 
     // Values enforced on production regardless of what is currently set.
-    private const ENFORCED = ['APP_DEBUG' => 'false'];
+    private const ENFORCED = ['APP_DEBUG' => 'false', 'APP_ENV' => 'production'];
 
     public function handle(): int
     {

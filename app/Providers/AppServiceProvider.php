@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
             return rtrim((string) config('app.url'), '/').'/reset-password/'.rawurlencode($token).'?email='.rawurlencode($user->getEmailForPasswordReset());
         });
 
-        if ($this->app->environment('production')) {
+        if (config('app.force_https')) {
             URL::forceScheme('https');
         }
 

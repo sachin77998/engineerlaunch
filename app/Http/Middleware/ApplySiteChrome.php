@@ -34,6 +34,11 @@ class ApplySiteChrome
             elseif (preg_match('/<main\b[^>]*>/i', $html)) $html = preg_replace_callback('/<main\b[^>]*>/i', fn($m) => $m[0].$guide, $html, 1);
             elseif (preg_match('/<form\b/i', $html)) $html = preg_replace_callback('/<form\b/i', fn($m) => $guide.$m[0], $html, 1);
         }
+        // Icon font for pages that use Font Awesome classes (cards showed empty boxes without it).
+        if (preg_match('/class="[^"]*\\bfa[srb]? fa-/', $html) && !str_contains($html, 'font-awesome')) {
+            $icons = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">';
+            $html = preg_replace('/<\/head>/i', $icons.'</head>', $html, 1);
+        }
         // Brand theme last in <head> so it wins over page-level and older theme styles.
         if (!str_contains($html, 'css/ascendia-theme.css')) {
             $theme = '<link rel="stylesheet" href="'.asset('css/ascendia-theme.css').'?v=20261008-2">';

@@ -197,6 +197,8 @@ class IndustrialAreaController extends Controller
         //   INDUSTRIAL AREAS RESULT
         $areas = $baseAreas->with('state')->withCount(['companies' => fn ($q) => $q->visible(), 'jobs as live_jobs_count' => fn ($q) => $q->live()])
             ->orderByDesc('is_featured')->orderBy('name')->orderBy('id')->paginate(12)->withQueryString();
+        $this->attachCityActivity($areas->getCollection());
+        $areaCatalog = $this->areaCatalog($request);
         //   COMPANIES RESULT
 
         $companies = $companiesQuery->with('area.state', 'sources', 'sectors')->withCount(['jobs as live_jobs_count' => fn ($q) => $q->live()])
@@ -255,6 +257,7 @@ class IndustrialAreaController extends Controller
             'filters',
             'options',
             'areas',
+            'areaCatalog',
             'companies',
             'jobs',
             'hubs'
@@ -590,5 +593,36 @@ class IndustrialAreaController extends Controller
                 $company->slug,
             ]
         );
+    }
+
+    /** Counts catalogued companies (plants/offices) and live openings in each area's city. */
+    private function attachCityActivity($areas): void
+    {
+        $hasFacilities = \Illuminate\Support\Facades\Schema::hasTable('company_facilities');
+        $hasJobs = \Illuminate\Support\Facades\Schema::hasTable('jobs');
+        foreach ($areas as $area) {
+            $city = trim((string) ($area->city ?: $area->district));
+            $area->setAttribute('activity_city', $city);
+            if ($city === '') { $area->setAttribute('catalog_companies_count', 0); $area->setAttribute('city_jobs_count', 0); continue; }
+            $key = 'industrial-city-activity:' . \Illuminate\Support\Str::slug($city);
+            [$companies, $jobs] = \Illuminate\Support\Facades\Cache::remember($key, now()->addHour(), fn () => [
+                $hasFacilities ? \App\Models\CompanyFacility::where('city', $city)->distinct()->count('company_id') : 0,
+                $hasJobs ? \App\Models\Job::active()->where('location', 'like', '%' . addcslashes($city, '%_\\') . '%')->count() : 0,
+            ]);
+            $area->setAttribute('catalog_companies_count', $companies);
+            $area->setAttribute('city_jobs_count', $jobs);
+        }
+    }
+
+    /** Real companies with a plant or office in the selected area's city (area detail pages). */
+    private function areaCatalog(Request $request)
+    {
+        if (!$request->filled('area') || !\Illuminate\Support\Facades\Schema::hasTable('company_facilities')) return collect();
+        $area = IndustrialArea::find($request->input('area'));
+        $city = trim((string) ($area?->city ?: $area?->district));
+        if ($city === '') return collect();
+        return \App\Models\CompanyFacility::with('company:id,name,slug,website,logo_url,industry')
+            ->where('city', $city)->whereHas('company', fn ($q) => $q->active())
+            ->orderBy('industrial_area')->limit(120)->get()->unique('company_id')->values();
     }
 }

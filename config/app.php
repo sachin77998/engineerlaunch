@@ -43,6 +43,10 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    // HTTPS redirect, HSTS, https URLs and secure cookies. Enable only once an SSL certificate is active
+    // (php artisan security:https --enable checks this first).
+    'force_https' => (bool) env('APP_FORCE_HTTPS', env('APP_ENV') === 'production'),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
