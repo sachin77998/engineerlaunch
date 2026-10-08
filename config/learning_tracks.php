@@ -8,6 +8,7 @@ $dsaForLoopLessons = require __DIR__.'/dsa_for_loops.php';
 $javaInputOutputLessons = require __DIR__.'/java_input_output.php';
 $sqlInterview = require __DIR__.'/sql_interview.php';
 $kafkaInterview = require __DIR__.'/kafka_interview.php';
+$laravelInterview = require __DIR__.'/laravel_interview.php';
 
 return [
     'kafka'=>['title'=>'Apache Kafka','icon'=>'K','color'=>'#dc2626','description'=>'100 interview questions with practical answers covering fundamentals, production operations and architecture.','topics'=>[
@@ -71,7 +72,8 @@ return [
         'heap-graph'=>['title'=>'Heap and Graph','questions'=>['Kth Largest Element','Top K Frequent Elements','Merge K Sorted Lists','Breadth First Search','Depth First Search','Detect Cycle in Graph','Dijkstra\'s Algorithm','Topological Sort']],
         'greedy-dp'=>['title'=>'Greedy and Dynamic Programming','questions'=>['Activity Selection','Job Sequencing','Fractional Knapsack','Climbing Stairs','House Robber','Coin Change','Longest Increasing Subsequence','Longest Common Subsequence','0/1 Knapsack']],
     ]],
-    'php-laravel' => ['title'=>'PHP & Laravel','icon'=>'PHP','color'=>'#7c3aed','description'=>'Complete PHP and Laravel preparation built around a production job portal.','topics'=>[
+    'php-laravel' => ['title'=>'PHP & Laravel','icon'=>'PHP','color'=>'#7c3aed','description'=>'Complete PHP and Laravel preparation built around a production job portal.','answers'=>$laravelInterview['answers'],'topics'=>[
+        'laravel-interview'=>['title'=>'Laravel 5-Year Interview (Q1–25)','questions'=>$laravelInterview['questions']],
         'laravel-foundations'=>['title'=>'Laravel Foundations: Practical Lessons','type'=>'tutorial','questions'=>array_column(array_merge(config('laravel_foundations', []), config('laravel_advanced', [])),'title')],
         'php-strings'=>['title'=>'PHP Strings','questions'=>['How do strlen() and mb_strlen() differ?','How do strpos(), stripos() and str_contains() work?','How do substr(), explode() and implode() work?','When should you use str_replace() versus preg_replace()?','How do trim(), ltrim(), rtrim() and str_pad() work?','How do sprintf() and number_format() format output?','How do Laravel Str::slug(), Str::limit() and Str::mask() work?','How do you escape output safely with htmlspecialchars()?']],
         'php-oop'=>['title'=>'Classes and Objects','questions'=>['How do you define a typed PHP class?','What are properties, constructors and methods?','How does inheritance work in PHP?','What is method overriding?','What contract does an interface provide?','When should you use an abstract class?','What is a trait?','How do static properties and methods work?','How would you model JobPosting and FeaturedJobPosting?']],

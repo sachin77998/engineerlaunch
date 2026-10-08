@@ -7,6 +7,19 @@ class LearningPresentation
     public function blocks(string $text): array
     {
         $blocks = [];
+        foreach (preg_split('/(```[^\n]*\n.*?\n```)/s', trim($text), -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) as $segment) {
+            if (str_starts_with($segment, '```')) {
+                $blocks[] = ['type' => 'code', 'text' => trim(preg_replace('/^```[^\n]*\n|\n```$/', '', $segment), "\n")];
+                continue;
+            }
+            array_push($blocks, ...$this->paragraphBlocks($segment));
+        }
+        return $blocks;
+    }
+
+    private function paragraphBlocks(string $text): array
+    {
+        $blocks = [];
         foreach (preg_split('/\R\s*\R/u', trim($text), -1, PREG_SPLIT_NO_EMPTY) as $paragraph) {
             $code = preg_match('/(?:^|\n)(?:SELECT\b|WITH\b|INSERT\b|UPDATE\b|DELETE\b|CREATE\b|ALTER\b|DROP\b|GRANT\b|REVOKE\b|COMMIT\b|ROLLBACK\b|SAVEPOINT\b|TRUNCATE\b|(?:MySQL|SQL Server):\s*SELECT\b)/i', $paragraph);
             if ($code) {

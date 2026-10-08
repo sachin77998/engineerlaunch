@@ -303,7 +303,8 @@ SQL),
 $questions = [];
 foreach ($sections as $section) {
     if (!str_starts_with($section['id'], 'q')) continue;
-    $questions[] = ['number' => count($questions) + 1, 'question' => $section['title'], 'answer' => collect($section['blocks'])->firstWhere('type', 'code')['source'] ?? ''];
+    $firstCode = current(array_filter($section['blocks'], fn ($block) => ($block['type'] ?? null) === 'code')) ?: [];
+    $questions[] = ['number' => count($questions) + 1, 'question' => $section['title'], 'answer' => $firstCode['source'] ?? ''];
 }
 
 return [

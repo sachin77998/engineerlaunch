@@ -61,12 +61,14 @@ class LearningController extends Controller
         }
 
         $questionItems = $tracks[$track]['topics'][$module]['questions'];
-        if ($track === 'java') {
-            $answers = config('java_interview_answers', []);
-            $questionItems = array_map(static function ($question) use ($answers) {
+        if ($track === 'java' || isset($tracks[$track]['answers'])) {
+            $answers = $track === 'java' ? config('java_interview_answers', []) : $tracks[$track]['answers'];
+            $questionItems = array_map(static function ($question) use ($answers, $track) {
                 if (is_array($question)) {
                     return $question;
                 }
+
+                if ($track !== 'java' && !isset($answers[$question])) return $question;
 
                 return [
                     'question' => $question,

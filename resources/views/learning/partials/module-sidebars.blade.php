@@ -12,7 +12,7 @@
     </nav>
 </aside>
 
-<aside class="learning-sidebar course-sidebar" aria-label="Other courses"><details><summary>Optional study guide</summary>@include('learning.partials.visual-overview')</details>
+<aside class="learning-sidebar course-sidebar" aria-label="Other courses">
     <div class="sidebar-title"><span class="sidebar-kicker">EXPLORE MORE</span><h2>Other courses</h2></div>
     <nav class="other-course-links">
         @foreach($allTracks as $otherSlug => $otherTrack)
@@ -25,4 +25,5 @@
         @endforeach
     </nav>
     <a class="all-courses-link" href="{{route('learning.index')}}">View all courses →</a>
+    <details style="margin:12px"><summary>Optional study guide</summary>@include('learning.partials.visual-overview')</details>
 </aside>
