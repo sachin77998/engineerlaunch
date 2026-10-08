@@ -53,7 +53,7 @@ class ConfigureHttps extends Command
     {
         if (!is_file($path) || !is_writable($path)) { $this->warn("{$path} is not writable; set these manually: " . json_encode($values)); return; }
         $contents = file_get_contents($path);
-        copy($path, $path . '.backup-' . date('YmdHis'));
+        EnsureEnvironmentSettings::backup($path);
         foreach ($values as $key => $value) {
             $pattern = '/^' . preg_quote($key, '/') . '=.*$/m';
             $contents = preg_match($pattern, $contents) ? preg_replace($pattern, "{$key}={$value}", $contents) : rtrim($contents, "\r\n") . "\n{$key}={$value}\n";

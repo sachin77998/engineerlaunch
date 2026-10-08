@@ -25,6 +25,24 @@ class EnsureEnvironmentSettings extends Command
     // Values enforced on production regardless of what is currently set.
     private const ENFORCED = ['APP_DEBUG' => 'false', 'APP_ENV' => 'production'];
 
+    /** Copies .env into storage/app/env-backups; a backup next to .env counts as an uncommitted change for cPanel. */
+    public static function backup(string $path): void
+    {
+        $dir = storage_path('app/env-backups');
+        if (!is_dir($dir)) @mkdir($dir, 0750, true);
+        @copy($path, $dir . '/' . basename($path) . '.backup-' . date('YmdHis'));
+    }
+
+    /** Moves backups created by earlier versions out of the application root. */
+    public static function tidyOldBackups(string $path): void
+    {
+        $dir = storage_path('app/env-backups');
+        foreach (glob($path . '.backup-*') ?: [] as $old) {
+            if (!is_dir($dir)) @mkdir($dir, 0750, true);
+            @rename($old, $dir . '/' . basename($old));
+        }
+    }
+
     public function handle(): int
     {
         $path = $this->option('path') ?: base_path('.env');
@@ -59,9 +77,10 @@ class EnsureEnvironmentSettings extends Command
         }
 
         if ($contents !== $original) {
-            copy($path, $path . '.backup-' . date('YmdHis'));
+            self::backup($path);
             file_put_contents($path, $contents);
         }
+        self::tidyOldBackups($path);
         $this->info($changed ? 'Updated .env: ' . implode(', ', $changed) : '.env already up to date.');
         return self::SUCCESS;
     }

@@ -28,7 +28,7 @@ class HttpsSecurityTest extends TestCase
         Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('SSL certificate problem'));
         $this->artisan('security:https', ['--enable' => true, '--path' => $path])->assertFailed();
         $this->assertStringContainsString('APP_FORCE_HTTPS=false', file_get_contents($path));
-        array_map('unlink', glob($path . '*'));
+        array_map('unlink', array_merge(glob($path . '*'), glob(storage_path('app/env-backups/' . basename($path) . '*'))));
     }
 
     public function test_enable_command_switches_to_https_when_certificate_answers(): void
@@ -40,6 +40,6 @@ class HttpsSecurityTest extends TestCase
         $this->artisan('security:https', ['--enable' => true, '--path' => $path])->assertSuccessful();
         $this->assertStringContainsString('APP_FORCE_HTTPS=true', file_get_contents($path));
         $this->assertStringContainsString('APP_URL=https://portal.example', file_get_contents($path));
-        array_map('unlink', glob($path . '*'));
+        array_map('unlink', array_merge(glob($path . '*'), glob(storage_path('app/env-backups/' . basename($path) . '*'))));
     }
 }

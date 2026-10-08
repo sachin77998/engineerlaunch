@@ -7,6 +7,9 @@
 .env
 .env.backup
 .env.production
+# Any .env copy (backups made by env:ensure / security:https) must never block a cPanel deploy.
+.env.*
+!.env.example
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
