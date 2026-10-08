@@ -14,8 +14,8 @@ class CompanyCategory extends Model
         return 'slug';
     }
 
-    protected $fillable = ['parent_id', 'name', 'slug', 'taxonomy', 'symbol', 'description', 'sort_order', 'is_active'];
-    protected $casts = ['is_active' => 'boolean'];
+    protected $fillable = ['parent_id', 'name', 'slug', 'taxonomy', 'symbol', 'description', 'sort_order', 'is_active', 'roles'];
+    protected $casts = ['is_active' => 'boolean', 'roles' => 'array'];
 
     public function parent(): BelongsTo
     {

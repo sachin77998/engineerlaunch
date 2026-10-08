@@ -15,5 +15,6 @@ return [
         'email_dispatch' => env('KAFKA_TOPIC_EMAIL_DISPATCH', 'ascendia.email.dispatch.v1'),
         'profile_audit' => env('KAFKA_TOPIC_PROFILE_AUDIT', 'ascendia.profile.audit.v1'),
         'news_events' => env('KAFKA_TOPIC_NEWS_EVENTS', 'ascendia.news.events.v1'),
+        'company_catalog' => env('KAFKA_TOPIC_COMPANY_CATALOG', 'ascendia.company.catalog.v1'),
     ],
 ];

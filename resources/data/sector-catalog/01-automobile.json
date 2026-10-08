@@ -1,0 +1,386 @@
+{
+  "sectors": [
+    {
+      "name": "Automobile Manufacturers",
+      "symbol": "AU",
+      "roles": {
+        "Production & Assembly": ["Production Supervisor", "Assembly Line Operator", "Paint Shop Technician", "Weld Shop Operator", "Press Shop Operator", "Die Setter Technician", "Conveyor Technician", "Tool, Die & Fixture Technician"],
+        "Maintenance": ["Maintenance Fitter", "Die Maintenance Fitter", "Electrician", "Heavy Machine Shop Technician", "Diesel Mechanic", "Tractor Mechanic", "Robotics Technician"],
+        "Machining": ["VMC Operator", "CNC Operator", "Turner", "Milling Machinist", "Grinding Operator"],
+        "Quality": ["Quality Inspector", "Supplier Quality Engineer", "Vehicle Audit Engineer", "Metrology Lab Technician"],
+        "Supply Chain & Purchase": ["Commodity Buyer", "Vendor Development Engineer", "Store Executive (ITI)", "Dispatch Executive", "Production Planning Engineer"],
+        "Sales & Service": ["Area Manager - Spare Parts Sales", "Service Advisor", "Dealer Development Manager", "Warranty Engineer"],
+        "Engineering & R&D": ["Design Engineer (CATIA/NX)", "Vehicle Integration Engineer", "Powertrain Engineer", "EV Battery Engineer", "Homologation Engineer"]
+      },
+      "subsectors": [
+        {
+          "name": "Passenger Cars",
+          "companies": [
+            {"name": "Maruti Suzuki India", "website": "https://www.marutisuzuki.com", "hq": "New Delhi", "country": "India", "brands": ["Swift", "Baleno", "Brezza", "Dzire", "Ertiga", "Grand Vitara", "Nexa"], "products": "Passenger cars and utility vehicles", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "Maruti Udyog Gurugram Plant"},
+              {"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"},
+              {"state": "Haryana", "city": "Sonipat", "area": "IMT Kharkhoda"},
+              {"state": "Gujarat", "city": "Ahmedabad", "area": "Hansalpur, Becharaji"}
+            ]},
+            {"name": "Hyundai Motor India", "website": "https://www.hyundai.com/in/en", "hq": "Chennai", "country": "India", "brands": ["Creta", "Venue", "i20", "Verna", "Exter"], "products": "Passenger cars and SUVs", "plants": [
+              {"state": "Tamil Nadu", "city": "Sriperumbudur", "area": "Irungattukottai SIPCOT"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Talegaon MIDC"}
+            ]},
+            {"name": "Tata Motors", "website": "https://www.tatamotors.com", "hq": "Mumbai", "country": "India", "brands": ["Nexon", "Punch", "Harrier", "Safari", "Tiago", "Tata.ev"], "products": "Passenger, electric and commercial vehicles", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Pimpri-Chinchwad"},
+              {"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"},
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 11 (Tata Vendor Park)"},
+              {"state": "Jharkhand", "city": "Jamshedpur", "area": "Telco Colony Works"},
+              {"state": "Uttar Pradesh", "city": "Lucknow", "area": "Chinhat Industrial Area"},
+              {"state": "Karnataka", "city": "Dharwad", "area": "Dharwad Plant"}
+            ]},
+            {"name": "Mahindra & Mahindra", "website": "https://www.mahindra.com", "hq": "Mumbai", "country": "India", "brands": ["Scorpio", "XUV700", "Thar", "Bolero", "XEV 9e", "BE 6"], "products": "SUVs, pickups, tractors and farm equipment", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Chakan MIDC"},
+              {"state": "Maharashtra", "city": "Nashik", "area": "Nashik Satpur / Igatpuri"},
+              {"state": "Telangana", "city": "Zaheerabad", "area": "Zaheerabad Plant"},
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar"},
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "Kichha Road / Lalpur (Tractor Division)"}
+            ]},
+            {"name": "Toyota Kirloskar Motor", "website": "https://www.toyotabharat.com", "hq": "Bengaluru", "country": "India", "brands": ["Innova", "Fortuner", "Hyryder", "Glanza", "Camry"], "products": "Passenger cars and MPVs", "plants": [
+              {"state": "Karnataka", "city": "Bidadi", "area": "Bidadi Industrial Area"}
+            ]},
+            {"name": "Honda Cars India", "website": "https://www.hondacarindia.com", "hq": "Greater Noida", "country": "India", "brands": ["City", "Amaze", "Elevate"], "products": "Passenger cars", "plants": [
+              {"state": "Rajasthan", "city": "Alwar", "area": "Tapukara Industrial Area"}
+            ]},
+            {"name": "Kia India", "website": "https://www.kia.com/in", "hq": "Anantapur", "country": "India", "brands": ["Seltos", "Sonet", "Carens", "Syros"], "products": "Passenger cars and SUVs", "plants": [
+              {"state": "Andhra Pradesh", "city": "Anantapur", "area": "Penukonda"}
+            ]},
+            {"name": "Skoda Auto Volkswagen India", "website": "https://www.skoda-vw.co.in", "hq": "Pune", "country": "India", "brands": ["Skoda Kushaq", "Skoda Slavia", "Volkswagen Virtus", "Volkswagen Taigun"], "products": "Passenger cars (Skoda, Volkswagen, Audi assembly)", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Chakan MIDC"},
+              {"state": "Maharashtra", "city": "Chhatrapati Sambhajinagar", "area": "Shendra MIDC"}
+            ]},
+            {"name": "JSW MG Motor India", "website": "https://www.mgmotor.co.in", "hq": "Gurugram", "country": "India", "brands": ["Hector", "Astor", "Windsor EV", "Comet EV"], "products": "Passenger and electric vehicles", "plants": [
+              {"state": "Gujarat", "city": "Halol", "area": "Halol GIDC"}
+            ]},
+            {"name": "Renault India", "website": "https://www.renault.co.in", "hq": "Chennai", "country": "India", "brands": ["Kwid", "Kiger", "Triber"], "products": "Passenger cars", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Oragadam"}
+            ]},
+            {"name": "Nissan Motor India", "website": "https://www.nissan.in", "hq": "Chennai", "country": "India", "brands": ["Magnite"], "products": "Passenger cars", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Oragadam"}
+            ]},
+            {"name": "Citroen India (Stellantis)", "website": "https://www.citroen.in", "hq": "Chennai", "country": "India", "brands": ["Citroen C3", "Basalt", "Jeep Compass"], "products": "Passenger cars", "plants": [
+              {"state": "Tamil Nadu", "city": "Thiruvallur", "area": "Tiruvallur Plant"}
+            ]}
+          ]
+        },
+        {
+          "name": "Luxury & Global Car Brands",
+          "companies": [
+            {"name": "Audi India", "website": "https://www.audi.in", "hq": "Mumbai", "country": "Germany", "brands": ["A4", "A6", "Q3", "Q5", "Q7", "e-tron"], "products": "Luxury cars (assembled at Chhatrapati Sambhajinagar)"},
+            {"name": "BMW India", "website": "https://www.bmw.in", "hq": "Gurugram", "country": "Germany", "brands": ["BMW", "MINI", "BMW Motorrad"], "products": "Luxury cars and motorcycles", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Mahindra World City"}
+            ]},
+            {"name": "Mercedes-Benz India", "website": "https://www.mercedes-benz.co.in", "hq": "Pune", "country": "Germany", "brands": ["C-Class", "E-Class", "GLC", "EQS"], "products": "Luxury cars", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Chakan MIDC"}
+            ]},
+            {"name": "Jaguar Land Rover India", "website": "https://www.landrover.in", "hq": "Mumbai", "country": "United Kingdom", "brands": ["Range Rover", "Defender", "Jaguar"], "products": "Luxury SUVs and cars"},
+            {"name": "Volkswagen Group", "website": "https://www.volkswagen-group.com", "hq": "Wolfsburg", "country": "Germany", "brands": ["Volkswagen", "Audi", "Porsche", "Skoda", "SEAT", "Lamborghini"], "products": "Global automobile group"},
+            {"name": "Toyota Motor Corporation", "website": "https://global.toyota", "hq": "Toyota City", "country": "Japan", "brands": ["Toyota", "Lexus", "Daihatsu"], "products": "Global automobile manufacturer"},
+            {"name": "Honda Motor Co.", "website": "https://global.honda", "hq": "Tokyo", "country": "Japan", "brands": ["Honda", "Acura"], "products": "Cars, motorcycles and power products"},
+            {"name": "Stellantis", "website": "https://www.stellantis.com", "hq": "Amsterdam", "country": "Netherlands", "brands": ["Jeep", "Citroen", "Peugeot", "Fiat", "Chrysler"], "products": "Global automobile group"}
+          ]
+        },
+        {
+          "name": "Two-Wheelers & Three-Wheelers",
+          "companies": [
+            {"name": "Hero MotoCorp", "website": "https://www.heromotocorp.com", "hq": "New Delhi", "country": "India", "brands": ["Splendor", "HF Deluxe", "Glamour", "Xpulse", "Vida"], "products": "Motorcycles and scooters", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Estate (NH-48)"},
+              {"state": "Haryana", "city": "Gurugram", "area": "Gurugram Plant"},
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 10"},
+              {"state": "Rajasthan", "city": "Neemrana", "area": "Neemrana Industrial Area"},
+              {"state": "Gujarat", "city": "Halol", "area": "Halol GIDC"},
+              {"state": "Andhra Pradesh", "city": "Chittoor", "area": "Sri City"}
+            ]},
+            {"name": "Bajaj Auto", "website": "https://www.bajajauto.com", "hq": "Pune", "country": "India", "brands": ["Pulsar", "Platina", "Chetak", "Dominar", "KTM (India)"], "products": "Motorcycles, scooters and three-wheelers", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Chakan MIDC"},
+              {"state": "Maharashtra", "city": "Chhatrapati Sambhajinagar", "area": "Waluj MIDC"},
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}
+            ]},
+            {"name": "TVS Motor Company", "website": "https://www.tvsmotor.com", "hq": "Chennai", "country": "India", "brands": ["Apache", "Jupiter", "Ntorq", "Raider", "iQube"], "products": "Motorcycles, scooters and EVs", "plants": [
+              {"state": "Tamil Nadu", "city": "Hosur", "area": "Hosur SIPCOT"},
+              {"state": "Karnataka", "city": "Mysuru", "area": "Nanjangud"},
+              {"state": "Himachal Pradesh", "city": "Nalagarh", "area": "Nalagarh Industrial Area"}
+            ]},
+            {"name": "Royal Enfield (Eicher Motors)", "website": "https://www.royalenfield.com", "hq": "Chennai", "country": "India", "brands": ["Classic 350", "Bullet", "Hunter", "Himalayan", "Interceptor"], "products": "Mid-size motorcycles", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Oragadam"},
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Vallam Vadagal"},
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Thiruvottiyur"}
+            ]},
+            {"name": "Honda Motorcycle & Scooter India", "website": "https://www.honda2wheelersindia.com", "hq": "Gurugram", "country": "India", "brands": ["Activa", "Shine", "Unicorn", "Dio"], "products": "Motorcycles and scooters", "plants": [
+              {"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"},
+              {"state": "Rajasthan", "city": "Alwar", "area": "Tapukara Industrial Area"},
+              {"state": "Karnataka", "city": "Kolar", "area": "Narsapura Industrial Area"},
+              {"state": "Gujarat", "city": "Mehsana", "area": "Vithalapur"}
+            ]},
+            {"name": "Suzuki Motorcycle India", "website": "https://www.suzukimotorcycle.co.in", "hq": "Gurugram", "country": "India", "brands": ["Access", "Burgman", "Gixxer"], "products": "Scooters and motorcycles", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "Kherki Daula"}
+            ]},
+            {"name": "India Yamaha Motor", "website": "https://www.yamaha-motor-india.com", "hq": "Chennai", "country": "India", "brands": ["R15", "FZ", "MT-15", "Fascino", "RayZR"], "products": "Motorcycles and scooters", "plants": [
+              {"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Surajpur Industrial Area"},
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Oragadam"}
+            ]},
+            {"name": "Ola Electric", "website": "https://www.olaelectric.com", "hq": "Bengaluru", "country": "India", "brands": ["S1 Pro", "S1 Air", "Roadster"], "products": "Electric scooters and cells", "plants": [
+              {"state": "Tamil Nadu", "city": "Krishnagiri", "area": "Ola Futurefactory, Pochampalli"}
+            ]},
+            {"name": "Ather Energy", "website": "https://www.atherenergy.com", "hq": "Bengaluru", "country": "India", "brands": ["Ather 450", "Rizta"], "products": "Electric scooters", "plants": [
+              {"state": "Tamil Nadu", "city": "Hosur", "area": "Hosur Plant"}
+            ]},
+            {"name": "Atul Auto", "website": "https://www.atulauto.co.in", "hq": "Rajkot", "country": "India", "brands": ["Atul Gem", "Atul Shakti", "Atul Elite"], "products": "Three-wheelers", "plants": [
+              {"state": "Gujarat", "city": "Rajkot", "area": "Shapar Industrial Area"}
+            ]},
+            {"name": "Hero Cycles", "website": "https://www.herocycles.com", "hq": "Ludhiana", "country": "India", "brands": ["Hero", "Hero Lectro", "Firefox"], "products": "Bicycles and e-bikes", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Focal Point Phase VIII"}
+            ]},
+            {"name": "Avon Cycles", "website": "https://www.avoncycles.com", "hq": "Ludhiana", "country": "India", "brands": ["Avon"], "products": "Bicycles, e-rickshaws and components", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "GT Road / Dhandari Kalan"}
+            ]}
+          ]
+        },
+        {
+          "name": "Commercial Vehicles & Buses",
+          "companies": [
+            {"name": "Ashok Leyland", "website": "https://www.ashokleyland.com", "hq": "Chennai", "country": "India", "brands": ["Dost", "Bada Dost", "Ecomet", "Switch EV"], "products": "Trucks, buses and light commercial vehicles", "plants": [
+              {"state": "Tamil Nadu", "city": "Hosur", "area": "Hosur Plant"},
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Ennore"},
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"},
+              {"state": "Rajasthan", "city": "Alwar", "area": "Alwar Plant"}
+            ]},
+            {"name": "VE Commercial Vehicles (Eicher)", "website": "https://www.vecv.in", "hq": "Gurugram", "country": "India", "brands": ["Eicher Pro", "Volvo Buses India"], "products": "Trucks, buses and engines", "plants": [
+              {"state": "Madhya Pradesh", "city": "Pithampur", "area": "Pithampur Industrial Area"}
+            ]},
+            {"name": "Daimler India Commercial Vehicles", "website": "https://www.bharatbenz.com", "hq": "Chennai", "country": "India", "brands": ["BharatBenz"], "products": "Trucks and buses", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Oragadam"}
+            ]},
+            {"name": "Force Motors", "website": "https://www.forcemotors.com", "hq": "Pune", "country": "India", "brands": ["Traveller", "Urbania", "Gurkha", "Trax"], "products": "Vans, utility vehicles and engines", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Akurdi"},
+              {"state": "Madhya Pradesh", "city": "Pithampur", "area": "Pithampur Industrial Area"}
+            ]},
+            {"name": "SML Mahindra (SML Isuzu)", "website": "https://www.smlisuzu.com", "hq": "Chandigarh", "country": "India", "brands": ["SML Isuzu"], "products": "Buses and trucks", "plants": [
+              {"state": "Punjab", "city": "Ropar", "area": "Asron, Nawanshahr"}
+            ]},
+            {"name": "PMI Coaches", "hq": "Rewari", "country": "India", "products": "Commercial vehicle body building and mechanical assembly", "plants": [
+              {"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 3"}
+            ]}
+          ]
+        },
+        {
+          "name": "Tractors & Farm Machinery",
+          "companies": [
+            {"name": "Swaraj Tractors (Mahindra)", "website": "https://www.swarajtractors.com", "hq": "Mohali", "country": "India", "brands": ["Swaraj 744", "Swaraj 855", "Swaraj Target"], "products": "Tractors and harvesters", "plants": [
+              {"state": "Punjab", "city": "Mohali", "area": "Industrial Area Phase IV, SAS Nagar"}
+            ]},
+            {"name": "Escorts Kubota", "website": "https://www.escortskubota.com", "hq": "Faridabad", "country": "India", "brands": ["Farmtrac", "Powertrac", "Kubota", "Escorts Construction Equipment"], "products": "Tractors, construction equipment and railway parts", "plants": [
+              {"state": "Haryana", "city": "Faridabad", "area": "Sector 13 / Mathura Road"}
+            ]},
+            {"name": "Sonalika Tractors (International Tractors)", "website": "https://www.sonalika.com", "hq": "Hoshiarpur", "country": "India", "brands": ["Sonalika", "Solis"], "products": "Tractors", "plants": [
+              {"state": "Punjab", "city": "Hoshiarpur", "area": "Jalandhar Road"}
+            ]},
+            {"name": "TAFE - Tractors and Farm Equipment", "website": "https://www.tafe.com", "hq": "Chennai", "country": "India", "brands": ["Massey Ferguson (India)", "Eicher Tractors", "IMT"], "products": "Tractors and farm equipment", "plants": [
+              {"state": "Tamil Nadu", "city": "Chennai", "area": "Padi / Kalakkad"},
+              {"state": "Madhya Pradesh", "city": "Bhopal", "area": "Mandideep (Eicher Tractors)"}
+            ]},
+            {"name": "John Deere India", "website": "https://www.deere.co.in", "hq": "Pune", "country": "United States", "brands": ["John Deere"], "products": "Tractors, harvesters and engines", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Sanaswadi"},
+              {"state": "Madhya Pradesh", "city": "Dewas", "area": "Dewas Industrial Area"}
+            ]},
+            {"name": "CNH Industrial India (New Holland)", "website": "https://www.newholland.com", "hq": "Gurugram", "country": "United Kingdom", "brands": ["New Holland", "Case Construction"], "products": "Tractors and construction equipment", "plants": [
+              {"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Greater Noida Plant"}
+            ]},
+            {"name": "Kubota Corporation", "website": "https://www.kubota.com", "hq": "Osaka", "country": "Japan", "brands": ["Kubota"], "products": "Tractors and agricultural machinery"},
+            {"name": "Mitsubishi Heavy Industries", "website": "https://www.mhi.com", "hq": "Tokyo", "country": "Japan", "brands": ["Mitsubishi"], "products": "Machinery, engines and agri equipment"},
+            {"name": "Sumati Engineering", "hq": "Rudrapur", "country": "India", "products": "Tractor and mechanical components", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 6"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auto Components, Forging & Casting",
+      "symbol": "AC",
+      "roles": {
+        "Foundry & Casting": ["Mould Master Operator", "Sand Plant Operator", "Melter", "Core Shooter Machine Operator", "Core Inspector", "Casting Inspector", "Pattern Maker", "Fettling Operator", "Shot Blasting Operator", "HPDC Operator"],
+        "Forging": ["Forging Hammer Operator", "Press Operator", "Heat Treatment Operator", "Die Setter Technician", "Billet Cutting Operator"],
+        "Machining": ["VMC Operator", "CNC Operator", "Turner", "Milling Machinist", "Grinding Operator", "Tooling Inspector"],
+        "Maintenance": ["Maintenance Fitter", "Die Maintenance Fitter", "Electrician", "Welder", "Fitter", "Conveyor Technician", "Mason"],
+        "Quality & Lab": ["Quality Inspector", "Lab Attendant", "Metallurgist", "Spectro Lab Chemist", "CMM Operator"],
+        "Support": ["Store Executive (ITI)", "Dispatch Executive", "Driver", "Peon", "Helper", "Commodity Buyer"]
+      },
+      "subsectors": [
+        {
+          "name": "Casting & Die Casting (India)",
+          "companies": [
+            {"name": "Endurance Technologies", "website": "https://www.endurancegroup.com", "hq": "Chhatrapati Sambhajinagar", "country": "India", "products": "Aluminium die casting, suspension and brakes for 2W/4W", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 10"}
+            ]},
+            {"name": "Rico Auto Industries", "website": "https://www.ricoauto.com", "hq": "Gurugram", "country": "India", "products": "Aluminium and ferrous high-pressure castings, auto dies", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area (NH-48)"},
+              {"state": "Haryana", "city": "Gurugram", "area": "Gurugram Plant"}
+            ]},
+            {"name": "Brakes India (Foundry Division)", "website": "https://www.brakesindia.com", "hq": "Chennai", "country": "India", "products": "Grey and ductile iron castings"},
+            {"name": "Sundram Fasteners (Casting Division)", "website": "https://www.sundram.com", "hq": "Chennai", "country": "India", "products": "Iron castings for automotive, wind energy and industry"},
+            {"name": "Rockman Industries (Hero Group)", "website": "https://www.rockman.in", "hq": "Ludhiana", "country": "India", "products": "Aluminium die casting, alloy wheels and auto components", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Focal Point Phase V"},
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 11"},
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL Vendor Park"}
+            ]},
+            {"name": "Electrosteel Castings", "website": "https://www.electrosteel.com", "hq": "Kolkata", "country": "India", "products": "Ductile iron pipes and fittings"},
+            {"name": "Nelcast", "website": "https://www.nelcast.com", "hq": "Chennai", "country": "India", "products": "Ductile and grey iron castings"},
+            {"name": "Sona Comstar", "website": "https://www.sonacomstar.com", "hq": "Gurugram", "country": "India", "products": "Driveline systems and EV motors"}
+          ]
+        },
+        {
+          "name": "Casting (Global Leaders)",
+          "companies": [
+            {"name": "Nemak", "website": "https://www.nemak.com", "hq": "Monterrey", "country": "Mexico", "products": "Aluminium powertrain and e-mobility castings"},
+            {"name": "GF Casting Solutions (Georg Fischer)", "website": "https://www.georgfischer.com", "hq": "Schaffhausen", "country": "Switzerland", "products": "Automotive, aerospace and energy castings"},
+            {"name": "Dynacast (Form Technologies)", "website": "https://www.dynacast.com", "hq": "Charlotte", "country": "United States", "products": "Precision die casting"},
+            {"name": "Ryobi Limited", "website": "https://www.ryobi-group.co.jp", "hq": "Fuchu", "country": "Japan", "products": "Aluminium block and transmission castings"},
+            {"name": "Ahresty Corporation", "website": "https://www.ahresty.co.jp", "hq": "Tokyo", "country": "Japan", "products": "High-pressure die casting"},
+            {"name": "DGS Druckguss Systeme", "website": "https://www.dgs-druckguss.com", "hq": "St. Gallen", "country": "Switzerland", "products": "Structural aluminium castings"},
+            {"name": "Mazzucconi", "hq": "Ponte San Pietro", "country": "Italy", "products": "Gravity and low-pressure aluminium castings"},
+            {"name": "CITIC Dicastal", "website": "https://www.dicastal.com", "hq": "Qinhuangdao", "country": "China", "products": "Aluminium wheels and chassis components"},
+            {"name": "FAW Foundry", "hq": "Changchun", "country": "China", "products": "Heavy truck engine blocks"},
+            {"name": "Grede Holdings", "hq": "Southfield", "country": "United States", "products": "Ductile and grey iron castings"},
+            {"name": "Waupaca Foundry", "website": "https://www.waupacafoundry.com", "hq": "Waupaca", "country": "United States", "products": "Grey and ductile iron castings"},
+            {"name": "Teksid (Stellantis)", "website": "https://www.teksid.com", "hq": "Turin", "country": "Italy", "products": "Iron and aluminium structural castings"},
+            {"name": "Linamar Corporation", "website": "https://www.linamar.com", "hq": "Guelph", "country": "Canada", "products": "Automotive and industrial power components"},
+            {"name": "Martinrea International", "website": "https://www.martinrea.com", "hq": "Vaughan", "country": "Canada", "products": "Aluminium castings and fluid systems"},
+            {"name": "Alcoa Corporation", "website": "https://www.alcoa.com", "hq": "Pittsburgh", "country": "United States", "products": "Aluminium and cast alloys"},
+            {"name": "Proterial (Hitachi Metals)", "website": "https://www.proterial.com", "hq": "Tokyo", "country": "Japan", "products": "High-grade castings and specialty materials"}
+          ]
+        },
+        {
+          "name": "Forging",
+          "companies": [
+            {"name": "Bharat Forge", "website": "https://www.bharatforge.com", "hq": "Pune", "country": "India", "products": "Forged crankshafts, axles, defence and aerospace components"},
+            {"name": "Ramkrishna Forgings", "website": "https://www.ramkrishnaforgings.com", "hq": "Kolkata", "country": "India", "products": "Closed-die forgings, rings and railway components"},
+            {"name": "Happy Forgings", "website": "https://happyforgingsltd.com", "hq": "Ludhiana", "country": "India", "products": "Heavy forgings and machined crankshafts", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Kanganwal / Focal Point"}
+            ]},
+            {"name": "MM Forgings", "website": "https://www.mmforgings.com", "hq": "Chennai", "country": "India", "products": "Steel forgings for automotive"},
+            {"name": "Highway Industries", "hq": "Ludhiana", "country": "India", "products": "Forged mechanical components and auto parts", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "GT Road / Dhandari"}
+            ]},
+            {"name": "Microtek Forgings (Bajaj Unit)", "hq": "Rewari", "country": "India", "products": "Heavy forging and engineering parts", "plants": [
+              {"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 6"}
+            ]},
+            {"name": "Mark Tubes (Forging Division)", "hq": "Dharuhera", "country": "India", "products": "Heavy forging and machining", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area"}
+            ]},
+            {"name": "Precision Castparts Corp", "website": "https://www.precast.com", "hq": "Portland", "country": "United States", "products": "Aerospace forgings and castings"},
+            {"name": "Dauch Corporation (American Axle)", "website": "https://www.aam.com", "hq": "Detroit", "country": "United States", "products": "Driveline and forged metal components"},
+            {"name": "Arconic", "website": "https://www.arconic.com", "hq": "Pittsburgh", "country": "United States", "products": "Aluminium rolled and forged products"},
+            {"name": "Nippon Steel Corporation", "website": "https://www.nipponsteel.com", "hq": "Tokyo", "country": "Japan", "products": "Steel, forged crankshafts and specialty products"},
+            {"name": "Ellwood Group", "website": "https://www.ellwoodgroup.com", "hq": "Ellwood City", "country": "United States", "products": "Open-die forgings and specialty metals"},
+            {"name": "Sumitomo Heavy Industries", "website": "https://www.shi.co.jp", "hq": "Tokyo", "country": "Japan", "products": "Forging presses, gearboxes and industrial machinery"}
+          ]
+        },
+        {
+          "name": "Bearings",
+          "companies": [
+            {"name": "NBC Bearings (National Engineering Industries)", "website": "https://www.nbcbearings.com", "hq": "Jaipur", "country": "India", "products": "Over 3,100 bearing types for automotive, rail and industry"},
+            {"name": "SKF India", "website": "https://www.skf.com/in", "hq": "Pune", "country": "Sweden", "products": "Ball and roller bearings, seals"},
+            {"name": "Timken India", "website": "https://www.timken.com", "hq": "Bengaluru", "country": "United States", "products": "Tapered roller bearings"},
+            {"name": "Schaeffler India", "website": "https://www.schaeffler.co.in", "hq": "Pune", "country": "Germany", "brands": ["FAG", "INA", "LuK"], "products": "Bearings and automotive components"},
+            {"name": "NRB Bearings", "website": "https://www.nrbbearings.com", "hq": "Mumbai", "country": "India", "products": "Needle and cylindrical roller bearings"},
+            {"name": "NSK India", "website": "https://www.nsk.com", "hq": "Chennai", "country": "Japan", "products": "Bearings and linear motion products"}
+          ]
+        },
+        {
+          "name": "Fasteners",
+          "companies": [
+            {"name": "Sundram Fasteners (TVS Group)", "website": "https://www.sundram.com", "hq": "Chennai", "country": "India", "products": "High-tensile fasteners, cold-extruded parts, powertrain components"},
+            {"name": "LPS Bossard", "website": "https://www.lpsbossard.com", "hq": "Rohtak", "country": "India", "products": "Precision fastening solutions"},
+            {"name": "Sterling Tools", "website": "https://www.stlfasteners.com", "hq": "Faridabad", "country": "India", "products": "High-tensile automotive fasteners"},
+            {"name": "Deepak Fasteners (Unbrako)", "website": "https://www.unbrako.com", "hq": "Ludhiana", "country": "India", "brands": ["Unbrako"], "products": "Socket screws and structural fasteners", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Focal Point Phase IV"}
+            ]},
+            {"name": "GS Auto International", "hq": "Ludhiana", "country": "India", "products": "Suspension components, bolts and machined castings", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Focal Point Phase VII"}
+            ]}
+          ]
+        },
+        {
+          "name": "Electricals, Wiring & Electronics",
+          "companies": [
+            {"name": "Napino Auto & Electronics", "website": "https://www.napino.com", "hq": "Gurugram", "country": "India", "products": "Wiring harnesses, ECUs and auto electrical systems", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 8A"}
+            ]},
+            {"name": "Minda Corporation (Spark Minda)", "website": "https://www.sparkminda.com", "hq": "Noida", "country": "India", "products": "Lock systems, wiring harnesses and switches", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 3"}
+            ]},
+            {"name": "Uno Minda", "website": "https://www.unominda.com", "hq": "Gurugram", "country": "India", "products": "Switches, lighting and vehicle electronics", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 10"}
+            ]},
+            {"name": "Pricol", "website": "https://www.pricol.com", "hq": "Coimbatore", "country": "India", "products": "Instruments and sensors", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 10"}
+            ]},
+            {"name": "Varroc Engineering", "website": "https://www.varroc.com", "hq": "Chhatrapati Sambhajinagar", "country": "India", "products": "Polymer parts and lighting systems", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 9"}
+            ]},
+            {"name": "Lumax Industries", "website": "https://www.lumaxworld.in", "hq": "Gurugram", "country": "India", "products": "Automotive lighting and components", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area (NH-48)"}
+            ]},
+            {"name": "Denso India", "website": "https://www.denso.com/in", "hq": "Gurugram", "country": "Japan", "products": "Thermal, powertrain and electronic systems", "plants": [
+              {"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"}
+            ]},
+            {"name": "Bosch India", "website": "https://www.bosch.in", "hq": "Bengaluru", "country": "Germany", "products": "Fuel systems, auto electronics and power tools"}
+          ]
+        },
+        {
+          "name": "Gears, Steering, Brakes & Systems",
+          "companies": [
+            {"name": "JTEKT India", "website": "https://www.jtekt.co.in", "hq": "Gurugram", "country": "Japan", "products": "Steering systems and drives", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera NH-48"}
+            ]},
+            {"name": "GKN Driveshafts India", "website": "https://www.gknautomotive.com", "hq": "Gurugram", "country": "United Kingdom", "products": "Drive shafts and driveline systems", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area"}
+            ]},
+            {"name": "ZF Commercial Vehicle Control Systems (WABCO India)", "website": "https://www.zf.com", "hq": "Chennai", "country": "Germany", "products": "Commercial vehicle air brakes", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 4"}
+            ]},
+            {"name": "Sansera Engineering", "website": "https://www.sansera.in", "hq": "Bengaluru", "country": "India", "products": "Precision engine components", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 9"}
+            ]},
+            {"name": "Advik Hi-Tech", "hq": "Pune", "country": "India", "products": "Auto parts and engine components", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 9"}
+            ]},
+            {"name": "Revathie Gear Products", "hq": "Haridwar", "country": "India", "products": "Automotive gears and transmission parts", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]},
+            {"name": "A.G. Industries", "hq": "Haridwar", "country": "India", "products": "Plastic injection moulded auto components", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]},
+            {"name": "ALF Engineering", "hq": "Haridwar", "country": "India", "products": "Automotive chassis frames and hydroforming", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 7"}
+            ]},
+            {"name": "Hema Engineering Industries", "hq": "Haridwar", "country": "India", "products": "Auto components and sheet metal parts", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "Salempur Industrial Area"}
+            ]},
+            {"name": "Emkay Automobile Industries", "hq": "Haridwar", "country": "India", "products": "Two- and four-wheeler components", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL Industrial Park 4"}
+            ]},
+            {"name": "Prabha Automotive Engineers", "hq": "Rudrapur", "country": "India", "products": "Sheet metal auto components", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]},
+            {"name": "Maanvi Auto Industries", "hq": "Rewari", "country": "India", "products": "Automotive sheet metal assemblies", "plants": [
+              {"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 3"}
+            ]},
+            {"name": "Sequence Precision Products", "hq": "Rewari", "country": "India", "products": "Precision machining and mechanical components", "plants": [
+              {"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 4"}
+            ]},
+            {"name": "Friends Engineering Co.", "hq": "Dharuhera", "country": "India", "products": "Tubular and structural sheet metal components", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area"}
+            ]}
+          ]
+        }
+      ]
+    }
+  ]
+}

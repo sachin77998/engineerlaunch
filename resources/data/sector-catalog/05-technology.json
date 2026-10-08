@@ -1,0 +1,211 @@
+{
+  "sectors": [
+    {
+      "name": "IT Services & Software",
+      "symbol": "IT",
+      "roles": {
+        "Engineering": ["Software Engineering Intern", "Trainee Engineer", "SDE 1", "SDE 2", "SDE 3", "Senior Software Engineer", "Lead Engineer", "Technical Lead", "Architect", "Engineering Manager"],
+        "Development": ["Backend Developer", "Frontend Developer", "Full Stack Developer", "Java Developer", "PHP Laravel Developer", ".NET Developer", "Python Developer", "Mobile App Developer"],
+        "Quality": ["Manual Tester", "Automation Test Engineer", "SDET", "Performance Test Engineer"],
+        "Operations": ["Production Support Engineer", "DevOps Engineer", "Site Reliability Engineer", "Cloud Engineer", "Database Administrator"],
+        "Data & AI": ["Data Analyst", "Data Engineer", "Data Scientist", "ML Engineer"],
+        "Delivery & Product": ["Scrum Master", "Project Manager", "Product Manager", "Business Analyst", "Delivery Manager"]
+      },
+      "subsectors": [
+        {
+          "name": "Indian IT Services",
+          "companies": [
+            {"name": "Tata Consultancy Services", "website": "https://www.tcs.com", "hq": "Mumbai", "country": "India", "products": "IT services, consulting and business solutions"},
+            {"name": "Infosys", "website": "https://www.infosys.com", "hq": "Bengaluru", "country": "India", "products": "Digital services and consulting"},
+            {"name": "Wipro", "website": "https://www.wipro.com", "hq": "Bengaluru", "country": "India", "products": "IT, consulting and business process services"},
+            {"name": "HCLTech", "website": "https://www.hcltech.com", "hq": "Noida", "country": "India", "products": "IT services, engineering and software"},
+            {"name": "Tech Mahindra", "website": "https://www.techmahindra.com", "hq": "Pune", "country": "India", "products": "IT and telecom services"},
+            {"name": "LTIMindtree", "website": "https://www.ltimindtree.com", "hq": "Mumbai", "country": "India", "products": "Technology consulting and digital solutions"},
+            {"name": "Hexaware Technologies", "website": "https://hexaware.com", "hq": "Navi Mumbai", "country": "India", "products": "IT services and automation"},
+            {"name": "Tata Technologies", "website": "https://www.tatatechnologies.com", "hq": "Pune", "country": "India", "products": "Engineering and product development services"},
+            {"name": "Mphasis", "website": "https://www.mphasis.com", "hq": "Bengaluru", "country": "India", "products": "IT services and cloud"},
+            {"name": "Persistent Systems", "website": "https://www.persistent.com", "hq": "Pune", "country": "India", "products": "Software product engineering"},
+            {"name": "Coforge", "website": "https://www.coforge.com", "hq": "Noida", "country": "India", "products": "IT services for BFSI and travel"},
+            {"name": "L&T Technology Services", "website": "https://www.ltts.com", "hq": "Vadodara", "country": "India", "products": "Engineering R&D services"},
+            {"name": "Zensar Technologies", "website": "https://www.zensar.com", "hq": "Pune", "country": "India", "products": "Digital solutions"},
+            {"name": "Bebo Technologies", "website": "https://www.bebotechnologies.com", "hq": "Chandigarh", "country": "India", "products": "Software development services"}
+          ]
+        },
+        {
+          "name": "Global IT Services & Consulting",
+          "companies": [
+            {"name": "Accenture", "website": "https://www.accenture.com", "hq": "Dublin", "country": "Ireland", "products": "Professional services and technology consulting"},
+            {"name": "Capgemini", "website": "https://www.capgemini.com", "hq": "Paris", "country": "France", "products": "Consulting, technology and engineering services"},
+            {"name": "Cognizant", "website": "https://www.cognizant.com", "hq": "Teaneck", "country": "United States", "products": "Digital engineering and IT services"},
+            {"name": "IBM Consulting", "website": "https://www.ibm.com", "hq": "Armonk", "country": "United States", "products": "Hybrid cloud, AI and consulting"},
+            {"name": "DXC Technology", "website": "https://dxc.com", "hq": "Ashburn", "country": "United States", "products": "IT infrastructure and outsourcing"},
+            {"name": "EPAM Systems", "website": "https://www.epam.com", "hq": "Newtown", "country": "United States", "products": "Digital platform engineering"},
+            {"name": "CGI", "website": "https://www.cgi.com", "hq": "Montreal", "country": "Canada", "products": "IT consulting and systems integration"},
+            {"name": "Leidos", "website": "https://www.leidos.com", "hq": "Reston", "country": "United States", "products": "Defence and government IT"},
+            {"name": "Peraton", "website": "https://www.peraton.com", "hq": "Herndon", "country": "United States", "products": "Government IT and space"},
+            {"name": "Amdocs", "website": "https://www.amdocs.com", "hq": "Chesterfield", "country": "United States", "products": "Telecom software and services"}
+          ]
+        },
+        {
+          "name": "European IT Services",
+          "companies": [
+            {"name": "Atos SE", "website": "https://atos.net", "hq": "Bezons", "country": "France", "products": "Cloud, cybersecurity and digital transformation"},
+            {"name": "Sopra Steria", "website": "https://www.soprasteria.com", "hq": "Paris", "country": "France", "products": "Consulting, digital services and software"},
+            {"name": "Reply", "website": "https://www.reply.com", "hq": "Turin", "country": "Italy", "products": "Digital transformation and cloud"},
+            {"name": "GFT Technologies", "website": "https://www.gft.com", "hq": "Stuttgart", "country": "Germany", "products": "Banking, insurance and manufacturing IT"},
+            {"name": "Tietoevry", "website": "https://www.tietoevry.com", "hq": "Espoo", "country": "Finland", "products": "Digital services and product engineering"},
+            {"name": "Alten", "website": "https://www.alten.com", "hq": "Boulogne-Billancourt", "country": "France", "products": "Engineering and technology consulting"},
+            {"name": "Inetum", "website": "https://www.inetum.com", "hq": "Saint-Ouen", "country": "France", "products": "Digital services"},
+            {"name": "Devoteam", "website": "https://www.devoteam.com", "hq": "Levallois-Perret", "country": "France", "products": "Cloud and AI consulting"},
+            {"name": "Neurones", "website": "https://www.neurones.net", "hq": "Nanterre", "country": "France", "products": "IT consulting and infrastructure"},
+            {"name": "Wavestone", "website": "https://www.wavestone.com", "hq": "Paris", "country": "France", "products": "Management and cybersecurity consulting"},
+            {"name": "msg group", "website": "https://www.msg.group", "hq": "Ismaning", "country": "Germany", "products": "Insurance, banking and automotive IT"},
+            {"name": "adesso SE", "website": "https://www.adesso.de", "hq": "Dortmund", "country": "Germany", "products": "Custom software development"},
+            {"name": "Ferchau", "website": "https://www.ferchau.com", "hq": "Gummersbach", "country": "Germany", "products": "Engineering and IT services"},
+            {"name": "Bechtle", "website": "https://www.bechtle.com", "hq": "Neckarsulm", "country": "Germany", "products": "IT systems integration and managed services"},
+            {"name": "Cancom", "website": "https://www.cancom.com", "hq": "Munich", "country": "Germany", "products": "Hybrid IT and cloud services"}
+          ]
+        },
+        {
+          "name": "Product & Internet Companies",
+          "companies": [
+            {"name": "Microsoft", "website": "https://careers.microsoft.com", "hq": "Redmond", "country": "United States", "products": "Software, cloud and devices"},
+            {"name": "Google", "website": "https://careers.google.com", "hq": "Mountain View", "country": "United States", "products": "Search, cloud and AI"},
+            {"name": "Amazon", "website": "https://www.amazon.jobs", "hq": "Seattle", "country": "United States", "products": "E-commerce and AWS cloud"},
+            {"name": "Oracle", "website": "https://www.oracle.com", "hq": "Austin", "country": "United States", "products": "Database and cloud software"},
+            {"name": "SAP", "website": "https://www.sap.com", "hq": "Walldorf", "country": "Germany", "products": "Enterprise software"},
+            {"name": "Adobe", "website": "https://www.adobe.com", "hq": "San Jose", "country": "United States", "products": "Creative and marketing software"},
+            {"name": "Salesforce", "website": "https://www.salesforce.com", "hq": "San Francisco", "country": "United States", "products": "CRM software"},
+            {"name": "Atlassian", "website": "https://www.atlassian.com", "hq": "Sydney", "country": "Australia", "products": "Collaboration software"},
+            {"name": "Intuit", "website": "https://www.intuit.com", "hq": "Mountain View", "country": "United States", "products": "Financial software"},
+            {"name": "Zoho", "website": "https://www.zoho.com", "hq": "Chennai", "country": "India", "products": "Business software"},
+            {"name": "Freshworks", "website": "https://www.freshworks.com", "hq": "San Mateo", "country": "United States", "products": "SaaS customer software"},
+            {"name": "Flipkart", "website": "https://www.flipkartcareers.com", "hq": "Bengaluru", "country": "India", "products": "E-commerce"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Semiconductors & Electronics",
+      "symbol": "SC",
+      "roles": {
+        "Chip Design": ["VLSI Design Engineer", "Physical Design Engineer", "Design Verification Engineer", "Analog Layout Engineer", "DFT Engineer"],
+        "Embedded": ["Embedded Software Engineer", "Firmware Engineer", "Hardware Design Engineer"],
+        "Manufacturing": ["SMT Operator", "PCB Assembly Technician", "Process Engineer", "Test Engineer", "Electronics Technician"],
+        "Quality": ["Quality Inspector", "Reliability Engineer"]
+      },
+      "subsectors": [
+        {
+          "name": "Semiconductors & Chip Makers",
+          "companies": [
+            {"name": "Texas Instruments", "website": "https://careers.ti.com", "hq": "Dallas", "country": "United States", "products": "Analog and embedded processing chips"},
+            {"name": "Analog Devices", "website": "https://www.analog.com", "hq": "Wilmington", "country": "United States", "products": "Analog, mixed-signal and DSP chips"},
+            {"name": "NXP Semiconductors", "website": "https://www.nxp.com", "hq": "Eindhoven", "country": "Netherlands", "products": "Automotive and industrial chips"},
+            {"name": "Infineon Technologies", "website": "https://www.infineon.com", "hq": "Neubiberg", "country": "Germany", "products": "Power and automotive semiconductors"},
+            {"name": "Microchip Technology", "website": "https://www.microchip.com", "hq": "Chandler", "country": "United States", "products": "Microcontrollers and mixed-signal chips"},
+            {"name": "onsemi", "website": "https://www.onsemi.com", "hq": "Scottsdale", "country": "United States", "products": "Power and sensing semiconductors"},
+            {"name": "Qualcomm", "website": "https://www.qualcomm.com", "hq": "San Diego", "country": "United States", "products": "Mobile and wireless chips"},
+            {"name": "Intel", "website": "https://www.intel.com", "hq": "Santa Clara", "country": "United States", "products": "Processors and foundry"},
+            {"name": "NVIDIA", "website": "https://www.nvidia.com", "hq": "Santa Clara", "country": "United States", "products": "GPUs and AI computing"},
+            {"name": "Micron Technology", "website": "https://www.micron.com", "hq": "Boise", "country": "United States", "products": "Memory and storage chips"},
+            {"name": "STMicroelectronics", "website": "https://www.st.com", "hq": "Geneva", "country": "Switzerland", "products": "Microcontrollers and power chips"},
+            {"name": "Tata Electronics", "website": "https://www.tataelectronics.com", "hq": "Bengaluru", "country": "India", "products": "Semiconductor fab, OSAT and electronics manufacturing", "plants": [
+              {"state": "Gujarat", "city": "Dholera", "area": "Dholera SIR"},
+              {"state": "Assam", "city": "Jagiroad", "area": "Jagiroad OSAT"}
+            ]}
+          ]
+        },
+        {
+          "name": "Electronics Manufacturing (EMS)",
+          "companies": [
+            {"name": "Dixon Technologies", "website": "https://www.dixoninfo.com", "hq": "Noida", "country": "India", "products": "Consumer electronics and mobile OEM", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 8A"}
+            ]},
+            {"name": "Bhagwati Products (Micromax)", "website": "https://www.micromaxinfo.com", "hq": "Gurugram", "country": "India", "brands": ["Micromax"], "products": "Consumer electronics and mobiles", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]},
+            {"name": "Greeco Electronics", "hq": "Haridwar", "country": "India", "products": "Electronic components and equipment", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A"}
+            ]},
+            {"name": "GLS Electronics Industries", "hq": "Haridwar", "country": "India", "products": "Electronic circuitry and assembly", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 1B"}
+            ]},
+            {"name": "Acme Tele Power", "hq": "Gurugram", "country": "India", "products": "Telecom power and energy systems", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Electrical Equipment & Appliances",
+      "symbol": "EL",
+      "roles": {
+        "Production": ["Assembly Line Operator", "Coil Winder", "Injection Moulding Operator", "Production Supervisor"],
+        "Service": ["Service Technician (AC/Refrigeration)", "Installation Technician", "Customer Service Executive"],
+        "Engineering": ["Electrical Design Engineer", "R&D Engineer", "Testing Engineer"],
+        "Sales": ["Sales Engineer", "Channel Sales Manager", "Area Sales Manager"]
+      },
+      "subsectors": [
+        {
+          "name": "Electrical Equipment, Switches & Cables",
+          "companies": [
+            {"name": "Havells India", "website": "https://www.havells.com", "hq": "Noida", "country": "India", "brands": ["Havells", "Lloyd", "Crabtree", "Standard", "REO"], "products": "Switchgear, cables, fans, lighting and appliances", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 11"}
+            ]},
+            {"name": "Crompton Greaves Consumer Electricals", "website": "https://www.crompton.co.in", "hq": "Mumbai", "country": "India", "brands": ["Crompton", "Butterfly"], "products": "Fans, pumps, lighting and appliances"},
+            {"name": "Schneider Electric India", "website": "https://www.se.com/in", "hq": "Gurugram", "country": "France", "brands": ["Schneider", "Lauritz Knudsen"], "products": "Energy management and automation"},
+            {"name": "ABB India", "website": "https://new.abb.com/indian-subcontinent", "hq": "Bengaluru", "country": "Switzerland", "products": "Electrification and automation"},
+            {"name": "Polycab India", "website": "https://polycab.com", "hq": "Mumbai", "country": "India", "products": "Wires, cables and FMEG"},
+            {"name": "KEI Industries", "website": "https://www.kei-ind.com", "hq": "New Delhi", "country": "India", "products": "Wires and cables"},
+            {"name": "Finolex Cables", "website": "https://www.finolex.com", "hq": "Pune", "country": "India", "products": "Electrical and communication cables"},
+            {"name": "V-Guard Industries", "website": "https://www.vguard.in", "hq": "Kochi", "country": "India", "products": "Stabilisers, wires and appliances"},
+            {"name": "Bajaj Electricals", "website": "https://www.bajajelectricals.com", "hq": "Mumbai", "country": "India", "products": "Appliances, fans and lighting"},
+            {"name": "Anchor Electricals (Panasonic)", "website": "https://www.lsin.panasonic.com", "hq": "Mumbai", "country": "Japan", "brands": ["Anchor", "Roma"], "products": "Wiring devices, switches and breakers", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A"}
+            ]},
+            {"name": "Legrand India", "website": "https://www.legrand.co.in", "hq": "Mumbai", "country": "France", "brands": ["Legrand", "Numeric"], "products": "Switches and electrical infrastructure"},
+            {"name": "Philips India", "website": "https://www.philips.co.in", "hq": "Gurugram", "country": "Netherlands", "products": "Health technology and personal care"},
+            {"name": "Greatwhite Global", "website": "https://www.greatwhiteelectricals.com", "hq": "Delhi", "country": "India", "brands": ["Greatwhite"], "products": "Switches, LEDs and home automation", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]},
+            {"name": "Microtek International", "website": "https://www.microtekdirect.com", "hq": "New Delhi", "country": "India", "products": "Inverters, UPS and solar electronics", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 11"}
+            ]},
+            {"name": "Jaquar & Company", "website": "https://www.jaquar.com", "hq": "Gurugram", "country": "India", "brands": ["Jaquar", "Essco"], "products": "Bath fittings and lighting", "plants": [
+              {"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"}
+            ]}
+          ]
+        },
+        {
+          "name": "Consumer Appliances & Air Conditioning",
+          "companies": [
+            {"name": "LG Electronics India", "website": "https://www.lg.com/in", "hq": "Noida", "country": "South Korea", "products": "Televisions, ACs, refrigerators and washing machines", "plants": [
+              {"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Surajpur Kasna Road"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Ranjangaon MIDC"}
+            ]},
+            {"name": "Samsung India", "website": "https://www.samsung.com/in", "hq": "Gurugram", "country": "South Korea", "products": "Mobiles, TVs and appliances", "plants": [
+              {"state": "Uttar Pradesh", "city": "Noida", "area": "Sector 81"},
+              {"state": "Tamil Nadu", "city": "Sriperumbudur", "area": "Sriperumbudur"}
+            ]},
+            {"name": "Haier Appliances India", "website": "https://www.haier.com/in", "hq": "Greater Noida", "country": "China", "products": "Refrigerators, ACs and washing machines", "plants": [
+              {"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Greater Noida Industrial Area"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Ranjangaon MIDC"}
+            ]},
+            {"name": "Daikin Airconditioning India", "website": "https://www.daikinindia.com", "hq": "New Delhi", "country": "Japan", "products": "Air conditioners", "plants": [
+              {"state": "Rajasthan", "city": "Neemrana", "area": "Neemrana Industrial Area"}
+            ]},
+            {"name": "Voltas", "website": "https://www.voltas.com", "hq": "Mumbai", "country": "India", "products": "Air conditioners and cooling appliances", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}
+            ]},
+            {"name": "Blue Star", "website": "https://www.bluestarindia.com", "hq": "Mumbai", "country": "India", "products": "Air conditioning and refrigeration"},
+            {"name": "Whirlpool of India", "website": "https://www.whirlpoolindia.com", "hq": "Gurugram", "country": "United States", "products": "Home appliances"},
+            {"name": "Eveready Industries India", "website": "https://www.evereadyindia.com", "hq": "Kolkata", "country": "India", "products": "Batteries, flashlights and lighting", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]}
+          ]
+        }
+      ]
+    }
+  ]
+}

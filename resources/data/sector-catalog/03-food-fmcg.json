@@ -1,0 +1,210 @@
+{
+  "sectors": [
+    {
+      "name": "Food & Beverages",
+      "symbol": "FB",
+      "roles": {
+        "Production": ["Production Supervisor", "Machine Operator", "Packing Operator", "Baker", "Mixing Operator", "Boiler Operator", "Helper"],
+        "Quality & Food Safety": ["Quality Assurance Executive", "Food Technologist", "Microbiologist", "Lab Attendant", "FSSAI Compliance Officer"],
+        "Maintenance": ["Maintenance Fitter", "Electrician", "Refrigeration Technician", "Utility Operator"],
+        "Sales & Distribution": ["Sales Officer", "Territory Sales In-charge", "Area Sales Manager", "Key Account Manager - Modern Trade", "Distributor Sales Representative"],
+        "Supply Chain": ["Warehouse Executive", "Dispatch Executive", "Procurement Executive (Agri Commodities)", "Driver"]
+      },
+      "subsectors": [
+        {
+          "name": "Biscuits & Bakery",
+          "companies": [
+            {"name": "Britannia Industries", "website": "https://www.britannia.co.in", "hq": "Kolkata", "country": "India", "brands": ["Good Day", "Marie Gold", "NutriChoice", "Bourbon", "50-50", "Tiger"], "products": "Biscuits, cakes, bread and dairy", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 1"}
+            ]},
+            {"name": "ITC Limited", "website": "https://www.itcportal.com", "hq": "Kolkata", "country": "India", "brands": ["Sunfeast", "Dark Fantasy", "Bingo", "Yippee", "Aashirvaad", "B Natural", "Candyman"], "products": "Biscuits, atta, snacks, noodles, juices and confectionery"},
+            {"name": "Parle Products", "website": "https://www.parleproducts.com", "hq": "Mumbai", "country": "India", "brands": ["Parle-G", "Monaco", "Krackjack", "Hide & Seek", "Melody"], "products": "Biscuits and confectionery"},
+            {"name": "Mrs. Bectors Food Specialities", "website": "https://www.bectorfoods.com", "hq": "Ludhiana", "country": "India", "brands": ["Cremica", "English Oven"], "products": "Biscuits and bakery", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Phillaur"}
+            ]},
+            {"name": "Anmol Industries", "website": "https://www.anmolindustries.com", "hq": "Kolkata", "country": "India", "products": "Biscuits and cakes"}
+          ]
+        },
+        {
+          "name": "Dal & Pulses",
+          "companies": [
+            {"name": "Tata Consumer Products", "website": "https://www.tataconsumer.com", "hq": "Mumbai", "country": "India", "brands": ["Tata Sampann", "Tata Salt", "Tata Tea", "Tetley", "Himalayan", "Soulfull"], "products": "Unpolished dals, besan, spices, salt, tea and coffee"},
+            {"name": "Adani Wilmar (AWL Agri Business)", "website": "https://www.adaniwilmar.com", "hq": "Ahmedabad", "country": "India", "brands": ["Fortune", "Kohinoor", "Raag"], "products": "Edible oil, atta, rice, dals, besan and suji"},
+            {"name": "KRBL", "website": "https://www.krblrice.com", "hq": "Noida", "country": "India", "brands": ["India Gate"], "products": "Basmati rice and pulses"},
+            {"name": "Rajdhani Group (Victoria Foods)", "website": "https://www.rajdhanigroup.com", "hq": "Delhi", "country": "India", "brands": ["Rajdhani"], "products": "Besan, sooji, atta, dals and spices"},
+            {"name": "Reliance Retail (Good Life)", "website": "https://relianceretail.com", "hq": "Mumbai", "country": "India", "brands": ["Good Life", "Independence", "Trends", "Team Spirit", "Netplay"], "products": "Private-label staples, oils, pulses and apparel"},
+            {"name": "BigBasket (BB Royal)", "website": "https://www.bigbasket.com", "hq": "Bengaluru", "country": "India", "brands": ["BB Royal", "Fresho", "BB Popular"], "products": "Private-label pulses and groceries"},
+            {"name": "Amazon (Vedaka)", "website": "https://www.amazon.jobs", "hq": "Seattle", "country": "United States", "brands": ["Vedaka", "Solimo"], "products": "Private-label pulses and groceries"},
+            {"name": "NAFED (Bharat Brand)", "website": "https://www.nafed-india.com", "hq": "New Delhi", "country": "India", "brands": ["Bharat Dal", "Bharat Atta", "Bharat Rice"], "products": "Government-backed subsidised pulses and staples"},
+            {"name": "Organic Tattva", "website": "https://www.organictattva.in", "hq": "Noida", "country": "India", "brands": ["Organic Tattva"], "products": "Certified organic pulses and grains"},
+            {"name": "Sresta Natural Bioproducts (24 Mantra Organic)", "website": "https://www.24mantra.com", "hq": "Hyderabad", "country": "India", "brands": ["24 Mantra Organic"], "products": "Organic pulses, besan and grains"},
+            {"name": "Patanjali Foods", "website": "https://www.patanjalifoods.com", "hq": "Haridwar", "country": "India", "brands": ["Patanjali", "Ruchi Gold", "Nutrela", "Mahakosh"], "products": "Edible oils, besan, sooji, pulses and soya foods"}
+          ]
+        },
+        {
+          "name": "Atta, Besan, Sooji & Rice",
+          "companies": [
+            {"name": "P-Mark Products", "website": "https://pmarkproducts.com", "hq": "Delhi", "country": "India", "brands": ["P Mark"], "products": "Sooji, maida and atta"},
+            {"name": "Pan Brand", "website": "https://panbrand.org", "hq": "Delhi", "country": "India", "brands": ["Pan Brand"], "products": "Fine and coarse sooji for food service"},
+            {"name": "LT Foods", "website": "https://www.ltgroup.in", "hq": "Gurugram", "country": "India", "brands": ["Daawat", "Royal", "Ecolife"], "products": "Basmati rice and organic foods"},
+            {"name": "Shakti Bhog Foods", "hq": "Delhi", "country": "India", "brands": ["Shakti Bhog"], "products": "Atta and staples"}
+          ]
+        },
+        {
+          "name": "Edible Oil & Refined Oil",
+          "companies": [
+            {"name": "Marico", "website": "https://marico.com", "hq": "Mumbai", "country": "India", "brands": ["Saffola", "Parachute", "Nihar", "Livon", "Set Wet"], "products": "Edible oils, hair oils and foods"},
+            {"name": "Agro Tech Foods", "website": "https://www.agrotechfoods.com", "hq": "Secunderabad", "country": "India", "brands": ["Sundrop", "Act II", "Crystal"], "products": "Edible oil and snacks"},
+            {"name": "Gokul Agro Resources", "website": "https://www.gokulagro.com", "hq": "Ahmedabad", "country": "India", "brands": ["Vitalife", "Mahek", "Zaika"], "products": "Edible oils"},
+            {"name": "Cargill India", "website": "https://www.cargill.co.in", "hq": "Gurugram", "country": "United States", "brands": ["Gemini", "Nature Fresh", "Sweekar"], "products": "Edible oils and atta"},
+            {"name": "Emami Agrotech", "website": "https://www.emamiagrotech.com", "hq": "Kolkata", "country": "India", "brands": ["Emami Healthy & Tasty", "Rasoi"], "products": "Edible oils"}
+          ]
+        },
+        {
+          "name": "Dairy, Ghee & Milk Products",
+          "companies": [
+            {"name": "Amul (GCMMF)", "website": "https://amul.com", "hq": "Anand", "country": "India", "brands": ["Amul Butter", "Amul Ghee", "Amul Milk", "Amul Ice Cream"], "products": "Milk, butter, ghee, cheese and ice cream"},
+            {"name": "Verka (Milkfed Punjab)", "website": "https://www.verka.coop", "hq": "Chandigarh", "country": "India", "brands": ["Verka"], "products": "Milk, ghee and dairy products"},
+            {"name": "Mother Dairy", "website": "https://www.motherdairy.com", "hq": "New Delhi", "country": "India", "brands": ["Mother Dairy", "Dhara", "Safal"], "products": "Milk, dairy, edible oil and frozen vegetables"},
+            {"name": "Hatsun Agro Product", "website": "https://www.hap.in", "hq": "Chennai", "country": "India", "brands": ["Arun Ice Creams", "Arokya", "Hatsun", "Ibaco"], "products": "Milk, ice cream and dairy"},
+            {"name": "Dodla Dairy", "website": "https://www.dodladairy.com", "hq": "Hyderabad", "country": "India", "products": "Milk and dairy products"},
+            {"name": "Nandini (Karnataka Milk Federation)", "website": "https://www.kmfnandini.coop", "hq": "Bengaluru", "country": "India", "brands": ["Nandini"], "products": "Milk and dairy"},
+            {"name": "Parag Milk Foods", "website": "https://www.paragmilkfoods.com", "hq": "Pune", "country": "India", "brands": ["Gowardhan", "Go Cheese", "Avvatar"], "products": "Ghee, cheese and dairy"},
+            {"name": "Heritage Foods", "website": "https://www.heritagefoods.in", "hq": "Hyderabad", "country": "India", "products": "Milk and dairy"}
+          ]
+        },
+        {
+          "name": "Ice Cream & Frozen Desserts",
+          "companies": [
+            {"name": "Kwality Wall's (India)", "website": "https://www.hul.co.in", "hq": "Mumbai", "country": "India", "brands": ["Kwality Wall's", "Cornetto", "Magnum", "Feast"], "products": "Ice cream and frozen desserts"},
+            {"name": "Vadilal Industries", "website": "https://www.vadilalgroup.com", "hq": "Ahmedabad", "country": "India", "brands": ["Vadilal"], "products": "Ice cream and frozen foods"},
+            {"name": "Havmor Ice Cream (Lotte)", "website": "https://www.havmor.com", "hq": "Ahmedabad", "country": "India", "brands": ["Havmor"], "products": "Ice cream"}
+          ]
+        },
+        {
+          "name": "Snacks, Namkeen & Sweets",
+          "companies": [
+            {"name": "Haldiram's", "website": "https://www.haldirams.com", "hq": "New Delhi", "country": "India", "brands": ["Haldiram's"], "products": "Namkeen, sweets, ready-to-eat foods and restaurants"},
+            {"name": "Bikaji Foods International", "website": "https://www.bikaji.com", "hq": "Bikaner", "country": "India", "brands": ["Bikaji"], "products": "Bhujia, namkeen and sweets"},
+            {"name": "Balaji Wafers", "website": "https://www.balajiwafers.com", "hq": "Rajkot", "country": "India", "brands": ["Balaji"], "products": "Chips and namkeen"},
+            {"name": "Prataap Snacks", "website": "https://www.yellowdiamond.in", "hq": "Indore", "country": "India", "brands": ["Yellow Diamond"], "products": "Chips and snacks"},
+            {"name": "Duke's Products India", "hq": "Rudrapur", "country": "India", "brands": ["Duke's"], "products": "Wafers, biscuits and snacks", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}
+            ]}
+          ]
+        },
+        {
+          "name": "Beverages & Soft Drinks",
+          "companies": [
+            {"name": "Coca-Cola India (Hindustan Coca-Cola Beverages)", "website": "https://www.coca-colaindia.com", "hq": "Gurugram", "country": "United States", "brands": ["Coca-Cola", "Thums Up", "Sprite", "Limca", "Maaza", "Kinley"], "products": "Soft drinks, juices and water"},
+            {"name": "PepsiCo India", "website": "https://www.pepsicoindia.co.in", "hq": "Gurugram", "country": "United States", "brands": ["Pepsi", "Lay's", "Kurkure", "Tropicana", "Quaker", "Uncle Chipps"], "products": "Beverages and snacks"},
+            {"name": "Varun Beverages", "website": "https://www.varunbeverages.com", "hq": "Gurugram", "country": "India", "brands": ["Pepsi (bottler)", "Mountain Dew", "7UP", "Slice"], "products": "PepsiCo franchise bottling"},
+            {"name": "Parle Agro", "website": "https://www.parleagro.com", "hq": "Mumbai", "country": "India", "brands": ["Frooti", "Appy Fizz", "Bailley", "Hippo"], "products": "Beverages and snacks"},
+            {"name": "Bisleri International", "website": "https://www.bisleri.com", "hq": "Mumbai", "country": "India", "brands": ["Bisleri", "Vedica"], "products": "Packaged drinking water"},
+            {"name": "Dabur India", "website": "https://www.dabur.com", "hq": "Ghaziabad", "country": "India", "brands": ["Real", "Real Activ"], "products": "Juices and nectars"}
+          ]
+        },
+        {
+          "name": "Packaged Foods & Confectionery",
+          "companies": [
+            {"name": "Nestle India", "website": "https://www.nestle.in", "hq": "Gurugram", "country": "Switzerland", "brands": ["Maggi", "KitKat", "Munch", "Nescafe", "Cerelac", "Milkmaid", "Everyday"], "products": "Noodles, coffee, chocolates, infant nutrition and dairy", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 1"},
+              {"state": "Punjab", "city": "Moga", "area": "Moga Factory"},
+              {"state": "Gujarat", "city": "Sanand", "area": "Sanand Factory"}
+            ]},
+            {"name": "Mondelez India", "website": "https://www.mondelezinternational.com", "hq": "Mumbai", "country": "United States", "brands": ["Cadbury Dairy Milk", "Bournvita", "Oreo", "5 Star", "Perk"], "products": "Chocolates, biscuits and beverages"},
+            {"name": "Perfetti Van Melle India", "website": "https://www.perfettivanmelle.com", "hq": "Gurugram", "country": "Netherlands", "brands": ["Alpenliebe", "Center Fresh", "Mentos", "Chupa Chups"], "products": "Confectionery", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 9"}
+            ]},
+            {"name": "Zydus Wellness", "website": "https://www.zyduswellness.com", "hq": "Ahmedabad", "country": "India", "brands": ["Complan", "Glucon-D", "Sugar Free", "Nutralite", "Nycil", "Everyuth"], "products": "Health foods and personal care"},
+            {"name": "MTR Foods (Orkla India)", "website": "https://www.mtrfoods.com", "hq": "Bengaluru", "country": "India", "brands": ["MTR", "Eastern"], "products": "Ready-to-eat foods and spices"},
+            {"name": "MDH Spices", "website": "https://www.mdhspices.com", "hq": "New Delhi", "country": "India", "brands": ["MDH"], "products": "Spices"},
+            {"name": "Everest Food Products", "website": "https://www.everestspices.com", "hq": "Mumbai", "country": "India", "brands": ["Everest"], "products": "Spices"}
+          ]
+        },
+        {
+          "name": "Aqua & Animal Feed",
+          "companies": [
+            {"name": "Avanti Feeds", "website": "https://www.avantifeeds.com", "hq": "Hyderabad", "country": "India", "products": "Shrimp feed and seafood processing"},
+            {"name": "Godrej Agrovet", "website": "https://www.godrejagrovet.com", "hq": "Mumbai", "country": "India", "brands": ["Real Good Chicken", "Godrej Jersey"], "products": "Animal feed, crop protection and dairy"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FMCG - Personal & Home Care",
+      "symbol": "PC",
+      "roles": {
+        "Production": ["Production Officer", "Soap Plant Operator", "Filling Line Operator", "Packing Operator", "Helper"],
+        "Quality": ["QC Chemist", "Microbiologist", "Lab Attendant"],
+        "Sales": ["Sales Officer", "Area Sales Manager", "Rural Sales Executive", "Key Account Manager"],
+        "Brand & Marketing": ["Brand Manager", "Trade Marketing Executive", "Category Manager"],
+        "Supply Chain": ["Depot Manager", "Warehouse Executive", "Planning Executive"]
+      },
+      "subsectors": [
+        {
+          "name": "Soaps & Body Wash",
+          "companies": [
+            {"name": "Hindustan Unilever", "website": "https://www.hul.co.in", "hq": "Mumbai", "country": "India", "brands": ["Lux", "Dove", "Lifebuoy", "Pears", "Rexona", "Hamam", "Liril"], "products": "Soaps, shampoos, detergents, tea and foods"},
+            {"name": "Godrej Consumer Products", "website": "https://godrejcp.com", "hq": "Mumbai", "country": "India", "brands": ["Cinthol", "Godrej No.1", "Fairglow", "Good Knight", "HIT"], "products": "Soaps, hair colour and household insecticides"},
+            {"name": "Wipro Consumer Care & Lighting", "website": "https://www.wiproconsumercare.com", "hq": "Bengaluru", "country": "India", "brands": ["Santoor", "Chandrika", "Glucovita", "Yardley (India)"], "products": "Soaps, personal care and lighting"},
+            {"name": "Reckitt India", "website": "https://www.reckitt.com", "hq": "Gurugram", "country": "United Kingdom", "brands": ["Dettol", "Harpic", "Lizol", "Durex", "Mortein", "Veet"], "products": "Hygiene, health and home care"},
+            {"name": "ITC Limited", "website": "https://www.itcportal.com", "hq": "Kolkata", "country": "India", "brands": ["Fiama", "Vivel", "Engage", "Savlon", "Superia"], "products": "Soaps, deodorants and hygiene"},
+            {"name": "Himalaya Wellness", "website": "https://himalayawellness.in", "hq": "Bengaluru", "country": "India", "brands": ["Himalaya Neem", "Himalaya Baby"], "products": "Herbal soaps, personal care and medicines"},
+            {"name": "Jyothy Labs", "website": "https://www.jyothylabs.com", "hq": "Mumbai", "country": "India", "brands": ["Margo", "Ujala", "Exo", "Henko", "Pril", "Maxo"], "products": "Soaps, fabric care and dishwash"}
+          ]
+        },
+        {
+          "name": "Shampoo, Hair Oil & Hair Care",
+          "companies": [
+            {"name": "Procter & Gamble India", "website": "https://in.pg.com", "hq": "Mumbai", "country": "United States", "brands": ["Head & Shoulders", "Pantene", "Ariel", "Tide", "Whisper", "Vicks", "Pampers"], "products": "Shampoo, detergents, feminine care and health care"},
+            {"name": "P&G Hygiene and Health Care", "website": "https://in.pg.com", "hq": "Mumbai", "country": "India", "brands": ["Vicks", "Whisper"], "products": "Health and feminine hygiene"},
+            {"name": "Gillette India", "website": "https://in.pg.com", "hq": "Mumbai", "country": "India", "brands": ["Gillette", "Oral-B"], "products": "Shaving and oral care"},
+            {"name": "Hindustan Unilever", "website": "https://www.hul.co.in", "hq": "Mumbai", "country": "India", "brands": ["Clinic Plus", "Sunsilk", "Dove Shampoo", "TRESemme", "Indulekha"], "products": "Shampoo and hair oil"},
+            {"name": "Bajaj Consumer Care", "website": "https://www.bajajconsumercare.com", "hq": "Mumbai", "country": "India", "brands": ["Bajaj Almond Drops", "Bajaj Amla", "Nomarks"], "products": "Hair oils including almond oil"},
+            {"name": "Emami", "website": "https://www.emamiltd.in", "hq": "Kolkata", "country": "India", "brands": ["Navratna", "Boroplus", "Kesh King", "Zandu Balm", "Fair and Handsome"], "products": "Hair oil, ayurvedic personal care and OTC"},
+            {"name": "Dabur India", "website": "https://www.dabur.com", "hq": "Ghaziabad", "country": "India", "brands": ["Dabur Amla", "Vatika", "Dabur Almond Hair Oil", "Dabur Red Paste", "Chyawanprash", "Hajmola"], "products": "Hair oil, oral care, ayurvedic health and foods", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]},
+            {"name": "Jovees Herbal Care", "website": "https://www.jovees.com", "hq": "New Delhi", "country": "India", "brands": ["Jovees"], "products": "Herbal cosmetics and personal care", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}
+            ]}
+          ]
+        },
+        {
+          "name": "Oral Care",
+          "companies": [
+            {"name": "Colgate-Palmolive India", "website": "https://www.colgatepalmolive.co.in", "hq": "Mumbai", "country": "India", "brands": ["Colgate", "Palmolive", "Colgate MaxFresh", "Colgate Vedshakti"], "products": "Toothpaste, toothbrushes and personal care", "plants": [
+              {"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}
+            ]},
+            {"name": "Hindustan Unilever", "website": "https://www.hul.co.in", "hq": "Mumbai", "country": "India", "brands": ["Pepsodent", "Closeup"], "products": "Toothpaste"},
+            {"name": "Haleon India", "website": "https://www.haleon.com", "hq": "Gurugram", "country": "United Kingdom", "brands": ["Sensodyne", "Eno", "Crocin", "Otrivin"], "products": "Oral care and consumer health"}
+          ]
+        },
+        {
+          "name": "Detergents & Home Care",
+          "companies": [
+            {"name": "Hindustan Unilever", "website": "https://www.hul.co.in", "hq": "Mumbai", "country": "India", "brands": ["Surf Excel", "Rin", "Wheel", "Vim", "Domex", "Comfort"], "products": "Detergents and household cleaners"},
+            {"name": "RSPL Group", "website": "https://www.rsplgroup.com", "hq": "Kanpur", "country": "India", "brands": ["Ghadi"], "products": "Detergent powder and cakes"},
+            {"name": "Nirma", "website": "https://www.nirma.co.in", "hq": "Ahmedabad", "country": "India", "brands": ["Nirma"], "products": "Detergents, soaps and soda ash"}
+          ]
+        },
+        {
+          "name": "Contract & Private-Label Manufacturing",
+          "companies": [
+            {"name": "Anuspa Heritage Products", "website": "https://www.anuspa.com", "hq": "Mumbai", "country": "India", "products": "Private-label medicated and syndet soaps", "plants": [
+              {"state": "Himachal Pradesh", "city": "Parwanoo", "area": "Parwanoo Industrial Area"},
+              {"state": "Maharashtra", "city": "Khopoli", "area": "Khopoli Industrial Area"}
+            ]},
+            {"name": "HCP Wellness", "hq": "Ahmedabad", "country": "India", "products": "Third-party cosmetic and soap manufacturing", "plants": [
+              {"state": "Gujarat", "city": "Ahmedabad", "area": "Ahmedabad Industrial Area"}
+            ]},
+            {"name": "Charkha Detergent and Soap (Duke Soaps)", "hq": "Delhi", "country": "India", "products": "Biodegradable and herbal soaps", "plants": [
+              {"state": "Delhi", "city": "Delhi", "area": "Delhi Industrial Area"}
+            ]}
+          ]
+        }
+      ]
+    }
+  ]
+}

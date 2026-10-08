@@ -43,12 +43,16 @@ class Company extends Model
         'registry_status',
         'registered_state',
         'registry_source_url',
+        'brands',
+        'headquarters',
+        'products',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'sync_enabled' => 'boolean',
         'last_synced_at' => 'datetime',
+        'brands' => 'array',
     ];
 
     public function getLogoUrlAttribute(?string $value): ?string
@@ -69,6 +73,10 @@ class Company extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(CompanyCategory::class, 'company_category_company')->withTimestamps();
+    }
+    public function facilities(): HasMany
+    {
+        return $this->hasMany(CompanyFacility::class);
     }
     public function reviews(): HasMany
     {

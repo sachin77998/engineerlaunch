@@ -1,0 +1,325 @@
+{
+  "sectors": [
+    {
+      "name": "IT Services & Software",
+      "subsectors": [
+        {
+          "name": "Indian IT Services",
+          "companies": [
+            {"name": "Tata Consultancy Services", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Whitefield ITPL", "type": "Office"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Hinjawadi IT Park", "type": "Office"},
+              {"state": "West Bengal", "city": "Kolkata", "area": "Salt Lake Sector V", "type": "Office"},
+              {"state": "Punjab", "city": "Mohali", "area": "Mohali IT City", "type": "Office"}
+            ]},
+            {"name": "Infosys", "plants": [
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Electronic City", "type": "Office"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Hinjawadi IT Park", "type": "Office"},
+              {"state": "Punjab", "city": "Mohali", "area": "Mohali IT City", "type": "Office"},
+              {"state": "Telangana", "city": "Hyderabad", "area": "HITEC City", "type": "Office"}
+            ]},
+            {"name": "Wipro", "plants": [
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Electronic City", "type": "Office"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Hinjawadi IT Park", "type": "Office"},
+              {"state": "West Bengal", "city": "Kolkata", "area": "Salt Lake Sector V", "type": "Office"}
+            ]},
+            {"name": "HCLTech", "plants": [
+              {"state": "Uttar Pradesh", "city": "Noida", "area": "Noida Sector 126", "type": "Office"},
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Whitefield ITPL", "type": "Office"}
+            ]},
+            {"name": "Tech Mahindra", "plants": [
+              {"state": "Maharashtra", "city": "Pune", "area": "Hinjawadi IT Park", "type": "Office"},
+              {"state": "Punjab", "city": "Mohali", "area": "Mohali Industrial Area", "type": "Office"},
+              {"state": "West Bengal", "city": "Kolkata", "area": "Salt Lake Sector V", "type": "Office"}
+            ]},
+            {"name": "Hexaware Technologies", "plants": [{"state": "Maharashtra", "city": "Navi Mumbai", "area": "Mahape", "type": "Office"}]},
+            {"name": "Novoinvent", "hq": "Mohali", "country": "India", "products": "Software development services", "plants": [{"state": "Punjab", "city": "Mohali", "area": "Mohali IT City", "type": "Office"}]},
+            {"name": "Geek Informatic", "hq": "Mohali", "country": "India", "products": "Software development and IT services", "plants": [{"state": "Punjab", "city": "Mohali", "area": "Mohali Industrial Area", "type": "Office"}]},
+            {"name": "Sgate Tech Solutions", "hq": "Mohali", "country": "India", "products": "IT services", "plants": [{"state": "Punjab", "city": "Mohali", "area": "Mohali Industrial Area", "type": "Office"}]},
+            {"name": "Aptara", "website": "https://www.aptaracorp.com", "hq": "Noida", "country": "India", "products": "Content transformation and digital publishing services"}
+          ]
+        },
+        {
+          "name": "Global IT Services & Consulting",
+          "companies": [
+            {"name": "Capgemini", "plants": [
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Bagmane Tech Park", "type": "Office"},
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Maharashtra", "city": "Pune", "area": "Hinjawadi IT Park", "type": "Office"}
+            ]},
+            {"name": "Accenture", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Bagmane Tech Park", "type": "Office"}
+            ]},
+            {"name": "IBM Consulting", "plants": [{"state": "Karnataka", "city": "Bengaluru", "area": "Electronic City", "type": "Office"}]},
+            {"name": "Cognizant", "plants": [{"state": "West Bengal", "city": "Kolkata", "area": "Salt Lake Sector V", "type": "Office"}]},
+            {"name": "Amdocs", "plants": [{"state": "Maharashtra", "city": "Pune", "area": "Kharadi EON IT Park", "type": "Office"}]},
+            {"name": "S&P Global", "website": "https://www.spglobal.com", "hq": "New York City", "country": "United States", "products": "Ratings, benchmarks and market intelligence", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Telangana", "city": "Hyderabad", "area": "HITEC City", "type": "Office"}
+            ]},
+            {"name": "EY (Ernst & Young)", "website": "https://www.ey.com", "hq": "London", "country": "United Kingdom", "products": "Assurance, tax, consulting and GDS technology", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Bagmane Tech Park", "type": "Office"}
+            ]},
+            {"name": "KPMG", "website": "https://kpmg.com", "hq": "Amstelveen", "country": "Netherlands", "products": "Audit, tax and advisory", "plants": [
+              {"state": "Haryana", "city": "Gurugram", "area": "DLF Cyber City", "type": "Office"},
+              {"state": "Karnataka", "city": "Bengaluru", "area": "Bagmane Tech Park", "type": "Office"}
+            ]},
+            {"name": "Deloitte", "website": "https://www.deloitte.com", "hq": "London", "country": "United Kingdom", "products": "Audit, consulting and technology services"},
+            {"name": "PwC", "website": "https://www.pwc.com", "hq": "London", "country": "United Kingdom", "products": "Assurance, tax and advisory"}
+          ]
+        },
+        {
+          "name": "Product & Internet Companies",
+          "companies": [
+            {"name": "SAP", "plants": [{"state": "Karnataka", "city": "Bengaluru", "area": "Whitefield ITPL", "type": "Office"}]},
+            {"name": "Google", "plants": [{"state": "Karnataka", "city": "Bengaluru", "area": "Bagmane Tech Park", "type": "Office"}]},
+            {"name": "Microsoft", "plants": [{"state": "Telangana", "city": "Hyderabad", "area": "HITEC City", "type": "Office"}]},
+            {"name": "Myntra", "website": "https://www.myntra.com", "hq": "Bengaluru", "country": "India", "products": "Fashion e-commerce"},
+            {"name": "Snapdeal", "website": "https://www.snapdeal.com", "hq": "New Delhi", "country": "India", "products": "E-commerce marketplace"},
+            {"name": "Meesho", "website": "https://www.meesho.com", "hq": "Bengaluru", "country": "India", "products": "Social e-commerce"},
+            {"name": "Nykaa (FSN E-Commerce)", "website": "https://www.nykaa.com", "hq": "Mumbai", "country": "India", "brands": ["Nykaa", "Nykaa Fashion", "Kay Beauty"], "products": "Beauty and fashion e-commerce"},
+            {"name": "Swiggy", "website": "https://www.swiggy.com", "hq": "Bengaluru", "country": "India", "brands": ["Swiggy", "Instamart"], "products": "Food delivery and quick commerce"},
+            {"name": "Zomato (Eternal)", "website": "https://www.zomato.com", "hq": "Gurugram", "country": "India", "brands": ["Zomato", "Blinkit"], "products": "Food delivery and quick commerce"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Banking & Financial Services",
+      "subsectors": [
+        {
+          "name": "Indian Banks",
+          "companies": [
+            {"name": "IDBI Bank", "website": "https://www.idbibank.in", "hq": "Mumbai", "country": "India", "products": "Universal bank"},
+            {"name": "Central Bank of India", "website": "https://www.centralbankofindia.co.in", "hq": "Mumbai", "country": "India", "products": "Public sector bank"},
+            {"name": "Bank of Maharashtra", "website": "https://bankofmaharashtra.in", "hq": "Pune", "country": "India", "products": "Public sector bank"},
+            {"name": "Indian Bank", "website": "https://www.indianbank.in", "hq": "Chennai", "country": "India", "products": "Public sector bank"},
+            {"name": "Bank of India", "website": "https://bankofindia.co.in", "hq": "Mumbai", "country": "India", "products": "Public sector bank"},
+            {"name": "Indian Overseas Bank", "website": "https://www.iob.in", "hq": "Chennai", "country": "India", "products": "Public sector bank"},
+            {"name": "UCO Bank", "website": "https://www.ucobank.com", "hq": "Kolkata", "country": "India", "products": "Public sector bank"},
+            {"name": "Federal Bank", "website": "https://www.federalbank.co.in", "hq": "Aluva", "country": "India", "products": "Private sector bank"},
+            {"name": "AU Small Finance Bank", "website": "https://www.aubank.in", "hq": "Jaipur", "country": "India", "products": "Small finance bank"}
+          ]
+        },
+        {
+          "name": "Global Banks in India",
+          "companies": [
+            {"name": "HSBC", "website": "https://www.hsbc.com", "hq": "London", "country": "United Kingdom", "products": "Global bank and technology centres", "plants": [{"state": "Telangana", "city": "Hyderabad", "area": "HITEC City", "type": "Office"}]},
+            {"name": "Barclays", "website": "https://home.barclays", "hq": "London", "country": "United Kingdom", "products": "Global bank and technology centres", "plants": [{"state": "Maharashtra", "city": "Pune", "area": "Kharadi EON IT Park", "type": "Office"}]},
+            {"name": "Bank of America", "plants": [{"state": "Telangana", "city": "Hyderabad", "area": "HITEC City", "type": "Office"}]},
+            {"name": "Citigroup", "plants": [{"state": "Maharashtra", "city": "Pune", "area": "Kharadi EON IT Park", "type": "Office"}]},
+            {"name": "China CITIC Bank", "website": "https://www.citicbank.com", "hq": "Beijing", "country": "China", "products": "Commercial bank"},
+            {"name": "Standard Chartered", "website": "https://www.sc.com", "hq": "London", "country": "United Kingdom", "products": "International bank"},
+            {"name": "Deutsche Bank", "website": "https://www.db.com", "hq": "Frankfurt", "country": "Germany", "products": "Global bank"}
+          ]
+        },
+        {
+          "name": "Fintech, Broking & Market Infrastructure",
+          "companies": [
+            {"name": "KFin Technologies", "website": "https://www.kfintech.com", "hq": "Hyderabad", "country": "India", "products": "Registrar and transfer agent, fund administration"},
+            {"name": "Computer Age Management Services (CAMS)", "website": "https://www.camsonline.com", "hq": "Chennai", "country": "India", "products": "Mutual fund registrar and transfer agent"},
+            {"name": "Groww", "website": "https://groww.in", "hq": "Bengaluru", "country": "India", "products": "Stock broking and mutual funds"},
+            {"name": "Zerodha", "website": "https://zerodha.com", "hq": "Bengaluru", "country": "India", "brands": ["Kite", "Coin", "Console"], "products": "Stock broking"},
+            {"name": "Stock Holding Corporation of India (StockHolding)", "website": "https://www.stockholding.com", "hq": "Mumbai", "country": "India", "products": "Custodial, depository and e-stamping services"},
+            {"name": "NSDL", "website": "https://nsdl.co.in", "hq": "Mumbai", "country": "India", "products": "Securities depository"},
+            {"name": "CDSL", "website": "https://www.cdslindia.com", "hq": "Mumbai", "country": "India", "products": "Securities depository"},
+            {"name": "National Stock Exchange", "website": "https://www.nseindia.com", "hq": "Mumbai", "country": "India", "products": "Stock exchange"},
+            {"name": "Angel One", "website": "https://www.angelone.in", "hq": "Mumbai", "country": "India", "products": "Stock broking"},
+            {"name": "Navi Technologies", "website": "https://navi.com", "hq": "Bengaluru", "country": "India", "products": "Loans, insurance, mutual funds and UPI"},
+            {"name": "Paytm (One97 Communications)", "website": "https://paytm.com", "hq": "Noida", "country": "India", "products": "Payments and financial services"},
+            {"name": "PhonePe", "website": "https://www.phonepe.com", "hq": "Bengaluru", "country": "India", "products": "Payments"},
+            {"name": "Razorpay", "website": "https://razorpay.com", "hq": "Bengaluru", "country": "India", "products": "Payment gateway"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FMCG - Personal & Home Care",
+      "subsectors": [
+        {
+          "name": "Beauty & Cosmetics",
+          "companies": [
+            {"name": "L'Oreal India", "website": "https://www.loreal.com/en-in", "hq": "Mumbai", "country": "France", "brands": ["L'Oreal Paris", "Maybelline", "Garnier", "Lakme Salon (licensing)"], "products": "Cosmetics and hair care"},
+            {"name": "Honasa Consumer (Mamaearth)", "website": "https://honasa.in", "hq": "Gurugram", "country": "India", "brands": ["Mamaearth", "The Derma Co", "Aqualogica"], "products": "Personal care and beauty"},
+            {"name": "Hindustan Unilever", "brands": ["Lakme", "Ponds", "Glow & Lovely"]},
+            {"name": "Lotus Herbals", "website": "https://www.lotusherbals.com", "hq": "New Delhi", "country": "India", "products": "Herbal skin care"},
+            {"name": "SUGAR Cosmetics", "website": "https://in.sugarcosmetics.com", "hq": "Mumbai", "country": "India", "products": "Cosmetics"},
+            {"name": "VLCC Health Care", "website": "https://www.vlccwellness.com", "hq": "Gurugram", "country": "India", "products": "Wellness, beauty clinics and personal care"},
+            {"name": "Nivea India (Beiersdorf)", "website": "https://www.nivea.in", "hq": "Mumbai", "country": "Germany", "brands": ["Nivea"], "products": "Skin care", "plants": [{"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Electrical Equipment & Appliances",
+      "subsectors": [
+        {
+          "name": "Consumer Appliances & Air Conditioning",
+          "companies": [
+            {"name": "Godrej & Boyce", "website": "https://www.godrej.com", "hq": "Mumbai", "country": "India", "brands": ["Godrej Appliances", "Godrej Interio", "Godrej Locks"], "products": "Appliances, furniture, security and engineering"},
+            {"name": "Panasonic Life Solutions India", "website": "https://www.panasonic.com/in", "hq": "Mumbai", "country": "Japan", "products": "Appliances, wiring devices and solar"},
+            {"name": "OPPO India", "website": "https://www.oppo.com/in", "hq": "Gurugram", "country": "China", "products": "Smartphones", "plants": [{"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Greater Noida Industrial Area"}]},
+            {"name": "vivo India", "website": "https://www.vivo.com/in", "hq": "Greater Noida", "country": "China", "products": "Smartphones", "plants": [{"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Greater Noida Industrial Area"}]},
+            {"name": "Haier Appliances India", "plants": [{"state": "Uttar Pradesh", "city": "Greater Noida", "area": "Greater Noida Industrial Area"}]},
+            {"name": "Delta Power Solutions", "website": "https://www.deltaelectronicsindia.com", "hq": "Gurugram", "country": "Taiwan", "products": "Power electronics and telecom power", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}]}
+          ]
+        },
+        {
+          "name": "Electrical Equipment, Switches & Cables",
+          "companies": [
+            {"name": "Siemens India", "plants": [{"state": "West Bengal", "city": "Kolkata", "area": "Kolkata", "type": "Office"}]},
+            {"name": "Luminous Power Technologies", "plants": [{"state": "Uttarakhand", "city": "Kashipur", "area": "Kashipur Industrial Area"}]},
+            {"name": "Surya Roshni", "plants": [{"state": "Uttarakhand", "city": "Kashipur", "area": "Kashipur Industrial Area"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Automobile Manufacturers",
+      "subsectors": [
+        {
+          "name": "Passenger Cars",
+          "companies": [
+            {"name": "Tata Passenger Electric Mobility (ex-Ford Sanand)", "website": "https://ev.tatamotors.com", "hq": "Mumbai", "country": "India", "products": "Electric and passenger vehicles", "plants": [{"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}]}
+          ]
+        },
+        {
+          "name": "Tractors & Farm Machinery",
+          "companies": [
+            {"name": "Escorts Kubota", "plants": [{"state": "Haryana", "city": "Faridabad", "area": "Faridabad Industrial Area"}]},
+            {"name": "VE Commercial Vehicles (Eicher)", "plants": [{"state": "Madhya Pradesh", "city": "Pithampur", "area": "Pithampur Industrial Area"}]},
+            {"name": "Sonalika Tractors (International Tractors)", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auto Components, Forging & Casting",
+      "subsectors": [
+        {
+          "name": "Gears, Steering, Brakes & Systems",
+          "companies": [
+            {"name": "GNA Axles", "website": "https://www.gnagroup.com", "hq": "Phagwara", "country": "India", "products": "Rear axle shafts and spindles", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "Mehtiana, PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "JBM Auto", "website": "https://www.jbmgroup.com", "hq": "Gurugram", "country": "India", "products": "Sheet metal components, buses and EVs", "plants": [{"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}]},
+            {"name": "Maxxis Rubber India", "website": "https://www.maxxis.com", "hq": "Sanand", "country": "Taiwan", "products": "Tyres and tubes", "plants": [{"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}]},
+            {"name": "Uniflex Precision", "hq": "Hoshiarpur", "country": "India", "products": "Precision components", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Delta Industries", "hq": "Hoshiarpur", "country": "India", "products": "Engineering components", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "JJ Industries", "hq": "Hoshiarpur", "country": "India", "products": "Industrial components", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "JK Industries Hoshiarpur", "hq": "Hoshiarpur", "country": "India", "products": "Industrial components", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Dras Industries", "hq": "Hoshiarpur", "country": "India", "products": "Engineering components", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]}
+          ]
+        },
+        {
+          "name": "Casting & Die Casting (India)",
+          "companies": [
+            {"name": "KJ Technocast", "hq": "Hoshiarpur", "country": "India", "products": "Castings", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Metal Melt", "hq": "Hoshiarpur", "country": "India", "products": "Metal melting and castings", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Sajjan Castings", "hq": "Ludhiana", "country": "India", "products": "Iron castings", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana Focal Point"}]},
+            {"name": "Eastman Cast & Forge", "hq": "Ludhiana", "country": "India", "products": "Castings and forgings", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana Focal Point"}]},
+            {"name": "Euro Cast and Forge", "hq": "Uttarakhand", "country": "India", "products": "Castings and forgings", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar"}]}
+          ]
+        },
+        {
+          "name": "Bearings",
+          "companies": [
+            {"name": "NBC Bearings (National Engineering Industries)", "plants": [
+              {"state": "Rajasthan", "city": "Jaipur", "area": "Khatipura, Jaipur"},
+              {"state": "Rajasthan", "city": "Newai", "area": "Newai Industrial Area"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Steel, Metals & Pipes",
+      "subsectors": [
+        {
+          "name": "TMT Bars & Secondary Steel",
+          "companies": [
+            {"name": "KJ Steel", "hq": "Ludhiana", "country": "India", "products": "Steel rolling", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana Focal Point"}]},
+            {"name": "Ludhiana Steel Rolling Mills (cluster)", "hq": "Ludhiana", "country": "India", "products": "Re-rolled steel bars, angles and channels", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana Focal Point"}]},
+            {"name": "Bhiwadi Steel & Engineering Cluster", "hq": "Bhiwadi", "country": "India", "products": "Steel processing and engineering units", "plants": [{"state": "Rajasthan", "city": "Bhiwadi", "area": "RIICO Industrial Area Bhiwadi"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Apparel, Textiles & Footwear",
+      "subsectors": [
+        {
+          "name": "Textiles, Cotton & Yarn",
+          "companies": [
+            {"name": "Sportking India", "website": "https://www.sportking.co.in", "hq": "Ludhiana", "country": "India", "products": "Cotton and synthetic yarn", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana Focal Point"}]},
+            {"name": "JCT Limited", "website": "https://www.jct.co.in", "hq": "Phagwara", "country": "India", "products": "Textiles and nylon filament yarn", "plants": [
+              {"state": "Punjab", "city": "Phagwara", "area": "Phagwara Textile Unit"},
+              {"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}
+            ]},
+            {"name": "Vardhman Textiles", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Nahar Spinning Mills", "brands": ["Monte Carlo (group)"]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cement, Building Materials & Polymers",
+      "subsectors": [
+        {
+          "name": "Paper, Pulp & Packaging",
+          "companies": [
+            {"name": "Century Pulp and Paper", "website": "https://www.centurypaper.org.in", "hq": "Lalkuan", "country": "India", "products": "Writing, printing and tissue paper", "plants": [{"state": "Uttarakhand", "city": "Lalkuan", "area": "Lalkuan, Nainital"}]},
+            {"name": "ITC Paperboards", "website": "https://www.itcportal.com", "hq": "Secunderabad", "country": "India", "products": "Paperboard and specialty paper"},
+            {"name": "JK Paper", "website": "https://www.jkpaper.com", "hq": "New Delhi", "country": "India", "products": "Paper and packaging boards"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Heavy Engineering & Capital Goods",
+      "subsectors": [
+        {
+          "name": "Capital Goods & Power Equipment",
+          "companies": [
+            {"name": "Hawkins Cookers", "website": "https://www.hawkinscookers.com", "hq": "Mumbai", "country": "India", "brands": ["Hawkins", "Futura"], "products": "Pressure cookers and cookware", "plants": [{"state": "Punjab", "city": "Hoshiarpur", "area": "PSIEC Industrial Area Hoshiarpur"}]},
+            {"name": "Titagarh Rail Systems", "website": "https://titagarh.in", "hq": "Kolkata", "country": "India", "products": "Railway wagons, coaches and metro cars"},
+            {"name": "Solar Industries India", "website": "https://solargroup.com", "hq": "Nagpur", "country": "India", "products": "Industrial explosives and defence products", "plants": [{"state": "Maharashtra", "city": "Nagpur", "area": "MIHAN Nagpur"}]},
+            {"name": "Agilent Technologies", "website": "https://www.agilent.com", "hq": "Santa Clara", "country": "United States", "products": "Life science and analytical instruments", "plants": [{"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"}]},
+            {"name": "Sacmi Engineering India", "website": "https://www.sacmi.com", "hq": "Imola", "country": "Italy", "products": "Packaging and ceramics machinery", "plants": [{"state": "Gujarat", "city": "Sanand", "area": "Sanand GIDC"}]},
+            {"name": "India Glycols", "website": "https://www.indiaglycols.com", "hq": "Noida", "country": "India", "products": "Bio-based chemicals and spirits", "plants": [{"state": "Uttarakhand", "city": "Kashipur", "area": "Kashipur Industrial Area"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Restaurants, Hotels & Travel",
+      "subsectors": [
+        {
+          "name": "Hotels & Resorts",
+          "companies": [
+            {"name": "Hilton (India)", "website": "https://jobs.hilton.com", "hq": "McLean", "country": "United States", "brands": ["Hilton", "Conrad", "DoubleTree"], "products": "Hotels"},
+            {"name": "Accor (India)", "website": "https://group.accor.com", "hq": "Paris", "country": "France", "brands": ["Novotel", "Pullman", "ibis", "Fairmont"], "products": "Hotels"},
+            {"name": "OYO (Oravel Stays)", "website": "https://www.oyorooms.com", "hq": "Gurugram", "country": "India", "products": "Hotel and homes platform"},
+            {"name": "Club Mahindra (Mahindra Holidays)", "website": "https://www.clubmahindra.com", "hq": "Mumbai", "country": "India", "products": "Holiday resorts"},
+            {"name": "The Leela Palaces Hotels & Resorts", "website": "https://www.theleela.com", "hq": "Mumbai", "country": "India", "products": "Luxury hotels"},
+            {"name": "Sarovar Hotels", "website": "https://www.sarovarhotels.com", "hq": "Mumbai", "country": "India", "products": "Hotels"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Food & Beverages",
+      "subsectors": [
+        {
+          "name": "Packaged Foods & Confectionery",
+          "companies": [
+            {"name": "Haldiram's", "plants": [{"state": "Maharashtra", "city": "Nagpur", "area": "Nagpur"}]},
+            {"name": "Britannia Industries", "plants": [{"state": "West Bengal", "city": "Kolkata", "area": "Taratala, Kolkata"}]},
+            {"name": "Patanjali Foods", "plants": [{"state": "Maharashtra", "city": "Nagpur", "area": "MIHAN Nagpur"}]}
+          ]
+        }
+      ]
+    }
+  ]
+}

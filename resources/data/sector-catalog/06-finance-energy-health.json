@@ -1,0 +1,318 @@
+{
+  "sectors": [
+    {
+      "name": "Banking & Financial Services",
+      "symbol": "BK",
+      "roles": {
+        "Branch Banking": ["Probationary Officer", "Relationship Manager", "Branch Manager", "Teller / Cashier", "Customer Service Officer"],
+        "Credit & Risk": ["Credit Analyst", "Credit Manager", "Risk Analyst", "Collections Officer"],
+        "Technology": ["Core Banking Developer", "Java Developer", "Cybersecurity Analyst", "Data Engineer"],
+        "Markets & Operations": ["Investment Banking Analyst", "Trade Finance Officer", "KYC / AML Analyst", "Operations Executive"]
+      },
+      "subsectors": [
+        {
+          "name": "Indian Banks",
+          "companies": [
+            {"name": "State Bank of India", "website": "https://sbi.co.in", "hq": "Mumbai", "country": "India", "products": "Public sector bank"},
+            {"name": "HDFC Bank", "website": "https://www.hdfcbank.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "ICICI Bank", "website": "https://www.icicibank.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "Axis Bank", "website": "https://www.axisbank.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "Kotak Mahindra Bank", "website": "https://www.kotak.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "Punjab National Bank", "website": "https://www.pnbindia.in", "hq": "New Delhi", "country": "India", "products": "Public sector bank"},
+            {"name": "Bank of Baroda", "website": "https://www.bankofbaroda.in", "hq": "Vadodara", "country": "India", "products": "Public sector bank"},
+            {"name": "Canara Bank", "website": "https://canarabank.com", "hq": "Bengaluru", "country": "India", "products": "Public sector bank"},
+            {"name": "Union Bank of India", "website": "https://www.unionbankofindia.co.in", "hq": "Mumbai", "country": "India", "products": "Public sector bank"},
+            {"name": "IndusInd Bank", "website": "https://www.indusind.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "IDFC FIRST Bank", "website": "https://www.idfcfirstbank.com", "hq": "Mumbai", "country": "India", "products": "Private sector bank"},
+            {"name": "Yes Bank", "website": "https://www.yesbank.in", "hq": "Mumbai", "country": "India", "products": "Private sector bank"}
+          ]
+        },
+        {
+          "name": "United States Banks",
+          "companies": [
+            {"name": "JPMorgan Chase & Co.", "website": "https://www.jpmorganchase.com", "hq": "New York City", "country": "United States", "products": "Universal bank (~$4.2T assets)"},
+            {"name": "Bank of America", "website": "https://www.bankofamerica.com", "hq": "Charlotte", "country": "United States", "products": "Universal bank (~$3.25T assets)"},
+            {"name": "Citigroup", "website": "https://www.citigroup.com", "hq": "New York City", "country": "United States", "products": "Universal bank (~$2.4T assets)"},
+            {"name": "Wells Fargo", "website": "https://www.wellsfargo.com", "hq": "San Francisco", "country": "United States", "products": "Retail and commercial bank (~$1.95T assets)"},
+            {"name": "Goldman Sachs", "website": "https://www.goldmansachs.com", "hq": "New York City", "country": "United States", "products": "Investment bank (~$1.65T assets)"},
+            {"name": "Morgan Stanley", "website": "https://www.morganstanley.com", "hq": "New York City", "country": "United States", "products": "Investment bank and wealth management (~$1.2T assets)"}
+          ]
+        },
+        {
+          "name": "Swiss Banks",
+          "companies": [
+            {"name": "UBS Group", "website": "https://www.ubs.com", "hq": "Zurich", "country": "Switzerland", "products": "Global systemic bank, wealth management"},
+            {"name": "Raiffeisen Switzerland", "website": "https://www.raiffeisen.ch", "hq": "St. Gallen", "country": "Switzerland", "products": "Cooperative banking group (~220 member banks)"},
+            {"name": "Zurcher Kantonalbank", "website": "https://www.zkb.ch", "hq": "Zurich", "country": "Switzerland", "products": "Largest cantonal bank"},
+            {"name": "Banque Cantonale Vaudoise", "website": "https://www.bcv.ch", "hq": "Lausanne", "country": "Switzerland", "products": "Cantonal bank"},
+            {"name": "Pictet Group", "website": "https://www.group.pictet", "hq": "Geneva", "country": "Switzerland", "products": "Private banking and asset management"},
+            {"name": "Julius Baer", "website": "https://www.juliusbaer.com", "hq": "Zurich", "country": "Switzerland", "products": "Private banking"}
+          ]
+        },
+        {
+          "name": "UK & Scotland Banks",
+          "companies": [
+            {"name": "NatWest Group (Royal Bank of Scotland)", "website": "https://www.natwestgroup.com", "hq": "Edinburgh", "country": "United Kingdom", "brands": ["NatWest", "Royal Bank of Scotland", "Coutts"], "products": "Retail and commercial banking"},
+            {"name": "Lloyds Banking Group (Bank of Scotland)", "website": "https://www.lloydsbankinggroup.com", "hq": "Edinburgh", "country": "United Kingdom", "brands": ["Bank of Scotland", "Lloyds Bank", "Halifax"], "products": "Retail banking"},
+            {"name": "TSB Bank", "website": "https://www.tsb.co.uk", "hq": "Edinburgh", "country": "United Kingdom", "products": "Retail banking"},
+            {"name": "Virgin Money UK (Clydesdale Bank)", "website": "https://uk.virginmoney.com", "hq": "Glasgow", "country": "United Kingdom", "products": "Retail banking"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Insurance",
+      "symbol": "IN",
+      "roles": {
+        "Sales": ["Insurance Advisor / Agent", "Bancassurance Relationship Manager", "Agency Development Manager", "Sales Manager"],
+        "Operations": ["Claims Executive", "Underwriter", "Policy Servicing Executive", "Medical Officer (Claims)"],
+        "Specialist": ["Actuarial Analyst", "Risk Analyst", "Fraud Investigation Officer"]
+      },
+      "subsectors": [
+        {
+          "name": "Life Insurance",
+          "companies": [
+            {"name": "Life Insurance Corporation of India (LIC)", "website": "https://licindia.in", "hq": "Mumbai", "country": "India", "products": "Public sector life insurance"},
+            {"name": "HDFC Life", "website": "https://www.hdfclife.com", "hq": "Mumbai", "country": "India", "products": "Life insurance"},
+            {"name": "SBI Life Insurance", "website": "https://www.sbilife.co.in", "hq": "Mumbai", "country": "India", "products": "Life insurance"},
+            {"name": "ICICI Prudential Life", "website": "https://www.iciciprulife.com", "hq": "Mumbai", "country": "India", "products": "Life insurance"},
+            {"name": "Axis Max Life Insurance", "website": "https://www.axismaxlife.com", "hq": "Gurugram", "country": "India", "products": "Life insurance"},
+            {"name": "PNB MetLife", "website": "https://www.pnbmetlife.com", "hq": "Mumbai", "country": "India", "products": "Life insurance"},
+            {"name": "Bajaj Allianz Life", "website": "https://www.bajajallianzlife.com", "hq": "Pune", "country": "India", "products": "Life insurance"}
+          ]
+        },
+        {
+          "name": "Health Insurance",
+          "companies": [
+            {"name": "Star Health and Allied Insurance", "website": "https://www.starhealth.in", "hq": "Chennai", "country": "India", "products": "Standalone health insurance"},
+            {"name": "Niva Bupa Health Insurance", "website": "https://www.nivabupa.com", "hq": "New Delhi", "country": "India", "products": "Health insurance"},
+            {"name": "Care Health Insurance", "website": "https://www.careinsurance.com", "hq": "Gurugram", "country": "India", "products": "Health insurance"},
+            {"name": "Aditya Birla Health Insurance", "website": "https://www.adityabirlacapital.com", "hq": "Mumbai", "country": "India", "products": "Health insurance"}
+          ]
+        },
+        {
+          "name": "General Insurance",
+          "companies": [
+            {"name": "The New India Assurance", "website": "https://www.newindia.co.in", "hq": "Mumbai", "country": "India", "products": "Public sector general insurance"},
+            {"name": "The Oriental Insurance Company", "website": "https://orientalinsurance.org.in", "hq": "New Delhi", "country": "India", "products": "Public sector general insurance"},
+            {"name": "United India Insurance", "website": "https://uiic.co.in", "hq": "Chennai", "country": "India", "products": "Public sector general insurance"},
+            {"name": "National Insurance Company", "website": "https://nationalinsurance.nic.co.in", "hq": "Kolkata", "country": "India", "products": "Public sector general insurance"},
+            {"name": "ICICI Lombard", "website": "https://www.icicilombard.com", "hq": "Mumbai", "country": "India", "products": "General insurance"},
+            {"name": "HDFC ERGO", "website": "https://www.hdfcergo.com", "hq": "Mumbai", "country": "India", "products": "General insurance"},
+            {"name": "Bajaj Allianz General Insurance", "website": "https://www.bajajallianz.com", "hq": "Pune", "country": "India", "products": "General insurance"},
+            {"name": "Tata AIG General Insurance", "website": "https://www.tataaig.com", "hq": "Mumbai", "country": "India", "products": "General insurance"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Oil, Gas & Energy",
+      "symbol": "EN",
+      "roles": {
+        "Refinery & Plant": ["Process Engineer", "Panel Operator", "Field Operator", "Shift In-charge", "Boiler Operator"],
+        "Maintenance": ["Mechanical Maintenance Engineer", "Instrumentation Engineer", "Rotary Equipment Technician", "Electrician"],
+        "Safety": ["HSE Officer", "Fire & Safety Officer"],
+        "Renewables": ["Solar Site Engineer", "O&M Technician", "Wind Turbine Technician", "Module Production Operator", "Battery Cell Process Engineer"],
+        "Marketing": ["Retail Outlet Sales Officer", "LPG Distribution Executive", "CNG Station Operator"]
+      },
+      "subsectors": [
+        {
+          "name": "Oil Refining & Marketing",
+          "companies": [
+            {"name": "Reliance Industries", "website": "https://www.ril.com", "hq": "Mumbai", "country": "India", "brands": ["Jio-bp", "Reliance Retail", "Jio"], "products": "Jamnagar refinery (world's largest), petrochemicals, retail and telecom", "plants": [
+              {"state": "Gujarat", "city": "Jamnagar", "area": "Jamnagar Refinery Complex"}
+            ]},
+            {"name": "Indian Oil Corporation", "website": "https://iocl.com", "hq": "New Delhi", "country": "India", "brands": ["Indane", "Servo", "XtraPremium"], "products": "Refining, pipelines and fuel marketing", "plants": [
+              {"state": "Odisha", "city": "Paradip", "area": "Paradip Refinery"},
+              {"state": "Haryana", "city": "Panipat", "area": "Panipat Refinery"},
+              {"state": "West Bengal", "city": "Haldia", "area": "Haldia Refinery"}
+            ]},
+            {"name": "Bharat Petroleum Corporation", "website": "https://www.bharatpetroleum.in", "hq": "Mumbai", "country": "India", "brands": ["Bharatgas", "MAK Lubricants", "Speed"], "products": "Refining, LPG and fuel marketing", "plants": [
+              {"state": "Kerala", "city": "Kochi", "area": "Kochi Refinery"},
+              {"state": "Maharashtra", "city": "Mumbai", "area": "Mahul Refinery"}
+            ]},
+            {"name": "Hindustan Petroleum Corporation", "website": "https://www.hindustanpetroleum.com", "hq": "Mumbai", "country": "India", "brands": ["HP Gas", "HP Lubricants"], "products": "Refining and fuel marketing", "plants": [
+              {"state": "Andhra Pradesh", "city": "Visakhapatnam", "area": "Visakh Refinery"}
+            ]},
+            {"name": "Nayara Energy", "website": "https://www.nayaraenergy.com", "hq": "Mumbai", "country": "India", "products": "Vadinar refinery and fuel retail", "plants": [
+              {"state": "Gujarat", "city": "Devbhumi Dwarka", "area": "Vadinar Refinery"}
+            ]},
+            {"name": "Mangalore Refinery and Petrochemicals (MRPL)", "website": "https://www.mrpl.co.in", "hq": "Mangaluru", "country": "India", "products": "Refining (ONGC subsidiary)"},
+            {"name": "ONGC", "website": "https://ongcindia.com", "hq": "New Delhi", "country": "India", "products": "Oil and gas exploration"}
+          ]
+        },
+        {
+          "name": "Natural Gas & City Gas",
+          "companies": [
+            {"name": "GAIL (India)", "website": "https://gailonline.com", "hq": "New Delhi", "country": "India", "products": "Gas transmission and petrochemicals"},
+            {"name": "Gujarat Gas", "website": "https://www.gujaratgas.com", "hq": "Ahmedabad", "country": "India", "products": "City gas distribution"},
+            {"name": "Indraprastha Gas", "website": "https://www.iglonline.net", "hq": "New Delhi", "country": "India", "products": "CNG and PNG distribution"},
+            {"name": "Mahanagar Gas", "website": "https://www.mahanagargas.com", "hq": "Mumbai", "country": "India", "products": "CNG and PNG distribution"},
+            {"name": "Adani Total Gas", "website": "https://www.adanigas.com", "hq": "Ahmedabad", "country": "India", "products": "City gas distribution"}
+          ]
+        },
+        {
+          "name": "Renewable Power",
+          "companies": [
+            {"name": "Adani Green Energy", "website": "https://www.adanigreenenergy.com", "hq": "Ahmedabad", "country": "India", "products": "Utility-scale solar and wind (Khavda)"},
+            {"name": "Tata Power", "website": "https://www.tatapower.com", "hq": "Mumbai", "country": "India", "brands": ["Tata Power Solar", "Tata Power EZ Charge"], "products": "Integrated power, solar EPC and EV charging"},
+            {"name": "NTPC Green Energy", "website": "https://ngel.in", "hq": "New Delhi", "country": "India", "products": "Solar, wind and green hydrogen"},
+            {"name": "ReNew", "website": "https://www.renew.com", "hq": "Gurugram", "country": "India", "products": "Hybrid renewables and storage"},
+            {"name": "Suzlon Energy", "website": "https://www.suzlon.com", "hq": "Pune", "country": "India", "products": "Wind turbines"}
+          ]
+        },
+        {
+          "name": "Solar Panel Manufacturing",
+          "companies": [
+            {"name": "Waaree Energies", "website": "https://waaree.com", "hq": "Mumbai", "country": "India", "products": "Solar modules (11+ GW) and EPC"},
+            {"name": "Adani Solar", "website": "https://www.adanisolar.com", "hq": "Ahmedabad", "country": "India", "products": "Mono PERC and TOPCon modules"},
+            {"name": "Vikram Solar", "website": "https://www.vikramsolar.com", "hq": "Kolkata", "country": "India", "products": "Solar modules"},
+            {"name": "Premier Energies", "website": "https://www.premierenergies.com", "hq": "Hyderabad", "country": "India", "products": "Solar cells and modules"},
+            {"name": "Loom Solar", "website": "https://www.loomsolar.com", "hq": "Faridabad", "country": "India", "products": "Residential solar panels"},
+            {"name": "Luminous Power Technologies", "website": "https://www.luminousindia.com", "hq": "Gurugram", "country": "India", "products": "Inverters, batteries and solar"}
+          ]
+        },
+        {
+          "name": "Batteries & Energy Storage",
+          "companies": [
+            {"name": "Exide Industries", "website": "https://www.exideindustries.com", "hq": "Kolkata", "country": "India", "products": "Automotive, inverter and lithium-ion batteries"},
+            {"name": "Amara Raja Energy & Mobility", "website": "https://www.amararajaeandm.com", "hq": "Tirupati", "country": "India", "brands": ["Amaron", "PowerZone"], "products": "Automotive and industrial batteries"},
+            {"name": "Eastman Auto & Power", "website": "https://www.eastmanautoandpower.com", "hq": "New Delhi", "country": "India", "products": "Solar, inverter and automotive batteries"},
+            {"name": "CATL", "website": "https://www.catl.com", "hq": "Ningde", "country": "China", "products": "EV batteries (largest globally)"},
+            {"name": "BYD", "website": "https://www.byd.com", "hq": "Shenzhen", "country": "China", "products": "Blade batteries and electric vehicles"},
+            {"name": "LG Energy Solution", "website": "https://www.lgensol.com", "hq": "Seoul", "country": "South Korea", "products": "Lithium-ion cells"},
+            {"name": "Panasonic Energy", "website": "https://www.panasonic.com", "hq": "Osaka", "country": "Japan", "products": "EV battery cells"},
+            {"name": "Samsung SDI", "website": "https://www.samsungsdi.com", "hq": "Yongin", "country": "South Korea", "products": "Lithium-ion batteries"},
+            {"name": "SK On", "website": "https://www.skon.com", "hq": "Seoul", "country": "South Korea", "products": "EV batteries"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pharmaceuticals & Healthcare",
+      "symbol": "PH",
+      "roles": {
+        "Production": ["Production Chemist", "Machine Operator (Tablet/Capsule)", "Granulation Operator", "Packing Operator", "Helper"],
+        "Quality": ["QC Chemist", "QA Officer", "Microbiologist", "Lab Attendant", "Validation Executive"],
+        "Regulatory & R&D": ["Formulation Scientist", "Regulatory Affairs Executive", "Analytical Research Scientist"],
+        "Sales": ["Medical Representative", "Area Business Manager", "Product Manager"],
+        "Engineering": ["Utility Engineer", "HVAC Technician", "Maintenance Fitter", "Electrician"]
+      },
+      "subsectors": [
+        {
+          "name": "Large Pharma Companies",
+          "companies": [
+            {"name": "Sun Pharmaceutical Industries", "website": "https://sunpharma.com", "hq": "Mumbai", "country": "India", "products": "Generics and specialty pharma"},
+            {"name": "Dr. Reddy's Laboratories", "website": "https://www.drreddys.com", "hq": "Hyderabad", "country": "India", "products": "Generics, APIs and biosimilars"},
+            {"name": "Cipla", "website": "https://www.cipla.com", "hq": "Mumbai", "country": "India", "products": "Respiratory and generics"},
+            {"name": "Lupin", "website": "https://www.lupin.com", "hq": "Mumbai", "country": "India", "products": "Generics and specialty"},
+            {"name": "Zydus Lifesciences", "website": "https://www.zyduslife.com", "hq": "Ahmedabad", "country": "India", "products": "Pharma and vaccines"},
+            {"name": "Aurobindo Pharma", "website": "https://www.aurobindo.com", "hq": "Hyderabad", "country": "India", "products": "Generics and APIs"},
+            {"name": "Mankind Pharma", "website": "https://www.mankindpharma.com", "hq": "New Delhi", "country": "India", "products": "Branded formulations"},
+            {"name": "Torrent Pharmaceuticals", "website": "https://www.torrentpharma.com", "hq": "Ahmedabad", "country": "India", "products": "Branded generics"},
+            {"name": "Alkem Laboratories", "website": "https://www.alkemlabs.com", "hq": "Mumbai", "country": "India", "products": "Branded generics"},
+            {"name": "Glenmark Pharmaceuticals", "website": "https://www.glenmarkpharma.com", "hq": "Mumbai", "country": "India", "products": "Branded generics and specialty"},
+            {"name": "Abbott India", "website": "https://www.abbott.co.in", "hq": "Mumbai", "country": "United States", "products": "Pharma, nutrition and diagnostics"}
+          ]
+        },
+        {
+          "name": "Formulations & Contract Manufacturing",
+          "companies": [
+            {"name": "Akums Drugs & Pharmaceuticals", "website": "https://www.akums.in", "hq": "New Delhi", "country": "India", "products": "Contract formulation manufacturing", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A / 6B"}
+            ]},
+            {"name": "ESKAG Pharma", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A / 6B"}]},
+            {"name": "Dr John's Lab", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A / 6B"}]},
+            {"name": "Rivpra Formulations", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A / 6B"}]},
+            {"name": "Arogya Formulations", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 6A / 6B"}]},
+            {"name": "Ravian Life Science", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 8A"}]},
+            {"name": "Atlas Laboratories & Pharmaceuticals", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 8A"}]},
+            {"name": "Agrawal Drugs", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 8A"}]},
+            {"name": "Weldon Biotech (I)", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 7"}]},
+            {"name": "Zaneka Healthcare", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "BHEL Ancillary Estate"}]},
+            {"name": "Balaji Corporation", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "Delhi-Haridwar Highway, Bahadrabad"}]},
+            {"name": "Baxil Pharma", "hq": "Haridwar", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "Shyampur, Nainital Highway"}]},
+            {"name": "Fine Biotics Pharma", "hq": "Rudrapur", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}]},
+            {"name": "Denver Healthcare", "hq": "Rudrapur", "country": "India", "products": "Healthcare and pharma formulations", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}]},
+            {"name": "Acacia Biotech", "hq": "Rudrapur", "country": "India", "products": "Biotechnology and pharmaceuticals", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}]},
+            {"name": "Max Chem Pharmaceuticals", "hq": "Rudrapur", "country": "India", "products": "Medicinal and chemical manufacturing", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}]},
+            {"name": "Pilco Healthcare", "hq": "Rudrapur", "country": "India", "products": "Pharmaceutical products", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}]},
+            {"name": "Sure For Cure Formulations (I)", "hq": "Rudrapur", "country": "India", "products": "Pharmaceutical formulations", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar IIDC"}]},
+            {"name": "Maxmed Life Sciences", "hq": "Rudrapur", "country": "India", "products": "Life sciences and medicines", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar IIDC"}]},
+            {"name": "Tulip Diagnostics", "website": "https://www.tulipgroup.com", "hq": "Goa", "country": "India", "products": "Medical diagnostics", "plants": [{"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 7"}]},
+            {"name": "Dharuhera Pharmaceutical", "hq": "Dharuhera", "country": "India", "products": "APIs and intermediates", "plants": [{"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area"}]},
+            {"name": "Bharti Healthcare", "hq": "Dharuhera", "country": "India", "products": "Capsule manufacturing and pharma packaging", "plants": [{"state": "Haryana", "city": "Dharuhera", "area": "Village Joniawas"}]},
+            {"name": "Medshield India", "hq": "Rewari", "country": "India", "products": "Surgical and disposable products", "plants": [{"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 3"}]},
+            {"name": "Safecon Lifesciences", "hq": "Rewari", "country": "India", "products": "Healthcare and pharma formulations", "plants": [{"state": "Haryana", "city": "Bawal", "area": "HSIIDC IMT Bawal Sector 3"}]},
+            {"name": "Getwell Pharma India", "hq": "Rewari", "country": "India", "products": "General pharmaceutical formulations", "plants": [{"state": "Haryana", "city": "Rewari", "area": "Rewari City Suburbs"}]},
+            {"name": "Ektek Pharma", "hq": "Ludhiana", "country": "India", "products": "Formulations and nutraceuticals", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Industrial Area A"}]},
+            {"name": "Unimax Laboratories", "hq": "Ludhiana", "country": "India", "products": "Oral liquids, tablets and capsules", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Focal Point Phase V"}]},
+            {"name": "Solvate Laboratories", "hq": "Ludhiana", "country": "India", "products": "Pharmaceutical formulations and liquids", "plants": [{"state": "Punjab", "city": "Ludhiana", "area": "Dhandari Kalan"}]}
+          ]
+        },
+        {
+          "name": "Ayurvedic & Herbal",
+          "companies": [
+            {"name": "Divya Pharmacy (Patanjali Ayurved)", "website": "https://www.patanjaliayurved.net", "hq": "Haridwar", "country": "India", "brands": ["Patanjali", "Divya"], "products": "Ayurvedic medicines and FMCG", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "Delhi-Haridwar Highway, Bahadrabad"}
+            ]},
+            {"name": "The Zandu Pharmaceutical Works (Emami)", "website": "https://www.zanducare.com", "hq": "Kolkata", "country": "India", "brands": ["Zandu Balm", "Zandu Pancharishta"], "products": "Ayurvedic medicines", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 5"}
+            ]},
+            {"name": "A&A Ayurvedic", "hq": "Haridwar", "country": "India", "products": "Ayurvedic formulations", "plants": [{"state": "Uttarakhand", "city": "Haridwar", "area": "Jamalpur Khurd Industrial Area"}]},
+            {"name": "Baidyanath", "website": "https://www.baidyanath.co", "hq": "Kolkata", "country": "India", "products": "Ayurvedic medicines"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Logistics & Supply Chain",
+      "symbol": "LG",
+      "roles": {
+        "Operations": ["Delivery Executive", "Delivery Driver", "Warehouse Associate", "Picker / Packer", "Forklift Operator", "Hub In-charge"],
+        "Management": ["Operations Manager", "Fleet Manager", "Supply Chain Analyst", "Customs Executive"],
+        "Sales": ["Business Development Executive", "Key Account Manager"]
+      },
+      "subsectors": [
+        {
+          "name": "Courier, Express & Freight",
+          "companies": [
+            {"name": "Blue Dart Express", "website": "https://www.bluedart.com", "hq": "Mumbai", "country": "India", "products": "Express courier"},
+            {"name": "Delhivery", "website": "https://www.delhivery.com", "hq": "Gurugram", "country": "India", "products": "E-commerce logistics and freight"},
+            {"name": "DTDC Express", "website": "https://www.dtdc.in", "hq": "Bengaluru", "country": "India", "products": "Courier"},
+            {"name": "Transport Corporation of India", "website": "https://www.tcil.com", "hq": "Gurugram", "country": "India", "products": "Multimodal logistics"},
+            {"name": "VRL Logistics", "website": "https://www.vrlgroup.in", "hq": "Hubballi", "country": "India", "products": "Road transport"},
+            {"name": "Allcargo Logistics", "website": "https://www.allcargologistics.com", "hq": "Mumbai", "country": "India", "products": "Freight forwarding"},
+            {"name": "Mahindra Logistics", "website": "https://mahindralogistics.com", "hq": "Mumbai", "country": "India", "products": "3PL and mobility"},
+            {"name": "Container Corporation of India", "website": "https://concorindia.co.in", "hq": "New Delhi", "country": "India", "products": "Rail container logistics"},
+            {"name": "DHL", "website": "https://group.dhl.com", "hq": "Bonn", "country": "Germany", "products": "Express and supply chain"},
+            {"name": "FedEx", "website": "https://www.fedex.com", "hq": "Memphis", "country": "United States", "products": "Express transport"},
+            {"name": "A.P. Moller - Maersk", "website": "https://www.maersk.com", "hq": "Copenhagen", "country": "Denmark", "products": "Shipping and integrated logistics"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Agriculture & Agri-Inputs",
+      "symbol": "AG",
+      "roles": {
+        "Field": ["Agronomist", "Field Officer", "Farm Supervisor", "Sales Officer - Agri Inputs"],
+        "Plant": ["Production Operator", "Chemist", "Quality Inspector"],
+        "Research": ["Plant Breeder", "Soil Scientist", "Research Associate"]
+      },
+      "subsectors": [
+        {
+          "name": "Fertilisers, Seeds & Crop Protection",
+          "companies": [
+            {"name": "UPL", "website": "https://www.upl-ltd.com", "hq": "Mumbai", "country": "India", "products": "Crop protection and seeds"},
+            {"name": "Coromandel International", "website": "https://www.coromandel.biz", "hq": "Chennai", "country": "India", "products": "Fertilisers and crop protection"},
+            {"name": "Chambal Fertilisers", "website": "https://www.chambalfertilisers.com", "hq": "New Delhi", "country": "India", "products": "Urea and fertilisers"},
+            {"name": "IFFCO", "website": "https://www.iffco.in", "hq": "New Delhi", "country": "India", "products": "Cooperative fertiliser producer"},
+            {"name": "Rallis India", "website": "https://www.rallis.com", "hq": "Mumbai", "country": "India", "products": "Agrochemicals and seeds"},
+            {"name": "Jain Irrigation Systems", "website": "https://www.jains.com", "hq": "Jalgaon", "country": "India", "products": "Micro-irrigation and food processing"}
+          ]
+        }
+      ]
+    }
+  ]
+}

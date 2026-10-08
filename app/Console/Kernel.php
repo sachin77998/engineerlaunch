@@ -17,12 +17,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('jobs:dispatch-daily --triggered-by=scheduler')
             ->dailyAt('02:00')
             ->withoutOverlapping(180);
-        $schedule->command('queue:work database --queue=ingestion --stop-when-empty --max-time=300 --tries=3 --timeout=900')
+        $schedule->command('queue:work database --queue=catalog,feeds,discovery,ingestion --stop-when-empty --max-time=300 --tries=3 --timeout=900')
             ->everyMinute()
             ->withoutOverlapping(180);
         $schedule->command('queue:work --queue=resume-processing,emails,default --stop-when-empty --max-time=300 --tries=3 --timeout=300')
             ->everyMinute()
             ->withoutOverlapping(15);
+        $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
+        $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
         $schedule->command('premium:build-recommendations')
             ->dailyAt('08:00')
             ->withoutOverlapping(30);

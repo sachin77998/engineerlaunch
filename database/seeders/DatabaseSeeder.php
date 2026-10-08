@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             CareerExplorerSeeder::class,
             CompanyCategorySeeder::class,
             CompanyDiscoverySeeder::class,
+            SectorCatalogSeeder::class,
             NewsIntelligenceSeeder::class,
             IndustryNewsCategorySeeder::class,
             InterviewCompanySeeder::class,

@@ -1,0 +1,231 @@
+{
+  "sectors": [
+    {
+      "name": "Steel, Metals & Pipes",
+      "symbol": "ST",
+      "roles": {
+        "Plant Operations": ["Blast Furnace Operator", "SMS Operator", "Rolling Mill Operator", "Crane Operator", "Melter", "Furnace Operator", "Shift Engineer"],
+        "Maintenance": ["Mechanical Maintenance Engineer", "Electrical Maintenance Engineer", "Fitter", "Welder", "Electrician", "Instrumentation Technician"],
+        "Quality & Lab": ["Metallurgist", "Quality Inspector", "Lab Attendant", "NDT Technician"],
+        "Commercial": ["Sales Executive - TMT", "Dealer Network Manager", "Logistics Coordinator", "Commodity Buyer"],
+        "Support": ["Safety Officer", "Store Executive (ITI)", "Driver", "Helper"]
+      },
+      "subsectors": [
+        {
+          "name": "Integrated Steel Producers",
+          "companies": [
+            {"name": "Tata Steel", "website": "https://www.tatasteel.com", "hq": "Mumbai", "country": "India", "brands": ["Tata Tiscon", "Tata Shaktee", "Tata Structura", "Tata Agrico"], "products": "Flat, long and tubular steel", "plants": [
+              {"state": "Jharkhand", "city": "Jamshedpur", "area": "Jamshedpur Works"},
+              {"state": "Odisha", "city": "Jajpur", "area": "Kalinganagar Industrial Complex"},
+              {"state": "Odisha", "city": "Angul", "area": "Meramandali"}
+            ]},
+            {"name": "JSW Steel", "website": "https://www.jsw.in", "hq": "Mumbai", "country": "India", "brands": ["JSW Neosteel", "JSW Colouron+", "JSW Radiance"], "products": "Flat and long steel products", "plants": [
+              {"state": "Karnataka", "city": "Ballari", "area": "Vijayanagar Works, Toranagallu"},
+              {"state": "Maharashtra", "city": "Raigad", "area": "Dolvi Works"},
+              {"state": "Tamil Nadu", "city": "Salem", "area": "Salem Works"}
+            ]},
+            {"name": "Steel Authority of India (SAIL)", "website": "https://www.sail.co.in", "hq": "New Delhi", "country": "India", "brands": ["SAIL TMT", "SAIL Jyoti"], "products": "Rails, plates, structurals and flat steel", "plants": [
+              {"state": "Chhattisgarh", "city": "Bhilai", "area": "Bhilai Steel Plant"},
+              {"state": "Jharkhand", "city": "Bokaro", "area": "Bokaro Steel Plant"},
+              {"state": "Odisha", "city": "Rourkela", "area": "Rourkela Steel Plant"},
+              {"state": "West Bengal", "city": "Durgapur", "area": "Durgapur Steel Plant"},
+              {"state": "West Bengal", "city": "Asansol", "area": "IISCO Burnpur"}
+            ]},
+            {"name": "Jindal Steel & Power", "website": "https://www.jindalsteel.com", "hq": "New Delhi", "country": "India", "brands": ["Jindal Panther TMT"], "products": "Rails, plates and structural steel", "plants": [
+              {"state": "Chhattisgarh", "city": "Raigarh", "area": "Raigarh Plant"},
+              {"state": "Odisha", "city": "Angul", "area": "Angul Plant"}
+            ]},
+            {"name": "ArcelorMittal Nippon Steel India", "website": "https://www.amns.in", "hq": "Hazira", "country": "India", "products": "Advanced flat steel", "plants": [
+              {"state": "Gujarat", "city": "Surat", "area": "Hazira"}
+            ]},
+            {"name": "Rashtriya Ispat Nigam (Vizag Steel)", "website": "https://www.vizagsteel.com", "hq": "Visakhapatnam", "country": "India", "products": "Long steel products", "plants": [
+              {"state": "Andhra Pradesh", "city": "Visakhapatnam", "area": "Visakhapatnam Steel Plant"}
+            ]},
+            {"name": "ArcelorMittal", "website": "https://corporate.arcelormittal.com", "hq": "Luxembourg", "country": "Luxembourg", "products": "Global steel producer"}
+          ]
+        },
+        {
+          "name": "TMT Bars & Secondary Steel",
+          "companies": [
+            {"name": "Shyam Metalics", "website": "https://shyammetalics.com", "hq": "Kolkata", "country": "India", "brands": ["SEL Tiger TMT"], "products": "TMT bars, ferro alloys and aluminium foil"},
+            {"name": "Kamdhenu", "website": "https://www.kamdhenulimited.com", "hq": "Gurugram", "country": "India", "brands": ["Kamdhenu TMT"], "products": "TMT bars"},
+            {"name": "Mongia Steel", "hq": "Raipur", "country": "India", "products": "TMT bars and structural steel"},
+            {"name": "Jyoti TMT Bar", "country": "India", "products": "TMT bars"},
+            {"name": "Everest Metals", "hq": "Rewari", "country": "India", "products": "Structural steel and industrial metal products", "plants": [
+              {"state": "Haryana", "city": "Rewari", "area": "Jhajjar Road"}
+            ]}
+          ]
+        },
+        {
+          "name": "Stainless Steel & Non-Ferrous Metals",
+          "companies": [
+            {"name": "Jindal Stainless", "website": "https://www.jindalstainless.com", "hq": "New Delhi", "country": "India", "products": "Stainless steel flat products", "plants": [
+              {"state": "Haryana", "city": "Hisar", "area": "Hisar Plant"},
+              {"state": "Odisha", "city": "Jajpur", "area": "Kalinganagar"}
+            ]},
+            {"name": "Hindalco Industries", "website": "https://www.hindalco.com", "hq": "Mumbai", "country": "India", "products": "Aluminium and copper"},
+            {"name": "Vedanta", "website": "https://www.vedantalimited.com", "hq": "Mumbai", "country": "India", "products": "Aluminium, zinc, oil and power"},
+            {"name": "Hindustan Zinc", "website": "https://www.hzlindia.com", "hq": "Udaipur", "country": "India", "products": "Zinc, lead and silver", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 14"}
+            ]},
+            {"name": "National Aluminium Company (NALCO)", "website": "https://nalcoindia.com", "hq": "Bhubaneswar", "country": "India", "products": "Alumina and aluminium"}
+          ]
+        },
+        {
+          "name": "Pipes & Tubes",
+          "companies": [
+            {"name": "Jindal SAW", "website": "https://www.jindalsaw.com", "hq": "New Delhi", "country": "India", "products": "SAW, seamless and ductile iron pipes"},
+            {"name": "APL Apollo Tubes", "website": "https://aplapollo.com", "hq": "Delhi", "country": "India", "products": "Structural steel tubes and hollow sections"},
+            {"name": "Surya Roshni", "website": "https://www.surya.co.in", "hq": "New Delhi", "country": "India", "products": "GI and ERW steel pipes, lighting"},
+            {"name": "Maharashtra Seamless", "hq": "Gurugram", "country": "India", "products": "Seamless carbon steel pipes for oil and refinery use"},
+            {"name": "Ratnamani Metals & Tubes", "website": "https://www.ratnamani.com", "hq": "Ahmedabad", "country": "India", "products": "Stainless steel and titanium tubes"},
+            {"name": "Welspun Corp", "website": "https://www.welspuncorp.com", "hq": "Mumbai", "country": "India", "products": "Large-diameter line pipes"},
+            {"name": "Advance Steel Tubes", "hq": "Haridwar", "country": "India", "products": "Steel pipes and structural fabrication", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 7"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cement, Building Materials & Polymers",
+      "symbol": "CM",
+      "roles": {
+        "Plant": ["Kiln Operator", "Packing Plant Operator", "Extrusion Machine Operator", "Roto Moulding Operator", "Process Engineer"],
+        "Maintenance": ["Mechanical Fitter", "Electrician", "Instrumentation Technician", "Welder"],
+        "Quality": ["Quality Chemist", "Lab Attendant", "Quality Inspector"],
+        "Sales": ["Territory Sales Manager", "Technical Sales Engineer", "Dealer Network Executive"]
+      },
+      "subsectors": [
+        {
+          "name": "Cement",
+          "companies": [
+            {"name": "UltraTech Cement", "website": "https://www.ultratechcement.com", "hq": "Mumbai", "country": "India", "brands": ["UltraTech", "Birla Super"], "products": "Cement and ready-mix concrete"},
+            {"name": "Ambuja Cements", "website": "https://www.ambujacement.com", "hq": "Ahmedabad", "country": "India", "brands": ["Ambuja Plus", "Ambuja Kawach"], "products": "Cement"},
+            {"name": "ACC", "website": "https://www.acclimited.com", "hq": "Mumbai", "country": "India", "brands": ["ACC Gold", "ACC Concrete+"], "products": "Cement and concrete"},
+            {"name": "Shree Cement", "website": "https://www.shreecement.com", "hq": "Kolkata", "country": "India", "brands": ["Bangur", "Rockstrong"], "products": "Cement"},
+            {"name": "Dalmia Bharat", "website": "https://www.dalmiacement.com", "hq": "New Delhi", "country": "India", "brands": ["Dalmia DSP"], "products": "Cement"},
+            {"name": "JK Cement", "website": "https://www.jkcement.com", "hq": "Kanpur", "country": "India", "products": "Grey and white cement"},
+            {"name": "The Ramco Cements", "website": "https://www.ramcocements.in", "hq": "Chennai", "country": "India", "products": "Cement"},
+            {"name": "Nuvoco Vistas", "website": "https://www.nuvoco.com", "hq": "Mumbai", "country": "India", "brands": ["Concreto", "Duraguard"], "products": "Cement and ready-mix concrete"}
+          ]
+        },
+        {
+          "name": "Plastic Pipes & Water Tanks",
+          "companies": [
+            {"name": "Supreme Industries", "website": "https://www.supreme.co.in", "hq": "Mumbai", "country": "India", "products": "Plastic pipes, water tanks and films"},
+            {"name": "Astral", "website": "https://www.astralltd.com", "hq": "Ahmedabad", "country": "India", "products": "CPVC pipes, adhesives and tanks"},
+            {"name": "Finolex Industries", "website": "https://www.finolexpipes.com", "hq": "Pune", "country": "India", "products": "PVC pipes and fittings"},
+            {"name": "Prince Pipes and Fittings", "website": "https://www.princepipes.com", "hq": "Mumbai", "country": "India", "products": "Plastic piping systems"},
+            {"name": "Ashirvad Pipes (Aliaxis)", "website": "https://www.ashirvad.com", "hq": "Bengaluru", "country": "India", "products": "Plumbing pipes and multi-layer water tanks"},
+            {"name": "Vectus Industries", "hq": "Noida", "country": "India", "products": "Roto-moulded water storage tanks and pipes"},
+            {"name": "Plasto Tanks & Pipes (RC Plasto)", "hq": "Nagpur", "country": "India", "products": "Plastic water storage tanks"}
+          ]
+        },
+        {
+          "name": "Polymers & Petrochemicals",
+          "companies": [
+            {"name": "Reliance Industries", "website": "https://www.ril.com", "hq": "Mumbai", "country": "India", "brands": ["Repol", "Relene", "Reon"], "products": "PP, PE and PVC resins"},
+            {"name": "Haldia Petrochemicals", "website": "https://www.haldiapetrochemicals.com", "hq": "Kolkata", "country": "India", "products": "Polymers and chemicals"},
+            {"name": "Parksons Packaging", "website": "https://www.parksonspackaging.com", "hq": "Mumbai", "country": "India", "products": "Paperboard consumer packaging", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 3"}
+            ]},
+            {"name": "Arihant Elastoplast", "hq": "Haridwar", "country": "India", "products": "Industrial mechanical and polymer components", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]}
+          ]
+        },
+        {
+          "name": "Paints, Panels & Construction Chemicals",
+          "companies": [
+            {"name": "Asian Paints", "website": "https://www.asianpaints.com", "hq": "Mumbai", "country": "India", "brands": ["Royale", "Apex", "Tractor Emulsion"], "products": "Decorative and industrial paints"},
+            {"name": "Berger Paints India", "website": "https://www.bergerpaints.com", "hq": "Kolkata", "country": "India", "products": "Paints and coatings"},
+            {"name": "Pidilite Industries", "website": "https://www.pidilite.com", "hq": "Mumbai", "country": "India", "brands": ["Fevicol", "Dr. Fixit", "M-Seal"], "products": "Adhesives and construction chemicals"},
+            {"name": "Greenpanel Industries", "website": "https://www.greenpanel.com", "hq": "Kolkata", "country": "India", "products": "MDF, plywood and structural panels", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 9"}
+            ]},
+            {"name": "CICO Technologies", "hq": "New Delhi", "country": "India", "products": "Construction chemicals and equipment", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 2"}
+            ]},
+            {"name": "Interarch Building Products", "website": "https://www.interarchbuildings.com", "hq": "Noida", "country": "India", "products": "Pre-engineered steel structures", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Heavy Engineering & Capital Goods",
+      "symbol": "HE",
+      "roles": {
+        "Shop Floor": ["Fitter", "Welder", "Turner", "Machinist", "VMC Operator", "CNC Operator", "Heavy Machine Shop Technician", "Fabricator"],
+        "Engineering": ["Design Engineer", "Project Engineer", "Commissioning Engineer", "Planning Engineer"],
+        "Maintenance": ["Maintenance Fitter", "Electrician", "Hydraulics Technician"],
+        "Quality": ["Quality Inspector", "Welding Inspector", "NDT Technician"]
+      },
+      "subsectors": [
+        {
+          "name": "Capital Goods & Power Equipment",
+          "companies": [
+            {"name": "Larsen & Toubro", "website": "https://www.larsentoubro.com", "hq": "Mumbai", "country": "India", "products": "Engineering, construction and heavy equipment"},
+            {"name": "Bharat Heavy Electricals (BHEL)", "website": "https://www.bhel.com", "hq": "New Delhi", "country": "India", "products": "Turbines and heavy electrical equipment", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "BHEL Ranipur (HEEP & CFFP)"}
+            ]},
+            {"name": "Thermax", "website": "https://www.thermaxglobal.com", "hq": "Pune", "country": "India", "products": "Boilers, energy and environment solutions"},
+            {"name": "Cummins India", "website": "https://www.cummins.com/en/in", "hq": "Pune", "country": "United States", "products": "Diesel and gas engines, generators"},
+            {"name": "Kirloskar Oil Engines", "website": "https://www.kirloskaroilengines.com", "hq": "Pune", "country": "India", "products": "Engines and gensets"},
+            {"name": "Kirloskar Brothers", "website": "https://www.kirloskarpumps.com", "hq": "Pune", "country": "India", "products": "Pumps and valves"},
+            {"name": "Siemens India", "website": "https://www.siemens.co.in", "hq": "Mumbai", "country": "Germany", "products": "Automation, power and mobility"},
+            {"name": "JCB India", "website": "https://www.jcb.com/en-in", "hq": "Faridabad", "country": "United Kingdom", "products": "Construction equipment"},
+            {"name": "Hindustan Aeronautics (HAL)", "website": "https://hal-india.co.in", "hq": "Bengaluru", "country": "India", "products": "Aircraft and helicopters"},
+            {"name": "Bharat Electronics (BEL)", "website": "https://bel-india.in", "hq": "Bengaluru", "country": "India", "products": "Defence electronics"}
+          ]
+        },
+        {
+          "name": "Machine Tools & Industrial Machinery",
+          "companies": [
+            {"name": "Basant Industries", "hq": "Ludhiana", "country": "India", "products": "Hydraulic presses and heavy forging machines", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Industrial Area B"}
+            ]},
+            {"name": "Kular Machine Tools", "hq": "Ludhiana", "country": "India", "products": "Precision gears and machine parts", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Industrial Area B"}
+            ]},
+            {"name": "Gobind Expeller Company", "hq": "Ludhiana", "country": "India", "products": "Oil extraction machinery and expellers", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Gill Road / Miller Ganj"}
+            ]},
+            {"name": "The Punjab Engineering Company", "hq": "Ludhiana", "country": "India", "products": "Industrial precision machinery and tooling", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Gill Road / Miller Ganj"}
+            ]},
+            {"name": "Venus Engineers", "hq": "Dharuhera", "country": "India", "products": "Heavy machine tools and plant machinery", "plants": [
+              {"state": "Haryana", "city": "Dharuhera", "area": "Dharuhera Industrial Area"}
+            ]},
+            {"name": "Interpump Hydraulics India", "hq": "Rudrapur", "country": "India", "products": "Hydraulic systems and components", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]},
+            {"name": "Pankaj Gas Cylinders", "hq": "Rudrapur", "country": "India", "products": "Industrial gas cylinders", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 4"}
+            ]},
+            {"name": "Alcon Engineering", "hq": "Haridwar", "country": "India", "products": "Precision machining and mechanical components", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]},
+            {"name": "Aral Engineering Co.", "hq": "Haridwar", "country": "India", "products": "Mechanical part fabrication", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 12"}
+            ]},
+            {"name": "Bhatti Engineering", "hq": "Haridwar", "country": "India", "products": "Structural and fabrication parts", "plants": [
+              {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 7"}
+            ]},
+            {"name": "Techno Industries", "hq": "Rudrapur", "country": "India", "products": "Mechanical and machine fabrication", "plants": [
+              {"state": "Uttarakhand", "city": "Rudrapur", "area": "SIDCUL IIE Pantnagar Sector 2"}
+            ]},
+            {"name": "Global Namdhari Engineers", "hq": "Ludhiana", "country": "India", "products": "Pharma packaging and liquid filling machines", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Industrial Area B"}
+            ]},
+            {"name": "Kalson Engineering Co.", "hq": "Ludhiana", "country": "India", "products": "Stainless steel process vessels and pharma equipment", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Gill Road"}
+            ]}
+          ]
+        }
+      ]
+    }
+  ]
+}

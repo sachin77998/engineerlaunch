@@ -1,0 +1,193 @@
+{
+  "sectors": [
+    {
+      "name": "Apparel, Textiles & Footwear",
+      "symbol": "AP",
+      "roles": {
+        "Manufacturing": ["Sewing Machine Operator", "Tailor", "Cutting Master", "Pattern Maker", "Knitting Machine Operator", "Dyeing Operator", "Spinning Operator", "Helper"],
+        "Quality": ["Garment Quality Checker", "Fabric Inspector", "Lab Technician (Textile)"],
+        "Design & Merchandising": ["Fashion Designer", "Merchandiser", "Visual Merchandiser", "Product Developer"],
+        "Retail": ["Store Manager", "Sales Associate", "Cashier", "Area Retail Manager"],
+        "Supply Chain": ["Production Planner", "Sourcing Executive", "Warehouse Executive"]
+      },
+      "subsectors": [
+        {
+          "name": "Denim & Casual Wear",
+          "companies": [
+            {"name": "Levi Strauss & Co. (India)", "website": "https://www.levistrauss.com", "hq": "San Francisco", "country": "United States", "brands": ["Levi's", "Dockers"], "products": "Denim and casual wear"},
+            {"name": "Lee Cooper", "website": "https://www.leecooper.com", "hq": "London", "country": "United Kingdom", "brands": ["Lee Cooper"], "products": "Denim, casual wear and footwear"},
+            {"name": "Arvind Fashions", "website": "https://www.arvindfashions.com", "hq": "Bengaluru", "country": "India", "brands": ["U.S. Polo Assn. (India)", "Tommy Hilfiger (India)", "Calvin Klein (India)", "Flying Machine", "Arrow"], "products": "Branded apparel"},
+            {"name": "Duke Fashions", "website": "https://www.dukeindia.com", "hq": "Ludhiana", "country": "India", "brands": ["Duke"], "products": "Knitwear, casual and sportswear", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Industrial Area A"}
+            ]},
+            {"name": "Octave Apparels", "website": "https://www.octaveclothing.com", "hq": "Ludhiana", "country": "India", "brands": ["Octave", "Octave Exceed", "Octave Mettle"], "products": "Menswear, winter wear and casuals", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Ludhiana"}
+            ]},
+            {"name": "Monte Carlo Fashions (Oswal Woollen Mills)", "website": "https://www.montecarlo.in", "hq": "Ludhiana", "country": "India", "brands": ["Monte Carlo", "Rock.it"], "products": "Woollen and cotton apparel", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "GT Road"}
+            ]},
+            {"name": "Trent (Tata)", "website": "https://www.trentlimited.com", "hq": "Mumbai", "country": "India", "brands": ["Westside", "Zudio", "Star"], "products": "Fashion retail"},
+            {"name": "Reliance Trends", "website": "https://relianceretail.com", "hq": "Mumbai", "country": "India", "brands": ["Team Spirit", "Netplay", "DNMX", "Performax"], "products": "Private-label fashion retail"}
+          ]
+        },
+        {
+          "name": "Formal & Premium Menswear",
+          "companies": [
+            {"name": "Raymond", "website": "https://www.raymond.in", "hq": "Mumbai", "country": "India", "brands": ["Raymond", "Park Avenue", "Parx", "ColorPlus", "Ethnix"], "products": "Suiting, shirting and branded apparel"},
+            {"name": "Aditya Birla Fashion & Retail", "website": "https://www.abfrl.com", "hq": "Mumbai", "country": "India", "brands": ["Louis Philippe", "Van Heusen", "Allen Solly", "Peter England", "Pantaloons"], "products": "Branded apparel and fashion retail"},
+            {"name": "Blackberrys", "website": "https://www.blackberrys.com", "hq": "Gurugram", "country": "India", "brands": ["Blackberrys"], "products": "Menswear"},
+            {"name": "Siyaram Silk Mills", "website": "https://www.siyaram.com", "hq": "Mumbai", "country": "India", "brands": ["Siyaram's", "J. Hampstead", "Oxemberg"], "products": "Fabrics and apparel"}
+          ]
+        },
+        {
+          "name": "Luxury Fashion",
+          "companies": [
+            {"name": "Giorgio Armani", "website": "https://www.armani.com", "hq": "Milan", "country": "Italy", "brands": ["Armani", "Emporio Armani", "Armani Exchange"], "products": "Luxury fashion"},
+            {"name": "Burberry", "website": "https://www.burberryplc.com", "hq": "London", "country": "United Kingdom", "brands": ["Burberry"], "products": "Luxury fashion"},
+            {"name": "LVMH", "website": "https://www.lvmh.com", "hq": "Paris", "country": "France", "brands": ["Louis Vuitton", "Dior", "Sephora"], "products": "Luxury goods"}
+          ]
+        },
+        {
+          "name": "Sportswear & Sports Goods",
+          "companies": [
+            {"name": "Nike", "website": "https://www.nike.com", "hq": "Beaverton", "country": "United States", "brands": ["Nike", "Jordan"], "products": "Sports footwear and apparel"},
+            {"name": "Adidas", "website": "https://www.adidas-group.com", "hq": "Herzogenaurach", "country": "Germany", "brands": ["Adidas", "Reebok (former)"], "products": "Sports footwear and apparel"},
+            {"name": "Puma", "website": "https://about.puma.com", "hq": "Herzogenaurach", "country": "Germany", "brands": ["Puma"], "products": "Sportswear"},
+            {"name": "Decathlon India", "website": "https://www.decathlon.in", "hq": "Bengaluru", "country": "France", "brands": ["Kipsta", "Quechua", "Btwin", "Domyos"], "products": "Sports goods retail"},
+            {"name": "Freewill Sports (Nivia)", "website": "https://www.niviasports.com", "hq": "Jalandhar", "country": "India", "brands": ["Nivia"], "products": "Footballs, sports shoes and equipment", "plants": [
+              {"state": "Punjab", "city": "Jalandhar", "area": "Basti Sheikh / Sports Industrial Hub"}
+            ]},
+            {"name": "Sanspareils Greenlands (SG)", "website": "https://www.teamsg.in", "hq": "Meerut", "country": "India", "brands": ["SG"], "products": "Cricket bats, balls and equipment", "plants": [
+              {"state": "Uttar Pradesh", "city": "Meerut", "area": "Meerut Sports Goods Cluster"}
+            ]},
+            {"name": "Sareen Sports Industries (SS)", "website": "https://www.sstoncricket.com", "hq": "Meerut", "country": "India", "brands": ["SS Ton"], "products": "Cricket equipment", "plants": [
+              {"state": "Uttar Pradesh", "city": "Meerut", "area": "Meerut Sports Goods Cluster"}
+            ]},
+            {"name": "Cosco (India)", "website": "https://www.cosco.in", "hq": "Delhi", "country": "India", "brands": ["Cosco"], "products": "Balls and fitness equipment"},
+            {"name": "Ajay Industries", "hq": "Jalandhar", "country": "India", "products": "Sports goods", "plants": [
+              {"state": "Punjab", "city": "Jalandhar", "area": "Jalandhar Sports Industrial Hub"}
+            ]}
+          ]
+        },
+        {
+          "name": "Footwear",
+          "companies": [
+            {"name": "Metro Brands", "website": "https://www.metrobrands.com", "hq": "Mumbai", "country": "India", "brands": ["Metro Shoes", "Mochi", "Walkway", "Da Vinchi"], "products": "Footwear retail"},
+            {"name": "Bata India", "website": "https://www.bata.com/in", "hq": "Gurugram", "country": "India", "brands": ["Bata", "Hush Puppies", "Power", "North Star"], "products": "Footwear"},
+            {"name": "Relaxo Footwears", "website": "https://www.relaxofootwear.com", "hq": "Delhi", "country": "India", "brands": ["Sparx", "Flite", "Relaxo"], "products": "Footwear"},
+            {"name": "Liberty Shoes", "website": "https://www.libertyshoes.com", "hq": "Karnal", "country": "India", "brands": ["Liberty", "Force 10"], "products": "Footwear"},
+            {"name": "Campus Activewear", "website": "https://www.campusshoes.com", "hq": "New Delhi", "country": "India", "brands": ["Campus"], "products": "Sports and casual footwear"}
+          ]
+        },
+        {
+          "name": "Textiles, Cotton & Yarn",
+          "companies": [
+            {"name": "Vardhman Textiles", "website": "https://www.vardhman.com", "hq": "Ludhiana", "country": "India", "products": "Yarn, fabric and acrylic fibre", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Chandigarh Road"}
+            ]},
+            {"name": "Trident Group", "website": "https://www.tridentindia.com", "hq": "Ludhiana", "country": "India", "products": "Terry towels, bed linen, yarn and paper", "plants": [
+              {"state": "Punjab", "city": "Barnala", "area": "Sanghera"}
+            ]},
+            {"name": "Nahar Spinning Mills", "website": "https://www.owmnahar.com", "hq": "Ludhiana", "country": "India", "products": "Cotton yarn and knitwear", "plants": [
+              {"state": "Punjab", "city": "Ludhiana", "area": "Focal Point"}
+            ]},
+            {"name": "Arvind Limited", "website": "https://www.arvind.com", "hq": "Ahmedabad", "country": "India", "products": "Denim, woven fabrics and technical textiles"},
+            {"name": "Welspun Living", "website": "https://www.welspunliving.com", "hq": "Mumbai", "country": "India", "products": "Home textiles"},
+            {"name": "Page Industries", "website": "https://www.pageind.com", "hq": "Bengaluru", "country": "India", "brands": ["Jockey (India)", "Speedo (India)"], "products": "Innerwear and athleisure"},
+            {"name": "Grasim Industries", "website": "https://www.grasim.com", "hq": "Mumbai", "country": "India", "brands": ["Liva", "Birla Opus"], "products": "VSF fibre, chemicals and paints"},
+            {"name": "KPR Mill", "website": "https://kprmilllimited.com", "hq": "Coimbatore", "country": "India", "products": "Yarn, fabrics and garments"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Restaurants, Hotels & Travel",
+      "symbol": "HT",
+      "roles": {
+        "Restaurant Operations": ["Crew Member", "Shift Manager", "Restaurant Manager", "Area Operations Manager", "Delivery Rider", "Commis Chef", "Kitchen Helper"],
+        "Hotel Operations": ["Front Office Executive", "Housekeeping Attendant", "F&B Steward", "Chef de Partie", "Sous Chef", "Guest Relations Executive", "Night Auditor"],
+        "Airline Operations": ["Cabin Crew", "Ground Staff", "Customer Service Agent", "Aircraft Maintenance Engineer", "Ramp Agent", "Pilot / First Officer"],
+        "Corporate": ["Sales Manager", "Revenue Manager", "HR Executive", "Purchase Executive"]
+      },
+      "subsectors": [
+        {
+          "name": "Quick Service Restaurants (QSR)",
+          "companies": [
+            {"name": "Westlife Foodworld (McDonald's West & South)", "website": "https://www.westlife.co.in", "hq": "Mumbai", "country": "India", "brands": ["McDonald's", "McCafe"], "products": "McDonald's franchise in West and South India"},
+            {"name": "Connaught Plaza Restaurants (McDonald's North & East)", "website": "https://www.mcdonaldsindia.com", "hq": "New Delhi", "country": "India", "brands": ["McDonald's"], "products": "McDonald's franchise in North and East India"},
+            {"name": "Restaurant Brands Asia (Burger King India)", "website": "https://www.burgerking.in", "hq": "Mumbai", "country": "India", "brands": ["Burger King", "BK Cafe"], "products": "Burger King restaurants"},
+            {"name": "Devyani International", "website": "https://www.dil-rjcorp.com", "hq": "Gurugram", "country": "India", "brands": ["KFC", "Pizza Hut", "Costa Coffee", "Vaango"], "products": "QSR franchise operator"},
+            {"name": "Sapphire Foods India", "website": "https://www.sapphirefoods.in", "hq": "Mumbai", "country": "India", "brands": ["KFC", "Pizza Hut", "Taco Bell"], "products": "Yum! Brands franchise operator"},
+            {"name": "Jubilant FoodWorks", "website": "https://www.jubilantfoodworks.com", "hq": "Noida", "country": "India", "brands": ["Domino's Pizza", "Popeyes", "Dunkin'", "Hong's Kitchen"], "products": "Pizza and QSR chains"},
+            {"name": "La Pino'z Pizza", "website": "https://www.lapinozpizza.in", "hq": "Mohali", "country": "India", "brands": ["La Pino'z"], "products": "Pizza chain"},
+            {"name": "Subway India", "website": "https://www.subway.com/en-in", "hq": "New Delhi", "country": "United States", "brands": ["Subway"], "products": "Sandwich chain"},
+            {"name": "California Burrito", "website": "https://www.californiaburrito.in", "hq": "Bengaluru", "country": "India", "brands": ["California Burrito"], "products": "Mexican QSR chain"},
+            {"name": "Wow! Momo Foods", "website": "https://www.wowmomo.com", "hq": "Kolkata", "country": "India", "brands": ["Wow! Momo", "Wow! China"], "products": "QSR chain"},
+            {"name": "Haldiram's Restaurants", "website": "https://www.haldirams.com", "hq": "New Delhi", "country": "India", "brands": ["Haldiram's"], "products": "Restaurants and sweets retail"}
+          ]
+        },
+        {
+          "name": "Hotels & Resorts",
+          "companies": [
+            {"name": "Indian Hotels Company (Taj)", "website": "https://www.ihcltata.com", "hq": "Mumbai", "country": "India", "brands": ["Taj", "Vivanta", "SeleQtions", "Ginger"], "products": "Hotels and resorts"},
+            {"name": "Radisson Hotel Group", "website": "https://www.radissonhotels.com", "hq": "Brussels", "country": "Belgium", "brands": ["Radisson Blu", "Radisson", "Park Inn"], "products": "Hotels"},
+            {"name": "Marriott International (India)", "website": "https://careers.marriott.com", "hq": "Bethesda", "country": "United States", "brands": ["JW Marriott", "Courtyard", "Sheraton", "Westin", "Ritz-Carlton"], "products": "Hotels"},
+            {"name": "ITC Hotels", "website": "https://www.itchotels.com", "hq": "New Delhi", "country": "India", "brands": ["ITC Hotels", "Welcomhotel", "Fortune Hotels"], "products": "Hotels"},
+            {"name": "EIH (The Oberoi Group)", "website": "https://www.oberoihotels.com", "hq": "New Delhi", "country": "India", "brands": ["Oberoi", "Trident"], "products": "Luxury hotels"},
+            {"name": "Lemon Tree Hotels", "website": "https://www.lemontreehotels.com", "hq": "New Delhi", "country": "India", "brands": ["Lemon Tree", "Aurika", "Red Fox"], "products": "Hotels"},
+            {"name": "Hyatt (India)", "website": "https://www.hyatt.com", "hq": "Chicago", "country": "United States", "brands": ["Hyatt Regency", "Grand Hyatt", "Andaz"], "products": "Hotels"}
+          ]
+        },
+        {
+          "name": "Airlines & Aviation",
+          "companies": [
+            {"name": "IndiGo (InterGlobe Aviation)", "website": "https://www.goindigo.in", "hq": "Gurugram", "country": "India", "brands": ["IndiGo"], "products": "Airline"},
+            {"name": "Air India", "website": "https://www.airindia.com", "hq": "Gurugram", "country": "India", "brands": ["Air India", "Air India Express"], "products": "Airline"},
+            {"name": "SpiceJet", "website": "https://www.spicejet.com", "hq": "Gurugram", "country": "India", "brands": ["SpiceJet"], "products": "Airline"},
+            {"name": "Akasa Air", "website": "https://www.akasaair.com", "hq": "Mumbai", "country": "India", "brands": ["Akasa Air"], "products": "Airline"},
+            {"name": "GMR Airports", "website": "https://www.gmrgroup.in", "hq": "New Delhi", "country": "India", "products": "Airport operations"}
+          ]
+        },
+        {
+          "name": "Travel & Tourism",
+          "companies": [
+            {"name": "MakeMyTrip", "website": "https://www.makemytrip.com", "hq": "Gurugram", "country": "India", "brands": ["MakeMyTrip", "Goibibo", "redBus"], "products": "Online travel"},
+            {"name": "Thomas Cook India", "website": "https://www.thomascook.in", "hq": "Mumbai", "country": "India", "products": "Travel and forex"},
+            {"name": "IRCTC", "website": "https://www.irctc.co.in", "hq": "New Delhi", "country": "India", "products": "Railway catering, ticketing and tourism"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Education & Training",
+      "symbol": "ED",
+      "roles": {
+        "Academic": ["Assistant Professor", "Lecturer", "School Teacher (PGT/TGT)", "Lab Assistant", "Academic Counsellor"],
+        "EdTech": ["Content Developer", "Subject Matter Expert", "Inside Sales Executive", "Instructional Designer"],
+        "Administration": ["Admission Counsellor", "Registrar Office Executive", "Placement Officer"]
+      },
+      "subsectors": [
+        {
+          "name": "Universities & Institutes",
+          "companies": [
+            {"name": "Lovely Professional University", "website": "https://www.lpu.in", "hq": "Phagwara", "country": "India", "products": "Private university", "plants": [
+              {"state": "Punjab", "city": "Phagwara", "area": "Jalandhar-Delhi GT Road"}
+            ]},
+            {"name": "Chitkara University", "website": "https://www.chitkara.edu.in", "hq": "Rajpura", "country": "India", "products": "Private university"},
+            {"name": "Amity University", "website": "https://www.amity.edu", "hq": "Noida", "country": "India", "products": "Private university"},
+            {"name": "Manipal Academy of Higher Education", "website": "https://manipal.edu", "hq": "Manipal", "country": "India", "products": "Deemed university"}
+          ]
+        },
+        {
+          "name": "EdTech",
+          "companies": [
+            {"name": "PhysicsWallah", "website": "https://www.pw.live", "hq": "Noida", "country": "India", "products": "Test preparation"},
+            {"name": "upGrad", "website": "https://www.upgrad.com", "hq": "Mumbai", "country": "India", "products": "Online higher education"},
+            {"name": "Unacademy", "website": "https://unacademy.com", "hq": "Bengaluru", "country": "India", "products": "Online learning"},
+            {"name": "Simplilearn", "website": "https://www.simplilearn.com", "hq": "Bengaluru", "country": "India", "products": "Professional certification"}
+          ]
+        }
+      ]
+    }
+  ]
+}
