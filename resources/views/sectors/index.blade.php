@@ -136,7 +136,7 @@
                     @endforeach
                 </div>
             @endif
-            @if($tree->isEmpty())<div class="sd-empty">The sector catalog has not been imported yet. Run <code>php artisan companies:import-catalog --now</code>.</div>@endif
+            @if($tree->isEmpty())<div class="sd-empty">Sector listings are being prepared. Please check back shortly.</div>@endif
         @endif
     </main>
 

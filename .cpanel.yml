@@ -24,19 +24,7 @@ deployment:
     - /bin/cp vite.config.js "$DEPLOY_PATH"
 
     - /bin/cp -R docs "$DEPLOY_PATH"
+    - /bin/cp -R scripts "$DEPLOY_PATH"
 
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" optimize:clear
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" env:ensure
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" portal:prepare-discovery
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" migrate --force
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --class=TechnologySeeder --force
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --class=OwnerAccountSeeder --force
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" db:seed --force
-
-    - /opt/cpanel/ea-php83/root/usr/bin/php "$DEPLOY_PATH/artisan" optimize:clear
+    # All artisan steps run from one script that logs to storage/logs/deploy.log and never stops halfway.
+    - /bin/bash "$DEPLOY_PATH/scripts/cpanel-deploy.sh" "$DEPLOY_PATH"

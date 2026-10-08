@@ -101,6 +101,11 @@ class SectorDirectory
             ->latest('posted_at')->limit($limit)->get(['id', 'company_id', 'title', 'slug', 'location', 'posted_at', 'job_type', 'posting_source', 'source']);
     }
 
+    private function hasColumn(string $column): bool
+    {
+        return Cache::remember('sector-directory:has-column:' . $column, now()->addMinutes(10), fn () => Schema::hasColumn('companies', $column));
+    }
+
     private function hasFacilities(): bool
     {
         return Cache::remember('sector-directory:has-facilities', now()->addMinutes(10), fn () => Schema::hasTable('company_facilities'));
@@ -116,8 +121,8 @@ class SectorDirectory
             ->when($filters['q'] ?? null, function ($query, $term) {
                 $like = $this->like(mb_strtolower($term));
                 $query->where(fn ($q) => $q->whereRaw('LOWER(name) LIKE ?', [$like])
-                    ->orWhereRaw('LOWER(CAST(brands AS CHAR)) LIKE ?', [$like])
-                    ->orWhereRaw('LOWER(products) LIKE ?', [$like])
+                    ->when($this->hasColumn('brands'), fn ($w) => $w->orWhereRaw('LOWER(CAST(brands AS CHAR)) LIKE ?', [$like]))
+                    ->when($this->hasColumn('products'), fn ($w) => $w->orWhereRaw('LOWER(products) LIKE ?', [$like]))
                     ->when($this->hasFacilities(), fn ($w) => $w->orWhereHas('facilities', fn ($f) => $f->where('city', 'like', $like)->orWhere('industrial_area', 'like', $like))));
             })
             ->when($location, fn ($query) => $query->whereHas('facilities', fn ($f) => $this->whereLocation($f, $location)))
