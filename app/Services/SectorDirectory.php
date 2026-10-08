@@ -9,6 +9,7 @@ use App\Models\Job;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 /** Read side of the sector catalog: cached sector tree, filtered sector pages and matching openings. */
 class SectorDirectory
@@ -49,6 +50,7 @@ class SectorDirectory
     /** Distinct plant locations for the left-hand filters. */
     public function locations(): array
     {
+        if (!$this->hasFacilities()) return ['states' => [], 'cities' => [], 'areas' => []];
         return Cache::remember($this->key('locations'), now()->addHours(6), fn () => [
             'states' => CompanyFacility::whereNotNull('state')->distinct()->orderBy('state')->pluck('state')->all(),
             'cities' => CompanyFacility::whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
@@ -59,6 +61,7 @@ class SectorDirectory
     /** Industrial areas and tech parks with how many catalogued companies have a plant or office there. */
     public function hubs(int $limit = 48): Collection
     {
+        if (!$this->hasFacilities()) return collect();
         return Cache::remember($this->key('hubs:' . $limit), now()->addHours(6), fn () => CompanyFacility::query()
             ->whereNotNull('industrial_area')->whereHas('company', fn ($q) => $q->active())
             ->selectRaw('industrial_area, MAX(city) as city, MAX(state) as state, COUNT(DISTINCT company_id) as companies_count')
@@ -98,17 +101,24 @@ class SectorDirectory
             ->latest('posted_at')->limit($limit)->get(['id', 'company_id', 'title', 'slug', 'location', 'posted_at', 'job_type', 'posting_source', 'source']);
     }
 
+    private function hasFacilities(): bool
+    {
+        return Cache::remember('sector-directory:has-facilities', now()->addMinutes(10), fn () => Schema::hasTable('company_facilities'));
+    }
+
     private function companies(array $filters): Builder
     {
         $location = array_filter(array_intersect_key($filters, array_flip(['state', 'city', 'industrial_area'])));
+        $facilities = $this->hasFacilities();
+        if (!$facilities) $location = [];
         return Company::active()->withCount('activeJobs')
-            ->with(['facilities' => fn ($q) => $this->whereLocation($q, $location)->select('id', 'company_id', 'state', 'city', 'industrial_area')])
+            ->when($facilities, fn ($q) => $q->with(['facilities' => fn ($f) => $this->whereLocation($f, $location)->select('id', 'company_id', 'state', 'city', 'industrial_area')]))
             ->when($filters['q'] ?? null, function ($query, $term) {
                 $like = $this->like(mb_strtolower($term));
                 $query->where(fn ($q) => $q->whereRaw('LOWER(name) LIKE ?', [$like])
                     ->orWhereRaw('LOWER(CAST(brands AS CHAR)) LIKE ?', [$like])
                     ->orWhereRaw('LOWER(products) LIKE ?', [$like])
-                    ->orWhereHas('facilities', fn ($f) => $f->where('city', 'like', $like)->orWhere('industrial_area', 'like', $like)));
+                    ->when($this->hasFacilities(), fn ($w) => $w->orWhereHas('facilities', fn ($f) => $f->where('city', 'like', $like)->orWhere('industrial_area', 'like', $like))));
             })
             ->when($location, fn ($query) => $query->whereHas('facilities', fn ($f) => $this->whereLocation($f, $location)))
             ->orderByDesc('active_jobs_count')->orderBy('name');

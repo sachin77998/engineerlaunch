@@ -111,6 +111,8 @@ class SectorCatalogImporter
 
     public function upsertFacility(Company $company, array $entry, array $plant, string $sector): void
     {
+        static $hasTable;
+        if (!($hasTable ??= \Illuminate\Support\Facades\Schema::hasTable('company_facilities'))) return;
         $label = $plant['area'] ?? $plant['city'] ?? 'Plant';
         $slug = Str::limit(Str::slug($company->slug . ' ' . ($plant['city'] ?? '') . ' ' . $label), 180, '');
         CompanyFacility::updateOrCreate(['slug' => $slug], [
