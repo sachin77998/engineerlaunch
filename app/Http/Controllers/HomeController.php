@@ -21,6 +21,11 @@ class HomeController extends Controller
                 'total_technologies' => Technology::query()->count(),
             ]);
 
-        return view('portal-v2', ['dsaTracks' => config('interview.dsa', []),'homeStats' => $stats,]);
+        // The sector strip is optional; a catalog problem must never take the homepage down.
+        $directory = app(\App\Services\SectorDirectory::class);
+        $sectorTree = rescue(fn () => $directory->tree(), collect(), false);
+        $hubs = rescue(fn () => $directory->hubs(12), collect(), false);
+
+        return view('portal-v2', ['dsaTracks' => config('interview.dsa', []),'homeStats' => $stats, 'sectorTree' => $sectorTree, 'hubs' => $hubs]);
     }
 }

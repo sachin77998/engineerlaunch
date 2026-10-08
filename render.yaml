@@ -1,7 +1,9 @@
+# Production is hosted on GoDaddy cPanel (.cpanel.yml). Render auto-deploys are disabled on purpose.
 services:
   - type: web
     name: engineerlaunch
     runtime: docker
+    autoDeploy: false
     plan: free
     healthCheckPath: /health
     envVars:
@@ -61,6 +63,7 @@ services:
   - type: worker
     name: engineerlaunch-email-worker
     runtime: docker
+    autoDeploy: false
     dockerCommand: php artisan queue:work database --queue=emails,default --sleep=3 --tries=3 --timeout=120
     envVars:
       - key: APP_NAME
@@ -103,6 +106,7 @@ services:
   - type: cron
     name: engineerlaunch-industry-news
     runtime: docker
+    autoDeploy: false
     schedule: "0 * * * *"
     dockerCommand: php artisan news:fetch-industry --industry=all --limit=10
     envVars:
@@ -124,6 +128,7 @@ services:
   - type: cron
     name: engineerlaunch-daily-events
     runtime: docker
+    autoDeploy: false
     schedule: "30 3 * * *"
     dockerCommand: php artisan portal:send-daily-events --limit=100
     envVars:

@@ -88,7 +88,9 @@ class CompanyDiscoveryController extends Controller
             ->when(($filters['experience'] ?? null) === 'entry', fn($q) => $q->where(fn($x) => $x->whereNull('experience_min')->orWhere('experience_min', '<=', 2)))
             ->when(($filters['experience'] ?? null) === 'experienced', fn($q) => $q->where('experience_min', '>=', 2))
             ->orderByDesc('posted_at')->orderByDesc('id')->paginate(50)->withQueryString();
-        $company->load('categories:id,name,slug,taxonomy,symbol')->loadCount(['activeJobs', 'publishedReviews'])->loadAvg('publishedReviews', 'rating');
+        $relations = ['categories:id,parent_id,name,slug,taxonomy,symbol'];
+        if (\Illuminate\Support\Facades\Schema::hasTable('company_facilities')) $relations['facilities'] = fn ($q) => $q->orderBy('state')->orderBy('city');
+        $company->load($relations)->loadCount(['activeJobs', 'publishedReviews'])->loadAvg('publishedReviews', 'rating');
         $companyReviews = $company->publishedReviews()->with('reviewer:id,name')->latest()->limit(10)->get();
         $myCompanyReview = $request->user() ? $company->reviews()->where('user_id', $request->user()->id)->first() : null;
         return view('companies.show', compact('company', 'jobs', 'departments', 'disciplines', 'locations', 'filters', 'companyReviews', 'myCompanyReview'));

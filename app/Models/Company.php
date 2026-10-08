@@ -74,6 +74,15 @@ class Company extends Model
     {
         return $this->belongsToMany(CompanyCategory::class, 'company_category_company')->withTimestamps();
     }
+    /** [sector, subsector] categories from the sector catalog, or nulls. Uses loaded categories when available. */
+    public function sectorTrail(): array
+    {
+        $categories = $this->relationLoaded('categories') ? $this->categories : $this->categories()->get();
+        $sectors = $categories->where('taxonomy', 'sector');
+        $sub = $sectors->firstWhere('parent_id', '!=', null);
+        $parent = $sub ? ($sectors->firstWhere('id', $sub->parent_id) ?? CompanyCategory::find($sub->parent_id)) : $sectors->firstWhere('parent_id', null);
+        return [$parent, $sub];
+    }
     public function facilities(): HasMany
     {
         return $this->hasMany(CompanyFacility::class);

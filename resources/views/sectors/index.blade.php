@@ -44,6 +44,7 @@
 .sd-h2{font-size:18px;margin:28px 0 4px}
 .sd-src{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:#f1f5f9;font-size:10px;color:#64748b}
 .sd-more{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none}
+.sd-crumb{font-size:13px;color:var(--muted);margin-bottom:8px}.sd-crumb a{color:var(--blue);text-decoration:none}
 .sd-empty{padding:30px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}
 @media(max-width:1100px){.sd{grid-template-columns:240px minmax(0,1fr)}.sd-right{grid-column:1/-1;position:static;max-height:none}}
 @media(max-width:760px){.sd{grid-template-columns:1fr}.sd-side{position:static;max-height:none}.sd-nav{display:flex;overflow-x:auto;gap:4px}.sd-nav a{white-space:nowrap}}
@@ -80,6 +81,7 @@
     {{-- Centre: categorised companies --}}
     <main>
         @if($sector)
+            <nav class="sd-crumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a> › <a href="{{ route('sectors.index') }}">Companies by Sector</a> › <span>{{ $sector->name }}</span></nav>
             <div class="sd-head"><span class="sd-sym">{{ $sector->symbol }}</span><h1>{{ $sector->name }}</h1></div>
             @if(!empty($flow))
                 <div class="sd-flow">
@@ -127,7 +129,7 @@
                 @endforeach
             </div>
             @if(isset($hubs) && $hubs->isNotEmpty())
-                <h2 class="sd-h2">Industrial areas &amp; tech parks</h2>
+                <h2 class="sd-h2" id="hubs">Industrial areas &amp; tech parks</h2>
                 <div class="sd-hubs">
                     @foreach($hubs as $hub)
                         <a class="sd-hub" href="{{ route('sectors.index', ['industrial_area' => $hub->industrial_area]) }}"><strong>{{ $hub->industrial_area }}</strong><span>{{ collect([$hub->city, $hub->state])->filter()->unique()->implode(', ') }} · {{ $hub->companies_count }} {{ \Illuminate\Support\Str::plural('company', $hub->companies_count) }}</span></a>

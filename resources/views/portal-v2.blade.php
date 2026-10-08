@@ -885,6 +885,38 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
 </div>
 <p><a href="{{route('companies.cyber-city')}}">Explore DLF Cyber City companies and official career pages &rarr;</a></p>
 </section>
+    @if(isset($sectorTree) && $sectorTree->isNotEmpty())
+    <style>
+    .home-sectors{margin:8px 0 34px}.home-sectors .hs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}.home-sectors h2{margin:0}.home-sectors .hs-head p{margin:4px 0 0;color:#64748b}
+    .hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .hs-card{display:flex;flex-direction:column;gap:6px;padding:14px;border:1px solid #dbe4f2;border-radius:14px;background:#fff;color:#10213e;text-decoration:none;transition:border-color .15s,transform .15s,box-shadow .15s}
+    .hs-card:hover{border-color:#2563eb;transform:translateY(-2px);box-shadow:0 10px 24px #2563eb14}
+    .hs-top{display:flex;align-items:center;gap:9px}.hs-sym{display:inline-grid;place-items:center;min-width:32px;height:28px;border-radius:8px;background:#eff6ff;color:#2563eb;font-size:11px;font-weight:800}
+    .hs-card strong{font-size:14px;line-height:1.3}.hs-card small{color:#64748b;font-size:12px;line-height:1.45}
+    .hs-hubs{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.hs-hubs a{padding:7px 12px;border:1px solid #dbe4f2;border-radius:999px;background:#fff;color:#334155;font-size:13px;text-decoration:none}.hs-hubs a:hover{border-color:#2563eb;color:#2563eb}
+    </style>
+    <section class="home-sectors" id="sectors">
+        <div class="hs-head">
+            <div><h2>Browse companies by sector</h2><p>Automobile, forging, steel, food, pharma, IT, banking and more, with plants by industrial area.</p></div>
+            <a class="tab" href="{{ route('sectors.index') }}">All sectors</a>
+        </div>
+        <div class="hs-grid">
+            @foreach($sectorTree->take(12) as $sectorItem)
+                <a class="hs-card" href="{{ route('sectors.show', $sectorItem->slug) }}">
+                    <span class="hs-top"><span class="hs-sym">{{ $sectorItem->symbol }}</span><strong>{{ $sectorItem->name }}</strong></span>
+                    <small>{{ $sectorItem->children->take(4)->pluck('name')->implode(' · ') }}</small>
+                    <small><b style="color:#2563eb">{{ number_format($sectorItem->companies_count) }}</b> companies</small>
+                </a>
+            @endforeach
+        </div>
+        @if(isset($hubs) && $hubs->isNotEmpty())
+            <div class="hs-hubs">
+                @foreach($hubs as $hub)<a href="{{ route('sectors.index', ['industrial_area' => $hub->industrial_area]) }}">{{ $hub->industrial_area }} · {{ $hub->companies_count }}</a>@endforeach
+                <a href="{{ route('sectors.index') }}#hubs" style="font-weight:700;color:#2563eb">All industrial areas →</a>
+            </div>
+        @endif
+    </section>
+    @endif
     <section id="companies">
         <div class="section-header">
             <div>
