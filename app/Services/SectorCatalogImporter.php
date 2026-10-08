@@ -91,7 +91,7 @@ class SectorCatalogImporter
         $company->forceFill([
             'website' => $company->website ?: $website,
             'careers_url' => $company->careers_url ?: ($entry['careers_url'] ?? null),
-            'country' => $company->country ?: ($entry['country'] ?? null),
+            'country' => $company->country ?: ($entry['country'] ?? 'India'),
             'headquarters' => $entry['hq'] ?? $company->headquarters,
             'industry' => $company->industry ?: $sector,
             'sector' => $company->sector ?: $subsector,

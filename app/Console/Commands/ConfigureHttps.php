@@ -13,13 +13,13 @@ use Throwable;
  */
 class ConfigureHttps extends Command
 {
-    protected $signature = 'security:https {--enable : Force HTTPS if a valid certificate is active} {--disable : Serve over plain HTTP again} {--path= : .env file (default: application .env)}';
+    protected $signature = 'security:https {--enable : Force HTTPS if a valid certificate is active} {--disable : Serve over plain HTTP again} {--path= : .env file (default: application .env)} {--host= : Domain to check (default: APP_URL host)}';
     protected $description = 'Check the SSL certificate and enable or disable forced HTTPS';
 
     public function handle(): int
     {
         $path = $this->option('path') ?: base_path('.env');
-        $host = parse_url((string) config('app.url'), PHP_URL_HOST) ?: request()->getHost();
+        $host = $this->option('host') ?: (parse_url((string) config('app.url'), PHP_URL_HOST) ?: request()->getHost());
         if ($this->option('disable')) {
             $this->write($path, ['APP_FORCE_HTTPS' => 'false', 'APP_URL' => 'http://' . $host]);
             $this->info('HTTPS enforcement disabled.');

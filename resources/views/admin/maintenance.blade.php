@@ -30,6 +30,8 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
             <pre class="mt-out"></pre>
         </div>
     @endforeach
+    <div class="mt-step" style="grid-template-columns:1fr"><div><strong>Server PHP</strong><br><small>Web PHP {{ $phpVersion }}. PHP command-line binaries found: {{ $phpPaths ? implode(', ', $phpPaths) : 'none of the usual paths' }}.</small>
+        @if($phpPaths)<br><small>Cron job command: <code>{{ $phpPaths[0] }} {{ $basePath }}/artisan schedule:run &gt;&gt; {{ $basePath }}/storage/logs/scheduler.log 2&gt;&amp;1</code></small>@endif</div></div>
     <details class="mt-log" @if($deployLog) open @endif><summary><strong>Last deployment log</strong></summary><pre>{{ $deployLog ?: 'No deployment log yet.' }}</pre></details>
 </div>
 @endsection

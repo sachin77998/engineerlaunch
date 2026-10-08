@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
  */
 class EnsureEnvironmentSettings extends Command
 {
-    protected $signature = 'env:ensure {--path= : .env file to update (default: the application .env)}';
+    protected $signature = 'env:ensure {--path= : .env file to update (default: the application .env)} {--url= : Public site URL; replaces a missing or localhost APP_URL}';
     protected $description = 'Add missing deployment settings to .env and disable debug output';
 
     // The Jooble key is committed at the owner's request (public repo); regenerate it on jooble.org if misused.
@@ -42,6 +42,14 @@ class EnsureEnvironmentSettings extends Command
                 if (trim($match[0]) !== "{$key}={$value}") { $contents = preg_replace($pattern, "{$key}={$value}", $contents); $changed[] = $key; }
             } else {
                 $contents = rtrim($contents, "\r\n") . "\n{$key}={$value}\n"; $changed[] = $key;
+            }
+        }
+        // Password-reset links and HTTPS checks use APP_URL, so a localhost value must be corrected.
+        if ($url = $this->option('url')) {
+            $url = rtrim($url, '/');
+            if (!preg_match('/^APP_URL=(.*)$/m', $contents, $current) || preg_match('~localhost|127\.0\.0\.1|^\s*$~', trim($current[1], " \"'"))) {
+                $contents = preg_match('/^APP_URL=.*$/m', $contents) ? preg_replace('/^APP_URL=.*$/m', 'APP_URL=' . $url, $contents) : rtrim($contents, "\r\n") . "\nAPP_URL={$url}\n";
+                $changed[] = 'APP_URL';
             }
         }
         foreach (self::DEFAULTS as $key => $value) {

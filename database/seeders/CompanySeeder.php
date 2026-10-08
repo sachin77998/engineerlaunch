@@ -177,6 +177,9 @@ class CompanySeeder extends Seeder
             ]);
         }
 
-        $this->command->info('Companies seeded successfully!');
+        // Every other IT & software company worldwide comes from the generated directory (Wikidata).
+        $this->call(ItCompanyDirectorySeeder::class);
+
+        $this->command?->info('Companies seeded successfully!');
     }
 }
