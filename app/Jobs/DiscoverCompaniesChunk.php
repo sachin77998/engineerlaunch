@@ -29,11 +29,21 @@ class DiscoverCompaniesChunk implements ShouldQueue
     public function handle(DiscoveryWriter $writer): void
     {
         if ($this->batch()?->cancelled()) return;
-        if ($this->source === 'wikidata') {
+        if ($this->source === 'gleif') {
+            $page = app(\App\Services\Discovery\GleifCompanySource::class)->fetch($this->params['country'], $this->params['city'] ?? null, $this->params['page']);
+            $result = app(\App\Services\Discovery\RegistryWriter::class)->write($page['rows']);
+            usleep(500000);
+        } elseif ($this->source === 'wikidata') {
             $companies = app(WikidataCompanySource::class)->fetch($this->params['qid'], $this->params['country'], $this->params['offset'], $this->params['limit'], $this->params['type'] ?? 'Q783794');
             $result = $writer->write($companies);
         } else {
-            $companies = app(OpenStreetMapAreaSource::class)->fetch($this->params);
+            $source = app(OpenStreetMapAreaSource::class);
+            // Directory areas have no stored coordinates yet: locate once and remember them.
+            if (isset($this->params['area_id']) && !isset($this->params['lat'], $this->params['lon'])) {
+                [$this->params['lat'], $this->params['lon']] = $source->locate($this->params);
+                \App\Models\IndustrialArea::whereKey($this->params['area_id'])->update(['latitude' => $this->params['lat'], 'longitude' => $this->params['lon']]);
+            }
+            $companies = $source->fetch($this->params);
             $result = $writer->write($companies, $this->params);
             sleep(2); // keep the shared Overpass instance happy between hubs
         }

@@ -14,11 +14,15 @@ use Throwable;
 class DiscoverCompanies extends Command
 {
     protected $signature = 'companies:discover
-        {source=all : wikidata, osm or all}
+        {source=all : wikidata, osm, gleif or all}
         {--country=* : ISO codes scanned on Wikidata (default IN)}
         {--pages=2 : Wikidata pages of 3000 rows per country and company type}
         {--area=* : Hub names from config/discovery.php (default: every hub)}
         {--with-plant-areas : Also scan industrial areas recorded on company plants (geocoded)}
+        {--industrial-areas : Also scan every area in the industrial area directory (all cities)}
+        {--gleif-cities : GLEIF registry: companies registered in every industrial-area / hub city (India)}
+        {--gleif-country=* : GLEIF registry: whole countries by ISO code, e.g. AE GB DE}
+        {--gleif-pages=10 : GLEIF pages of 200 companies per city or country}
         {--sync : Fetch openings for newly discovered company websites when finished}
         {--now : Run inline instead of on the queue}';
     protected $description = 'Discover companies dynamically from Wikidata and OpenStreetMap and file them into sectors';
@@ -26,9 +30,16 @@ class DiscoverCompanies extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
-        if (!in_array($source, ['wikidata', 'osm', 'all'], true)) { $this->error('Source must be wikidata, osm or all.'); return self::INVALID; }
+        if (!in_array($source, ['wikidata', 'osm', 'gleif', 'all'], true)) { $this->error('Source must be wikidata, osm, gleif or all.'); return self::INVALID; }
         $jobs = [];
-        if ($source !== 'osm') {
+        if (in_array($source, ['gleif', 'all'], true)) {
+            $pages = range(1, max(1, (int) $this->option('gleif-pages')));
+            if ($this->option('gleif-cities')) {
+                foreach ($this->registryCities() as $city) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => 'IN', 'city' => $city, 'page' => $page]];
+            }
+            foreach ($this->option('gleif-country') as $code) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => $page]];
+        }
+        if (!in_array($source, ['osm', 'gleif'], true)) {
             $countries = config('discovery.countries');
             foreach ($this->option('country') ?: ['IN'] as $code) {
                 $country = $countries[strtoupper($code)] ?? null;
@@ -40,7 +51,7 @@ class DiscoverCompanies extends Command
                 }
             }
         }
-        if ($source !== 'wikidata') {
+        if (in_array($source, ['osm', 'all'], true)) {
             foreach ($this->hubs() as $hub) $jobs[] = ['osm', $hub];
         }
         if (!$jobs) { $this->warn('Nothing to discover.'); return self::FAILURE; }
@@ -82,6 +93,16 @@ class DiscoverCompanies extends Command
         return self::SUCCESS;
     }
 
+    /** Every city that has an industrial area or a configured hub, one entry per spelling-normalised city. */
+    private function registryCities(): array
+    {
+        $cities = collect(config('discovery.hubs'))->pluck('city')
+            ->merge(\App\Models\IndustrialArea::where('is_active', true)->pluck('city'))
+            ->filter()->map(fn ($c) => trim($c))->unique(fn ($c) => mb_strtolower($c));
+        $wanted = array_map('mb_strtolower', $this->option('area'));
+        return $cities->when($wanted, fn ($c) => $c->filter(fn ($city) => in_array(mb_strtolower($city), $wanted, true)))->values()->all();
+    }
+
     private function hubs(): array
     {
         $wanted = array_map('mb_strtolower', $this->option('area'));
@@ -92,6 +113,17 @@ class DiscoverCompanies extends Command
                 ->reject(fn ($f) => $known->contains(mb_strtolower($f->industrial_area)))
                 ->map(fn ($f) => ['name' => $f->industrial_area, 'city' => $f->city, 'state' => $f->state]);
             $hubs = $hubs->concat($plantAreas);
+        }
+        if ($this->option('industrial-areas')) {
+            $known = $hubs->pluck('name')->map(fn ($n) => mb_strtolower($n));
+            $areas = \App\Models\IndustrialArea::with('state:id,name')->where('is_active', true)->get()
+                ->reject(fn ($area) => $known->contains(mb_strtolower($area->name)))
+                ->when($wanted, fn ($c) => $c->filter(fn ($area) => collect($wanted)->contains(fn ($w) => str_contains(mb_strtolower($area->name . ' ' . $area->city), $w))))
+                ->map(fn ($area) => array_filter([
+                    'name' => $area->name, 'city' => $area->city ?: $area->district, 'state' => $area->state?->name, 'area_id' => $area->id,
+                    'lat' => $area->latitude ? (float) $area->latitude : null, 'lon' => $area->longitude ? (float) $area->longitude : null,
+                ], fn ($v) => $v !== null));
+            $hubs = $hubs->concat($areas);
         }
         return $hubs->values()->all();
     }

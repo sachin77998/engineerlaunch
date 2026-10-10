@@ -55,6 +55,27 @@ class Company extends Model
         'brands' => 'array',
     ];
 
+    /** Name without legal suffixes and punctuation, so registry, catalog and feed spellings match. */
+    public static function nameKey(?string $name): string
+    {
+        $key = \Illuminate\Support\Str::lower(\Illuminate\Support\Str::ascii((string) $name));
+        $key = preg_replace('/\(.*?\)/', ' ', $key);
+        $key = preg_replace('/\b(private|pvt|limited|ltd|llp|llc|inc|incorporated|corporation|corp|company|co|plc|gmbh|ag|sa|bv|nv|pte|pty|the|and|india)\b\.?/', ' ', $key);
+        $key = preg_replace('/[^a-z0-9]+/', '', $key);
+        return \Illuminate\Support\Str::limit($key !== '' ? $key : \Illuminate\Support\Str::slug((string) $name), 190, '');
+    }
+
+    private static ?bool $hasNameKey = null;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Company $company) {
+            if ($company->isDirty('name') || blank($company->getAttribute('name_key'))) {
+                if (static::$hasNameKey ??= \Illuminate\Support\Facades\Schema::hasColumn('companies', 'name_key')) $company->setAttribute('name_key', static::nameKey($company->name));
+            }
+        });
+    }
+
     public function getLogoUrlAttribute(?string $value): ?string
     {
         if (filled($value)) return $value;

@@ -52,7 +52,8 @@ class ExternalJobWriter
 
     private function company(string $name, array $row): Company
     {
-        $company = Company::where('slug', Str::slug($name))->orWhere('name', $name)->first();
+        $company = Company::where('slug', Str::slug($name))->orWhere('name', $name)
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('companies', 'name_key'), fn ($q) => $q->orWhere('name_key', Company::nameKey($name)))->first();
         if ($company) return $company;
         [$sector, $subsector] = $this->classifier->classify($name, $row['title'] ?? '', implode(' ', $row['tags'] ?? []));
         // Employers seen only through a feed are listed but not crawled until an official website is known.

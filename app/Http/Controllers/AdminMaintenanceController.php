@@ -21,7 +21,8 @@ class AdminMaintenanceController extends Controller
         'reclassify' => ['Re-sort discovered companies', 'companies:reclassify', ['--all' => true]],
         'feeds' => ['Fetch latest job feeds', 'jobs:import-feeds', ['--now' => true, '--queries' => 20]],
         'wikidata' => ['Discover Indian companies (Wikidata)', 'companies:discover', ['source' => 'wikidata', '--country' => ['IN'], '--pages' => 1, '--now' => true]],
-        'osm' => ['Queue industrial hub discovery (OpenStreetMap)', 'companies:discover', ['source' => 'osm']],
+        'osm' => ['Queue discovery for every industrial area (OpenStreetMap)', 'companies:discover', ['source' => 'osm', '--industrial-areas' => true]],
+        'gleif' => ['Queue registered companies for every city (GLEIF registry, India + UAE)', 'companies:discover', ['source' => 'gleif', '--gleif-cities' => true, '--gleif-country' => ['AE'], '--gleif-pages' => 10]],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
     ];

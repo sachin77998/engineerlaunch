@@ -41,6 +41,27 @@ class CompanyDiscoveryAndFeedsTest extends TestCase
         $this->assertFalse(Company::where('name', 'Sector 8')->exists());
     }
 
+    public function test_gleif_registry_import_locates_companies_by_city_and_merges_existing_names(): void
+    {
+        Company::create(['name' => 'Titan Company', 'slug' => 'titan-company-test', 'country' => 'India', 'is_active' => true]);
+        $record = fn (string $lei, string $name, string $city, array $lines) => ['id' => $lei, 'attributes' => ['entity' => [
+            'legalName' => ['name' => $name], 'status' => 'ACTIVE', 'registeredAs' => 'U29100HR2001PTC012345',
+            'legalAddress' => ['addressLines' => $lines, 'city' => $city, 'region' => 'IN-HR', 'country' => 'IN'],
+        ]]];
+        Http::fake(['api.gleif.org/*' => Http::response(['meta' => ['pagination' => ['lastPage' => 1]], 'data' => [
+            $record('LEI1', 'MANESAR PRECISION FORGINGS PRIVATE LIMITED', 'GURGAON', ['PLOT 12, SECTOR 8, IMT MANESAR']),
+            $record('LEI2', 'TITAN COMPANY LIMITED', 'MANESAR', ['SECTOR 3, IMT MANESAR']),
+        ]])]);
+
+        $this->artisan('companies:discover gleif --gleif-cities --area=Manesar --gleif-pages=1 --now')->assertSuccessful();
+
+        $forge = Company::where('name', 'Manesar Precision Forgings Private Limited')->firstOrFail();
+        $this->assertSame('U29100HR2001PTC012345', $forge->registry_cin);
+        $this->assertTrue($forge->categories()->where('name', 'Forging')->exists());
+        $this->assertTrue($forge->facilities()->where('city', 'Manesar')->where('state', 'Haryana')->exists());
+        $this->assertSame(1, Company::where('name_key', 'titan')->count(), 'registry spelling must merge into the existing company');
+    }
+
     public function test_wikidata_discovery_skips_unlabelled_items(): void
     {
         Http::fake(['query.wikidata.org/*' => Http::response(['results' => ['bindings' => [

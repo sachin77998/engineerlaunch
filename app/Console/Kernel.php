@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping(15);
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
-        $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
+        $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
+        $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
         $schedule->command('premium:build-recommendations')
             ->dailyAt('08:00')
             ->withoutOverlapping(30);

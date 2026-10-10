@@ -101,6 +101,10 @@ class SectorCatalogImporter
             'is_active' => true,
         ]);
         // Companies with an official website join the daily opening batch through bounded career-page discovery.
+        if (isset($entry['ats']) && in_array($company->ats_provider, [null, '', 'official_discovery'], true)) {
+            [$company->ats_provider, $company->ats_identifier, $company->jobs_feed_url] = $entry['ats'];
+            $company->sync_enabled = true;
+        }
         if (filled($company->website) && blank($company->ats_provider)) {
             $company->ats_provider = 'official_discovery';
             $company->sync_enabled = true;

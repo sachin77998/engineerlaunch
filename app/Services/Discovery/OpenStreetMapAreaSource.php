@@ -13,7 +13,7 @@ class OpenStreetMapAreaSource
 
     public function fetch(array $hub): array
     {
-        [$lat, $lon] = isset($hub['lat'], $hub['lon']) ? [$hub['lat'], $hub['lon']] : $this->geocode($hub);
+        [$lat, $lon] = isset($hub['lat'], $hub['lon']) ? [$hub['lat'], $hub['lon']] : $this->locate($hub);
         $around = sprintf('around:%d,%F,%F', config('discovery.radius'), $lat, $lon);
         $query = "[out:json][timeout:90];("
             . "nwr($around)[\"name\"][\"man_made\"=\"works\"];"
@@ -48,13 +48,20 @@ class OpenStreetMapAreaSource
         return array_values($companies);
     }
 
-    private function geocode(array $hub): array
+    /** Coordinates of an industrial area: its own name first, then its city (directory names are often descriptive). */
+    public function locate(array $hub): array
     {
-        $response = Http::withHeaders(['User-Agent' => config('discovery.user_agent')])->timeout(30)
-            ->get(config('discovery.nominatim_url'), ['q' => implode(', ', array_filter([$hub['name'], $hub['city'] ?? null, $hub['state'] ?? null, 'India'])), 'format' => 'json', 'limit' => 1]);
-        $place = $response->json(0);
-        if (!$place) throw new RuntimeException('Could not locate ' . $hub['name'] . ' on OpenStreetMap.');
-        usleep(1100000); // Nominatim usage policy: at most one request per second.
-        return [(float) $place['lat'], (float) $place['lon']];
+        $queries = [
+            implode(', ', array_filter([$hub['name'], $hub['city'] ?? null, $hub['state'] ?? null, 'India'])),
+            implode(', ', array_filter([$hub['city'] ?? null, $hub['state'] ?? null, 'India'])),
+        ];
+        foreach (array_unique(array_filter($queries)) as $query) {
+            $response = Http::withHeaders(['User-Agent' => config('discovery.user_agent')])->timeout(30)
+                ->get(config('discovery.nominatim_url'), ['q' => $query, 'format' => 'json', 'limit' => 1, 'countrycodes' => 'in']);
+            usleep(1100000); // Nominatim usage policy: at most one request per second.
+            $place = $response->json(0);
+            if ($place) return [(float) $place['lat'], (float) $place['lon']];
+        }
+        throw new RuntimeException('Could not locate ' . $hub['name'] . ' on OpenStreetMap.');
     }
 }
