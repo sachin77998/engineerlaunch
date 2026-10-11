@@ -23,6 +23,7 @@ class AdminMaintenanceController extends Controller
         'wikidata' => ['Discover Indian companies (Wikidata)', 'companies:discover', ['source' => 'wikidata', '--country' => ['IN'], '--pages' => 1, '--now' => true]],
         'osm' => ['Queue discovery for every industrial area (OpenStreetMap)', 'companies:discover', ['source' => 'osm', '--industrial-areas' => true]],
         'gleif' => ['Queue registered companies for every city (GLEIF registry, India + UAE)', 'companies:discover', ['source' => 'gleif', '--gleif-cities' => true, '--gleif-country' => ['AE'], '--gleif-pages' => 10]],
+        'gleif-india' => ['Queue every registered company in India (GLEIF, ~400,000; imports over several hours)', 'companies:discover', ['source' => 'gleif', '--gleif-all' => ['IN']]],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
     ];

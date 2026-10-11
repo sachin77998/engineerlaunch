@@ -8,9 +8,10 @@ use RuntimeException;
 /** Companies with an official website from Wikidata (CC0), one country page at a time. */
 class WikidataCompanySource
 {
-    // business, company, enterprise, public company, holding company, private company, multinational.
+    // business, company, enterprise, public company, holding company, private company, multinational,
+    // state-owned enterprise (PSUs), bank, cooperative (dairy, sugar, banks) and manufacturer.
     // One type per request keeps each query under the public endpoint's 60 s limit.
-    public const TYPES = ['Q4830453', 'Q783794', 'Q6881511', 'Q891723', 'Q219577', 'Q1589009', 'Q161726'];
+    public const TYPES = ['Q4830453', 'Q783794', 'Q6881511', 'Q891723', 'Q219577', 'Q1589009', 'Q161726', 'Q270791', 'Q22687', 'Q4539', 'Q13235160'];
 
     public function fetch(string $countryQid, string $countryName, int $offset, int $limit = 3000, string $type = 'Q783794'): array
     {

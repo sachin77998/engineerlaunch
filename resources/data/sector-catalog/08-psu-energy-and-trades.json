@@ -1,0 +1,1922 @@
+{
+ "sectors": [
+  {
+   "name": "Public Sector (PSU) & Government",
+   "symbol": "PS",
+   "roles": {
+    "Engineering": [
+     "Graduate Engineer Trainee (GATE)",
+     "Management Trainee",
+     "Assistant Engineer",
+     "Junior Engineer",
+     "Executive Engineer"
+    ],
+    "Finance & HR": [
+     "Accounts Officer",
+     "HR Executive",
+     "Company Secretary",
+     "Internal Auditor"
+    ],
+    "Operations": [
+     "Plant Operator",
+     "Technician (ITI)",
+     "Safety Officer",
+     "Materials Manager"
+    ],
+    "Officers": [
+     "Probationary Officer",
+     "Administrative Officer",
+     "Assistant Manager"
+    ]
+   },
+   "subsectors": [
+    {
+     "name": "Maharatna & Navratna PSUs",
+     "companies": [
+      {
+       "name": "NTPC Limited",
+       "website": "https://www.ntpc.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Thermal, hydro and renewable power"
+      },
+      {
+       "name": "Oil and Natural Gas Corporation (ONGC)",
+       "website": "https://www.ongcindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Oil and gas exploration"
+      },
+      {
+       "name": "Indian Oil Corporation",
+       "website": "https://iocl.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Refining, pipelines, fuel marketing"
+      },
+      {
+       "name": "Coal India Limited",
+       "website": "https://www.coalindia.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Coal mining"
+      },
+      {
+       "name": "Steel Authority of India (SAIL)",
+       "website": "https://www.sail.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Integrated steel"
+      },
+      {
+       "name": "Bharat Heavy Electricals (BHEL)",
+       "website": "https://www.bhel.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Power plant equipment"
+      },
+      {
+       "name": "GAIL (India) Limited",
+       "website": "https://gailonline.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Natural gas transmission"
+      },
+      {
+       "name": "Power Grid Corporation of India",
+       "website": "https://www.powergrid.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Power transmission"
+      },
+      {
+       "name": "Bharat Petroleum Corporation",
+       "website": "https://www.bharatpetroleum.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Refining and fuel marketing"
+      },
+      {
+       "name": "Hindustan Petroleum Corporation",
+       "website": "https://www.hindustanpetroleum.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Refining and fuel marketing"
+      },
+      {
+       "name": "Power Finance Corporation",
+       "website": "https://www.pfcindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Power sector finance"
+      },
+      {
+       "name": "REC Limited",
+       "website": "https://www.recindia.nic.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Power sector finance"
+      },
+      {
+       "name": "Oil India Limited",
+       "website": "https://www.oil-india.com",
+       "hq": "Duliajan",
+       "country": "India",
+       "products": "Oil and gas exploration"
+      },
+      {
+       "name": "NMDC Limited",
+       "website": "https://www.nmdc.co.in",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Iron ore mining"
+      },
+      {
+       "name": "National Aluminium Company (NALCO)",
+       "website": "https://nalcoindia.com",
+       "hq": "Bhubaneswar",
+       "country": "India",
+       "products": "Aluminium"
+      },
+      {
+       "name": "Engineers India Limited",
+       "website": "https://engineersindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Engineering consultancy"
+      },
+      {
+       "name": "NLC India Limited",
+       "website": "https://www.nlcindia.in",
+       "hq": "Neyveli",
+       "country": "India",
+       "products": "Lignite mining and power"
+      },
+      {
+       "name": "Rashtriya Ispat Nigam (Vizag Steel)",
+       "website": "https://www.vizagsteel.com",
+       "hq": "Visakhapatnam",
+       "country": "India",
+       "products": "Integrated steel"
+      },
+      {
+       "name": "NBCC (India) Limited",
+       "website": "https://www.nbccindia.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Construction and project management"
+      },
+      {
+       "name": "Hindustan Copper",
+       "website": "https://www.hindustancopper.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Copper mining"
+      },
+      {
+       "name": "NHPC Limited",
+       "website": "https://www.nhpcindia.com",
+       "hq": "Faridabad",
+       "country": "India",
+       "products": "Hydro power"
+      },
+      {
+       "name": "SJVN Limited",
+       "website": "https://sjvn.nic.in",
+       "hq": "Shimla",
+       "country": "India",
+       "products": "Hydro and renewable power"
+      },
+      {
+       "name": "Shipping Corporation of India",
+       "website": "https://www.shipindia.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Shipping"
+      },
+      {
+       "name": "Container Corporation of India (CONCOR)",
+       "website": "https://concorindia.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Container logistics"
+      },
+      {
+       "name": "MOIL Limited",
+       "website": "https://www.moil.nic.in",
+       "hq": "Nagpur",
+       "country": "India",
+       "products": "Manganese ore"
+      },
+      {
+       "name": "Food Corporation of India",
+       "website": "https://fci.gov.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Food grain procurement and storage"
+      },
+      {
+       "name": "Airports Authority of India",
+       "website": "https://www.aai.aero",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Airport operations"
+      },
+      {
+       "name": "Bharat Sanchar Nigam Limited (BSNL)",
+       "website": "https://www.bsnl.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Telecom"
+      }
+     ]
+    },
+    {
+     "name": "Defence & Shipbuilding PSUs",
+     "companies": [
+      {
+       "name": "Hindustan Aeronautics Limited (HAL)",
+       "website": "https://hal-india.co.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Aircraft and helicopters"
+      },
+      {
+       "name": "Bharat Electronics Limited (BEL)",
+       "website": "https://bel-india.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Defence electronics, radar"
+      },
+      {
+       "name": "Bharat Dynamics Limited",
+       "website": "https://bdl-india.in",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Missiles"
+      },
+      {
+       "name": "Mazagon Dock Shipbuilders",
+       "website": "https://mazagondock.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Warships and submarines"
+      },
+      {
+       "name": "Cochin Shipyard",
+       "website": "https://cochinshipyard.in",
+       "hq": "Kochi",
+       "country": "India",
+       "products": "Shipbuilding and repair"
+      },
+      {
+       "name": "Garden Reach Shipbuilders & Engineers",
+       "website": "https://grse.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Warships"
+      },
+      {
+       "name": "BEML Limited",
+       "website": "https://www.bemlindia.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Mining, rail and defence equipment"
+      },
+      {
+       "name": "Mishra Dhatu Nigam (MIDHANI)",
+       "website": "https://midhani-india.in",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Special alloys"
+      }
+     ]
+    },
+    {
+     "name": "Railway & Infrastructure PSUs",
+     "companies": [
+      {
+       "name": "IRCTC",
+       "website": "https://www.irctc.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Railway catering and ticketing"
+      },
+      {
+       "name": "RITES Limited",
+       "website": "https://www.rites.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Transport engineering consultancy"
+      },
+      {
+       "name": "IRCON International",
+       "website": "https://www.ircon.org",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Railway construction"
+      },
+      {
+       "name": "Rail Vikas Nigam (RVNL)",
+       "website": "https://rvnl.org",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Railway projects"
+      },
+      {
+       "name": "Indian Railway Finance Corporation",
+       "website": "https://irfc.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Railway finance"
+      },
+      {
+       "name": "HUDCO",
+       "website": "https://www.hudco.org.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Housing finance"
+      },
+      {
+       "name": "IREDA",
+       "website": "https://www.ireda.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Renewable energy finance"
+      }
+     ]
+    },
+    {
+     "name": "Government Insurance Companies",
+     "companies": [
+      {
+       "name": "Life Insurance Corporation of India (LIC)",
+       "website": "https://licindia.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Life insurance"
+      },
+      {
+       "name": "General Insurance Corporation of India (GIC Re)",
+       "website": "https://www.gicre.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Reinsurance"
+      },
+      {
+       "name": "The New India Assurance Company",
+       "website": "https://www.newindia.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "General insurance"
+      },
+      {
+       "name": "United India Insurance",
+       "website": "https://uiic.co.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "General insurance"
+      },
+      {
+       "name": "The Oriental Insurance Company",
+       "website": "https://orientalinsurance.org.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "General insurance"
+      },
+      {
+       "name": "National Insurance Company",
+       "website": "https://nationalinsurance.nic.co.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "General insurance"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Banking & Financial Services",
+   "symbol": "BK",
+   "subsectors": [
+    {
+     "name": "Public Sector & Government Banks",
+     "companies": [
+      {
+       "name": "State Bank of India",
+       "website": "https://sbi.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Punjab National Bank",
+       "website": "https://www.pnbindia.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Bank of Baroda",
+       "website": "https://www.bankofbaroda.in",
+       "hq": "Vadodara",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Canara Bank",
+       "website": "https://canarabank.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Union Bank of India",
+       "website": "https://www.unionbankofindia.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Bank of India",
+       "website": "https://bankofindia.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Indian Bank",
+       "website": "https://www.indianbank.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Central Bank of India",
+       "website": "https://www.centralbankofindia.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Indian Overseas Bank",
+       "website": "https://www.iob.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "UCO Bank",
+       "website": "https://www.ucobank.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Bank of Maharashtra",
+       "website": "https://bankofmaharashtra.in",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "Punjab & Sind Bank",
+       "website": "https://punjabandsindbank.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Public sector bank"
+      },
+      {
+       "name": "IDBI Bank",
+       "website": "https://www.idbibank.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Government-owned bank"
+      },
+      {
+       "name": "Reserve Bank of India",
+       "website": "https://www.rbi.org.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Central bank and regulator"
+      },
+      {
+       "name": "NABARD",
+       "website": "https://www.nabard.org",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Agriculture and rural development bank"
+      },
+      {
+       "name": "SIDBI",
+       "website": "https://www.sidbi.in",
+       "hq": "Lucknow",
+       "country": "India",
+       "products": "Small industries development bank"
+      },
+      {
+       "name": "Export-Import Bank of India (EXIM Bank)",
+       "website": "https://www.eximbankindia.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Export finance"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Oil, Gas & Energy",
+   "symbol": "OG",
+   "subsectors": [
+    {
+     "name": "Oil Refining & Marketing",
+     "companies": [
+      {
+       "name": "Indian Oil Corporation",
+       "website": "https://iocl.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Panipat, Mathura, Barauni, Paradip refineries"
+      },
+      {
+       "name": "Bharat Petroleum Corporation",
+       "website": "https://www.bharatpetroleum.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Mumbai, Kochi, Bina refineries"
+      },
+      {
+       "name": "Hindustan Petroleum Corporation",
+       "website": "https://www.hindustanpetroleum.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Mumbai and Visakh refineries"
+      },
+      {
+       "name": "Reliance Industries",
+       "website": "https://www.ril.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jamnagar refinery complex"
+      },
+      {
+       "name": "Nayara Energy",
+       "website": "https://www.nayaraenergy.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Vadinar refinery"
+      },
+      {
+       "name": "Mangalore Refinery and Petrochemicals (MRPL)",
+       "website": "https://www.mrpl.co.in",
+       "hq": "Mangaluru",
+       "country": "India",
+       "products": "Refinery"
+      },
+      {
+       "name": "Chennai Petroleum Corporation",
+       "website": "https://www.cpcl.co.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Manali refinery"
+      },
+      {
+       "name": "Numaligarh Refinery",
+       "website": "https://www.nrl.co.in",
+       "hq": "Numaligarh",
+       "country": "India",
+       "products": "Refinery"
+      },
+      {
+       "name": "HPCL-Mittal Energy (HMEL)",
+       "website": "https://www.hmel.in",
+       "hq": "Bathinda",
+       "country": "India",
+       "products": "Guru Gobind Singh Refinery"
+      },
+      {
+       "name": "ExxonMobil",
+       "website": "https://corporate.exxonmobil.com",
+       "hq": "Spring, Texas",
+       "country": "United States",
+       "products": "Refining and chemicals"
+      },
+      {
+       "name": "Shell",
+       "website": "https://www.shell.com",
+       "hq": "London",
+       "country": "United Kingdom",
+       "products": "Oil, gas and refining"
+      },
+      {
+       "name": "Saudi Aramco",
+       "website": "https://www.aramco.com",
+       "hq": "Dhahran",
+       "country": "Saudi Arabia",
+       "products": "Oil and refining"
+      },
+      {
+       "name": "ADNOC",
+       "website": "https://www.adnoc.ae",
+       "hq": "Abu Dhabi",
+       "country": "United Arab Emirates",
+       "products": "Oil, gas and refining"
+      },
+      {
+       "name": "BP",
+       "website": "https://www.bp.com",
+       "hq": "London",
+       "country": "United Kingdom",
+       "products": "Oil, gas and energy"
+      },
+      {
+       "name": "TotalEnergies",
+       "website": "https://totalenergies.com",
+       "hq": "Paris",
+       "country": "France",
+       "products": "Oil, gas and renewables"
+      },
+      {
+       "name": "Chevron",
+       "website": "https://www.chevron.com",
+       "hq": "Houston, Texas",
+       "country": "United States",
+       "products": "Oil, gas and refining"
+      }
+     ]
+    },
+    {
+     "name": "Renewable Power",
+     "companies": [
+      {
+       "name": "Adani Green Energy",
+       "website": "https://www.adanigreenenergy.com",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Solar and wind power"
+      },
+      {
+       "name": "Tata Power Renewable Energy",
+       "website": "https://www.tatapowerrenewables.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Renewable power"
+      },
+      {
+       "name": "ReNew Energy Global",
+       "website": "https://www.renew.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Solar and wind power"
+      },
+      {
+       "name": "Suzlon Energy",
+       "website": "https://www.suzlon.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Wind turbines"
+      },
+      {
+       "name": "Inox Wind",
+       "website": "https://www.inoxwind.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Wind turbines"
+      },
+      {
+       "name": "NTPC Green Energy",
+       "website": "https://ngel.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Renewable power"
+      },
+      {
+       "name": "JSW Energy",
+       "website": "https://www.jsw.in/energy",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Thermal, hydro and renewable power"
+      },
+      {
+       "name": "Azure Power",
+       "website": "https://www.azurepower.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Solar power"
+      },
+      {
+       "name": "Greenko Group",
+       "website": "https://www.greenkogroup.com",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Renewable power and storage"
+      },
+      {
+       "name": "Avaada Energy",
+       "website": "https://avaada.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Solar power and green hydrogen"
+      },
+      {
+       "name": "Solar Energy Corporation of India (SECI)",
+       "website": "https://www.seci.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Renewable energy agency"
+      },
+      {
+       "name": "Vestas",
+       "website": "https://www.vestas.com",
+       "hq": "Aarhus",
+       "country": "Denmark",
+       "products": "Wind turbines"
+      },
+      {
+       "name": "Siemens Gamesa",
+       "website": "https://www.siemensgamesa.com",
+       "hq": "Zamudio",
+       "country": "Spain",
+       "products": "Wind turbines"
+      },
+      {
+       "name": "NextEra Energy",
+       "website": "https://www.nexteraenergy.com",
+       "hq": "Juno Beach, Florida",
+       "country": "United States",
+       "products": "Renewable power"
+      },
+      {
+       "name": "Iberdrola",
+       "website": "https://www.iberdrola.com",
+       "hq": "Bilbao",
+       "country": "Spain",
+       "products": "Renewable power"
+      },
+      {
+       "name": "Masdar",
+       "website": "https://masdar.ae",
+       "hq": "Abu Dhabi",
+       "country": "United Arab Emirates",
+       "products": "Renewable energy"
+      }
+     ]
+    },
+    {
+     "name": "Solar Panel Manufacturing",
+     "companies": [
+      {
+       "name": "Waaree Energies",
+       "website": "https://waaree.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Solar modules"
+      },
+      {
+       "name": "Premier Energies",
+       "website": "https://www.premierenergies.com",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Solar cells and modules"
+      },
+      {
+       "name": "Vikram Solar",
+       "website": "https://www.vikramsolar.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Solar modules"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Food & Beverages",
+   "symbol": "FB",
+   "subsectors": [
+    {
+     "name": "Rice Mills & Basmati",
+     "companies": [
+      {
+       "name": "KRBL Limited (India Gate)",
+       "website": "https://www.krblrice.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Basmati rice"
+      },
+      {
+       "name": "LT Foods (Daawat)",
+       "website": "https://www.ltgroup.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Basmati rice"
+      },
+      {
+       "name": "Kohinoor Foods",
+       "website": "https://www.kohinoorfoods.in",
+       "hq": "Faridabad",
+       "country": "India",
+       "products": "Basmati rice and foods"
+      },
+      {
+       "name": "Chaman Lal Setia Exports",
+       "hq": "Karnal",
+       "country": "India",
+       "products": "Basmati rice mill"
+      },
+      {
+       "name": "GRM Overseas",
+       "hq": "Panipat",
+       "country": "India",
+       "products": "Basmati rice mill"
+      },
+      {
+       "name": "Shri Lal Mahal",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Basmati rice"
+      },
+      {
+       "name": "Amira Nature Foods",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Basmati rice"
+      }
+     ]
+    },
+    {
+     "name": "Dal & Pulses",
+     "companies": [
+      {
+       "name": "Tata Consumer Products (Tata Sampann)",
+       "website": "https://www.tataconsumer.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Pulses, spices, tea"
+      },
+      {
+       "name": "Rajdhani Flour and Dal",
+       "hq": "Delhi",
+       "country": "India",
+       "products": "Dal, besan, atta"
+      },
+      {
+       "name": "Shakti Bhog Foods",
+       "hq": "Delhi",
+       "country": "India",
+       "products": "Atta and dal"
+      }
+     ]
+    },
+    {
+     "name": "Dairy, Ghee & Milk Products",
+     "companies": [
+      {
+       "name": "Amul (GCMMF)",
+       "website": "https://amul.com",
+       "hq": "Anand",
+       "country": "India",
+       "products": "Milk, ghee, butter"
+      },
+      {
+       "name": "Mother Dairy",
+       "website": "https://www.motherdairy.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Milk, ghee"
+      },
+      {
+       "name": "Parag Milk Foods (Gowardhan)",
+       "website": "https://www.paragmilkfoods.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Ghee, cheese"
+      },
+      {
+       "name": "Patanjali Ayurved",
+       "website": "https://www.patanjaliayurved.net",
+       "hq": "Haridwar",
+       "country": "India",
+       "products": "Cow ghee, FMCG"
+      },
+      {
+       "name": "Verka (Milkfed Punjab)",
+       "website": "https://www.verka.coop",
+       "hq": "Chandigarh",
+       "country": "India",
+       "products": "Milk, desi ghee"
+      },
+      {
+       "name": "Karnataka Milk Federation (Nandini)",
+       "website": "https://www.kmfnandini.coop",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Milk, ghee"
+      },
+      {
+       "name": "Aavin",
+       "website": "https://aavin.tn.gov.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Milk, ghee"
+      },
+      {
+       "name": "Hatsun Agro Product",
+       "website": "https://www.hap.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Milk, ghee, ice cream"
+      },
+      {
+       "name": "Heritage Foods",
+       "website": "https://www.heritagefoods.in",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Milk, ghee"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Cement, Building Materials & Polymers",
+   "symbol": "CM",
+   "subsectors": [
+    {
+     "name": "Paper, Pulp & Packaging",
+     "companies": [
+      {
+       "name": "JK Paper",
+       "website": "https://www.jkpaper.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Paper and packaging board"
+      },
+      {
+       "name": "West Coast Paper Mills",
+       "website": "https://www.westcoastpaper.com",
+       "hq": "Dandeli",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Tamil Nadu Newsprint and Papers (TNPL)",
+       "website": "https://www.tnpl.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Newsprint and paper"
+      },
+      {
+       "name": "ITC Paperboards & Specialty Papers",
+       "hq": "Bhadrachalam",
+       "country": "India",
+       "products": "Paperboard"
+      },
+      {
+       "name": "Seshasayee Paper and Boards",
+       "website": "https://www.spbltd.com",
+       "hq": "Erode",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Andhra Paper",
+       "website": "https://www.andhrapaper.com",
+       "hq": "Rajahmundry",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Century Pulp and Paper",
+       "hq": "Lalkuan",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Orient Paper & Industries",
+       "website": "https://www.orientpaperindia.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Kuantum Papers",
+       "website": "https://www.kuantumpapers.com",
+       "hq": "Hoshiarpur",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Satia Industries",
+       "hq": "Sri Muktsar Sahib",
+       "country": "India",
+       "products": "Paper mill"
+      },
+      {
+       "name": "Star Paper Mills",
+       "website": "https://www.starpapers.com",
+       "hq": "Saharanpur",
+       "country": "India",
+       "products": "Paper mill"
+      }
+     ]
+    },
+    {
+     "name": "Paints & Coatings",
+     "companies": [
+      {
+       "name": "Asian Paints",
+       "website": "https://www.asianpaints.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Decorative and industrial paints"
+      },
+      {
+       "name": "Berger Paints India",
+       "website": "https://www.bergerpaints.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "Kansai Nerolac Paints",
+       "website": "https://www.nerolac.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "Akzo Nobel India (Dulux)",
+       "website": "https://www.akzonobel.co.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "Indigo Paints",
+       "website": "https://www.indigopaints.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "Shalimar Paints",
+       "website": "https://www.shalimarpaints.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "JSW Paints",
+       "website": "https://www.jswpaints.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Paints"
+      },
+      {
+       "name": "Birla Opus Paints",
+       "website": "https://www.birlaopus.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Paints"
+      }
+     ]
+    },
+    {
+     "name": "Wallpaper & Wall Decor",
+     "companies": [
+      {
+       "name": "Nilaya by Asian Paints",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Wallpapers and wall coverings"
+      },
+      {
+       "name": "Marshalls Wallcoverings",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Wallpapers"
+      },
+      {
+       "name": "Excel Wallcoverings",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Wallpapers"
+      },
+      {
+       "name": "Life n Colors",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Wallpapers"
+      }
+     ]
+    },
+    {
+     "name": "Wood, Plywood & Furniture",
+     "companies": [
+      {
+       "name": "Century Plyboards",
+       "website": "https://www.centuryply.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Plywood and laminates"
+      },
+      {
+       "name": "Greenply Industries",
+       "website": "https://www.greenply.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Plywood"
+      },
+      {
+       "name": "Greenpanel Industries",
+       "website": "https://www.greenpanel.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "MDF and panels"
+      },
+      {
+       "name": "Archidply Industries",
+       "website": "https://www.archidply.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Plywood"
+      },
+      {
+       "name": "Action Tesa",
+       "website": "https://www.actiontesa.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Particle board and MDF"
+      },
+      {
+       "name": "Godrej Interio",
+       "website": "https://www.godrejinterio.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Furniture"
+      },
+      {
+       "name": "Durian Industries",
+       "website": "https://www.durian.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Furniture"
+      }
+     ]
+    },
+    {
+     "name": "Glass & Glassware",
+     "companies": [
+      {
+       "name": "Asahi India Glass (AIS)",
+       "website": "https://www.aisglass.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Automotive and float glass"
+      },
+      {
+       "name": "Saint-Gobain India",
+       "website": "https://www.saint-gobain.co.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Float glass and building materials"
+      },
+      {
+       "name": "Borosil",
+       "website": "https://www.borosil.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Glassware"
+      },
+      {
+       "name": "La Opala RG",
+       "website": "https://www.laopala.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Opal glassware"
+      },
+      {
+       "name": "Hindusthan National Glass",
+       "website": "https://www.hngil.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Glass containers"
+      },
+      {
+       "name": "AGI Greenpac",
+       "website": "https://www.agi-greenpac.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Glass bottles"
+      },
+      {
+       "name": "Gold Plus Glass",
+       "website": "https://www.goldplusglass.com",
+       "hq": "Roorkee",
+       "country": "India",
+       "products": "Float glass"
+      },
+      {
+       "name": "Piramal Glass",
+       "website": "https://www.piramalglass.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Glass packaging"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Electrical Equipment & Appliances",
+   "symbol": "EL",
+   "subsectors": [
+    {
+     "name": "Wires & Cables",
+     "companies": [
+      {
+       "name": "Polycab India",
+       "website": "https://polycab.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Wires and cables"
+      },
+      {
+       "name": "KEI Industries",
+       "website": "https://www.kei-ind.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Cables"
+      },
+      {
+       "name": "Finolex Cables",
+       "website": "https://www.finolex.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Wires and cables"
+      },
+      {
+       "name": "RR Kabel",
+       "website": "https://www.rrkabel.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Wires and cables"
+      },
+      {
+       "name": "Havells India",
+       "website": "https://www.havells.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Wires, fans, switchgear"
+      },
+      {
+       "name": "V-Guard Industries",
+       "website": "https://www.vguard.in",
+       "hq": "Kochi",
+       "country": "India",
+       "products": "Wires, stabilisers, fans"
+      },
+      {
+       "name": "Sterlite Technologies (STL)",
+       "website": "https://stl.tech",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Optical fibre cables"
+      },
+      {
+       "name": "Apar Industries",
+       "website": "https://www.apar.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Conductors and cables"
+      },
+      {
+       "name": "Universal Cables",
+       "hq": "Satna",
+       "country": "India",
+       "products": "Power cables"
+      },
+      {
+       "name": "Paramount Communications",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Cables"
+      }
+     ]
+    },
+    {
+     "name": "Transformers & Switchgear",
+     "companies": [
+      {
+       "name": "Transformers and Rectifiers India",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Power transformers"
+      },
+      {
+       "name": "Voltamp Transformers",
+       "website": "https://www.voltamptransformers.com",
+       "hq": "Vadodara",
+       "country": "India",
+       "products": "Transformers"
+      },
+      {
+       "name": "Hitachi Energy India",
+       "website": "https://www.hitachienergy.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Transformers and grid equipment"
+      },
+      {
+       "name": "CG Power and Industrial Solutions",
+       "website": "https://www.cgglobal.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Transformers, motors"
+      },
+      {
+       "name": "Schneider Electric India",
+       "website": "https://www.se.com/in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Switchgear and automation"
+      },
+      {
+       "name": "Siemens Energy India",
+       "website": "https://www.siemens-energy.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Transformers and power equipment"
+      },
+      {
+       "name": "Indo Tech Transformers",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Transformers"
+      },
+      {
+       "name": "Shilchar Technologies",
+       "hq": "Vadodara",
+       "country": "India",
+       "products": "Transformers"
+      }
+     ]
+    },
+    {
+     "name": "Fans & Lighting",
+     "companies": [
+      {
+       "name": "Crompton Greaves Consumer Electricals",
+       "website": "https://www.crompton.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Fans, lighting, pumps"
+      },
+      {
+       "name": "Orient Electric",
+       "website": "https://www.orientelectric.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Fans and lighting"
+      },
+      {
+       "name": "Usha International",
+       "website": "https://www.usha.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Fans, appliances"
+      },
+      {
+       "name": "Bajaj Electricals",
+       "website": "https://www.bajajelectricals.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Fans, lighting"
+      },
+      {
+       "name": "Atomberg Technologies",
+       "website": "https://atomberg.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "BLDC fans"
+      },
+      {
+       "name": "Signify Innovations India (Philips Lighting)",
+       "website": "https://www.signify.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Lighting"
+      }
+     ]
+    },
+    {
+     "name": "Consumer Appliances & Air Conditioning",
+     "companies": [
+      {
+       "name": "Voltas",
+       "website": "https://www.voltas.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Air conditioners"
+      },
+      {
+       "name": "Blue Star",
+       "website": "https://www.bluestarindia.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Air conditioning and refrigeration"
+      },
+      {
+       "name": "Daikin Airconditioning India",
+       "website": "https://www.daikinindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Air conditioners"
+      },
+      {
+       "name": "LG Electronics India",
+       "website": "https://www.lg.com/in",
+       "hq": "Noida",
+       "country": "India",
+       "products": "ACs and appliances"
+      },
+      {
+       "name": "Amber Enterprises India",
+       "website": "https://www.ambergroupindia.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "AC contract manufacturing"
+      },
+      {
+       "name": "PG Electroplast",
+       "website": "https://www.pgel.in",
+       "hq": "Greater Noida",
+       "country": "India",
+       "products": "AC and electronics manufacturing"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Agriculture & Agri-Inputs",
+   "symbol": "AG",
+   "subsectors": [
+    {
+     "name": "Fertilisers, Seeds & Crop Protection",
+     "companies": [
+      {
+       "name": "UPL Limited",
+       "website": "https://www.upl-ltd.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Crop protection"
+      },
+      {
+       "name": "Coromandel International",
+       "website": "https://www.coromandel.biz",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Fertilisers"
+      },
+      {
+       "name": "Chambal Fertilisers and Chemicals",
+       "website": "https://www.chambalfertilisers.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Urea and fertilisers"
+      },
+      {
+       "name": "IFFCO",
+       "website": "https://www.iffco.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Fertiliser cooperative"
+      },
+      {
+       "name": "Rallis India",
+       "website": "https://www.rallis.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Agrochemicals and seeds"
+      },
+      {
+       "name": "PI Industries",
+       "website": "https://www.piindustries.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Agrochemicals"
+      },
+      {
+       "name": "Dhanuka Agritech",
+       "website": "https://www.dhanuka.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Agrochemicals"
+      },
+      {
+       "name": "Kaveri Seed Company",
+       "website": "https://www.kaveriseeds.in",
+       "hq": "Secunderabad",
+       "country": "India",
+       "products": "Seeds"
+      },
+      {
+       "name": "Jain Irrigation Systems",
+       "website": "https://www.jains.com",
+       "hq": "Jalgaon",
+       "country": "India",
+       "products": "Micro irrigation"
+      },
+      {
+       "name": "National Fertilizers Limited",
+       "website": "https://www.nationalfertilizers.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Urea (PSU)"
+      },
+      {
+       "name": "Rashtriya Chemicals and Fertilizers",
+       "website": "https://www.rcfltd.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Fertilisers (PSU)"
+      },
+      {
+       "name": "Syngenta India",
+       "website": "https://www.syngenta.co.in",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Seeds and crop protection"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Apparel, Textiles & Footwear",
+   "symbol": "AP",
+   "subsectors": [
+    {
+     "name": "Textiles, Cotton & Yarn",
+     "companies": [
+      {
+       "name": "Arvind Limited",
+       "website": "https://www.arvind.com",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Denim and fabrics"
+      },
+      {
+       "name": "Welspun Living",
+       "website": "https://www.welspunliving.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Home textiles"
+      },
+      {
+       "name": "Trident Limited",
+       "website": "https://www.tridentindia.com",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Yarn, towels, paper"
+      },
+      {
+       "name": "Vardhman Textiles",
+       "website": "https://www.vardhman.com",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Raymond",
+       "website": "https://www.raymond.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Suiting fabrics"
+      },
+      {
+       "name": "Grasim Industries",
+       "website": "https://www.grasim.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Viscose fibre"
+      },
+      {
+       "name": "KPR Mill",
+       "hq": "Coimbatore",
+       "country": "India",
+       "products": "Yarn and garments"
+      },
+      {
+       "name": "Nahar Spinning Mills",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Yarn"
+      },
+      {
+       "name": "Alok Industries",
+       "website": "https://www.alokind.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Textiles"
+      },
+      {
+       "name": "Bombay Dyeing",
+       "website": "https://www.bombaydyeing.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Textiles"
+      },
+      {
+       "name": "Siyaram Silk Mills",
+       "website": "https://www.siyaram.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Fabrics"
+      },
+      {
+       "name": "Indo Count Industries",
+       "website": "https://www.indocount.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Bed linen"
+      }
+     ]
+    },
+    {
+     "name": "Denim & Casual Wear",
+     "companies": [
+      {
+       "name": "Page Industries (Jockey)",
+       "website": "https://pageind.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Innerwear and apparel"
+      },
+      {
+       "name": "Aditya Birla Fashion and Retail",
+       "website": "https://www.abfrl.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Apparel brands"
+      },
+      {
+       "name": "Gokaldas Exports",
+       "website": "https://www.gokaldasexports.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Garment exports"
+      },
+      {
+       "name": "Shahi Exports",
+       "website": "https://www.shahi.co.in",
+       "hq": "Faridabad",
+       "country": "India",
+       "products": "Garment exports"
+      },
+      {
+       "name": "Trent (Westside, Zudio)",
+       "website": "https://www.trentlimited.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Fashion retail"
+      },
+      {
+       "name": "Kewal Kiran Clothing",
+       "website": "https://www.kewalkiran.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jeans (Killer)"
+      },
+      {
+       "name": "Lux Industries",
+       "website": "https://www.luxinnerwear.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Innerwear"
+      },
+      {
+       "name": "Dollar Industries",
+       "website": "https://www.dollarglobal.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Innerwear"
+      },
+      {
+       "name": "Rupa & Company",
+       "website": "https://www.rupa.co.in",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Innerwear"
+      },
+      {
+       "name": "Monte Carlo Fashions",
+       "website": "https://www.montecarlo.in",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Woollen and casual wear"
+      },
+      {
+       "name": "Go Fashion (Go Colors)",
+       "website": "https://gocolors.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Women's bottom wear"
+      },
+      {
+       "name": "Vedant Fashions (Manyavar)",
+       "website": "https://www.manyavar.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Ethnic wear"
+      }
+     ]
+    },
+    {
+     "name": "Footwear",
+     "companies": [
+      {
+       "name": "Bata India",
+       "website": "https://www.bata.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Relaxo Footwears",
+       "website": "https://www.relaxofootwear.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Campus Activewear",
+       "website": "https://www.campusshoes.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Sports shoes"
+      },
+      {
+       "name": "Liberty Shoes",
+       "website": "https://www.libertyshoes.com",
+       "hq": "Karnal",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Metro Brands",
+       "website": "https://www.metrobrands.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Footwear retail"
+      },
+      {
+       "name": "Khadim India",
+       "website": "https://www.khadims.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Mirza International (Red Tape)",
+       "hq": "Kanpur",
+       "country": "India",
+       "products": "Leather footwear"
+      },
+      {
+       "name": "Action Shoes",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Woodland (Aero Club)",
+       "website": "https://www.woodlandworldwide.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Footwear"
+      },
+      {
+       "name": "Paragon Footwear",
+       "hq": "Kottayam",
+       "country": "India",
+       "products": "Footwear"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Heavy Engineering & Capital Goods",
+   "symbol": "HE",
+   "subsectors": [
+    {
+     "name": "Machine Tools & Industrial Machinery",
+     "companies": [
+      {
+       "name": "Larsen & Toubro",
+       "website": "https://www.larsentoubro.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Engineering and construction"
+      },
+      {
+       "name": "Thermax",
+       "website": "https://www.thermaxglobal.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Boilers and energy equipment"
+      },
+      {
+       "name": "Kirloskar Brothers",
+       "website": "https://www.kirloskarpumps.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Pumps"
+      },
+      {
+       "name": "Kirloskar Oil Engines",
+       "website": "https://www.kirloskaroilengines.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Diesel engines"
+      },
+      {
+       "name": "Cummins India",
+       "website": "https://www.cummins.com/en/in",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Engines and gensets"
+      },
+      {
+       "name": "Elgi Equipments",
+       "website": "https://www.elgi.com",
+       "hq": "Coimbatore",
+       "country": "India",
+       "products": "Air compressors"
+      },
+      {
+       "name": "KSB Limited",
+       "website": "https://www.ksb.com/en-in",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Pumps and valves"
+      },
+      {
+       "name": "Grindwell Norton",
+       "website": "https://www.grindwellnorton.co.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Abrasives"
+      },
+      {
+       "name": "AIA Engineering",
+       "website": "https://www.aiaengineering.com",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Wear parts castings"
+      },
+      {
+       "name": "Triveni Turbine",
+       "website": "https://www.triveniturbines.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Steam turbines"
+      },
+      {
+       "name": "ISGEC Heavy Engineering",
+       "website": "https://www.isgec.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Boilers and process equipment"
+      },
+      {
+       "name": "Praj Industries",
+       "website": "https://www.praj.net",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Ethanol plants"
+      },
+      {
+       "name": "Lakshmi Machine Works",
+       "website": "https://www.lmwglobal.com",
+       "hq": "Coimbatore",
+       "country": "India",
+       "products": "Textile machinery, machine tools"
+      },
+      {
+       "name": "Bharat Fritz Werner",
+       "website": "https://www.bfwindia.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "CNC machine tools"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

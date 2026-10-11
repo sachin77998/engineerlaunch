@@ -30,8 +30,19 @@ class DiscoverCompaniesChunk implements ShouldQueue
     {
         if ($this->batch()?->cancelled()) return;
         if ($this->source === 'gleif') {
-            $page = app(\App\Services\Discovery\GleifCompanySource::class)->fetch($this->params['country'], $this->params['city'] ?? null, $this->params['page']);
+            $page = app(\App\Services\Discovery\GleifCompanySource::class)->fetch($this->params['country'], $this->params['city'] ?? null, $this->params['page'], 200, $this->params['cursor'] ?? null);
             $result = app(\App\Services\Discovery\RegistryWriter::class)->write($page['rows']);
+            // Whole-registry mode: each chunk queues the next cursor page until the registry or the page budget ends.
+            $remaining = ($this->params['pages_left'] ?? 1) - 1;
+            if (isset($this->params['cursor']) && $page['next_cursor'] && $remaining > 0) {
+                $next = new self('gleif', ['cursor' => $page['next_cursor'], 'pages_left' => $remaining, 'page' => $this->params['page'] + 1] + $this->params, $this->batchRunId);
+                if ($this->batch()) {
+                    $this->batch()->add([$next]);
+                    if ($this->batchRunId) BatchRun::whereKey($this->batchRunId)->increment('total_items', 1, ['pending_items' => DB::raw('pending_items + 1')]);
+                } elseif ($this->job) {
+                    dispatch($next->onConnection('database')->onQueue('discovery'));
+                }
+            }
             usleep(500000);
         } elseif ($this->source === 'wikidata') {
             $companies = app(WikidataCompanySource::class)->fetch($this->params['qid'], $this->params['country'], $this->params['offset'], $this->params['limit'], $this->params['type'] ?? 'Q783794');

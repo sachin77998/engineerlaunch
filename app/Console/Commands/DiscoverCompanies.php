@@ -23,6 +23,7 @@ class DiscoverCompanies extends Command
         {--gleif-cities : GLEIF registry: companies registered in every industrial-area / hub city (India)}
         {--gleif-country=* : GLEIF registry: whole countries by ISO code, e.g. AE GB DE}
         {--gleif-pages=10 : GLEIF pages of 200 companies per city or country}
+        {--gleif-all=* : GLEIF registry: every registered company of these countries (cursor paging, e.g. IN = ~400k)}
         {--sync : Fetch openings for newly discovered company websites when finished}
         {--now : Run inline instead of on the queue}';
     protected $description = 'Discover companies dynamically from Wikidata and OpenStreetMap and file them into sectors';
@@ -38,6 +39,8 @@ class DiscoverCompanies extends Command
                 foreach ($this->registryCities() as $city) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => 'IN', 'city' => $city, 'page' => $page]];
             }
             foreach ($this->option('gleif-country') as $code) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => $page]];
+            // One starting chunk per country; each chunk queues the next page (up to 5,000 pages = 1M records).
+            foreach ($this->option('gleif-all') as $code) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => 1, 'cursor' => '*', 'pages_left' => 5000]];
         }
         if (!in_array($source, ['osm', 'gleif'], true)) {
             $countries = config('discovery.countries');
