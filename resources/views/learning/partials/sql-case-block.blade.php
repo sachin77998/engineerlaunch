@@ -27,7 +27,7 @@
 @foreach($block['items'] as [$question,$answer])<details class="sql-case-question"><summary>{{$question}}</summary><p>{{$answer}}</p></details>@endforeach
 @break
 @case('links')
-<nav class="sql-case-nav" aria-label="Related SQL topics">@foreach($block['items'] as [$label,$slug])<a href="{{route('learning.show',['sql',$slug])}}">{{$label}}</a>@endforeach</nav>
+<nav class="sql-case-nav" aria-label="Related SQL topics">@foreach($block['items'] as [$label,$slug])<a href="{{route('learning.show',[$trackSlug ?? 'sql',$slug])}}">{{$label}}</a>@endforeach</nav>
 @break
 @case('legacy')
 <h3>{{$block['title']}}</h3>

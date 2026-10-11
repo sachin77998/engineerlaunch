@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title',$module['title'].' - SQL')
+@section('title',$module['title'].' - '.$track['title'])
 @push('styles')
 @include('learning.partials.three-column-styles')
 <style>
@@ -11,7 +11,7 @@
 <div class="learning-shell">
 @include('learning.partials.module-sidebars')
 <main class="sql-case-main">
-<a href="{{route('learning.track','sql')}}">&larr; SQL topics</a>
+<a href="{{route('learning.track',$trackSlug)}}">&larr; {{$track['title']}} topics</a>
 <h1>{{$module['title']}}</h1>
 <p>{{$module['summary']}}</p><p class="sql-case-example">{{$module['example_label']}}</p>
 <nav class="sql-case-nav" aria-label="Lesson sections">@foreach($module['sections'] as $section)<a href="#{{$section['id']}}">{{$loop->iteration}}. {{$section['title']}}</a>@endforeach</nav>
@@ -25,9 +25,9 @@
 @php($topicSlugs=array_keys($track['topics']))
 @php($topicPosition=array_search($moduleSlug,$topicSlugs,true))
 @if($topicPosition>0)<a href="{{route('learning.show',[$trackSlug,$topicSlugs[$topicPosition-1]])}}">&larr; Previous topic</a>@endif
-<a href="{{route('learning.track','sql')}}">All SQL topics</a>
+<a href="{{route('learning.track',$trackSlug)}}">All {{$track['title']}} topics</a>
 @if(isset($topicSlugs[$topicPosition+1]))<a href="{{route('learning.show',[$trackSlug,$topicSlugs[$topicPosition+1]])}}">Next topic &rarr;</a>@endif
 </nav>
-<p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank" rel="noopener">MySQL locking reads</a> &middot; <a href="https://laravel.com/docs/10.x/queues#jobs-and-database-transactions" target="_blank" rel="noopener">Laravel queues and transactions</a></p>
+@if($trackSlug==='sql')<p><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank" rel="noopener">MySQL locking reads</a> &middot; <a href="https://laravel.com/docs/10.x/queues#jobs-and-database-transactions" target="_blank" rel="noopener">Laravel queues and transactions</a></p>@endif
 </main></div>
 @endsection

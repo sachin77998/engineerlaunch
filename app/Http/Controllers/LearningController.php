@@ -48,7 +48,7 @@ class LearningController extends Controller
             ]);
         }
 
-        if ($track === 'sql') {
+        if ($track === 'sql' || isset($tracks[$track]['topics'][$module]['sections'])) {
             $questions = $this->paginateQuestions($tracks[$track]['topics'][$module]['questions']);
             return view($tracks[$track]['topics'][$module]['view'] ?? 'learning.sql-questions', [
                 'trackSlug' => $track,

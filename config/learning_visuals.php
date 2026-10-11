@@ -38,6 +38,13 @@ return [
   'rows'=>[['Understand','Explain the feature in your own words'],['Apply','Connect it to a small job-portal example'],['Verify','Check output and stored data'],['Review','Explain the failure path']],
   'pitfall'=>'Run destructive examples only against a disposable practice database.',
  ],
+ 'backend-concepts'=>[
+  'title'=>'One request through a production backend',
+  'steps'=>[['Identity','Session cookie or token authenticates the caller.'],['Middleware','Rate limits, request id and CSRF wrap the request.'],['Controller + policy','Validate input, authorize the record, call a service.'],['Async work','Queue jobs and publish events for everything the user need not wait for.']],
+  'columns'=>['Concept','Where it shows up'],
+  'rows'=>[['Tokens and roles','Net banking login, merchant API keys'],['Queues and batches','Order emails, monthly statements'],['Eager loading and pagination','Order history, transaction statements'],['Kafka events','Payment captured to settlement, fraud and notifications']],
+  'pitfall'=>'Hiding a button in React is not authorization: the API must check identity, permission and ownership on every request.',
+ ],
  'dsa'=>[
   'title'=>'Make your reasoning visible',
   'steps'=>[['Input','Write a small example and the constraints.'],['Trace','Follow each operation by hand.'],['Algorithm','Describe the repeatable steps.'],['Check','Test output, edge cases and complexity.']],
