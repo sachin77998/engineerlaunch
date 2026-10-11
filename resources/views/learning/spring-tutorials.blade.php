@@ -705,25 +705,7 @@
 
         <h1>{{ $module['title'] }}</h1>
 
-        <p>
-            Learn Spring and Spring Boot through practical concepts,
-            production-style examples, code, hands-on exercises and
-            interview questions.
-        </p>
 
-        <div class="flow">
-
-            <span>Understand</span>
-            →
-            <span>See Example</span>
-            →
-            <span>Code</span>
-            →
-            <span>Practice</span>
-            →
-            <span>Quiz</span>
-
-        </div>
 
     </div>
 
@@ -796,216 +778,18 @@
              SPRING ROADMAP
         ================================================== --}}
 
-        <section class="spring-roadmap">
-
-            <h2>Complete Spring / Spring Boot Roadmap</h2>
-
-            <p>
-                The existing lessons remain the learning source.
-                This roadmap helps learners understand how the concepts
-                connect together when building real applications.
-            </p>
-
-
-            <div class="roadmap-grid">
-
-                <div class="roadmap-item">
-
-                    <strong>1. Spring Core</strong>
-
-                    <span>
-                        IoC, Dependency Injection, Beans,
-                        ApplicationContext and configuration.
-                    </span>
-
-                </div>
-
-
-                <div class="roadmap-item">
-
-                    <strong>2. Spring Boot</strong>
-
-                    <span>
-                        Auto configuration, starters,
-                        application configuration and embedded servers.
-                    </span>
-
-                </div>
-
-
-                <div class="roadmap-item">
-
-                    <strong>3. REST APIs</strong>
-
-                    <span>
-                        Controllers, request mapping, DTOs,
-                        validation and response handling.
-                    </span>
-
-                </div>
-
-
-                <div class="roadmap-item">
-
-                    <strong>4. Database</strong>
-
-                    <span>
-                        Spring Data JPA, repositories,
-                        entities, relationships and transactions.
-                    </span>
-
-                </div>
-
-
-                <div class="roadmap-item">
-
-                    <strong>5. Security</strong>
-
-                    <span>
-                        Authentication, authorization,
-                        JWT and protected APIs.
-                    </span>
-
-                </div>
-
-
-                <div class="roadmap-item">
-
-                    <strong>6. Production</strong>
-
-                    <span>
-                        Logging, Actuator, exception handling,
-                        testing, caching, queues and observability.
-                    </span>
-
-                </div>
-
-            </div>
-
-        </section>
 
 
         {{-- =================================================
              REAL WORLD EXAMPLES
         ================================================== --}}
 
-        <section class="real-world">
-
-            <h2>Learn Spring with real applications</h2>
-
-            <p>
-                Instead of learning Spring concepts in isolation,
-                connect them with applications developers actually build.
-            </p>
-
-
-            <div class="real-world-grid">
-
-                <div class="real-world-card">
-
-                    <h3>Banking Application</h3>
-
-                    <p>
-                        Customer accounts, transactions,
-                        authentication, balance checks and
-                        transaction processing.
-                    </p>
-
-                    <div class="spring-code-example">Controller
-                        ↓
-                        Service
-                        ↓
-                        Repository
-                        ↓
-                        Database</div>
-
-                </div>
-
-
-                <div class="real-world-card">
-
-                    <h3>E-commerce Application</h3>
-
-                    <p>
-                        Products, customers, carts, orders,
-                        payments and inventory.
-                    </p>
-
-                    <div class="spring-code-example">@RestController
-                        class OrderController {
-
-                        @PostMapping("/orders")
-                        public Order createOrder(
-                        @RequestBody OrderRequest request
-                        ) {
-                        return orderService.create(request);
-                        }
-                        }</div>
-
-                </div>
-
-
-                <div class="real-world-card">
-
-                    <h3>Employee Management</h3>
-
-                    <p>
-                        Employees, departments, managers,
-                        salaries and role-based access.
-                    </p>
-
-                    <div class="spring-code-example">@Service
-                        class EmployeeService {
-
-                        public Employee findById(Long id) {
-                        return repository.findById(id)
-                        .orElseThrow();
-                        }
-                        }</div>
-
-                </div>
-
-
-                <div class="real-world-card">
-
-                    <h3>Travel / Booking System</h3>
-
-                    <p>
-                        Flights, hotels, customers, bookings,
-                        payments and notifications.
-                    </p>
-
-                    <div class="spring-code-example">@Repository
-                        interface BookingRepository
-                        extends JpaRepository&lt;Booking, Long&gt; {
-
-                        }</div>
-
-                </div>
-
-            </div>
-
-        </section>
 
 
         {{-- =================================================
              SEARCH
         ================================================== --}}
 
-        <div class="spring-search">
-
-            <input
-                type="search"
-                id="springQuestionSearch"
-                placeholder="Search Spring: dependency injection, REST, JPA, Kafka, security, microservices..."
-                autocomplete="off">
-
-            <div
-                id="springSearchResult"
-                class="spring-search-result">
-            </div>
-
-        </div>
 
 
         {{-- =================================================
@@ -1070,38 +854,6 @@
                          CONCEPT STRUCTURE
                     ====================================== --}}
 
-                <div class="lesson-sections">
-
-                    <div class="lesson-section">
-
-                        <h3>
-                            What you should understand
-                        </h3>
-
-                        <p>
-                            Understand the concept first,
-                            then connect it with the code example
-                            below.
-                        </p>
-
-                    </div>
-
-
-                    <div class="lesson-section">
-
-                        <h3>
-                            Interview perspective
-                        </h3>
-
-                        <p>
-                            Be able to explain why this concept
-                            is used and where it belongs in a
-                            Spring application.
-                        </p>
-
-                    </div>
-
-                </div>
 
 
                 {{-- =====================================
@@ -1117,10 +869,6 @@
                 {{-- =====================================
                          EXISTING RECAP
                     ====================================== --}}
-
-                @include(
-                'learning.partials.lesson-recap'
-                )
 
 
                 {{-- =====================================
