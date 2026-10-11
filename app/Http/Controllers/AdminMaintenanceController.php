@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Process\Process;
 use Throwable;
 
 /**
@@ -56,7 +57,81 @@ class AdminMaintenanceController extends Controller
             '/opt/cpanel/ea-php81/root/usr/bin/php', '/opt/alt/php83/usr/bin/php', '/opt/alt/php82/usr/bin/php', '/usr/local/bin/php', '/usr/bin/php',
         ], fn ($path) => @is_executable($path)));
         return view('admin.maintenance', ['steps' => self::steps(), 'deployLog' => is_file($log) ? file_get_contents($log) : null,
-            'phpPaths' => $phpPaths, 'phpVersion' => PHP_VERSION, 'basePath' => base_path()]);
+            'phpPaths' => $phpPaths, 'phpVersion' => PHP_VERSION, 'basePath' => base_path(), 'repos' => $this->repositories()]);
+    }
+
+    /**
+     * cPanel disables "Deploy HEAD Commit" while its repository clone has local changes or a deployment is still
+     * running. These actions show that state and can reset the clone, or pull and deploy without the cPanel button.
+     */
+    public function repository(Request $request, int $index, string $action)
+    {
+        abort_unless(in_array($action, ['clean', 'deploy'], true), 404);
+        $repo = $this->repositories()[$index]['path'] ?? abort(404);
+        @set_time_limit(600);
+        ignore_user_abort(true);
+        $branch = trim($this->shell(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $repo)[1]) ?: 'main';
+        $steps = [['git', 'fetch', 'origin', '--prune'], ['git', 'reset', '--hard', $action === 'deploy' ? 'origin/' . $branch : 'HEAD'], ['git', 'clean', '-fd']];
+        $output = '';
+        $exit = 0;
+        foreach ($steps as $command) {
+            [$code, $text] = $this->shell($command, $repo);
+            $output .= '$ ' . implode(' ', $command) . "\n" . $text . "\n";
+            $exit = $exit ?: $code;
+        }
+        if ($action === 'deploy' && $exit === 0) {
+            $tasks = $this->deploymentTasks($repo);
+            if (!$tasks) {
+                $output .= "No deployment tasks found in .cpanel.yml\n";
+                $exit = 1;
+            } else {
+                [$exit, $text] = $this->shell(['/bin/bash', '-c', implode("\n", $tasks)], $repo, 540);
+                $output .= "$ .cpanel.yml tasks\n" . $text;
+            }
+        }
+        return response()->json(['exit' => $exit, 'output' => mb_substr(trim($output), -12000)]);
+    }
+
+    /** Git clones made by cPanel's Git Version Control (~/repositories/NAME). */
+    private function repositories(): array
+    {
+        $home = getenv('HOME') ?: (preg_match('~^(/home\d*/[^/]+)~', base_path(), $m) ? $m[1] : null);
+        if (!$home || !function_exists('proc_open')) return [];
+        $repos = [];
+        foreach (glob($home . '/repositories/*', GLOB_ONLYDIR) ?: [] as $path) {
+            if (!is_dir($path . '/.git')) continue;
+            [$code, $status] = $this->shell(['git', 'status', '--porcelain'], $path);
+            $repos[] = [
+                'name' => basename($path), 'path' => $path, 'available' => $code === 0,
+                'head' => trim($this->shell(['git', 'log', '-1', '--format=%h %s (%cr)'], $path)[1]) ?: null,
+                'changes' => array_values(array_filter(explode("\n", trim($status)))),
+                'has_cpanel_yml' => is_file($path . '/.cpanel.yml'),
+            ];
+        }
+        return $repos;
+    }
+
+    private function deploymentTasks(string $repo): array
+    {
+        $tasks = [];
+        $inTasks = false;
+        foreach (@file($repo . '/.cpanel.yml') ?: [] as $line) {
+            if (preg_match('/^\s*tasks:\s*$/', $line)) { $inTasks = true; continue; }
+            if ($inTasks && preg_match('/^\s*-\s+(.+?)\s*$/', $line, $m)) $tasks[] = $m[1];
+        }
+        return $tasks;
+    }
+
+    /** @return array{0:int, 1:string} exit code and combined output */
+    private function shell(array $command, string $cwd, int $timeout = 120): array
+    {
+        try {
+            $process = new Process($command, $cwd, ['HOME' => getenv('HOME') ?: dirname($cwd, 2), 'GIT_TERMINAL_PROMPT' => '0'], null, $timeout);
+            $process->run();
+            return [$process->getExitCode() ?? 1, $process->getOutput() . $process->getErrorOutput()];
+        } catch (Throwable $e) {
+            return [1, $e->getMessage()];
+        }
     }
 
     public function run(Request $request, string $step)

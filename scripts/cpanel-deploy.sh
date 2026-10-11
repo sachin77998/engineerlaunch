@@ -3,10 +3,11 @@
 # Every step runs even if an earlier one fails, and all output goes to storage/logs/deploy.log
 # (readable by the owner at /admin/deploy-log and on /admin/maintenance).
 
-APP="${1:?usage: cpanel-deploy.sh /path/to/laravel}"
+APP="${1:?usage: cpanel-deploy.sh /path/to/laravel [seed]}"
+MODE="${2:-deploy}"
 LOG="$APP/storage/logs/deploy.log"
 mkdir -p "$APP/storage/logs"
-echo "Deployment started $(date '+%Y-%m-%d %H:%M:%S')" > "$LOG"
+if [ "$MODE" = "deploy" ]; then echo "Deployment started $(date '+%Y-%m-%d %H:%M:%S')" > "$LOG"; fi
 
 # The PHP CLI path differs between hosts; use the first one that exists (newest version first).
 PHP="${PHP_BIN:-}"
@@ -30,11 +31,23 @@ run() {
     echo "-- exit code $?" >> "$LOG"
 }
 
-run optimize:clear
-run env:ensure
-run optimize:clear
-run portal:prepare-discovery
-run migrate --force
+if [ "$MODE" = "deploy" ]; then
+    run optimize:clear
+    run env:ensure
+    run optimize:clear
+    run portal:prepare-discovery
+    run migrate --force
+    run optimize:clear
+    # Seeding takes minutes to hours. Run it detached so this cPanel deployment finishes in seconds;
+    # a deployment that is still "in progress" keeps cPanel's "Deploy HEAD Commit" button disabled.
+    echo "" >> "$LOG"
+    echo "Code deployed $(date '+%Y-%m-%d %H:%M:%S'); seeding continues in the background (see below)." >> "$LOG"
+    nohup /bin/bash "$0" "$APP" seed > /dev/null 2>&1 < /dev/null &
+    exit 0
+fi
+
+echo "" >> "$LOG"
+echo "Background seeding started $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"
 run db:seed --class=TechnologySeeder --force
 run db:seed --class=OwnerAccountSeeder --force
 run db:seed --force
@@ -44,5 +57,5 @@ run db:seed --class=ItCompanyDirectorySeeder --force
 run optimize:clear
 
 echo "" >> "$LOG"
-echo "Deployment finished $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"
+echo "Background seeding finished $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"
 exit 0

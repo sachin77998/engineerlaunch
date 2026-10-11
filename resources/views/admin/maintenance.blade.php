@@ -22,6 +22,18 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
         <a class="mt-btn" href="{{ route('sectors.index') }}" target="_blank">Open Companies by Sector ↗</a>
         <a class="mt-btn" href="{{ route('admin.deploy-log') }}" target="_blank">Raw deployment log ↗</a>
     </div>
+    <div class="mt-step" style="grid-template-columns:1fr" id="mt-repos">
+        <div><strong>GitHub repository on this server</strong><br>
+        @forelse($repos as $i => $repo)
+            <small><b>{{ $repo['name'] }}</b> · {{ $repo['head'] ?: 'unknown commit' }} · {{ $repo['has_cpanel_yml'] ? '.cpanel.yml found' : '.cpanel.yml MISSING' }} ·
+            @if($repo['changes'])<span style="color:#b42318">{{ count($repo['changes']) }} local change(s) disable cPanel's Deploy button: {{ implode(', ', array_slice($repo['changes'], 0, 5)) }}</span>@else clean @endif</small>
+            <div class="mt-actions" style="margin:8px 0 0"><button class="mt-btn" type="button" data-repo="{{ $i }}" data-action="clean">Remove local changes</button><button class="primary" type="button" data-repo="{{ $i }}" data-action="deploy">Pull from GitHub &amp; deploy</button></div>
+        @empty
+            <small>No cPanel repository found under ~/repositories, or this server does not allow running git from PHP. Use cPanel → Git Version Control instead.</small>
+        @endforelse
+        </div>
+        <pre class="mt-out" id="mt-repo-out"></pre>
+    </div>
     @foreach($steps as $key => [$label, $command, $arguments])
         <div class="mt-step" data-step="{{ $key }}">
             <span class="mt-dot"></span>
@@ -67,6 +79,16 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
             return 'down';
         }
     }
+    document.querySelectorAll('[data-repo]').forEach(b => b.addEventListener('click', async () => {
+        const out = document.getElementById('mt-repo-out');
+        b.disabled = true; out.textContent = 'Working… (deploy can take a minute)';
+        try {
+            const res = await fetch('{{ url('/admin/maintenance/repository') }}/' + b.dataset.repo + '/' + b.dataset.action, {method: 'POST', headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}});
+            const data = await res.json();
+            out.textContent = (data.exit === 0 ? 'Done. Reload this page to see the new state.\n\n' : 'Finished with errors.\n\n') + data.output;
+        } catch (e) { out.textContent = 'The server did not respond (' + e + '). Check the deployment log below in a minute.'; }
+        b.disabled = false;
+    }));
     document.querySelectorAll('[data-run]').forEach(b => b.addEventListener('click', () => run(b.dataset.run)));
     document.getElementById('mt-all').addEventListener('click', async e => {
         e.target.disabled = true;
