@@ -22,3 +22,25 @@ yarn-error.log
 
 # Local deployment snapshots and account recovery files
 /release/
+
+# Files the cPanel server creates by itself inside the repository checkout. Untracked files make cPanel report
+# "uncommitted changes" and disable "Deploy HEAD Commit", so they must be ignored.
+error_log
+*.error_log
+php_errorlog
+.user.ini
+/php.ini
+/php.ini.*
+nohup.out
+*.log
+/.well-known/
+/cgi-bin/
+/.htaccess
+/.ftpquota
+/.trash/
+/.cagefs/
+/tmp/
+.DS_Store
+Thumbs.db
+/storage/app/env-backups/
+/bootstrap/cache/*.php
