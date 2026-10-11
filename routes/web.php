@@ -61,6 +61,7 @@ Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('heal
 Route::get('/jobs/{job:slug}',[CandidateJobController::class,'show'])->name('jobs.show');
 Route::get('/opportunities/{job}',[CandidateJobController::class,'show'])->whereNumber('job')->name('opportunities.show');
 Route::post('/jobs/{job:slug}/apply',[CandidateJobController::class,'apply'])->middleware('auth')->name('jobs.apply');
+Route::get('/my-applications',[\App\Http\Controllers\ApplicationTrackerController::class,'index'])->middleware('auth')->name('applications.track');
 Route::patch('/applications/{application}/withdraw',[CandidateJobController::class,'withdraw'])->middleware('auth')->name('applications.withdraw');
 
 Route::get('/learn', [LearningController::class, 'index'])->name('learning.index');
@@ -72,6 +73,7 @@ Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice');
 
 Route::get('/ai/chat', function () {return view('ai.chat');})->name('ai.chat');
+Route::get('/recommendations/jobs', [\App\Http\Controllers\RecommendationController::class, 'jobs'])->middleware('throttle:60,1')->name('recommendations.jobs');
 Route::post('/assistant/jobs', [\App\Http\Controllers\JobAssistantController::class, 'recommend'])->name('assistant.jobs');
 
 Route::post('/practice/run', [PracticeController::class, 'run'])->middleware(['auth', 'throttle:20,1'])->name('practice.run');

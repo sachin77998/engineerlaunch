@@ -937,6 +937,7 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
             </div>
         </div>
     </section>
+@include('partials.recommended-jobs')
 <section class="jobs-section" id="jobs">
 @include('partials.page-tabs',['tabs'=>[['All Jobs',route('home').'#jobs',true],['Jobs Posted by HR',route('jobs.hr'),false]]])
     <div class="job-toolbar">

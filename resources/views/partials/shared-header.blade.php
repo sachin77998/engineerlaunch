@@ -81,7 +81,7 @@
             @elseif($isEmployer)
               <a href="{{ route('employer.dashboard') }}">HR Dashboard</a><a href="{{ route('employer.assistant', 'job') }}">Post a Job (Assistant)</a><a href="{{ route('employer.assistant', 'company') }}">Company Profile (Assistant)</a><a href="{{ route('employer.jobs.create') }}">Detailed Job Form</a>
             @else
-              <a href="{{ route('dashboard') }}">My Dashboard</a><a href="{{ route('candidate.assistant') }}">Update Profile (Assistant)</a>
+              <a href="{{ route('dashboard') }}">My Dashboard</a><a href="{{ route('applications.track') }}">Track My Applications</a><a href="{{ route('candidate.assistant') }}">Update Profile (Assistant)</a>
             @endif
             <hr><form method="post" action="{{ route('logout') }}">@csrf<button type="submit">Logout</button></form>
           @else

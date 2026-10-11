@@ -37,6 +37,9 @@ class CandidateJobController extends Controller
             DB::table('application_status_history')->insert(['job_application_id' => $application->id, 'changed_by' => $r->user()->id, 'from_status' => $from, 'to_status' => 'applied', 'note' => 'Application submitted by candidate.', 'created_at' => now()]);
             foreach (($data['answers'] ?? []) as $question => $answer) DB::table('application_answers')->updateOrInsert(['job_application_id' => $application->id, 'question_id' => $question], ['answer' => $answer]);
         });
+        if (\Illuminate\Support\Facades\Schema::hasTable('interest_events')) {
+            DB::table('interest_events')->insert(['user_id' => $r->user()->id, 'kind' => 'apply', 'value' => mb_substr($job->title, 0, 190), 'job_id' => $job->id, 'created_at' => now()]);
+        }
         return back()->with('success', 'Application submitted successfully.');
     }
     public function withdraw(Request $r, JobApplication $application)

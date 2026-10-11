@@ -66,4 +66,5 @@
 @push('scripts')
 <script>document.querySelectorAll('[data-application-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-application-filter]').forEach(tab=>tab.classList.remove('active'));button.classList.add('active');let visible=0;document.querySelectorAll('[data-application-status]').forEach(card=>{const show=button.dataset.applicationFilter==='all'||card.dataset.applicationStatus===button.dataset.applicationFilter;card.hidden=!show;if(show)visible++});document.getElementById('no-status-applications').hidden=visible>0;}));</script>
 @endpush
+@include('partials.recommended-jobs',['heading'=>'Jobs recommended for you'])
 @endsection

@@ -54,6 +54,7 @@ run db:seed --force
 # Run explicitly too, in case an earlier seeder in DatabaseSeeder failed.
 run db:seed --class=SectorCatalogSeeder --force
 run db:seed --class=ItCompanyDirectorySeeder --force
+run recommendations:build-skill-graph
 run optimize:clear
 
 echo "" >> "$LOG"

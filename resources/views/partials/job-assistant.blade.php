@@ -24,60 +24,92 @@
 <section class="ja-panel" id="ja-panel" role="dialog" aria-label="Job assistant" hidden>
     <header class="ja-head"><strong>Ascendia Job Assistant</strong><button type="button" id="ja-reset" title="Start over" aria-label="Start over">↺</button><button type="button" id="ja-close" aria-label="Close">×</button></header>
     <div class="ja-log" id="ja-log" aria-live="polite"></div>
-    <form class="ja-form" id="ja-form"><input id="ja-input" autocomplete="off" maxlength="600" placeholder="e.g. B.Tech CSE, Java, Spring Boot" aria-label="Your answer"><button type="submit">Send</button></form>
+    <form class="ja-form" id="ja-form"><input id="ja-input" autocomplete="off" maxlength="600" placeholder="e.g. B.Tech CSE" aria-label="Your answer"><button type="submit">Send</button></form>
 </section>
 <script>
 (() => {
     const panel = document.getElementById('ja-panel'), launch = document.getElementById('ja-launch'), log = document.getElementById('ja-log');
     const form = document.getElementById('ja-form'), input = document.getElementById('ja-input');
     const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    let step = 'skills', skillsText = '', started = false;
+    const thisYear = new Date().getFullYear();
+    let step = 'education', profile = {}, started = false;
 
     const say = (html, who = 'bot') => { const div = document.createElement('div'); div.className = 'ja-msg ' + (who === 'bot' ? 'ja-bot' : 'ja-me'); div.innerHTML = html; log.appendChild(div); log.scrollTop = log.scrollHeight; return div; };
-    const start = () => {
-        log.innerHTML = ''; step = 'skills'; skillsText = '';
-        say('Hi! Tell me what you have studied or worked on, and I will show matching jobs.\n\nExamples: <em>Java, Spring Boot</em> · <em>AutoCAD, SolidWorks</em> · <em>STAAD Pro</em> · <em>PLC, SCADA</em> · <em>CNC / VMC operator</em> · <em>Tally, GST</em>');
-        input.placeholder = 'e.g. B.Tech CSE, Java, Spring Boot'; input.focus();
+    const chips = list => '<div class="ja-chips" style="margin-top:8px">' + list.map(([label, value]) => `<button type="button" data-answer="${esc(value)}">${esc(label)}</button>`).join('') + '</div>';
+    const ask = (html, placeholder, options) => { say(html + (options ? chips(options) : '')); input.placeholder = placeholder; input.focus(); };
+
+    const QUESTIONS = {
+        education: () => ask('Hi! I will match you with live openings.\n\n<strong>What did you study?</strong>', 'e.g. B.Tech CSE, Diploma Mechanical, B.Com',
+            [['B.Tech / B.E. CSE', 'B.Tech CSE'], ['B.Tech Mechanical', 'B.Tech Mechanical'], ['B.Tech ECE / EEE', 'B.Tech ECE'], ['Diploma / ITI', 'Diploma'], ['B.Com / MBA', 'B.Com'], ['Skip', '-']]),
+        passout: () => ask('<strong>Which year did you pass out?</strong> (your batch)', 'e.g. 2022',
+            [[String(thisYear), thisYear], [String(thisYear - 1), thisYear - 1], [String(thisYear - 2), thisYear - 2], [String(thisYear - 4), thisYear - 4], ['Still studying', thisYear + 1], ['Skip', '-']]),
+        experience: () => {
+            const guess = profile.passout_year ? Math.max(0, thisYear - profile.passout_year) : null;
+            ask('<strong>How many years of work experience do you have?</strong>' + (guess !== null ? `\nThe ${profile.passout_year} batch is about ${guess} year(s) out of college.` : ''), 'e.g. 0 for fresher, 3',
+                [['Fresher', 0], ['1 year', 1], ['2 years', 2], ['3 years', 3], ['4-5 years', 4], ['6+ years', 6]]);
+        },
+        skills: () => ask('<strong>Which skills do you have?</strong> Languages, tools or machines you work with.\n\nExamples: <em>PHP, Laravel</em> · <em>Java, Spring Boot</em> · <em>C++</em> · <em>AutoCAD, SolidWorks</em> · <em>CNC / VMC operator</em> · <em>Tally, GST</em>', 'e.g. PHP, Laravel, MySQL'),
+        city: () => ask('<strong>Which city or state do you prefer?</strong>', 'e.g. Pune, Noida or any', [['Anywhere', 'any'], ['Remote', 'remote'], ['Bengaluru', 'Bengaluru'], ['Pune', 'Pune'], ['Gurugram', 'Gurugram']]),
     };
-    async function recommend(location) {
-        const typing = say('Looking for matching jobs…');
+    const ORDER = ['education', 'passout', 'experience', 'skills', 'city'];
+
+    const start = () => { log.innerHTML = ''; profile = {}; step = 'education'; QUESTIONS.education(); };
+    const next = () => { step = ORDER[ORDER.indexOf(step) + 1] || 'refine'; if (QUESTIONS[step]) QUESTIONS[step](); else recommend(); };
+
+    function answer(text) {
+        const skip = text === '-' || /^skip$/i.test(text);
+        if (step === 'education') { if (!skip) profile.education = text; }
+        else if (step === 'passout') { const year = parseInt(text, 10); if (!skip && year > 1970 && year < 2040) profile.passout_year = year; }
+        else if (step === 'experience') { const years = /fresher/i.test(text) ? 0 : parseInt(text, 10); if (!isNaN(years)) profile.experience = years; }
+        else if (step === 'skills') { profile.text = text; }
+        else if (step === 'city') { profile.location = /^(any|all|no|none|anywhere)$/i.test(text) ? '' : text; }
+        else if (step === 'refine') { profile.text = text; recommend(); return; }
+        else if (step === 'refine-city') { profile.location = /^(any|all|no|none|anywhere)$/i.test(text) ? '' : text; recommend(); return; }
+        next();
+    }
+
+    const jobCard = j => `<a class="ja-job" href="${esc(j.url)}"><strong>${j.match ? `<span style="float:right;color:#0b2545">${j.match}%</span>` : ''}${esc(j.title)}</strong><span>${esc(j.company || '')}${j.location ? ' · ' + esc(j.location) : ''}${j.posted ? ' · ' + esc(j.posted) : ''}${j.via ? ' · via ' + esc(j.via) : ''}</span>${j.reasons?.length ? `<span style="display:block;color:#7a5600">${j.reasons.map(esc).join(' · ')}</span>` : ''}</a>`;
+
+    async function recommend() {
+        step = 'refine';
+        const typing = say('Matching your profile with live openings…');
+        const body = {text: profile.text || profile.education || 'jobs', location: profile.location || '', education: profile.education || null, passout_year: profile.passout_year || null, experience: profile.experience ?? null};
         try {
-            const res = await fetch('{{ route('assistant.jobs') }}', {method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'}, body: JSON.stringify({text: skillsText, location})});
+            const res = await fetch('{{ route('assistant.jobs') }}', {method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'}, body: JSON.stringify(body)});
             const data = await res.json(); typing.remove();
+            if (window.AscSignals && profile.text) AscSignals.add('assistant', profile.text);
+            if (data.career_note) say('🎓 ' + esc(data.career_note));
             if (data.skills?.length) {
-                say('I found these skills. Tap one to see all its openings:<div class="ja-chips" style="margin-top:8px">' +
-                    data.skills.map(s => `<a href="${esc(s.url)}">${esc(s.skill)} · ${Number(s.count).toLocaleString()}</a>`).join('') + '</div>');
-            } else {
-                say('I did not recognise a specific skill, so I searched your words directly.');
+                say('Skills I found (tap to see every opening):' + '<div class="ja-chips" style="margin-top:8px">' +
+                    data.skills.map(s => `<a href="${esc(s.url)}">${esc(s.skill)} · ${Number(s.count).toLocaleString()}</a>`).join('') + '</div>' +
+                    (data.related_skills?.length ? `<div style="margin-top:6px;font-size:12.5px;color:#5b6b82">Similar skills employers ask for: ${data.related_skills.map(esc).join(', ')}</div>` : ''));
             }
-            if (data.jobs?.length) {
-                say(`<strong>${Number(data.total).toLocaleString()} matching openings${location ? ' in ' + esc(location) : ''}.</strong> Latest:` +
-                    data.jobs.map(j => `<a class="ja-job" href="${esc(j.url)}"><strong>${esc(j.title)}</strong><span>${esc(j.company || '')}${j.location ? ' · ' + esc(j.location) : ''}${j.posted ? ' · ' + esc(j.posted) : ''}${j.via ? ' · via ' + esc(j.via) : ''}</span></a>`).join('') +
-                    `<a class="ja-all" href="${esc(data.search_url)}">See all ${Number(data.total).toLocaleString()} jobs →</a>`);
+            const best = data.recommended?.length ? data.recommended : data.jobs;
+            if (best?.length) {
+                say(`<strong>Best matches for you${body.location ? ' in ' + esc(body.location) : ''}</strong> (ranked by skills, experience and freshness):` + best.map(jobCard).join('') +
+                    (data.total ? `<a class="ja-all" href="${esc(data.search_url)}">See all ${Number(data.total).toLocaleString()} matching jobs →</a>` : ''));
             } else {
-                say(location ? `No openings in ${esc(location)} right now. Try another city or leave it blank.` : 'No live openings match yet. Try a related skill or a broader term.');
+                say(body.location ? `No openings in ${esc(body.location)} right now. Try another city or anywhere.` : 'No live openings match yet. Try a related skill or a broader term.');
             }
-            say('Want to refine? Type a city, or describe more skills.<div class="ja-chips" style="margin-top:8px"><button type="button" data-ja="city">Change city</button><button type="button" data-ja="skills">Different skills</button></div>');
-            step = 'refine';
+            say('Refine: type more skills, or' + chips([['Change city', '#city'], ['Change experience', '#experience'], ['Start over', '#restart']]));
         } catch (e) { typing.remove(); say('Sorry, something went wrong. Please try again.'); }
     }
+
     form.addEventListener('submit', e => {
         e.preventDefault(); const text = input.value.trim(); if (!text) return;
-        say(esc(text), 'me'); input.value = '';
-        if (step === 'skills') { skillsText = text; step = 'city'; say('Great. Which city or state do you prefer? Type <em>any</em> to see all locations.'); input.placeholder = 'e.g. Pune, Ludhiana, Bengaluru or any'; return; }
-        if (step === 'city' || step === 'refine-city') { recommend(/^(any|all|no|none|anywhere)$/i.test(text) ? '' : text); return; }
-        // In refine mode a short single word is treated as a city, otherwise as new skills.
-        if (step === 'refine') { skillsText = text; recommend(''); }
+        say(esc(text), 'me'); input.value = ''; answer(text);
     });
     log.addEventListener('click', e => {
-        const action = e.target.closest('[data-ja]')?.dataset.ja; if (!action) return;
-        if (action === 'city') { step = 'refine-city'; say('Which city or state?'); input.placeholder = 'e.g. Noida'; }
-        if (action === 'skills') { step = 'skills'; say('Tell me your skills or experience.'); input.placeholder = 'e.g. Python, Django'; }
-        input.focus();
+        const button = e.target.closest('[data-answer]'); if (!button) return;
+        const value = button.dataset.answer;
+        if (value === '#city') { step = 'refine-city'; ask('Which city or state?', 'e.g. Noida'); return; }
+        if (value === '#experience') { step = 'experience'; QUESTIONS.experience(); ORDER.splice(0); ORDER.push('experience', 'refine'); return; }
+        if (value === '#restart') { ORDER.splice(0, ORDER.length, 'education', 'passout', 'experience', 'skills', 'city'); start(); return; }
+        say(esc(button.textContent), 'me'); answer(value);
     });
     launch.addEventListener('click', () => { panel.hidden = false; launch.hidden = true; if (!started) { started = true; start(); } input.focus(); });
     document.getElementById('ja-close').addEventListener('click', () => { panel.hidden = true; launch.hidden = false; });
-    document.getElementById('ja-reset').addEventListener('click', start);
+    document.getElementById('ja-reset').addEventListener('click', () => { ORDER.splice(0, ORDER.length, 'education', 'passout', 'experience', 'skills', 'city'); start(); });
     if (location.hash === '#assistant') launch.click();
 })();
 </script>
