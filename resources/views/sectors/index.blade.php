@@ -45,12 +45,33 @@
 .sd-src{display:inline-block;margin-left:4px;padding:0 5px;border-radius:4px;background:#f1f5f9;font-size:10px;color:#64748b}
 .sd-more{display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none}
 .sd-crumb{font-size:13px;color:var(--muted);margin-bottom:8px}.sd-crumb a{color:var(--blue);text-decoration:none}
+.cat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.cat-card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;color:var(--ink);text-decoration:none;transition:transform .15s,box-shadow .15s,border-color .15s}
+.cat-card:hover,.cat-card:focus-visible{transform:translateY(-3px);border-color:#f4b400;box-shadow:0 14px 30px rgba(11,37,69,.14);outline:0}
+.cat-visual{position:relative;height:120px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#f4b400));background-size:cover;background-position:center}
+.cat-card.sub .cat-visual{height:96px}
+.cat-icon{position:absolute;left:14px;bottom:-22px;display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:#fff;box-shadow:0 6px 16px rgba(11,37,69,.18);font-size:26px;font-weight:900;color:var(--accent)}
+.cat-count{position:absolute;right:12px;top:12px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.92);color:#0b2545;font-size:12px;font-weight:800}
+.cat-body{display:flex;flex-direction:column;gap:8px;padding:30px 16px 16px;flex:1}
+.cat-body h2{margin:0;font-size:17px;line-height:1.3;color:#0b2545}.cat-meta{margin:0;font-size:12.5px;color:var(--muted)}
+.cat-chips{display:flex;flex-wrap:wrap;gap:5px}.cat-chips span{padding:3px 8px;border-radius:999px;background:#f4f6fb;font-size:11.5px;color:#334155}
+.cat-logos{display:flex;gap:6px;margin-top:auto;padding-top:4px}
+.cat-companies{list-style:none;margin:0;padding:0;display:grid;gap:6px}.cat-companies li{display:flex;align-items:center;gap:8px;font-size:13px;color:#1e2f4d}
+.sl-logo{position:relative;display:inline-grid;place-items:center;flex:none;width:40px;height:40px;border-radius:10px;overflow:hidden;background:hsl(var(--hue) 55% 92%);color:hsl(var(--hue) 55% 30%);font-size:13px;font-weight:800;border:1px solid #e2e8f2}
+.sl-logo.sm{width:28px;height:28px;border-radius:8px;font-size:10px}.sl-logo.lg{width:64px;height:64px;border-radius:16px;font-size:20px}
+.sl-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:3px;box-sizing:border-box}
+.sd-hero{display:flex;align-items:center;gap:16px;padding:18px;margin-bottom:16px;border-radius:16px;color:#fff;background:linear-gradient(135deg,var(--accent,#0b2545),#13315c);background-size:cover;background-position:center}
+.sd-hero h1{margin:0;font-size:26px;color:#fff}.sd-hero p{margin:4px 0 0;color:#e2e8f0}.sd-hero .cat-icon{position:static;flex:none}
+.sd-pager{margin-top:16px}
+@media(max-width:1250px){.cat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.cat-grid{grid-template-columns:minmax(0,1fr)}}
 .sd-empty{padding:30px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px}
 @media(max-width:1100px){.sd{grid-template-columns:240px minmax(0,1fr)}.sd-right{grid-column:1/-1;position:static;max-height:none}}
 @media(max-width:760px){.sd{grid-template-columns:minmax(0,1fr)}.sd-side{position:static;max-height:none}.sd-nav{display:flex;overflow-x:auto;gap:4px}.sd-nav a{white-space:nowrap}}
 </style>@endpush
 @php
-    $base = $sector ? route('sectors.show', $sector->slug) : route('sectors.index');
+    $base = $subcategory ? route('sectors.subcategory', [$sector->slug, $subcategory->slug]) : ($sector ? route('sectors.show', $sector->slug) : route('sectors.index'));
+    $navGroups = app(\App\Services\SectorDirectory::class)->groups();
 @endphp
 @section('content')
 @include('partials.page-tabs',['tabs'=>[['Companies by Sector',route('sectors.index'),true],['Industrial Areas & Tech Parks',route('sectors.index').'#hubs',false]]])
@@ -71,41 +92,58 @@
             <datalist id="sd-areas">@foreach($locations['areas'] as $v)<option value="{{ $v }}">@endforeach</datalist>
         </form>
         <nav class="sd-box sd-nav">
-            <h3>Sectors</h3>
-            <a href="{{ route('sectors.index', $filters) }}" class="{{ $sector ? '' : 'on' }}"><span class="sd-sym">ALL</span>All sectors</a>
-            @foreach($tree as $item)
-                <a href="{{ route('sectors.show', [$item->slug] + $filters) }}" class="{{ $sector?->id === $item->id ? 'on' : '' }}"><span class="sd-sym">{{ $item->symbol }}</span>{{ $item->name }}<span class="sd-count">{{ $item->companies_count }}</span></a>
+            <h3>Categories</h3>
+            <a href="{{ route('sectors.index') }}" class="{{ ($card || $sector) ? '' : 'on' }}"><span class="sd-sym">ALL</span>All categories</a>
+            @foreach($navGroups as $item)
+                <a href="{{ route('sectors.group', $item->slug) }}" class="{{ $card && $card->slug === $item->slug ? 'on' : '' }}"><span class="sd-sym">{{ $item->icon ?: $item->symbol }}</span>{{ $item->name }}<span class="sd-count">{{ $item->companies_count }}</span></a>
             @endforeach
         </nav>
     </aside>
 
     {{-- Centre: categorised companies --}}
     <main>
-        @if($sector)
-            <nav class="sd-crumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a> › <a href="{{ route('sectors.index') }}">Companies by Sector</a> › <span>{{ $sector->name }}</span></nav>
+        @php
+            $sectorSlugs = $tree->pluck('slug', 'id');
+            $groupFor = fn ($child) => $navGroups->first(fn ($g) => $g->subcategories->contains('id', $child->id));
+        @endphp
+        @if($subcategory)
+            @php $owner = $groupFor($subcategory); @endphp
+            <nav class="sd-crumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a> › <a href="{{ route('sectors.index') }}">Companies by Sector</a> › @if($owner)<a href="{{ route('sectors.group', $owner->slug) }}">{{ $owner->name }}</a>@else<a href="{{ route('sectors.show', $sector->slug) }}">{{ $sector->name }}</a>@endif › <span>{{ $subcategory->name }}</span></nav>
+            <div class="sd-hero" style="--accent:{{ $owner->color ?? '#0b2545' }}">
+                <span class="cat-icon">{{ $owner->icon ?? '🏭' }}</span>
+                <div><h1>{{ $subcategory->name }}</h1><p>{{ number_format($companies->total()) }} {{ \Illuminate\Support\Str::plural('company', $companies->total()) }} · part of {{ $sector->name }}</p></div>
+            </div>
+            @if($companies->isEmpty())<div class="sd-empty">No companies in {{ $subcategory->name }} match these filters.</div>@endif
+            <div class="sd-grid">@foreach($companies as $company)@include('sectors.partials.card', ['company' => $company])@endforeach</div>
+            <div class="sd-pager">{{ $companies->links() }}</div>
+        @elseif($sector && $groups->isNotEmpty())
+            <nav class="sd-crumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a> › <a href="{{ route('sectors.index') }}">Companies by Sector</a> › <a href="{{ route('sectors.show', $sector->slug) }}">{{ $sector->name }}</a> › <span>Filtered</span></nav>
             <div class="sd-head"><span class="sd-sym">{{ $sector->symbol }}</span><h1>{{ $sector->name }}</h1></div>
-            @if(!empty($flow))
-                <div class="sd-flow">
-                    @foreach($flow as $stage)
-                        <div class="sd-stage"><b>{{ $stage['name'] }}</b><small>{{ implode(' · ', $stage['departments']) }}</small>
-                            @foreach($stage['roles'] as $role)<a href="{{ route('sectors.show', [$sector->slug, 'role' => $role] + \Illuminate\Support\Arr::except($filters, 'role')) }}" class="{{ ($filters['role'] ?? '') === $role ? 'on' : '' }}">{{ $role }}</a>@endforeach
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+            @include('sectors.partials.flow')
             @if($groups->count() > 1)
                 <div class="sd-pills">@foreach($groups as $group)<a href="#{{ $group->category->slug }}">{{ $group->category->name }} · {{ $group->companies->count() }}</a>@endforeach</div>
             @endif
-            @forelse($groups as $group)
+            @foreach($groups as $group)
                 <section class="sd-group" id="{{ $group->category->slug }}">
-                    <h2>{{ $group->category->name }} <small>{{ $group->companies->count() }} companies</small></h2>
-                    @php $expanded = request('all') === $group->category->slug; @endphp
-                    <div class="sd-grid">@foreach($expanded ? $group->companies : $group->companies->take(24) as $company)@include('sectors.partials.card', ['company' => $company])@endforeach</div>
-                    @if(!$expanded && $group->companies->count() > 24)<a class="sd-more" href="{{ route('sectors.show', [$sector->slug, 'all' => $group->category->slug] + $filters) }}#{{ $group->category->slug }}">Show all {{ $group->companies->count() }} companies</a>@endif
+                    <h2><a href="{{ route('sectors.subcategory', [$sector->slug, $group->category->slug]) }}">{{ $group->category->name }}</a> <small>{{ $group->companies->count() }} companies</small></h2>
+                    <div class="sd-grid">@foreach($group->companies->take(24) as $company)@include('sectors.partials.card', ['company' => $company])@endforeach</div>
+                    @if($group->companies->count() > 24)<a class="sd-more" href="{{ route('sectors.subcategory', [$sector->slug, $group->category->slug] + $filters) }}">Show all {{ $group->companies->count() }} companies</a>@endif
                 </section>
-            @empty
-                <div class="sd-empty">No companies in {{ $sector->name }} match these filters.</div>
-            @endforelse
+            @endforeach
+        @elseif($sector && !$card)
+            <div class="sd-empty">No companies in {{ $sector->name }} match these filters.</div>
+        @elseif($card)
+            <nav class="sd-crumb" aria-label="Breadcrumb"><a href="{{ route('home') }}">Home</a> › <a href="{{ route('sectors.index') }}">Companies by Sector</a> › <span>{{ $card->name }}</span></nav>
+            <div class="sd-hero" style="--accent:{{ $card->color }};@if($card->image)background-image:linear-gradient(90deg,rgba(11,37,69,.92),rgba(11,37,69,.55)),url('{{ $card->image }}')@endif">
+                <span class="cat-icon">{{ $card->icon ?: $card->symbol }}</span>
+                <div><h1>{{ $card->name }}</h1><p>{{ $card->subcategories->count() }} categories · {{ number_format($card->companies_count) }} companies · {{ number_format($card->openings_count) }} open jobs</p></div>
+            </div>
+            @include('sectors.partials.flow')
+            <div class="cat-grid">
+                @foreach($card->subcategories->sortByDesc('companies_count') as $child)
+                    @include('sectors.partials.subcategory-card', ['child' => $child, 'sectorSlug' => $sectorSlugs[$child->parent_id] ?? $sector?->slug, 'icon' => $card->icon ?: $card->symbol, 'accent' => $card->color])
+                @endforeach
+            </div>
         @elseif($results !== null)
             <div class="sd-head"><h1>{{ $results->count() }} {{ \Illuminate\Support\Str::plural('company', $results->count()) }} found</h1></div>
             @if($results->isEmpty())<div class="sd-empty">No company, brand or plant matches these filters.</div>@endif
@@ -116,19 +154,7 @@
             @endforeach
         @else
             <div class="sd-head"><h1>Companies by Sector</h1></div>
-            <div class="sd-tiles">
-                @foreach($tree as $item)
-                    <div class="sd-tile">
-                        <a class="sd-tile-head" href="{{ route('sectors.show', $item->slug) }}"><span class="sd-sym">{{ $item->symbol }}</span><strong>{{ $item->name }}</strong><span class="sd-count">{{ $item->companies_count }}</span></a>
-                        @foreach($item->children as $child)
-                            <div class="sd-sub">
-                                <a class="sd-subname" href="{{ route('sectors.show', $item->slug) }}#{{ $child->slug }}">{{ $child->name }} <span class="sd-count">{{ $child->companies_count }}</span></a>
-                                <p>{{ implode(' · ', $child->preview ?? []) }}@if($child->companies_count > count($child->preview ?? [])) · +{{ $child->companies_count - count($child->preview ?? []) }} more @endif</p>
-                            </div>
-                        @endforeach
-                    </div>
-                @endforeach
-            </div>
+            <div class="cat-grid">@foreach($cards as $item)@include('sectors.partials.category-card', ['card' => $item])@endforeach</div>
             @if(isset($hubs) && $hubs->isNotEmpty())
                 <h2 class="sd-h2" id="hubs">Industrial areas &amp; tech parks</h2>
                 <div class="sd-hubs">
@@ -137,7 +163,7 @@
                     @endforeach
                 </div>
             @endif
-            @if($tree->isEmpty())<div class="sd-empty">Sector listings are being prepared. Please check back shortly.</div>@endif
+            @if($cards->isEmpty())<div class="sd-empty">Sector listings are being prepared. Please check back shortly.</div>@endif
         @endif
     </main>
 
@@ -155,7 +181,7 @@
             @forelse($openings as $job)
                 <a class="sd-open" href="{{ $job->slug ? route('jobs.show', $job->slug) : route('opportunities.show', $job->id) }}"><strong>{{ $job->title }}</strong><span>{{ $job->company?->name }}@if($job->location) · {{ $job->location }}@endif @if($job->posted_at) · {{ $job->posted_at->diffForHumans(null, true) }}@endif @if($job->posting_source === 'job_board')<span class="sd-src">via {{ ucfirst($job->source) }}</span>@endif</span></a>
             @empty
-                <p class="sd-meta" style="margin:0">{{ $sector || $results !== null ? 'No live openings match yet. The daily batch refreshes company career pages.' : 'Choose a sector or search to see openings.' }}</p>
+                <p class="sd-meta" style="margin:0">{{ $sector || $card || $results !== null ? 'No live openings match yet. The daily batch refreshes company career pages.' : 'Choose a sector or search to see openings.' }}</p>
             @endforelse
         </div>
     </aside>

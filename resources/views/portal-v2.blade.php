@@ -937,6 +937,10 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
             </div>
         </div>
     </section>
+@foreach(['png','jpg','jpeg','webp'] as $ext)@if(is_file(public_path('images/home/ecosystem.'.$ext)))
+<section style="width:min(1100px,calc(100% - 32px));margin:24px auto;text-align:center"><img src="{{ asset('images/home/ecosystem.'.$ext) }}" alt="Connected apps and central integration" loading="lazy" style="width:100%;max-width:820px;border-radius:18px;box-shadow:0 18px 40px rgba(11,37,69,.25)"></section>
+@break
+@endif @endforeach
 @include('partials.recommended-jobs')
 <section class="jobs-section" id="jobs">
 @include('partials.page-tabs',['tabs'=>[['All Jobs',route('home').'#jobs',true],['Jobs Posted by HR',route('jobs.hr'),false]]])

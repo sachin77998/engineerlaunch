@@ -1,0 +1,1047 @@
+{
+ "sectors": [
+  {
+   "name": "Auto Components, Forging & Casting",
+   "symbol": "AC",
+   "subsectors": [
+    {
+     "name": "Gears & Transmissions",
+     "companies": [
+      {
+       "name": "Bharat Gears",
+       "website": "https://www.bharatgears.com",
+       "hq": "Faridabad",
+       "country": "India",
+       "products": "Automotive gears"
+      },
+      {
+       "name": "Shanthi Gears",
+       "website": "https://www.shanthigears.com",
+       "hq": "Coimbatore",
+       "country": "India",
+       "products": "Industrial gears and gearboxes"
+      },
+      {
+       "name": "Sona Comstar",
+       "website": "https://sonacomstar.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Differential gears, EV traction motors"
+      },
+      {
+       "name": "Elecon Engineering",
+       "website": "https://www.elecon.com",
+       "hq": "Vallabh Vidyanagar",
+       "country": "India",
+       "products": "Industrial gears"
+      },
+      {
+       "name": "ZF India",
+       "website": "https://www.zf.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Transmissions and driveline"
+      },
+      {
+       "name": "GKN Driveline India",
+       "website": "https://www.gknautomotive.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Driveshafts"
+      }
+     ]
+    },
+    {
+     "name": "Axles & Driveline",
+     "companies": [
+      {
+       "name": "Automotive Axles",
+       "website": "https://www.autoaxle.com",
+       "hq": "Mysuru",
+       "country": "India",
+       "products": "Rear drive axles"
+      },
+      {
+       "name": "American Axle & Manufacturing",
+       "website": "https://www.aam.com",
+       "hq": "Detroit, Michigan",
+       "country": "United States",
+       "products": "Axles and driveline"
+      },
+      {
+       "name": "Dana India",
+       "website": "https://www.dana.com",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Axles and driveshafts"
+      },
+      {
+       "name": "HL Mando Anand",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Steering and suspension"
+      }
+     ]
+    },
+    {
+     "name": "Painting & Surface Coating",
+     "companies": [
+      {
+       "name": "Kansai Nerolac Paints",
+       "website": "https://www.nerolac.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Automotive OEM paints"
+      },
+      {
+       "name": "Axalta Coating Systems India",
+       "website": "https://www.axalta.com",
+       "hq": "Vadodara",
+       "country": "India",
+       "products": "Automotive coatings"
+      },
+      {
+       "name": "Nippon Paint India",
+       "website": "https://www.nipponpaint.co.in",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Automotive and industrial paints"
+      },
+      {
+       "name": "BASF India (Coatings)",
+       "website": "https://www.basf.com/in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Automotive coatings"
+      },
+      {
+       "name": "Akzo Nobel India",
+       "website": "https://www.akzonobel.co.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Vehicle refinishes"
+      }
+     ]
+    },
+    {
+     "name": "Heat Treatment",
+     "companies": [
+      {
+       "name": "Bodycote",
+       "website": "https://www.bodycote.com",
+       "hq": "Macclesfield",
+       "country": "United Kingdom",
+       "products": "Heat treatment services"
+      },
+      {
+       "name": "Unitherm Engineers",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Heat treatment furnaces"
+      },
+      {
+       "name": "Super Heat Treaters",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Heat treatment job work"
+      }
+     ]
+    },
+    {
+     "name": "Material Procurement & Raw Materials",
+     "companies": [
+      {
+       "name": "Tata Steel",
+       "website": "https://www.tatasteel.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Automotive steel"
+      },
+      {
+       "name": "JSW Steel",
+       "website": "https://www.jsw.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Flat and long steel"
+      },
+      {
+       "name": "Jindal Steel & Power",
+       "website": "https://www.jindalsteelpower.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Steel"
+      },
+      {
+       "name": "Steel Authority of India (SAIL)",
+       "website": "https://www.sail.co.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Steel"
+      },
+      {
+       "name": "Mahindra Accelo",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Steel service centres for automotive"
+      }
+     ]
+    },
+    {
+     "name": "Aluminium Ingots & Alloys",
+     "companies": [
+      {
+       "name": "Hindalco Industries",
+       "website": "https://www.hindalco.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Aluminium ingots, rolled products"
+      },
+      {
+       "name": "National Aluminium Company (NALCO)",
+       "website": "https://nalcoindia.com",
+       "hq": "Bhubaneswar",
+       "country": "India",
+       "products": "Aluminium ingots"
+      },
+      {
+       "name": "Vedanta Aluminium",
+       "website": "https://www.vedantaaluminium.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Primary aluminium"
+      },
+      {
+       "name": "Gravita India",
+       "website": "https://www.gravitaindia.com",
+       "hq": "Jaipur",
+       "country": "India",
+       "products": "Recycled aluminium and lead"
+      },
+      {
+       "name": "Century Metal Recycling",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Aluminium alloy ingots"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Apparel, Textiles & Footwear",
+   "symbol": "AP",
+   "subsectors": [
+    {
+     "name": "Jackets & Winter Wear",
+     "companies": [
+      {
+       "name": "Monte Carlo Fashions",
+       "website": "https://www.montecarlo.in",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Jackets, sweaters, mufflers"
+      },
+      {
+       "name": "Duke Fashions",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Jackets and sportswear"
+      },
+      {
+       "name": "Woodland (Aero Club)",
+       "website": "https://www.woodlandworldwide.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Jackets and outdoor wear"
+      },
+      {
+       "name": "Cantabil Retail India",
+       "website": "https://www.cantabilinternational.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Jackets, blazers"
+      },
+      {
+       "name": "Oswal Woollen Mills",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Woollens and winter wear"
+      }
+     ]
+    },
+    {
+     "name": "Denims & Jeans",
+     "companies": [
+      {
+       "name": "Arvind Limited",
+       "website": "https://www.arvind.com",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Denim fabric"
+      },
+      {
+       "name": "Kewal Kiran Clothing",
+       "website": "https://www.kewalkiran.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Killer jeans"
+      },
+      {
+       "name": "Spykar Lifestyles",
+       "website": "https://www.spykar.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jeans"
+      },
+      {
+       "name": "Levi Strauss India",
+       "website": "https://www.levi.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Jeans"
+      },
+      {
+       "name": "Pepe Jeans India",
+       "website": "https://www.pepejeans.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jeans"
+      },
+      {
+       "name": "Mufti (Credo Brands)",
+       "website": "https://www.muftijeans.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jeans and casual wear"
+      }
+     ]
+    },
+    {
+     "name": "Shirts & T-Shirts",
+     "companies": [
+      {
+       "name": "Raymond",
+       "website": "https://www.raymond.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Shirts, suiting"
+      },
+      {
+       "name": "Aditya Birla Fashion and Retail",
+       "website": "https://www.abfrl.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Louis Philippe, Van Heusen, Allen Solly, Peter England"
+      },
+      {
+       "name": "Arvind Fashions",
+       "website": "https://www.arvindfashions.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Arrow, U.S. Polo Assn., Flying Machine"
+      },
+      {
+       "name": "Blackberrys",
+       "website": "https://www.blackberrys.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Shirts and formal wear"
+      },
+      {
+       "name": "Page Industries (Jockey)",
+       "website": "https://pageind.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "T-shirts and innerwear"
+      },
+      {
+       "name": "Bewakoof Brands",
+       "website": "https://www.bewakoof.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Printed T-shirts"
+      },
+      {
+       "name": "The Souled Store",
+       "website": "https://www.thesouledstore.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "T-shirts"
+      }
+     ]
+    },
+    {
+     "name": "Skirts, Dresses & Womenswear",
+     "companies": [
+      {
+       "name": "TCNS Clothing (W, Aurelia)",
+       "website": "https://wforwoman.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Kurtas, skirts, dresses"
+      },
+      {
+       "name": "Biba Apparels",
+       "website": "https://www.biba.in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Ethnic womenswear"
+      },
+      {
+       "name": "Go Fashion (Go Colors)",
+       "website": "https://gocolors.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Leggings, pants, skirts"
+      },
+      {
+       "name": "FabIndia",
+       "website": "https://www.fabindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Ethnic wear"
+      },
+      {
+       "name": "Max Fashion (Landmark Group)",
+       "website": "https://www.maxfashion.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Family fashion"
+      }
+     ]
+    },
+    {
+     "name": "Trousers & Pants",
+     "companies": [
+      {
+       "name": "Go Fashion (Go Colors)",
+       "website": "https://gocolors.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Bottom wear"
+      },
+      {
+       "name": "Spykar Lifestyles",
+       "website": "https://www.spykar.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Chinos and trousers"
+      },
+      {
+       "name": "Siyaram Silk Mills",
+       "website": "https://www.siyaram.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Trouser fabrics"
+      },
+      {
+       "name": "Raymond",
+       "website": "https://www.raymond.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Trousers"
+      }
+     ]
+    },
+    {
+     "name": "Coats, Blazers, Suits & Ties",
+     "companies": [
+      {
+       "name": "Raymond",
+       "website": "https://www.raymond.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Suits, blazers, ties"
+      },
+      {
+       "name": "Blackberrys",
+       "website": "https://www.blackberrys.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Blazers and suits"
+      },
+      {
+       "name": "Aditya Birla Fashion and Retail",
+       "website": "https://www.abfrl.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Suits and ties"
+      },
+      {
+       "name": "Siyaram Silk Mills",
+       "website": "https://www.siyaram.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Suiting"
+      },
+      {
+       "name": "Cantabil Retail India",
+       "website": "https://www.cantabilinternational.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Blazers and coats"
+      }
+     ]
+    },
+    {
+     "name": "Velvet Coats & Ethnic Wear",
+     "companies": [
+      {
+       "name": "Vedant Fashions (Manyavar)",
+       "website": "https://www.manyavar.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Sherwanis, velvet bandhgalas"
+      },
+      {
+       "name": "Raymond Ethnix",
+       "website": "https://www.raymond.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Bandhgalas, velvet jackets"
+      },
+      {
+       "name": "Tasva (Aditya Birla)",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Ethnic menswear"
+      }
+     ]
+    },
+    {
+     "name": "Mufflers, Scarves & Accessories",
+     "companies": [
+      {
+       "name": "Monte Carlo Fashions",
+       "website": "https://www.montecarlo.in",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Mufflers and scarves"
+      },
+      {
+       "name": "Oswal Woollen Mills",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Mufflers and shawls"
+      },
+      {
+       "name": "Vardhman Textiles",
+       "website": "https://www.vardhman.com",
+       "hq": "Ludhiana",
+       "country": "India",
+       "products": "Wool and acrylic yarn"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Banking & Financial Services",
+   "symbol": "BK",
+   "subsectors": [
+    {
+     "name": "Payments, UPI & Cards",
+     "companies": [
+      {
+       "name": "National Payments Corporation of India (NPCI)",
+       "website": "https://www.npci.org.in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "UPI, RuPay, IMPS"
+      },
+      {
+       "name": "Paytm (One97 Communications)",
+       "website": "https://paytm.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Payments and wallet"
+      },
+      {
+       "name": "PhonePe",
+       "website": "https://www.phonepe.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "UPI payments"
+      },
+      {
+       "name": "Razorpay",
+       "website": "https://razorpay.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Payment gateway"
+      },
+      {
+       "name": "PayU India",
+       "website": "https://payu.in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Payment gateway"
+      },
+      {
+       "name": "Pine Labs",
+       "website": "https://www.pinelabs.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "POS and merchant payments"
+      },
+      {
+       "name": "BillDesk",
+       "website": "https://www.billdesk.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Bill payments"
+      },
+      {
+       "name": "Cashfree Payments",
+       "website": "https://www.cashfree.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Payment gateway and payouts"
+      },
+      {
+       "name": "Juspay",
+       "website": "https://juspay.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Payments orchestration"
+      },
+      {
+       "name": "CCAvenue (Infibeam Avenues)",
+       "website": "https://www.ccavenue.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Payment gateway"
+      },
+      {
+       "name": "Visa",
+       "website": "https://www.visa.co.in",
+       "hq": "San Francisco",
+       "country": "United States",
+       "products": "Card network"
+      },
+      {
+       "name": "Mastercard",
+       "website": "https://www.mastercard.co.in",
+       "hq": "Purchase, New York",
+       "country": "United States",
+       "products": "Card network"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Consumer Electronics & Devices",
+   "symbol": "CE",
+   "roles": {
+    "Engineering": [
+     "Hardware Design Engineer",
+     "Android Developer",
+     "Firmware Engineer",
+     "Test Engineer",
+     "Quality Engineer"
+    ],
+    "Manufacturing": [
+     "SMT Operator",
+     "Production Supervisor",
+     "Process Engineer",
+     "Line Technician"
+    ],
+    "Sales & Service": [
+     "Retail Sales Executive",
+     "Territory Sales Manager",
+     "Service Engineer",
+     "Customer Support"
+    ]
+   },
+   "subsectors": [
+    {
+     "name": "Mobile Phones",
+     "companies": [
+      {
+       "name": "Samsung India Electronics",
+       "website": "https://www.samsung.com/in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartphones, Noida factory"
+      },
+      {
+       "name": "Apple India",
+       "website": "https://www.apple.com/in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "iPhone"
+      },
+      {
+       "name": "Xiaomi India",
+       "website": "https://www.mi.com/in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "Vivo India",
+       "website": "https://www.vivo.com/in",
+       "hq": "Greater Noida",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "OPPO India",
+       "website": "https://www.oppo.com/in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "realme",
+       "website": "https://www.realme.com/in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "OnePlus India",
+       "website": "https://www.oneplus.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "Lava International",
+       "website": "https://www.lavamobiles.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Smartphones and feature phones"
+      },
+      {
+       "name": "Micromax Informatics",
+       "website": "https://www.micromaxinfo.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "Motorola",
+       "website": "https://www.motorola.com/in",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartphones"
+      },
+      {
+       "name": "Dixon Technologies",
+       "website": "https://www.dixoninfo.com",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Mobile and electronics contract manufacturing"
+      },
+      {
+       "name": "Foxconn (Hon Hai)",
+       "website": "https://www.foxconn.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "iPhone assembly"
+      }
+     ]
+    },
+    {
+     "name": "Chargers, Cables & Accessories",
+     "companies": [
+      {
+       "name": "Salcomp",
+       "website": "https://www.salcomp.com",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Mobile chargers manufacturing"
+      },
+      {
+       "name": "Imagine Marketing (boAt)",
+       "website": "https://www.boat-lifestyle.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Chargers, audio, wearables"
+      },
+      {
+       "name": "Portronics",
+       "website": "https://www.portronics.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Chargers and power banks"
+      },
+      {
+       "name": "Ambrane India",
+       "website": "https://www.ambraneindia.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Power banks and chargers"
+      },
+      {
+       "name": "Anker Innovations",
+       "website": "https://www.anker.com",
+       "hq": "Changsha",
+       "country": "China",
+       "products": "Chargers and power banks"
+      },
+      {
+       "name": "Stuffcool",
+       "website": "https://www.stuffcool.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Mobile accessories"
+      },
+      {
+       "name": "Belkin",
+       "website": "https://www.belkin.com",
+       "hq": "Los Angeles, California",
+       "country": "United States",
+       "products": "Chargers and cables"
+      }
+     ]
+    },
+    {
+     "name": "Laptops & Computers",
+     "companies": [
+      {
+       "name": "HP India",
+       "website": "https://www.hp.com/in-en",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Laptops and printers"
+      },
+      {
+       "name": "Dell Technologies India",
+       "website": "https://www.dell.com/en-in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Laptops and servers"
+      },
+      {
+       "name": "Lenovo India",
+       "website": "https://www.lenovo.com/in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Laptops, Puducherry factory"
+      },
+      {
+       "name": "Acer India",
+       "website": "https://www.acer.com/in-en",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Laptops"
+      },
+      {
+       "name": "ASUS India",
+       "website": "https://www.asus.com/in",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Laptops"
+      },
+      {
+       "name": "VVDN Technologies",
+       "website": "https://www.vvdntech.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Electronics design and manufacturing"
+      }
+     ]
+    },
+    {
+     "name": "Watches & Wearables",
+     "companies": [
+      {
+       "name": "Titan Company",
+       "website": "https://www.titancompany.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Watches and smartwatches",
+       "brands": [
+        "Titan",
+        "Fastrack",
+        "Tanishq",
+        "CaratLane"
+       ]
+      },
+      {
+       "name": "Noise",
+       "website": "https://www.gonoise.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Smartwatches"
+      },
+      {
+       "name": "Fire-Boltt",
+       "website": "https://www.fireboltt.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Smartwatches"
+      },
+      {
+       "name": "Casio India",
+       "website": "https://www.casio.com/in",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Watches"
+      },
+      {
+       "name": "Fossil Group",
+       "website": "https://www.fossil.com",
+       "hq": "Richardson, Texas",
+       "country": "United States",
+       "products": "Watches"
+      },
+      {
+       "name": "Timex Group India",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Watches"
+      },
+      {
+       "name": "HMT Watches",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Watches (PSU)"
+      }
+     ]
+    },
+    {
+     "name": "Jewellery",
+     "companies": [
+      {
+       "name": "Titan Company",
+       "website": "https://www.titancompany.in",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Gold and diamond jewellery",
+       "brands": [
+        "Titan",
+        "Fastrack",
+        "Tanishq",
+        "CaratLane"
+       ]
+      },
+      {
+       "name": "Kalyan Jewellers",
+       "website": "https://www.kalyanjewellers.net",
+       "hq": "Thrissur",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "Malabar Gold & Diamonds",
+       "website": "https://www.malabargoldanddiamonds.com",
+       "hq": "Kozhikode",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "Joyalukkas",
+       "website": "https://www.joyalukkas.com",
+       "hq": "Thrissur",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "PC Jeweller",
+       "website": "https://www.pcjeweller.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "Senco Gold & Diamonds",
+       "website": "https://sencogoldanddiamonds.com",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "Tribhovandas Bhimji Zaveri",
+       "website": "https://www.tbztheoriginal.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Jewellery"
+      },
+      {
+       "name": "Rajesh Exports",
+       "website": "https://www.rajeshindia.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Gold refining and jewellery"
+      },
+      {
+       "name": "BlueStone",
+       "website": "https://www.bluestone.com",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Online jewellery"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Cement, Building Materials & Polymers",
+   "symbol": "CM",
+   "subsectors": [
+    {
+     "name": "Water Bottles & Containers",
+     "companies": [
+      {
+       "name": "Hamilton Housewares (Milton)",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Water bottles and flasks"
+      },
+      {
+       "name": "Cello World",
+       "website": "https://www.celloworld.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Bottles and houseware"
+      },
+      {
+       "name": "Borosil",
+       "website": "https://www.borosil.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Glass and steel bottles"
+      },
+      {
+       "name": "Tupperware India",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Bottles and containers"
+      },
+      {
+       "name": "Signoraware",
+       "website": "https://www.signoraware.com",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Bottles and lunch boxes"
+      },
+      {
+       "name": "Bisleri International",
+       "website": "https://www.bisleri.com",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Packaged drinking water"
+      },
+      {
+       "name": "Varun Beverages (Aquafina)",
+       "website": "https://www.varunbeverages.com",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Bottled water and beverages"
+      },
+      {
+       "name": "Manjushree Technopack",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "PET bottles and preforms"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

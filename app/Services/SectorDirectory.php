@@ -47,6 +47,126 @@ class SectorDirectory
         return $this->tree()->firstWhere('slug', $slug);
     }
 
+    /**
+     * Category cards (config/sector_groups.php) built from the catalog tree. Each card lists its sub-categories with
+     * company and opening counts and a few company logos. Sectors not mapped to a card get a card of their own.
+     */
+    public function groups(): Collection
+    {
+        return Cache::remember($this->key('groups'), now()->addHours(6), function () {
+            $tree = $this->tree()->keyBy('name');
+            $children = $tree->flatMap(fn ($sector) => $sector->children->map(fn ($child) => $child->setRelation('sector', $sector)));
+            $openings = $this->openingsByCategory($children->pluck('id'));
+            $previews = $this->previewCompanies($children->pluck('id'));
+            $used = [];
+            $groups = collect(config('sector_groups.groups', []))->map(function ($group, $slug) use ($tree, $openings, $previews, &$used) {
+                $subs = collect();
+                foreach ($group['members'] as [$sectorName, $only]) {
+                    $sector = $tree->get($sectorName);
+                    if (!$sector) continue;
+                    $used[$sectorName] = true;
+                    $subs = $subs->merge($sector->children->filter(fn ($child) => $only === null || in_array($child->name, $only, true)));
+                }
+                return $this->groupCard($slug, $group, $subs, $openings, $previews);
+            });
+            foreach ($tree as $name => $sector) {
+                if (isset($used[$name]) || $sector->children->isEmpty()) continue;
+                $groups[$sector->slug] = $this->groupCard($sector->slug, ['name' => $name, 'icon' => null, 'symbol' => $sector->symbol], $sector->children, $openings, $previews);
+            }
+            return $groups->filter(fn ($group) => $group->subcategories->isNotEmpty())->values();
+        });
+    }
+
+    public function group(string $slug): ?object
+    {
+        return $this->groups()->firstWhere('slug', $slug);
+    }
+
+    /** The sub-category with this slug and its parent sector. @return array{0:CompanyCategory,1:CompanyCategory}|null */
+    public function subcategory(string $sectorSlug, string $subSlug): ?array
+    {
+        $sector = $this->find($sectorSlug);
+        $child = $sector?->children->firstWhere('slug', $subSlug);
+        return $child ? [$sector, $child] : null;
+    }
+
+    /** Companies of one sub-category, most openings first, narrowed by the usual filters. */
+    public function subcategoryCompanies(CompanyCategory $child, array $filters, int $perPage = 30)
+    {
+        return $this->companies($filters)->whereHas('categories', fn ($q) => $q->where('company_categories.id', $child->id))
+            ->paginate($perPage)->withQueryString();
+    }
+
+    public function imageFor(string $name): ?string
+    {
+        $name = mb_strtolower($name);
+        foreach (config('sector_groups.images', []) as $keyword => $path) {
+            if (str_contains($name, $keyword) && is_file(public_path($path))) return asset($path);
+        }
+        return null;
+    }
+
+    /** One catalog sector presented like a category card (its sub-categories with counts and logos). */
+    public function sectorCard(CompanyCategory $sector): object
+    {
+        return Cache::remember($this->key('sector-card:' . $sector->id), now()->addHours(6), fn () => $this->groupCard(
+            $sector->slug, ['name' => $sector->name, 'symbol' => $sector->symbol], $sector->children,
+            $this->openingsByCategory($sector->children->pluck('id')), $this->previewCompanies($sector->children->pluck('id'))));
+    }
+
+    private function groupCard(string $slug, array $group, Collection $subs, array $openings, array $previews): object
+    {
+        $subs = $subs->unique('id')->values()->each(function ($child) use ($openings, $previews) {
+            $child->setAttribute('openings_count', $openings[$child->id] ?? 0);
+            $child->setAttribute('preview_companies', $previews[$child->id] ?? []);
+            $child->setAttribute('image', $this->imageFor($child->name));
+        });
+        $image = isset($group['image']) && is_file(public_path($group['image'])) ? asset($group['image']) : null;
+        return (object) [
+            'slug' => $slug, 'name' => $group['name'], 'icon' => $group['icon'] ?? null, 'symbol' => $group['symbol'] ?? null,
+            'color' => $group['color'] ?? '#0b2545', 'image' => $image, 'subcategories' => $subs,
+            'companies_count' => $this->distinctCompanies($subs->pluck('id')), 'openings_count' => $subs->sum('openings_count'),
+            'logos' => collect($subs->flatMap(fn ($child) => $child->preview_companies))->unique('id')->take(5)->values()->all(),
+        ];
+    }
+
+    /** Active openings per sub-category: jobs counted per company once, then summed over each category's companies. @return array<int,int> */
+    private function openingsByCategory(Collection $categoryIds): array
+    {
+        if ($categoryIds->isEmpty()) return [];
+        $perCompany = Cache::remember($this->key('jobs-per-company'), now()->addMinutes(30),
+            fn () => Job::active()->whereNotNull('company_id')->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id')->all());
+        $totals = [];
+        \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $categoryIds)
+            ->whereIn('company_id', array_keys($perCompany) ?: [0])->get(['company_category_id', 'company_id'])
+            ->each(function ($row) use (&$totals, $perCompany) { $totals[$row->company_category_id] = ($totals[$row->company_category_id] ?? 0) + (int) $perCompany[$row->company_id]; });
+        return $totals;
+    }
+
+    /** Up to four companies per sub-category (most openings first) for the card logos. @return array<int,array> */
+    private function previewCompanies(Collection $categoryIds): array
+    {
+        if ($categoryIds->isEmpty()) return [];
+        $rows = \Illuminate\Support\Facades\DB::table('company_category_company as ccc')->join('companies', 'companies.id', '=', 'ccc.company_id')
+            ->where('companies.is_active', true)->whereIn('ccc.company_category_id', $categoryIds)
+            ->get(['ccc.company_category_id', 'companies.id', 'companies.name', 'companies.slug', 'companies.website', 'companies.logo_url']);
+        $jobs = Job::active()->whereIn('company_id', $rows->pluck('id')->unique())->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id');
+        $previews = [];
+        foreach ($rows->groupBy('company_category_id') as $id => $companies) {
+            $previews[$id] = $companies->sortBy([fn ($a, $b) => ($jobs[$b->id] ?? 0) <=> ($jobs[$a->id] ?? 0), fn ($a, $b) => strcmp($a->name, $b->name)])
+                ->take(4)->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug,
+                    'logo' => (new Company(['website' => $c->website]))->forceFill(['logo_url' => $c->logo_url])->logo_url])->values()->all();
+        }
+        return $previews;
+    }
+
+    private function distinctCompanies(Collection $categoryIds): int
+    {
+        if ($categoryIds->isEmpty()) return 0;
+        return (int) \Illuminate\Support\Facades\DB::table('company_category_company as ccc')->join('companies', 'companies.id', '=', 'ccc.company_id')
+            ->where('companies.is_active', true)->whereIn('ccc.company_category_id', $categoryIds)->distinct()->count('ccc.company_id');
+    }
+
     /** Distinct plant locations for the left-hand filters. */
     public function locations(): array
     {

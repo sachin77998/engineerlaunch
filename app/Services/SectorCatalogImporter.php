@@ -85,7 +85,10 @@ class SectorCatalogImporter
     public function upsertCompany(array $entry, string $sector, string $subsector): Company
     {
         $slug = Str::slug($entry['name']);
-        $company = Company::where('slug', $slug)->orWhere('name', $entry['name'])->first()
+        // Match spelling variants too ("Tata Steel" = "TATA STEEL LIMITED") through the normalised name key.
+        $key = Company::nameKey($entry['name']);
+        $company = Company::where('slug', $slug)->orWhere('name', $entry['name'])
+            ->when($key !== '' && \Illuminate\Support\Facades\Schema::hasColumn('companies', 'name_key'), fn ($q) => $q->orWhere('name_key', $key))->first()
             ?? new Company(['name' => $entry['name'], 'slug' => $slug]);
         $website = $entry['website'] ?? null;
         $company->forceFill([

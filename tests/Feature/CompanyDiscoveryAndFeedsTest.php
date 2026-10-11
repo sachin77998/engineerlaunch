@@ -43,7 +43,8 @@ class CompanyDiscoveryAndFeedsTest extends TestCase
 
     public function test_gleif_registry_import_locates_companies_by_city_and_merges_existing_names(): void
     {
-        Company::create(['name' => 'Titan Company', 'slug' => 'titan-company-test', 'country' => 'India', 'is_active' => true]);
+        if (!Company::where('name_key', 'titan')->exists()) Company::create(['name' => 'Titan Company', 'slug' => 'titan-company-test', 'country' => 'India', 'is_active' => true]);
+        $titans = Company::where('name_key', 'titan')->count();
         $record = fn (string $lei, string $name, string $city, array $lines) => ['id' => $lei, 'attributes' => ['entity' => [
             'legalName' => ['name' => $name], 'status' => 'ACTIVE', 'registeredAs' => 'U29100HR2001PTC012345',
             'legalAddress' => ['addressLines' => $lines, 'city' => $city, 'region' => 'IN-HR', 'country' => 'IN'],
@@ -59,7 +60,7 @@ class CompanyDiscoveryAndFeedsTest extends TestCase
         $this->assertSame('U29100HR2001PTC012345', $forge->registry_cin);
         $this->assertTrue($forge->categories()->where('name', 'Forging')->exists());
         $this->assertTrue($forge->facilities()->where('city', 'Manesar')->where('state', 'Haryana')->exists());
-        $this->assertSame(1, Company::where('name_key', 'titan')->count(), 'registry spelling must merge into the existing company');
+        $this->assertSame($titans, Company::where('name_key', 'titan')->count(), 'registry spelling must merge into the existing company');
     }
 
     public function test_wikidata_discovery_skips_unlabelled_items(): void

@@ -40,8 +40,12 @@ class SectorCatalogTest extends TestCase
 
     public function test_sector_pages_group_companies_and_search_by_brand_and_hub(): void
     {
-        $this->get('/sectors')->assertOk()->assertSee('Food &amp; Beverages', false)->assertSee('Dal &amp; Pulses', false);
-        $this->get('/sectors/sector-food-beverages')->assertOk()->assertSee('Britannia Industries')->assertSee('Biscuits &amp; Bakery', false);
+        $this->get('/sectors')->assertOk()->assertSee('Food &amp; FMCG Products', false)->assertSee('Dal &amp; Pulses', false);
+        // Category -> sub-category cards -> companies.
+        $this->get('/sectors/category/food-fmcg')->assertOk()->assertSee('Biscuits &amp; Bakery', false)->assertSee('/sectors/sector-food-beverages/sector-food-beverages-biscuits-bakery', false);
+        $this->get('/sectors/sector-food-beverages')->assertOk()->assertSee('Biscuits &amp; Bakery', false);
+        $this->get('/sectors/sector-food-beverages/sector-food-beverages-biscuits-bakery')->assertOk()->assertSee('Britannia Industries');
+        $this->get('/sectors/category/not-a-category')->assertNotFound();
         $this->get('/sectors?q=santoor')->assertOk()->assertSee('Wipro Consumer Care &amp; Lighting', false);
         $this->get('/sectors?city=Haridwar')->assertOk()->assertSee('Akums Drugs &amp; Pharmaceuticals', false)->assertDontSee('Nemak');
         $this->get('/sectors/sector-auto-components-forging-casting')->assertOk()->assertSee('Core Shooter Machine Operator');
