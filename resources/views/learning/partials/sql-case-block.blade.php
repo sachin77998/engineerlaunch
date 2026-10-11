@@ -29,6 +29,19 @@
 @case('links')
 <nav class="sql-case-nav" aria-label="Related SQL topics">@foreach($block['items'] as [$label,$slug])<a href="{{route('learning.show',[$trackSlug ?? 'sql',$slug])}}">{{$label}}</a>@endforeach</nav>
 @break
+@case('sigmoid')
+<h3>{{$block['caption']}}</h3>
+<div class="ml-sigmoid" data-sigmoid>
+<label>Model score (z): <output data-z>1.0</output><input type="range" min="-6" max="6" step="0.1" value="1" aria-label="Model score z"></label>
+<div class="ml-sigmoid-bar" aria-hidden="true"><span data-bar style="width:73.1%"></span></div>
+<p>Predicted probability: <strong data-p>73.1%</strong></p>
+<small>Illustration only: the sigmoid of a chosen score, not a trained or calibrated credit-risk model.</small>
+</div>
+@once
+<style>.ml-sigmoid{padding:16px;border:1px solid #dce5ef;border-radius:10px;background:#f7fafd}.ml-sigmoid label{display:grid;gap:8px;font-weight:600}.ml-sigmoid input{width:100%;accent-color:#0b2545}.ml-sigmoid-bar{height:14px;margin-top:12px;border-radius:7px;background:#e5ecf4;overflow:hidden}.ml-sigmoid-bar span{display:block;height:100%;background:linear-gradient(90deg,#0b2545,#f4b400)}</style>
+<script>document.querySelectorAll('[data-sigmoid]').forEach(box=>{const r=box.querySelector('input');const draw=()=>{const z=parseFloat(r.value),p=1/(1+Math.exp(-z));box.querySelector('[data-z]').textContent=z.toFixed(1);box.querySelector('[data-p]').textContent=(p*100).toFixed(1)+'%';box.querySelector('[data-bar]').style.width=(p*100)+'%'};r.addEventListener('input',draw);draw()});</script>
+@endonce
+@break
 @case('legacy')
 <h3>{{$block['title']}}</h3>
 @php($parts=preg_split('/\x60{3}(sql|php)?\r?\n(.*?)\x60{3}/s',$block['answer'],-1,PREG_SPLIT_DELIM_CAPTURE))

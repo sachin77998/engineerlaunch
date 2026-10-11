@@ -38,6 +38,13 @@ return [
   'rows'=>[['Understand','Explain the feature in your own words'],['Apply','Connect it to a small job-portal example'],['Verify','Check output and stored data'],['Review','Explain the failure path']],
   'pitfall'=>'Run destructive examples only against a disposable practice database.',
  ],
+ 'machine-learning'=>[
+  'title'=>'From historical data to a deployed model',
+  'steps'=>[['Data','Collect and clean labelled examples.'],['Train','Fit parameters by minimising a loss.'],['Evaluate','Measure on data the model has not seen.'],['Deploy','Serve predictions and monitor drift.']],
+  'columns'=>['Problem','Typical algorithm'],
+  'rows'=>[['Predict a number (price, demand)','Linear regression, gradient boosting'],['Predict a class (default, spam)','Logistic regression, random forest'],['Group similar items','K-means, DBSCAN'],['Recommend jobs or products','Similarity / ranking models']],
+  'pitfall'=>'High accuracy on imbalanced data can hide a useless model; check precision, recall and calibration.',
+ ],
  'backend-concepts'=>[
   'title'=>'One request through a production backend',
   'steps'=>[['Identity','Session cookie or token authenticates the caller.'],['Middleware','Rate limits, request id and CSRF wrap the request.'],['Controller + policy','Validate input, authorize the record, call a service.'],['Async work','Queue jobs and publish events for everything the user need not wait for.']],
