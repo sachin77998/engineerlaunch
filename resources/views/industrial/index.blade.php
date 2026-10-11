@@ -398,6 +398,7 @@
 </style>
 @endpush
 @section('content')
+@include('partials.page-tabs',['tabs'=>[['Industrial Area Jobs',route('industrial.index'),true],['Industry-wise Jobs & Career Paths',route('career-explorer'),false]]])
 <section class="industrial-hero" id="industry-hero" @if($heroUrl) style="--industry-image:url('{{ $heroUrl }}')" @endif><div class="container">
         {{-- Heading kept for screen readers and the live-search script; the marketing copy was removed. --}}
         <h1 id="industrial-heading" class="visually-hidden">{{ $heroText }}</h1>

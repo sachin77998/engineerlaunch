@@ -1,6 +1,7 @@
 @extends('layouts.site')
 @section('title','Industries, careers and current openings')
 @section('content')
+@include('partials.page-tabs',['tabs'=>[['Industrial Area Jobs',route('industrial.index'),false],['Industry-wise Jobs & Career Paths',route('career-explorer'),true]]])
 <style>
     .career-layout {
         max-width: 1400px;

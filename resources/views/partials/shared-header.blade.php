@@ -5,11 +5,11 @@
     // Each menu: label => [routes that mark it active, [[route, text, params, fragment], ...]]
     $menus = [
         'Industries Jobs by Sector' => [['sectors.*', 'career-explorer', 'industrial.*'], [
-            ['sectors.index', 'Companies by Sector'], ['sectors.index', 'Industrial Areas & Tech Parks', [], 'hubs'],
-            ['industrial.index', 'Industrial Area Jobs'], ['career-explorer', 'Industry Wise Jobs & Career Paths'],
+            // Two entries; each page carries tabs to its merged partner (sector hubs, career paths).
+            ['sectors.index', 'Companies & Industrial Parks'], ['industrial.index', 'Industrial Area & Career Jobs'],
         ]],
         'Company Jobs' => [['home', 'jobs.*', 'opportunities.*', 'companies.*'], [
-            ['home', 'Find Jobs', [], 'jobs'], ['companies.index', 'All Companies'], ['jobs.hr', 'Jobs Posted by HR'],
+            ['home', 'Find Jobs (All + HR Posted)', [], 'jobs'], ['companies.index', 'All Companies'],
         ]],
         'Learning' => [['learning.*', 'practice'], [
             ['learning.index', 'Learning Tracks'], ['learning.track', 'SQL Interview Prep', ['sql']], ['practice', 'Coding Practice'],

@@ -111,11 +111,17 @@ class JobController extends Controller
         }
         $perPage = $validated['per_page'] ?? 50;
         $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()), DiscoveryCache::ttl(), fn () => $query->paginate($perPage));
+        $syncing = [];
+        if ($request->filled('q') && $jobs->currentPage() === 1) {
+            // Searched a known company whose openings were never imported: fetch its careers feed now.
+            $sync = app(\App\Services\OnDemandCompanySync::class)->forQuery((string) $validated['q']);
+            $syncing = $sync['queued'];
+        }
         if ($request->filled('q') || $request->filled('location') || collect($validated)->except(['per_page', 'sort_by', 'sort_order'])->filter()->isNotEmpty()) {
             DB::table('search_logs')->insert(['user_id' => $request->user()?->id, 'session_id' => hash_hmac('sha256', (string) $request->ip(), config('app.key')), 'keyword' => $validated['q'] ?? null, 'location' => $validated['location'] ?? null, 'filters' => json_encode(collect($validated)->except(['q', 'location', 'per_page'])->filter()->all()), 'results_count' => $jobs->total(), 'created_at' => now()]);
         }
 
-        return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage(), 'from' => $jobs->firstItem(), 'to' => $jobs->lastItem()]]);
+        return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage(), 'from' => $jobs->firstItem(), 'to' => $jobs->lastItem()]] + ($syncing ? ['syncing' => $syncing] : []));
     }
 
     public function show($id): JsonResponse
