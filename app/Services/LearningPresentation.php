@@ -35,8 +35,18 @@ class LearningPresentation
                 }
                 if ($list) { $blocks[] = $list; $list = null; }
             };
+            $table = null;
             foreach ($lines as $line) {
                 $line = rtrim($line);
+                // Markdown table: "| a | b |" rows; the "|---|---|" separator row is skipped.
+                if (str_starts_with(ltrim($line), '|')) {
+                    if (!$table) { $flush(); $table = ['type' => 'table', 'columns' => [], 'rows' => []]; }
+                    $cells = array_map('trim', explode('|', trim(trim($line), '|')));
+                    if (preg_match('/^[\s|:\-]+$/', $line)) continue;
+                    if (!$table['columns']) $table['columns'] = $cells; else $table['rows'][] = $cells;
+                    continue;
+                }
+                if ($table) { $blocks[] = $table; $table = null; }
                 if (preg_match('/^#{2,3}\s+(.+)$/', $line, $m)) { $flush(); $blocks[] = ['type' => 'heading', 'text' => trim($m[1])]; continue; }
                 if (preg_match('/^\s*(?:[-•*]|(\d+)\.)\s+(.+)$/u', $line, $m)) {
                     if ($paragraph) { $saved = $list; $list = null; $flush(); $list = $saved; }
@@ -48,6 +58,7 @@ class LearningPresentation
                 if ($list) { $blocks[] = $list; $list = null; }
                 $paragraph[] = trim($line);
             }
+            if ($table) $blocks[] = $table;
             $flush();
         }
         return $blocks;
@@ -66,6 +77,12 @@ class LearningPresentation
             }
         }
         return $blocks;
+    }
+
+    /** Escaped text with `inline code` rendered as <code>. */
+    public static function inline(string $text): string
+    {
+        return preg_replace('/`([^`]+)`/', '<code class="vl-inline-code">$1</code>', e($text));
     }
 
     public function overview(string $track): array
