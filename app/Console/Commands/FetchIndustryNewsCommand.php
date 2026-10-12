@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
 class FetchIndustryNewsCommand extends Command
 {
     protected $signature = 'news:fetch-industry
-                            {--industry=all : gear, forging, steel or all}
+                            {--industry=all : a topic key from config/industry_news.php, or all}
+                            {--queue : Queue one job per topic instead of fetching inline (used by the daily batch and Production Setup)}
                             {--limit=10 : Maximum articles saved per query}';
 
     protected $description = 'Fetch and publish current Gear, Forging and Steel industry news';
@@ -32,12 +33,17 @@ class FetchIndustryNewsCommand extends Command
 
         if ($industry !== 'all') {
             if (! isset($feeds[$industry])) {
-                $this->error("Invalid industry: {$industry}. Use gear, forging, steel or all.");
+                $this->error("Invalid topic: {$industry}. Use one of: " . implode(', ', array_keys($feeds)) . ' or all.');
                 return self::FAILURE;
             }
             $feeds = [$industry => $feeds[$industry]];
         }
 
+        if ($this->option('queue')) {
+            foreach (array_keys($feeds) as $key) \App\Jobs\FetchIndustryNewsTopic::dispatch($key, $limit)->onConnection('database')->onQueue('feeds');
+            $this->info('Queued ' . count($feeds) . ' news topics.');
+            return self::SUCCESS;
+        }
         $fetched = $saved = $skipped = $failed = 0;
         foreach ($feeds as $feed) {
             $this->newLine();
@@ -48,7 +54,7 @@ class FetchIndustryNewsCommand extends Command
             foreach ($feed['queries'] as $query) {
                 $this->line('  Query: '.$query);
                 try {
-                    $articles = array_slice($this->rssService->fetch($query), 0, $limit);
+                    $articles = array_slice($this->rssService->fetch($query, $feed['edition'] ?? null), 0, $limit);
                     $fetched += count($articles);
                     foreach ($articles as $article) {
                         $this->saveArticle($article, $category, $source, $feed)
@@ -110,7 +116,7 @@ class FetchIndustryNewsCommand extends Command
             return false;
         }
 
-        $intelligence = $this->intelligence($article['title'].' '.$article['description'], $feed['name']);
+        $intelligence = $this->intelligence($article['title'].' '.$article['description'], $feed['name'], $feed);
         NewsArticle::create([
             'category_id' => $category->id,
             'source_id' => $source->id,
@@ -122,7 +128,7 @@ class FetchIndustryNewsCommand extends Command
             'industry_impact' => $intelligence['industry_impact'],
             'student_impact' => $intelligence['student_impact'],
             'skills_impact' => 'Demand signals include '.implode(', ', array_slice($intelligence['skills'], 0, 7)).'.',
-            'jobs_impact' => 'Potential opportunities span production, quality, maintenance, design, machining and supplier operations.',
+            'jobs_impact' => isset($feed['skills']) ? 'Relevant for '.($feed['audience'] ?? 'professionals in this field').'.' : 'Potential opportunities span production, quality, maintenance, design, machining and supplier operations.',
             'company_name' => $this->company($normalizedTitle),
             'entities' => array_values(array_filter([$this->company($normalizedTitle), $article['publisher'] ?? null, $feed['name']])),
             'skills' => $intelligence['skills'],
@@ -143,9 +149,22 @@ class FetchIndustryNewsCommand extends Command
         return true;
     }
 
-    private function intelligence(string $text, string $industry): array
+    private function intelligence(string $text, string $industry, array $feed = []): array
     {
         $text = Str::lower($text);
+        // Non-manufacturing topics carry their own skills and audience.
+        if (isset($feed['skills'])) {
+            $score = 55;
+            foreach (['investment' => 10, 'billion' => 8, 'crore' => 6, 'jobs' => 8, 'hiring' => 8, 'launch' => 5, 'growth' => 5, 'expansion' => 6, 'layoff' => 6] as $word => $points) if (str_contains($text, $word)) $score += $points;
+            $audience = $feed['audience'] ?? 'professionals in this field';
+            return [
+                'skills' => $feed['skills'],
+                'score' => min($score, 100),
+                'career_impact' => "This {$industry} development can change hiring priorities and the skills employers look for among {$audience}.",
+                'industry_impact' => "It may affect investment, competition and technology adoption in {$industry}.",
+                'student_impact' => 'Students can follow this trend and build skills in ' . implode(', ', array_slice($feed['skills'], 0, 4)) . '.',
+            ];
+        }
         $skills = [];
         if (str_contains($text, 'gear') || str_contains($text, 'transmission')) $skills = array_merge($skills, ['Gear Design', 'Gear Hobbing', 'Gear Grinding', 'CNC Machining', 'CAD/CAM', 'Metrology', 'Heat Treatment']);
         if (str_contains($text, 'forging') || str_contains($text, 'forged')) $skills = array_merge($skills, ['Forging Process', 'Die Design', 'Metallurgy', 'Heat Treatment', 'CNC Machining', 'GD&T', 'Quality Control']);

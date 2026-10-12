@@ -8,14 +8,16 @@ use Illuminate\Support\Str;
 
 class IndustryNewsRssService
 {
-    public function fetch(string $query): array
+    /** $edition: IN, US or GB Google News edition; searches are limited to recent days (industry_news.recency). */
+    public function fetch(string $query, ?string $edition = null): array
     {
+        $recency = config('industry_news.recency');
         $response = Http::timeout(20)
             ->retry(3, 1000)
             ->withHeaders(['User-Agent' => 'Ascendia Career Intelligence News Bot/1.0'])
             ->get(config('industry_news.endpoint'), array_merge(
-                ['q' => $query],
-                config('industry_news.locale', [])
+                ['q' => trim($query . ' ' . ($recency ?: ''))],
+                config('industry_news.editions.' . ($edition ?: 'IN'), config('industry_news.locale', []))
             ));
 
         if (! $response->successful()) {

@@ -26,6 +26,7 @@ class AdminMaintenanceController extends Controller
         'gleif' => ['Queue registered companies for every city (GLEIF registry, India + UAE)', 'companies:discover', ['source' => 'gleif', '--gleif-cities' => true, '--gleif-country' => ['AE'], '--gleif-pages' => 10]],
         'gleif-trades' => ['Queue registered companies by trade (forging, casting, auto, steel, pharma, textiles… across India)', 'companies:discover', ['source' => 'gleif', '--gleif-trades' => true]],
         'gleif-india' => ['Queue every registered company in India (GLEIF, ~400,000; imports over several hours)', 'companies:discover', ['source' => 'gleif', '--gleif-all' => ['IN']]],
+        'news' => ['Refresh Latest Intelligence news (all topics; queued, also runs every 6 hours)', 'news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
         'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
         'status' => ['Show migration status', 'migrate:status', []],

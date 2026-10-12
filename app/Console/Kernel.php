@@ -36,7 +36,8 @@ class Kernel extends ConsoleKernel
             ->dailyAt('08:15')
             ->withoutOverlapping(30);
         $schedule->command('news:fetch')->hourly()->withoutOverlapping(30);
-        $schedule->command('news:fetch-industry --industry=all --limit=10')->hourly()->withoutOverlapping(55);
+        // Latest Intelligence: every topic in config/industry_news.php, one queued job per topic.
+        $schedule->command('news:fetch-industry --industry=all --limit=10 --queue')->everySixHours()->withoutOverlapping(60);
         $schedule->command('news:process')->everyThirtyMinutes()->withoutOverlapping(30);
         $schedule->command('news:publish')->everyThirtyMinutes()->withoutOverlapping(30);
         $schedule->command('news:notify')->dailyAt('08:00')->withoutOverlapping(30);
