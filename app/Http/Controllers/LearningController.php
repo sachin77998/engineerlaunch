@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LearningPresentation;
 use Illuminate\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -38,6 +39,8 @@ class LearningController extends Controller
             $lessons = $lessonConfig
                 ? array_slice(config($lessonConfig, []), $topic['offset'] ?? 0, $topic['limit'] ?? null)
                 : array_merge(config('laravel_foundations', []), config('laravel_advanced', []));
+            // In-depth explanations (config/learning_deep/{track}.php) replace short lesson summaries.
+            $lessons = array_map(fn ($lesson) => ($deep = LearningPresentation::deep($track, $lesson['title'] ?? '')) ? ['summary' => $deep] + $lesson : $lesson, $lessons);
 
             return view($topic['view'] ?? ($lessonConfig ? 'learning.spring-tutorials' : 'learning.tutorials'), [
                 'trackSlug' => $track,
@@ -49,7 +52,7 @@ class LearningController extends Controller
         }
 
         if ($track === 'sql' || isset($tracks[$track]['topics'][$module]['sections'])) {
-            $questions = $this->paginateQuestions($tracks[$track]['topics'][$module]['questions']);
+            $questions = $this->paginateQuestions($this->withDeepAnswers($track, $tracks[$track]['topics'][$module]['questions']));
             return view($tracks[$track]['topics'][$module]['view'] ?? 'learning.sql-questions', [
                 'trackSlug' => $track,
                 'track' => $tracks[$track],
@@ -77,6 +80,7 @@ class LearningController extends Controller
             }, $questionItems);
         }
 
+        $questionItems = $this->withDeepAnswers($track, $questionItems);
         $questions = $this->paginateQuestions($questionItems);
         return view('learning.questions-modular', [
             'trackSlug' => $requestedTrack,
@@ -86,6 +90,17 @@ class LearningController extends Controller
             'questions' => $questions,
             'allTracks' => $tracks,
         ]);
+    }
+
+    /** Questions with an in-depth explanation in config/learning_deep/{track}.php show that instead of the short answer. */
+    private function withDeepAnswers(string $track, array $items): array
+    {
+        return array_map(function ($item) use ($track) {
+            $question = is_array($item) ? ($item['question'] ?? '') : (string) $item;
+            $deep = LearningPresentation::deep($track, $question);
+            if (!$deep) return $item;
+            return is_array($item) ? ['answer' => $deep] + $item : ['question' => $question, 'answer' => $deep];
+        }, $items);
     }
 
     private function canonicalTrack(string $track): string
