@@ -396,7 +396,7 @@ values = [60, 100, 120], weights = [10, 20, 30], W = 50 → 220 (items 2 and 3)
 ```
 
 ## Why not greedy
-The best value/weight ratio is item 1 (6/kg), but taking it leaves 40 capacity and only 160 more → 220 vs greedy's 160+60… greedy by ratio gives 60 + 100 = 160, then item 3 does not fit; the optimum skips item 1.
+Ratios are item 1 = 6 per kg, item 2 = 5, item 3 = 4. Greedy by ratio takes item 1 (10 kg) and item 2 (20 kg) for 160; item 3 (30 kg) no longer fits in the remaining 20 kg. The optimum skips item 1 and takes items 2 and 3 (50 kg) for 220. Because items cannot be split, a locally best choice can block a better combination.
 
 ## State and transition
 dp[i][w] = best value using the first i items with capacity w.
