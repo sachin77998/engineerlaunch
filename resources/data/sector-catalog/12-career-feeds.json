@@ -1,0 +1,18 @@
+{
+ "sectors": [
+  {"name": "IT Services & Software", "subsectors": [
+   {"name": "Global IT Services & Consulting", "companies": [
+    {"name": "Accenture", "website": "https://www.accenture.com", "hq": "Dublin", "country": "Ireland", "products": "Consulting and IT services",
+     "ats": ["workday", "accenture/AccentureCareers", "https://accenture.wd103.myworkdayjobs.com/wday/cxs/accenture/AccentureCareers/jobs"]},
+    {"name": "Wipro", "website": "https://www.wipro.com", "hq": "Bengaluru", "country": "India", "products": "IT services",
+     "ats": ["successfactors", "wipro", "https://careers.wipro.com/services/rss/job/?locale=en_US"]}
+   ]}
+  ]},
+  {"name": "Banking & Financial Services", "subsectors": [
+   {"name": "Global Banks in India", "companies": [
+    {"name": "Barclays", "website": "https://home.barclays", "hq": "London", "country": "United Kingdom", "products": "Banking",
+     "ats": ["workday", "barclays/External_Career_Site_Barclays", "https://barclays.wd3.myworkdayjobs.com/wday/cxs/barclays/External_Career_Site_Barclays/jobs"]}
+   ]}
+  ]}
+ ]
+}

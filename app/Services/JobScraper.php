@@ -604,6 +604,7 @@ class JobScraper
     protected function scrapeSuccessFactors(Company $company): iterable
     {
         $baseUrl = rtrim($company->jobs_feed_url ?: $company->careers_url, '/');
+        if (str_contains($baseUrl, '/services/rss/job')) return $this->scrapeSuccessFactorsRss($company, $baseUrl);
         $jobs = [];
 
         // SuccessFactors page sizes vary by employer; advance by observed unique jobs.
@@ -667,6 +668,41 @@ class JobScraper
 
         if ($start >= 10000) $this->completeFeed = false;
         return $this->withHtmlDescriptions($company, $jobs, '//*[@itemprop="description" or @data-careersite-propertyid="description" or contains(concat(" ",normalize-space(@class)," ")," jobdescription ")]');
+    }
+
+    /**
+     * SuccessFactors career sites publish every opening as RSS (/services/rss/job/?locale=en_US), paged by startrow.
+     * Used where the HTML search page is rendered by JavaScript (e.g. Wipro).
+     */
+    protected function scrapeSuccessFactorsRss(Company $company, string $feedUrl): array
+    {
+        $jobs = [];
+        for ($start = 0; $start < 10000;) {
+            $xml = @simplexml_load_string($this->getContent($feedUrl . (str_contains($feedUrl, '?') ? '&' : '?') . 'startrow=' . $start), 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NONET);
+            $items = $xml?->channel?->item ?? [];
+            $page = 0;
+            foreach ($items as $item) {
+                $page++;
+                $link = html_entity_decode(trim((string) $item->link));
+                $link = preg_replace('/\?feedId=.*$/', '', $link);
+                $title = trim(html_entity_decode((string) $item->title));
+                if ($title === '' || $link === '' || isset($jobs[$link])) continue;
+                // Titles read "Job title (City, Country)" on most SuccessFactors feeds.
+                $location = preg_match('/\(([^()]+)\)\s*$/', $title, $m) ? trim($m[1]) : 'Not specified';
+                try { $postedAt = Carbon::parse((string) $item->pubDate); } catch (\Throwable $e) { $postedAt = null; }
+                $jobs[$link] = $this->normalizeJob($company, [
+                    'title' => trim(preg_replace('/\s*\([^()]+\)\s*$/', '', $title)),
+                    'description' => trim(strip_tags(html_entity_decode((string) $item->description))),
+                    'location' => $location,
+                    'external_url' => $link,
+                    'posted_at' => $postedAt,
+                ]);
+            }
+            if ($page === 0) break;
+            $start += $page;
+        }
+        if ($start >= 10000) $this->completeFeed = false;
+        return array_values($jobs);
     }
 
     protected function scrapeGreenhouse(Company $company): array

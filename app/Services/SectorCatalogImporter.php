@@ -87,8 +87,9 @@ class SectorCatalogImporter
         $slug = Str::slug($entry['name']);
         // Match spelling variants too ("Tata Steel" = "TATA STEEL LIMITED") through the normalised name key.
         $key = Company::nameKey($entry['name']);
-        $company = Company::where('slug', $slug)->orWhere('name', $entry['name'])
-            ->when($key !== '' && \Illuminate\Support\Facades\Schema::hasColumn('companies', 'name_key'), fn ($q) => $q->orWhere('name_key', $key))->first()
+        // Exact slug/name first: "Amazon" must not land on "Amazon (Vedaka)", which shares the key "amazon".
+        $company = Company::where('slug', $slug)->orWhere('name', $entry['name'])->orderByRaw('name = ? DESC', [$entry['name']])->first()
+            ?? ($key !== '' && \Illuminate\Support\Facades\Schema::hasColumn('companies', 'name_key') ? Company::where('name_key', $key)->orderBy('id')->first() : null)
             ?? new Company(['name' => $entry['name'], 'slug' => $slug]);
         $website = $entry['website'] ?? null;
         $company->forceFill([
@@ -104,7 +105,8 @@ class SectorCatalogImporter
             'is_active' => true,
         ]);
         // Companies with an official website join the daily opening batch through bounded career-page discovery.
-        if (isset($entry['ats']) && in_array($company->ats_provider, [null, '', 'official_discovery'], true)) {
+        // A feed listed in the catalog is verified by hand, so it replaces a guessed or incomplete configuration.
+        if (isset($entry['ats']) && ($company->jobs_feed_url !== $entry['ats'][2] || $company->ats_provider !== $entry['ats'][0])) {
             [$company->ats_provider, $company->ats_identifier, $company->jobs_feed_url] = $entry['ats'];
             $company->sync_enabled = true;
         }

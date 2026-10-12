@@ -34,7 +34,7 @@
             {"name": "Rajdhani Group (Victoria Foods)", "website": "https://www.rajdhanigroup.com", "hq": "Delhi", "country": "India", "brands": ["Rajdhani"], "products": "Besan, sooji, atta, dals and spices"},
             {"name": "Reliance Retail (Good Life)", "website": "https://relianceretail.com", "hq": "Mumbai", "country": "India", "brands": ["Good Life", "Independence", "Trends", "Team Spirit", "Netplay"], "products": "Private-label staples, oils, pulses and apparel"},
             {"name": "BigBasket (BB Royal)", "website": "https://www.bigbasket.com", "hq": "Bengaluru", "country": "India", "brands": ["BB Royal", "Fresho", "BB Popular"], "products": "Private-label pulses and groceries"},
-            {"name": "Amazon (Vedaka)", "website": "https://www.amazon.jobs", "hq": "Seattle", "country": "United States", "brands": ["Vedaka", "Solimo"], "products": "Private-label pulses and groceries"},
+            {"name": "Amazon (Vedaka)", "hq": "Seattle", "country": "United States", "brands": ["Vedaka", "Solimo"], "products": "Private-label pulses and groceries"},
             {"name": "NAFED (Bharat Brand)", "website": "https://www.nafed-india.com", "hq": "New Delhi", "country": "India", "brands": ["Bharat Dal", "Bharat Atta", "Bharat Rice"], "products": "Government-backed subsidised pulses and staples"},
             {"name": "Organic Tattva", "website": "https://www.organictattva.in", "hq": "Noida", "country": "India", "brands": ["Organic Tattva"], "products": "Certified organic pulses and grains"},
             {"name": "Sresta Natural Bioproducts (24 Mantra Organic)", "website": "https://www.24mantra.com", "hq": "Hyderabad", "country": "India", "brands": ["24 Mantra Organic"], "products": "Organic pulses, besan and grains"},

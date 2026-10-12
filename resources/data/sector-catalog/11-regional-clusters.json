@@ -1,0 +1,3463 @@
+{
+ "sectors": [
+  {
+   "name": "Auto Components, Forging & Casting",
+   "subsectors": [
+    {
+     "name": "Gears, Steering, Brakes & Systems",
+     "companies": [
+      {
+       "name": "Aar Ess Auto",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Alcon Auto",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Auto Ignition",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Auto Pins India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Arvind Automotive",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Jaycee Autofab",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Jayem Auto Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "JBM Auto",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Hitachi Astemo Haryana",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Hella India Automotive",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Mitsubishi Electric Automotive India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Jay Ushin",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Munjal Showa",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Lumax Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "ASK Automotive",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Anu Autos Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Caparo Maruti",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Continental Automotive India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Gabriel India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Jay Bharat Maruti",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "JBM Group",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Krishna Maruti",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Krishna Toyo",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Bosch",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Automotive components"
+      },
+      {
+       "name": "Keihin India Manufacturing",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Automotive components"
+      },
+      {
+       "name": "The Hi-Tech Gears",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Automotive components"
+      },
+      {
+       "name": "PPAP Automotive",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Automotive components"
+      },
+      {
+       "name": "SVR Auto",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Automotive components"
+      },
+      {
+       "name": "Duro Sons Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Clutch and brake components"
+      }
+     ]
+    },
+    {
+     "name": "Forging",
+     "companies": [
+      {
+       "name": "Aar Kay Forge",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      },
+      {
+       "name": "Advance Forgings",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      },
+      {
+       "name": "Anvil Forge",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      },
+      {
+       "name": "Arm & Hammer Forgings",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      },
+      {
+       "name": "Brasso Forge",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      },
+      {
+       "name": "Competent Forging",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Forgings"
+      }
+     ]
+    },
+    {
+     "name": "Casting & Die Casting (India)",
+     "companies": [
+      {
+       "name": "BSL Castings",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Castings"
+      },
+      {
+       "name": "Mahavir Die Casting",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Castings"
+      },
+      {
+       "name": "M. D. Steels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Steel castings and alloy components"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Electrical Equipment & Appliances",
+   "subsectors": [
+    {
+     "name": "Wires & Cables",
+     "companies": [
+      {
+       "name": "Star Wire (India)",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Wires"
+      },
+      {
+       "name": "Havells India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electrical equipment"
+      },
+      {
+       "name": "Havells India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Cables and electricals"
+      },
+      {
+       "name": "KEI Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Cables and electricals"
+      },
+      {
+       "name": "Race Cables",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Cables and electricals"
+      },
+      {
+       "name": "Rashi Cables",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Cables and electricals"
+      },
+      {
+       "name": "MW Wiretech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Welding wires and electrodes"
+      }
+     ]
+    },
+    {
+     "name": "Transformers & Switchgear",
+     "companies": [
+      {
+       "name": "ABB India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Electrical equipment"
+      },
+      {
+       "name": "A. C. Power Control & Switchgears",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Panels and switchgear"
+      }
+     ]
+    },
+    {
+     "name": "Consumer Appliances & Air Conditioning",
+     "companies": [
+      {
+       "name": "LG Electronics India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Consumer electronics and appliances"
+      },
+      {
+       "name": "Whirlpool of India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Consumer electronics and appliances"
+      },
+      {
+       "name": "Daikin Airconditioning India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Air conditioners"
+      }
+     ]
+    },
+    {
+     "name": "Fans & Lighting",
+     "companies": [
+      {
+       "name": "Orient Electric",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Lighting, fans and batteries"
+      },
+      {
+       "name": "Halonix Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Lighting, fans and batteries"
+      },
+      {
+       "name": "Eveready Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Lighting, fans and batteries"
+      },
+      {
+       "name": "Orient Electric",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Fans and lighting"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Steel, Metals & Pipes",
+   "subsectors": [
+    {
+     "name": "Stainless Steel & Non-Ferrous Metals",
+     "companies": [
+      {
+       "name": "Associated Strips",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Steel strips and bright bars"
+      },
+      {
+       "name": "Bhupendra Steels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Steel strips and bright bars"
+      },
+      {
+       "name": "Joneja Bright Steels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Steel strips and bright bars"
+      },
+      {
+       "name": "Consolidated Coin Company",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Steel strips and bright bars"
+      },
+      {
+       "name": "M. D. Steels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Steel"
+      },
+      {
+       "name": "Meenakshi Strips",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Steel"
+      },
+      {
+       "name": "Nav Bharat Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Steel"
+      },
+      {
+       "name": "Shree Balaji Udyog",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Zinc products"
+      }
+     ]
+    },
+    {
+     "name": "Pipes & Tubes",
+     "companies": [
+      {
+       "name": "Sanjay Asbestos Cement Pipes",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Pipes"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Heavy Engineering & Capital Goods",
+   "subsectors": [
+    {
+     "name": "Machine Tools & Industrial Machinery",
+     "companies": [
+      {
+       "name": "BCH Electric",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Engineering equipment"
+      },
+      {
+       "name": "Cenlub Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Engineering equipment"
+      },
+      {
+       "name": "Action Construction Equipment",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Engineering equipment"
+      },
+      {
+       "name": "JCB India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Engineering equipment"
+      },
+      {
+       "name": "Knorr-Bremse India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Engineering equipment"
+      },
+      {
+       "name": "Donaldson India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Filtration systems"
+      },
+      {
+       "name": "Jogindra Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Machinery, tools, dies and fixtures"
+      },
+      {
+       "name": "Odison Engineering Works",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Machinery, tools, dies and fixtures"
+      },
+      {
+       "name": "Jeet Engineering Works",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Machinery, tools, dies and fixtures"
+      },
+      {
+       "name": "Sarjeet Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Machinery, tools, dies and fixtures"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Pharmaceuticals & Healthcare",
+   "subsectors": [
+    {
+     "name": "Formulations & Contract Manufacturing",
+     "companies": [
+      {
+       "name": "Alchem International",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Brawn Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Ahlcon Parenterals India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Parenteral products"
+      },
+      {
+       "name": "Crison Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Crystal Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Humbing Ethicals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Jayson Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "La-bella Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Malcom Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Theramx Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Therawin Formulation",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Challenger Medicine Manufacturing Company",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Casca Remedies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Celeric Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Horean Healthcare",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Kim Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Aziva Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Divus Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Alnova Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Zenkins Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Bonum Medelae",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Egzeon Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Alisier Drugs",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Torance Health Care",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Granmed Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Kryptochem Medicament",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "SG Biosciences",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "MediNova Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Amol Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Sitapura Industrial Area"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "AIMIL Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Alixia Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Allied Chemicals & Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Alsun Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Ankur Labs Eye Division",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Anon Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Aravali Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Archem Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Ayumed Pharmaceutical",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Jawa Pharmaceutical (India)",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Malviya Industrial Area"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Kaysons Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Sarna Dungar Industrial Area"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Synmedic Laboratories",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Keshwana Industrial Area"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Paam Biotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Medigene Health Care",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Sysgen Biotec India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Pleasant Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Somex Research and Health",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Curo Prime Pharmax",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Gal Care Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Ayushraj Enterprises",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Anshul Hi Tech Pharma",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Avis Lifecare",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Adonis Biotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "TPPL Pharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "MK Medipharmaceuticals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Vetnise Healthcare",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      },
+      {
+       "name": "Medvent Health Care",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ],
+       "hq": "Jaipur",
+       "products": "Pharmaceuticals"
+      }
+     ]
+    },
+    {
+     "name": "Medical Devices & Diagnostics",
+     "companies": [
+      {
+       "name": "Hindustan Syringes & Medical Devices",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Medical devices"
+      },
+      {
+       "name": "Bio Med Healthcare Products",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Medical devices"
+      }
+     ]
+    },
+    {
+     "name": "Biotechnology & Vaccines",
+     "companies": [
+      {
+       "name": "Orange Biotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Biotech and life sciences"
+      },
+      {
+       "name": "Pford Biotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Biotech and life sciences"
+      },
+      {
+       "name": "Uni Biotech Healthcare",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Biotech and life sciences"
+      },
+      {
+       "name": "Wolken Life Sciences",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Biotech and life sciences"
+      },
+      {
+       "name": "Pharmagic Lifesciences",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Ambala",
+         "area": "Ambala pharma cluster"
+        }
+       ],
+       "hq": "Ambala",
+       "products": "Biotech and life sciences"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Apparel, Textiles & Footwear",
+   "subsectors": [
+    {
+     "name": "Denim & Casual Wear",
+     "companies": [
+      {
+       "name": "Akriti Apparels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Garments"
+      },
+      {
+       "name": "Alpine Apparels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Garments"
+      },
+      {
+       "name": "India Fashion",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Garments"
+      }
+     ]
+    },
+    {
+     "name": "Textiles, Cotton & Yarn",
+     "companies": [
+      {
+       "name": "Anupam Tex Processors",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Textile processing"
+      },
+      {
+       "name": "Color Fabs",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Textile processing"
+      },
+      {
+       "name": "Jay Pee Knit Fab",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Textile processing"
+      },
+      {
+       "name": "Vardhman Textiles",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana textile cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Vardhman Polytex",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana textile cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Punjab Fibres",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana textile cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Oswal Spinning and Weaving Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana textile cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Adinath Textiles",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana textile cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Yarn and fabrics"
+      },
+      {
+       "name": "Parasrampuria Synthetics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Synthetic yarn"
+      },
+      {
+       "name": "APM Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Synthetic yarn"
+      },
+      {
+       "name": "Orient Syntex",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Synthetic yarn and dyeing"
+      },
+      {
+       "name": "Radhey Krishna Processors",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Synthetic yarn and dyeing"
+      }
+     ]
+    },
+    {
+     "name": "Footwear",
+     "companies": [
+      {
+       "name": "Lakhani Armaan Group",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Footwear"
+      }
+     ]
+    },
+    {
+     "name": "Mufflers, Scarves & Accessories",
+     "companies": [
+      {
+       "name": "Jaidka Woollen & Hosiery Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Ansh Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Aristocrat Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Bawa Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "BR Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Deeksha Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Deluxe Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Dev Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Ganpati Woollen Trading",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      },
+      {
+       "name": "Geeta Woollen Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Woollen textiles"
+      }
+     ]
+    },
+    {
+     "name": "Jackets & Winter Wear",
+     "companies": [
+      {
+       "name": "Atam Roop Clothings",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "Kochar Hosiery Works",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "Preet Hosiery Export",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "G. K. Marjara Hosiery Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "Nayco Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "Kuldip Oswal Hosiery Mills",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "V M Apparels",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      },
+      {
+       "name": "Braham Hosiery",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Ludhiana",
+         "area": "Ludhiana hosiery cluster"
+        }
+       ],
+       "hq": "Ludhiana",
+       "products": "Hosiery and garments"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Cement, Building Materials & Polymers",
+   "subsectors": [
+    {
+     "name": "Polymers & Petrochemicals",
+     "companies": [
+      {
+       "name": "HPL Additives",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Chemicals and plastics"
+      },
+      {
+       "name": "Bony Polymers",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Chemicals and plastics"
+      },
+      {
+       "name": "Steriware Plastic Products",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Chemicals and plastics"
+      },
+      {
+       "name": "Anand Nishikawa",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Rubber components and catalysts"
+      },
+      {
+       "name": "Johnson Matthey India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Rubber components and catalysts"
+      },
+      {
+       "name": "Apollo Tyres",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Tyres"
+      },
+      {
+       "name": "Toyo Ink India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Inks, chemicals and plastics"
+      },
+      {
+       "name": "Le Mei Plastic Manufacturing",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Inks, chemicals and plastics"
+      },
+      {
+       "name": "Nalin Chemicals",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals"
+      },
+      {
+       "name": "Evergreen Chemicals India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals"
+      },
+      {
+       "name": "Precious Electrochem",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals"
+      },
+      {
+       "name": "P. C. Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals, plastics and rubber"
+      },
+      {
+       "name": "Neeraj Plastics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals, plastics and rubber"
+      },
+      {
+       "name": "Pal Innovations",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals, plastics and rubber"
+      },
+      {
+       "name": "Sapna Rubber Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Chemicals, plastics and rubber"
+      }
+     ]
+    },
+    {
+     "name": "Paper, Pulp & Packaging",
+     "companies": [
+      {
+       "name": "A1 Classic Flexipack",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Packaging"
+      },
+      {
+       "name": "B. L. Containers",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Packaging"
+      },
+      {
+       "name": "Capital Packaging Industry",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Packaging"
+      },
+      {
+       "name": "A. K. Creations",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Packaging"
+      },
+      {
+       "name": "Aakriti Prime Products",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Packaging"
+      },
+      {
+       "name": "EcoBox India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Packaging"
+      },
+      {
+       "name": "Pitambar Coated Papers",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Coated paper and paperboard"
+      },
+      {
+       "name": "Manu Paper Coat",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Coated paper and paperboard"
+      }
+     ]
+    },
+    {
+     "name": "Paints & Coatings",
+     "companies": [
+      {
+       "name": "Orient Resin & Pigments Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Paints, pigments and additives"
+      }
+     ]
+    },
+    {
+     "name": "Cement",
+     "companies": [
+      {
+       "name": "Shree Cement",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Cement"
+      }
+     ]
+    },
+    {
+     "name": "Glass & Glassware",
+     "companies": [
+      {
+       "name": "Kaenat Glass Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Insulated glass"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Food & Beverages",
+   "subsectors": [
+    {
+     "name": "Packaged Foods & Confectionery",
+     "companies": [
+      {
+       "name": "Agro Food Industries",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Food products"
+      },
+      {
+       "name": "Patanjali Foods",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Food and consumer products"
+      }
+     ]
+    },
+    {
+     "name": "Beverages & Soft Drinks",
+     "companies": [
+      {
+       "name": "PepsiCo India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Food and beverages"
+      }
+     ]
+    },
+    {
+     "name": "Edible Oil & Refined Oil",
+     "companies": [
+      {
+       "name": "Ajanta Soya",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Edible oil"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Semiconductors & Electronics",
+   "subsectors": [
+    {
+     "name": "Electronics Manufacturing (EMS)",
+     "companies": [
+      {
+       "name": "Aksh Optifibre",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Haryana"
+        }
+       ],
+       "products": "Optical fibre"
+      },
+      {
+       "name": "Dixon Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Samsung India Electronics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Intex Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Yingtong Electronic",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Samkwang India Electronic",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Dong Jin Electronics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Westway Electronics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Electronics manufacturing"
+      },
+      {
+       "name": "Aksh Optifibre",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Optical fibre"
+      }
+     ]
+    },
+    {
+     "name": "Semiconductors & Chip Makers",
+     "companies": [
+      {
+       "name": "STMicroelectronics",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Semiconductors"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "IT Services & Software",
+   "subsectors": [
+    {
+     "name": "Global IT Services & Consulting",
+     "companies": [
+      {
+       "name": "Adobe Systems India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Software and IT services"
+      },
+      {
+       "name": "Oracle",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Software and IT services"
+      },
+      {
+       "name": "Wipro",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Software and IT services"
+      },
+      {
+       "name": "HCL Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Software and IT services"
+      },
+      {
+       "name": "NTT DATA",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Software and IT services"
+      }
+     ]
+    },
+    {
+     "name": "Indian IT Services",
+     "companies": [
+      {
+       "name": "42Works Infosolutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Access Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Aeren IT Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Allengers Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Alpha IT Consultants",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Ariel Software Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Bebo Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Code-Brew Labs",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Creed Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "CS Soft Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Debut Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Dr ITM",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Drish Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Eon Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "i-Mark",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Idea Clan",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "IDS Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "ieImpact Microsystems",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Impinge Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "InfoStride",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Kays Harbor Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Kindlebit Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Maxval Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Meritech Software",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "MOG Online",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Netsmartz Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "One Business Consulting Group",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Outline Systems",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Phi Business Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Right Global Infosolutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Seasia Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Sebiz Infotech",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Smart Data Enterprises",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Suffescom Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Techtier IT Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Testing Xperts",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "TOXSL Technologies",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Triam Systems",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "TT Consultants",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "UCodeSoft Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Vertex Infosoft Solutions",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      },
+      {
+       "name": "Xeam Ventures",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "IT City Mohali"
+        }
+       ],
+       "hq": "Mohali",
+       "products": "IT services and software"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Banking & Financial Services",
+   "subsectors": [
+    {
+     "name": "Payments, UPI & Cards",
+     "companies": [
+      {
+       "name": "Paytm (One97 Communications)",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Payments"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "FMCG - Personal & Home Care",
+   "subsectors": [
+    {
+     "name": "Shampoo, Hair Oil & Hair Care",
+     "companies": [
+      {
+       "name": "Dabur India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "FMCG"
+      }
+     ]
+    },
+    {
+     "name": "Soaps & Body Wash",
+     "companies": [
+      {
+       "name": "Gillette India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Personal care"
+      },
+      {
+       "name": "Dabur India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Personal care"
+      },
+      {
+       "name": "Procter & Gamble India",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Bhiwadi",
+         "area": "Bhiwadi Industrial Area"
+        }
+       ],
+       "hq": "Bhiwadi",
+       "products": "Personal care"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Consumer Electronics & Devices",
+   "subsectors": [
+    {
+     "name": "Jewellery",
+     "companies": [
+      {
+       "name": "PC Jeweller",
+       "country": "India",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Noida",
+         "area": "Noida - Greater Noida"
+        }
+       ],
+       "hq": "Noida",
+       "products": "Jewellery"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
