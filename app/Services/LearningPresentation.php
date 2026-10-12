@@ -76,7 +76,10 @@ class LearningPresentation
     /** In-depth explanation for a lesson or question title, from config/learning_deep/{track}.php. */
     public static function deep(string $track, string $title): ?string
     {
-        $deep = config('learning_deep.' . $track, []);
+        static $cache = [];
+        // A track is either one file (learning_deep/{track}.php) or a folder of topic files (learning_deep/{track}/*.php).
+        $deep = $cache[$track] ??= collect(config('learning_deep.' . $track, []))
+            ->flatMap(fn ($value, $key) => is_array($value) ? $value : [$key => $value])->all();
         return $deep[$title] ?? $deep[trim($title)] ?? null;
     }
 }
