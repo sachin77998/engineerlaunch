@@ -14,7 +14,7 @@ use Throwable;
 class DiscoverCompanies extends Command
 {
     protected $signature = 'companies:discover
-        {source=all : wikidata, osm, gleif or all}
+        {source=all : wikidata, osm, gleif, parks or all}
         {--country=* : ISO codes scanned on Wikidata (default IN)}
         {--pages=2 : Wikidata pages of 3000 rows per country and company type}
         {--area=* : Hub names from config/discovery.php (default: every hub)}
@@ -24,6 +24,7 @@ class DiscoverCompanies extends Command
         {--gleif-country=* : GLEIF registry: whole countries by ISO code, e.g. AE GB DE}
         {--gleif-pages=10 : GLEIF pages of 200 companies per city or country}
         {--gleif-all=* : GLEIF registry: every registered company of these countries (cursor paging, e.g. IN = ~400k)}
+        {--state=* : parks: only these states (default: every state and union territory)}
         {--sync : Fetch openings for newly discovered company websites when finished}
         {--now : Run inline instead of on the queue}';
     protected $description = 'Discover companies dynamically from Wikidata and OpenStreetMap and file them into sectors';
@@ -31,8 +32,12 @@ class DiscoverCompanies extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
-        if (!in_array($source, ['wikidata', 'osm', 'gleif', 'all'], true)) { $this->error('Source must be wikidata, osm, gleif or all.'); return self::INVALID; }
+        if (!in_array($source, ['wikidata', 'osm', 'gleif', 'parks', 'all'], true)) { $this->error('Source must be wikidata, osm, gleif, parks or all.'); return self::INVALID; }
         $jobs = [];
+        // IT parks, SEZs and industrial areas of every state first, so the area scans below include them.
+        if ($source === 'parks') {
+            foreach ($this->option('state') ?: array_keys(\App\Services\Discovery\ParkSource::STATES) as $state) $jobs[] = ['parks', ['state' => $state]];
+        }
         if (in_array($source, ['gleif', 'all'], true)) {
             $pages = range(1, max(1, (int) $this->option('gleif-pages')));
             if ($this->option('gleif-cities')) {
@@ -42,7 +47,7 @@ class DiscoverCompanies extends Command
             // One starting chunk per country; each chunk queues the next page (up to 5,000 pages = 1M records).
             foreach ($this->option('gleif-all') as $code) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => 1, 'cursor' => '*', 'pages_left' => 5000]];
         }
-        if (!in_array($source, ['osm', 'gleif'], true)) {
+        if (!in_array($source, ['osm', 'gleif', 'parks'], true)) {
             $countries = config('discovery.countries');
             foreach ($this->option('country') ?: ['IN'] as $code) {
                 $country = $countries[strtoupper($code)] ?? null;

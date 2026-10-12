@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
         $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
+        $schedule->command('companies:discover parks')->monthlyOn(5, '01:30')->withoutOverlapping(1440);
         $schedule->command('technologies:sync --skip-discovery')->dailyAt('03:00')->withoutOverlapping(120);
         $schedule->command('technologies:sync')->monthlyOn(3, '04:00')->withoutOverlapping(240);
         $schedule->command('recommendations:build-skill-graph')->dailyAt('03:30')->withoutOverlapping(120);

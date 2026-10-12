@@ -25,6 +25,7 @@ class AdminMaintenanceController extends Controller
         'osm' => ['Queue discovery for every industrial area (OpenStreetMap)', 'companies:discover', ['source' => 'osm', '--industrial-areas' => true]],
         'gleif' => ['Queue registered companies for every city (GLEIF registry, India + UAE)', 'companies:discover', ['source' => 'gleif', '--gleif-cities' => true, '--gleif-country' => ['AE'], '--gleif-pages' => 10]],
         'gleif-india' => ['Queue every registered company in India (GLEIF, ~400,000; imports over several hours)', 'companies:discover', ['source' => 'gleif', '--gleif-all' => ['IN']]],
+        'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
