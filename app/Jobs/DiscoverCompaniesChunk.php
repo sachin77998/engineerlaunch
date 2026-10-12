@@ -34,7 +34,7 @@ class DiscoverCompaniesChunk implements ShouldQueue
             $result = $source->write($source->fetch($this->params['state']));
             sleep(5); // the shared Overpass server limits heavy queries
         } elseif ($this->source === 'gleif') {
-            $page = app(\App\Services\Discovery\GleifCompanySource::class)->fetch($this->params['country'], $this->params['city'] ?? null, $this->params['page'], 200, $this->params['cursor'] ?? null);
+            $page = app(\App\Services\Discovery\GleifCompanySource::class)->fetch($this->params['country'], $this->params['city'] ?? null, $this->params['page'], 200, $this->params['cursor'] ?? null, $this->params['term'] ?? null);
             $result = app(\App\Services\Discovery\RegistryWriter::class)->write($page['rows']);
             // Whole-registry mode: each chunk queues the next cursor page until the registry or the page budget ends.
             $remaining = ($this->params['pages_left'] ?? 1) - 1;

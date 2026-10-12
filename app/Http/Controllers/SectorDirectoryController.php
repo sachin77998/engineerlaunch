@@ -32,7 +32,7 @@ class SectorDirectoryController extends Controller
         $companyIds = \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $card->subcategories->pluck('id'))->distinct()->limit(500)->pluck('company_id');
         $plantSectors = $this->directory->tree()->whereIn('slug', config('plant_flow.sectors', []))->pluck('id');
         $flow = $card->subcategories->contains(fn ($child) => $plantSectors->contains($child->parent_id)) ? config('plant_flow.stages') : [];
-        return view('sectors.index', ['tree' => $this->directory->tree(), 'card' => $card, 'flow' => $flow,
+        return view('sectors.index', ['tree' => $this->directory->tree(), 'card' => $card, 'flow' => $flow, 'liveRoles' => $this->directory->liveRoles($card->subcategories->pluck('id')),
             'openings' => $this->directory->openings($companyIds, [])] + $this->base([]));
     }
 
@@ -49,7 +49,7 @@ class SectorDirectoryController extends Controller
             : \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $sector->children->pluck('id'))->distinct()->limit(500)->pluck('company_id');
         $openings = $this->directory->openings($companyIds, $filters);
         if ($request->wantsJson()) return response()->json(['sector' => $sector, 'groups' => $groups, 'openings' => $openings]);
-        return view('sectors.index', ['tree' => $this->directory->tree(), 'sector' => $sector, 'groups' => $groups,
+        return view('sectors.index', ['tree' => $this->directory->tree(), 'sector' => $sector, 'groups' => $groups, 'liveRoles' => $this->directory->liveRoles($sector->children->pluck('id')),
             'openings' => $openings, 'flow' => $flow, 'card' => $groups->isEmpty() && !$filters ? $this->directory->sectorCard($sector) : null] + $this->base($filters));
     }
 
@@ -59,14 +59,14 @@ class SectorDirectoryController extends Controller
         [$sector, $child] = $this->directory->subcategory($slug, $sub) ?? abort(404);
         $filters = $this->filters($request);
         $companies = $this->directory->subcategoryCompanies($child, $filters);
-        return view('sectors.index', ['tree' => $this->directory->tree(), 'sector' => $sector, 'subcategory' => $child,
+        return view('sectors.index', ['tree' => $this->directory->tree(), 'sector' => $sector, 'subcategory' => $child, 'liveRoles' => $this->directory->liveRoles(collect([$child->id])),
             'companies' => $companies, 'openings' => $this->directory->openings($companies->getCollection()->pluck('id'), $filters)] + $this->base($filters));
     }
 
     private function base(array $filters): array
     {
         return ['sector' => null, 'groups' => collect(), 'results' => null, 'filters' => $filters, 'locations' => $this->directory->locations(),
-            'hubs' => collect(), 'card' => null, 'cards' => collect(), 'subcategory' => null, 'companies' => null, 'flow' => []];
+            'hubs' => collect(), 'card' => null, 'cards' => collect(), 'subcategory' => null, 'companies' => null, 'flow' => [], 'liveRoles' => []];
     }
 
     private function filters(Request $request): array

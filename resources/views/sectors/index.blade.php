@@ -154,8 +154,16 @@
 
     {{-- Right: roles hired in this sector and live openings --}}
     <aside class="sd-side sd-right">
+        @if(!empty($liveRoles))
+            <div class="sd-box sd-roles"><h3>Roles hiring now</h3>
+                @foreach($liveRoles as $department => $roles)
+                    <h4>{{ $department }}</h4>
+                    @foreach($roles as $item)<a href="{{ route('home') }}?q={{ rawurlencode($item['role']) }}#jobs">{{ $item['role'] }} · {{ $item['count'] }}</a>@endforeach
+                @endforeach
+            </div>
+        @endif
         @if($sector && $sector->roles)
-            <div class="sd-box sd-roles"><h3>Roles hired</h3>
+            <div class="sd-box sd-roles"><h3>Typical roles</h3>
                 @foreach($sector->roles as $department => $roles)
                     <h4>{{ $department }}</h4>
                     @foreach($roles as $role)<a href="{{ route('sectors.show', [$sector->slug, 'role' => $role] + \Illuminate\Support\Arr::except($filters, 'role')) }}" class="{{ ($filters['role'] ?? '') === $role ? 'on' : '' }}">{{ $role }}</a>@endforeach

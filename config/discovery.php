@@ -16,6 +16,22 @@ return [
         'Cybersecurity analyst', 'Full stack developer', 'Embedded software engineer', 'VLSI engineer', 'Product manager', 'Scrum master',
     ],
 
+    // Registry (GLEIF) searches by trade word: every registered company whose name contains the word is filed
+    // into a sector by the classifier and placed in its registered city (companies:discover gleif --gleif-trades).
+    'trade_terms' => [
+        'forging', 'forgings', 'forge', 'casting', 'castings', 'foundry', 'die casting', 'auto', 'automotive', 'motors', 'autocomp', 'auto parts',
+        'gears', 'axle', 'bearings', 'fasteners', 'springs', 'pistons', 'radiators', 'brakes', 'tractors', 'engineering works', 'precision',
+        'machine tools', 'tools', 'dies', 'moulds', 'molds', 'pumps', 'valves', 'compressors', 'hydraulics', 'boilers', 'cranes', 'fabricators',
+        'steel', 'ispat', 'alloys', 'aluminium', 'aluminum', 'copper', 'brass', 'metals', 'tubes', 'pipes', 'wires', 'cables', 'conductors',
+        'transformers', 'switchgear', 'electricals', 'electronics', 'fans', 'lighting', 'batteries', 'solar', 'power', 'energy', 'refinery', 'petroleum',
+        'textiles', 'spinning', 'weaving', 'knitting', 'garments', 'apparels', 'apparel', 'fashions', 'exports', 'denim', 'hosiery', 'woollen',
+        'footwear', 'shoes', 'leather', 'pharma', 'pharmaceuticals', 'laboratories', 'drugs', 'lifesciences', 'healthcare', 'biotech', 'remedies',
+        'formulations', 'chemicals', 'polymers', 'plastics', 'rubber', 'paints', 'coatings', 'paper', 'packaging', 'glass', 'ceramics', 'cement',
+        'plywood', 'timber', 'furniture', 'foods', 'food products', 'agro', 'dairy', 'milk', 'ghee', 'rice', 'dal mill', 'flour', 'spices', 'edible oil',
+        'beverages', 'sugar', 'distillery', 'fertilizers', 'seeds', 'software', 'technologies', 'infotech', 'infosystems', 'it services', 'solutions',
+        'consultancy', 'logistics', 'hotels', 'resorts', 'hospitality', 'finance', 'fintech', 'payments', 'bank',
+    ],
+
     // Wikidata country items scanned by `companies:discover wikidata`.
     'countries' => [
         'IN' => ['qid' => 'Q668', 'name' => 'India'],

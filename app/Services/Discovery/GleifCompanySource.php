@@ -39,11 +39,13 @@ class GleifCompanySource
      * @return array{rows: array, last_page: int}
      */
     /** $cursor ('*' to start) walks past GLEIF's 10,000-result limit for page numbers; 'next_cursor' continues it. */
-    public function fetch(string $countryCode, ?string $city, int $page, int $size = 200, ?string $cursor = null): array
+    /** $term: registry search by trade word ("forging", "casting"); only companies whose name contains it are kept. */
+    public function fetch(string $countryCode, ?string $city, int $page, int $size = 200, ?string $cursor = null, ?string $term = null): array
     {
         $query = ['filter[entity.legalAddress.country]' => strtoupper($countryCode), 'page[size]' => $size];
         if ($cursor !== null) $query['page[cursor]'] = $cursor; else $query['page[number]'] = $page;
         if ($city) $query['filter[fulltext]'] = $city;
+        if ($term) $query['filter[fulltext]'] = $term;
         $response = Http::withHeaders(['User-Agent' => config('discovery.user_agent'), 'Accept' => 'application/vnd.api+json'])
             ->timeout(60)->retry(3, 5000)->get(self::URL, $query);
         if (!$response->successful()) throw new RuntimeException('GLEIF returned HTTP ' . $response->status());
@@ -60,6 +62,7 @@ class GleifCompanySource
             $legal = $entity['legalAddress'] ?? [];
             $haystack = Str::lower(implode(' ', array_merge($legal['addressLines'] ?? [], [$legal['city'] ?? '', $address['city'] ?? ''], $address['addressLines'] ?? [])));
             if ($needles && !Str::contains($haystack, $needles)) continue;
+            if ($term && !Str::contains(Str::lower($name), Str::lower($term))) continue;
             $region = $address['region'] ?? $legal['region'] ?? '';
             $stateCode = Str::after((string) $region, '-');
             $rows[] = [

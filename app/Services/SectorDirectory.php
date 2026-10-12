@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 /** Read side of the sector catalog: cached sector tree, filtered sector pages and matching openings. */
 class SectorDirectory
@@ -104,6 +105,60 @@ class SectorDirectory
             if (str_contains($name, $keyword) && is_file(public_path($path))) return asset($path);
         }
         return null;
+    }
+
+    // Department of a role, by keyword in the cleaned job title (first match wins).
+    private const DEPARTMENTS = [
+        'Software & IT' => '/\b(software|developer|programmer|devops|cloud|data|ai|ml|machine learning|sre|frontend|backend|full ?stack|qa automation|it |cyber|security engineer|network|sap|salesforce|android|ios)\b/i',
+        'Design, R&D & Engineering' => '/\b(design|r&d|research|cae|cad|product engineer|development engineer|application engineer|simulation|npd)\b/i',
+        'Production & Operations' => '/\b(production|operator|machinist|assembly|technician|welder|fitter|plant|shift|manufacturing|operations|process engineer|line)\b/i',
+        'Quality' => '/\b(quality|qa|qc|inspector|inspection|metrology|testing|audit)\b/i',
+        'Maintenance & Utilities' => '/\b(maintenance|electrician|utility|mechanic|service engineer|facility)\b/i',
+        'Supply Chain, Purchase & Stores' => '/\b(supply chain|purchase|procurement|buyer|sourcing|store|warehouse|logistics|ppc|planner|commodity|vendor)\b/i',
+        'Sales, Marketing & Service' => '/\b(sales|marketing|business development|account manager|customer|key account|territory|dealer|retail|brand|growth)\b/i',
+        'Finance & Accounts' => '/\b(finance|account|accountant|tax|audit|treasury|controller|payroll|credit|risk)\b/i',
+        'HR & Administration' => '/\b(hr|human resources|talent|recruit|admin|administration|people|learning)\b/i',
+        'Management' => '/\b(manager|head|director|vp|vice president|general manager|chief|lead)\b/i',
+    ];
+
+    /**
+     * Roles being hired right now by the companies of these sub-categories, learned from live job titles:
+     * "Sr. Quality Engineer II - Pune (Casting)" -> "Quality Engineer". Grouped by department with counts.
+     * @return array<string, array<int, array{role:string,count:int}>>
+     */
+    public function liveRoles(Collection $categoryIds, int $limit = 36): array
+    {
+        if ($categoryIds->isEmpty()) return [];
+        return Cache::remember($this->key('live-roles:' . md5($categoryIds->sort()->implode(','))), now()->addHours(3), function () use ($categoryIds, $limit) {
+            $titles = Job::active()->whereIn('company_id', fn ($q) => $q->select('company_id')->from('company_category_company')->whereIn('company_category_id', $categoryIds))
+                ->latest('posted_at')->limit(3000)->pluck('title');
+            $counts = [];
+            foreach ($titles as $title) {
+                $role = $this->cleanRole((string) $title);
+                if ($role !== null) $counts[$role] = ($counts[$role] ?? 0) + 1;
+            }
+            arsort($counts);
+            $grouped = [];
+            foreach (array_slice($counts, 0, $limit, true) as $role => $count) {
+                $department = 'Other Roles';
+                foreach (self::DEPARTMENTS as $name => $pattern) if (preg_match($pattern, ' ' . $role . ' ')) { $department = $name; break; }
+                $grouped[$department][] = ['role' => $role, 'count' => $count];
+            }
+            return $grouped;
+        });
+    }
+
+    private function cleanRole(string $title): ?string
+    {
+        // English roles only: feeds also carry German/European titles ("Mitarbeiter/in Einkauf (m/w/d)").
+        if (preg_match('/[^\x00-\x7F]|\/in\b|\b[mwd]\/[mwd]\/[mwd]\b|\b(und|fur|mit|der|die|das|im|zur|zum|mitarbeiter|ingenieur|leiter|leitung|sachbearbeiter|werkstudent|fachkraft|kaufmann|kauffrau|techniker|monteur|elektroniker|mechaniker|meister|vertrieb|einkauf|ausbildung|praktikum|bauleiter|projektleiter|entwickler|berater|referent|teamleiter|stellvertretende|responsable|tecnico|ingeniero|ajudante|operador|extrusor|auxiliar|analista|assistente|vendedor|gerente|coordenador|encarregado|mecanico|soldador|montador|tecnologo)\b/iu', $title)) return null;
+        $title = preg_replace('/\(.*?\)|\[.*?\]/u', ' ', $title);
+        $title = preg_split('/\s+[-–—|:@]\s+|,|\s\/\s/u', $title)[0] ?? $title;
+        $title = preg_replace('/\b(senior|sr\.?|junior|jr\.?|trainee|intern|associate|principal|staff|executive|assistant|deputy|graduate|apprentice|entry level)\b/iu', ' ', $title);
+        $title = preg_replace('/\b(i{1,3}|iv|v|l\d|level \d|grade \w+|\d+)\b/iu', ' ', $title);
+        $title = trim(preg_replace('/\s+/', ' ', $title), " .-–&/");
+        if (mb_strlen($title) < 3 || mb_strlen($title) > 48 || !preg_match('/\pL{3}/u', $title)) return null;
+        return Str::title(mb_strtolower($title));
     }
 
     /** One catalog sector presented like a category card (its sub-categories with counts and logos). */

@@ -1,0 +1,1535 @@
+{
+ "sectors": [
+  {
+   "name": "Pharmaceuticals & Healthcare",
+   "symbol": "PH",
+   "subsectors": [
+    {
+     "name": "State-wise Pharma Manufacturers",
+     "companies": [
+      {
+       "name": "Divi's Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.divislabs.com",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Visakhapatnam pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Laurus Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.lauruslabs.com",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Visakhapatnam pharma cluster"
+        },
+        {
+         "state": "Andhra Pradesh",
+         "city": "Parawada",
+         "area": "Parawada pharma cluster"
+        },
+        {
+         "state": "Andhra Pradesh",
+         "city": "Achyutapuram",
+         "area": "Achyutapuram pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Aurobindo Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.aurobindo.com",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Visakhapatnam pharma cluster"
+        },
+        {
+         "state": "Andhra Pradesh",
+         "city": "Naidupeta",
+         "area": "Naidupeta pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Jeedimetla",
+         "area": "Jeedimetla pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Cipla",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.cipla.com",
+       "plants": [
+        {
+         "state": "Goa",
+         "city": "Verna",
+         "area": "Verna pharma cluster"
+        },
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Glenmark Pharmaceuticals",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.glenmarkpharma.com",
+       "plants": [
+        {
+         "state": "Goa",
+         "city": "Ponda",
+         "area": "Ponda pharma cluster"
+        },
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Nashik",
+         "area": "Nashik pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Indoco Remedies",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.indoco.com",
+       "plants": [
+        {
+         "state": "Goa",
+         "city": "Verna",
+         "area": "Verna pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Zydus Lifesciences",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.zyduslife.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad pharma cluster"
+        },
+        {
+         "state": "Gujarat",
+         "city": "Ankleshwar",
+         "area": "Ankleshwar pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Torrent Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.torrentpharma.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad pharma cluster"
+        },
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Intas Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.intaspharma.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Alembic Pharmaceuticals",
+       "hq": "Vadodara",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.alembicpharmaceuticals.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Vadodara",
+         "area": "Vadodara pharma cluster"
+        },
+        {
+         "state": "Gujarat",
+         "city": "Bharuch",
+         "area": "Bharuch pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Sun Pharmaceutical Industries",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.sunpharma.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Vadodara",
+         "area": "Vadodara pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Troikaa Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.troikaapharma.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Lincoln Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.lincolnpharma.com",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "PIL Pharmaceuticals",
+       "hq": "Faridabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Faridabad",
+         "area": "Faridabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Dr. Reddy's Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.drreddys.com",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Bontapally",
+         "area": "Bontapally pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Abbott India",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.abbott.co.in",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Alkem Laboratories",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.alkemlabs.com",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Taloja",
+         "area": "Taloja pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Biocon",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.biocon.com",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Syngene International",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.syngeneintl.com",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Micro Labs",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.microlabsltd.com",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Strides Pharma Science",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.strides.com",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Anthem Biosciences",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.anthembio.com",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Kerala State Drugs and Pharmaceuticals",
+       "hq": "Alappuzha",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Kerala",
+         "city": "Alappuzha",
+         "area": "Alappuzha pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "HLL Lifecare",
+       "hq": "Thiruvananthapuram",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.lifecarehll.com",
+       "plants": [
+        {
+         "state": "Kerala",
+         "city": "Thiruvananthapuram",
+         "area": "Thiruvananthapuram pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Ipca Laboratories",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.ipca.com",
+       "plants": [
+        {
+         "state": "Madhya Pradesh",
+         "city": "Ratlam",
+         "area": "Ratlam pharma cluster"
+        },
+        {
+         "state": "Madhya Pradesh",
+         "city": "Pithampur",
+         "area": "Pithampur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Lupin",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.lupin.com",
+       "plants": [
+        {
+         "state": "Madhya Pradesh",
+         "city": "Pithampur",
+         "area": "Pithampur pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Pune",
+         "area": "Pune pharma cluster"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Tarapur",
+         "area": "Tarapur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Symbiotec Pharmalab",
+       "hq": "Indore",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Madhya Pradesh",
+         "city": "Indore",
+         "area": "Indore pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Piramal Pharma Solutions",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.piramalpharmasolutions.com",
+       "plants": [
+        {
+         "state": "Madhya Pradesh",
+         "city": "Pithampur",
+         "area": "Pithampur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Serum Institute of India",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.seruminstitute.com",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Pune",
+         "area": "Pune pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Wockhardt",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.wockhardt.com",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Aurangabad",
+         "area": "Aurangabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Ajanta Pharma",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.ajantapharma.com",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Aurangabad",
+         "area": "Aurangabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "FDC Limited",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.fdcindia.com",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Aurangabad",
+         "area": "Aurangabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Panacea Biotec",
+       "hq": "New Delhi",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.panaceabiotec.com",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Lalru",
+         "area": "Lalru pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Kwality Pharmaceuticals",
+       "hq": "Amritsar",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Amritsar",
+         "area": "Amritsar pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Ind-Swift Laboratories",
+       "hq": "Chandigarh",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Dera Bassi",
+         "area": "Dera Bassi pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "ABRYL Laboratories",
+       "hq": "Mohali",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "Mohali pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Taksa Life Sciences",
+       "hq": "Mohali",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Dera Bassi",
+         "area": "Dera Bassi pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Rajasthan Drugs and Pharmaceuticals",
+       "hq": "Jaipur",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "Jaipur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Orchid Pharma",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.orchidpharma.com",
+       "plants": [
+        {
+         "state": "Tamil Nadu",
+         "city": "Chennai",
+         "area": "Chennai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Caplin Point Laboratories",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.caplinpoint.net",
+       "plants": [
+        {
+         "state": "Tamil Nadu",
+         "city": "Chennai",
+         "area": "Chennai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Tablets India",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Tamil Nadu",
+         "city": "Chennai",
+         "area": "Chennai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "TTK Healthcare",
+       "hq": "Chennai",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.ttkhealthcare.com",
+       "plants": [
+        {
+         "state": "Tamil Nadu",
+         "city": "Chennai",
+         "area": "Chennai pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Hetero Drugs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.heteroworld.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Jeedimetla",
+         "area": "Jeedimetla pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Natco Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.natcopharma.co.in",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Granules India",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.granulesindia.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Bharat Biotech",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.bharatbiotech.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Biological E",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.biologicale.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Uttarakhand",
+         "city": "Rudrapur",
+         "area": "Rudrapur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Neuland Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.neulandlabs.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Sangareddy pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "MSN Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.msnlabs.com",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad pharma cluster"
+        },
+        {
+         "state": "Telangana",
+         "city": "Medak",
+         "area": "Medak pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Sidmak Laboratories",
+       "hq": "Dehradun",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Uttarakhand",
+         "city": "Dehradun",
+         "area": "Dehradun pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Suncare Formulations",
+       "hq": "Dehradun",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Uttarakhand",
+         "city": "Selaqui",
+         "area": "Selaqui pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "India Glycols",
+       "hq": "Noida",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.indiaglycols.com",
+       "plants": [
+        {
+         "state": "Uttarakhand",
+         "city": "Kashipur",
+         "area": "Kashipur pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Hema Laboratories",
+       "hq": "Haridwar",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Uttarakhand",
+         "city": "Haridwar",
+         "area": "Haridwar pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "HAB Pharmaceuticals",
+       "hq": "Dehradun",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "plants": [
+        {
+         "state": "Uttarakhand",
+         "city": "Dehradun",
+         "area": "Dehradun pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Bengal Chemicals & Pharmaceuticals",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.bengalchemicals.co.in",
+       "plants": [
+        {
+         "state": "West Bengal",
+         "city": "Kolkata",
+         "area": "Kolkata pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Albert David",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.albertdavidindia.com",
+       "plants": [
+        {
+         "state": "West Bengal",
+         "city": "Kolkata",
+         "area": "Kolkata pharma cluster"
+        }
+       ]
+      },
+      {
+       "name": "Dey's Medical",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Pharmaceuticals",
+       "website": "https://www.deysmedical.com",
+       "plants": [
+        {
+         "state": "West Bengal",
+         "city": "Kolkata",
+         "area": "Kolkata pharma cluster"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "APIs & Bulk Drugs",
+     "companies": [
+      {
+       "name": "Andhra Organics",
+       "hq": "Srikakulam",
+       "country": "India",
+       "products": "APIs and pharmaceutical intermediates",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Srikakulam",
+         "area": "Pydibhimavaram"
+        }
+       ]
+      },
+      {
+       "name": "Viyash Scientific",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "API manufacturing",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Visakhapatnam"
+        },
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Sangareddy district"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Taloja",
+         "area": "Taloja MIDC, Raigad"
+        }
+       ]
+      },
+      {
+       "name": "Everest Organics",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "APIs",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Aroor"
+        }
+       ]
+      },
+      {
+       "name": "Atul Bioscience",
+       "hq": "Valsad",
+       "country": "India",
+       "products": "APIs and intermediates",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Valsad",
+         "area": "Atul"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Ambernath",
+         "area": "Ambernath"
+        }
+       ]
+      },
+      {
+       "name": "Aarti Pharmalabs",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceutical and specialty chemistry",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Vapi",
+         "area": "Vapi, Valsad"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Tarapur",
+         "area": "Tarapur, Palghar"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Dombivli",
+         "area": "Dombivli, Thane"
+        }
+       ]
+      },
+      {
+       "name": "Piramal Pharma",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "APIs and inhalation products",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Digwal"
+        }
+       ],
+       "website": "https://www.piramalpharma.com"
+      },
+      {
+       "name": "Torrent Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "APIs",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Anakapalli",
+         "area": "Anakapalli"
+        },
+        {
+         "state": "Gujarat",
+         "city": "Dahej",
+         "area": "Dahej"
+        }
+       ],
+       "website": "https://www.torrentpharma.com"
+      },
+      {
+       "name": "Teva Pharmaceuticals",
+       "hq": "Tel Aviv",
+       "country": "India",
+       "products": "API manufacturing",
+       "plants": [
+        {
+         "state": "Uttar Pradesh",
+         "city": "Gajraula",
+         "area": "Gajraula"
+        },
+        {
+         "state": "Madhya Pradesh",
+         "city": "Malanpur",
+         "area": "Malanpur"
+        },
+        {
+         "state": "Maharashtra",
+         "city": "Ambernath",
+         "area": "Ambernath"
+        }
+       ],
+       "website": "https://www.tevapharm.com"
+      },
+      {
+       "name": "Apex Pharma API",
+       "hq": "Bharuch",
+       "country": "India",
+       "products": "APIs and intermediates",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Bharuch",
+         "area": "Saykha"
+        }
+       ]
+      },
+      {
+       "name": "ApiSyn",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "API manufacturing",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Ahmedabad",
+         "area": "Ahmedabad"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Contract Manufacturing (CDMO)",
+     "companies": [
+      {
+       "name": "Lupin Manufacturing Solutions",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "API and CDMO manufacturing",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Parawada"
+        },
+        {
+         "state": "Gujarat",
+         "city": "Vadodara",
+         "area": "Dabhasa"
+        }
+       ]
+      },
+      {
+       "name": "PEC Pharma",
+       "hq": "Bharuch",
+       "country": "India",
+       "products": "APIs, intermediates, CDMO",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Bharuch",
+         "area": "Saykha"
+        }
+       ]
+      },
+      {
+       "name": "Calrax Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Third-party pharmaceutical manufacturing",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Jharmajri"
+        }
+       ]
+      },
+      {
+       "name": "Tridev Biosciences",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Tablets, capsules and contract manufacturing",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Gopal Lifesciences",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Torque Pharma",
+       "hq": "Mohali",
+       "country": "India",
+       "products": "Pharmaceutical manufacturing",
+       "plants": [
+        {
+         "state": "Punjab",
+         "city": "Mohali",
+         "area": "Dapper, SAS Nagar district"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Generic Formulations",
+     "companies": [
+      {
+       "name": "Lupin",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Oral solids, injectables, suspensions",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Nagpur",
+         "area": "MIHAN"
+        },
+        {
+         "state": "Madhya Pradesh",
+         "city": "Pithampur",
+         "area": "Pithampur, Dhar"
+        },
+        {
+         "state": "Sikkim",
+         "city": "East Sikkim",
+         "area": "East Sikkim"
+        }
+       ],
+       "website": "https://www.lupin.com"
+      },
+      {
+       "name": "Cipla",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Formulations",
+       "plants": [
+        {
+         "state": "Goa",
+         "city": "Verna",
+         "area": "Verna"
+        },
+        {
+         "state": "Sikkim",
+         "city": "East Sikkim",
+         "area": "East Sikkim"
+        }
+       ],
+       "website": "https://www.cipla.com"
+      },
+      {
+       "name": "Pfizer India",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Injectables and formulations",
+       "plants": [
+        {
+         "state": "Andhra Pradesh",
+         "city": "Visakhapatnam",
+         "area": "Visakhapatnam"
+        },
+        {
+         "state": "Goa",
+         "city": "Verna",
+         "area": "Verna"
+        }
+       ],
+       "website": "https://www.pfizerindia.com"
+      },
+      {
+       "name": "Teva Pharmaceuticals",
+       "hq": "Tel Aviv",
+       "country": "India",
+       "products": "Formulations and pharmaceutical services",
+       "plants": [
+        {
+         "state": "Goa",
+         "city": "Verna",
+         "area": "Verna"
+        },
+        {
+         "state": "Tamil Nadu",
+         "city": "Chennai",
+         "area": "Chennai"
+        }
+       ],
+       "website": "https://www.tevapharm.com"
+      },
+      {
+       "name": "Torrent Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "Formulations",
+       "plants": [
+        {
+         "state": "Sikkim",
+         "city": "East Sikkim",
+         "area": "East Sikkim"
+        }
+       ],
+       "website": "https://www.torrentpharma.com"
+      },
+      {
+       "name": "Cadila Pharmaceuticals",
+       "hq": "Ahmedabad",
+       "country": "India",
+       "products": "APIs and formulations",
+       "plants": [
+        {
+         "state": "Gujarat",
+         "city": "Dahej",
+         "area": "Dahej"
+        }
+       ],
+       "website": "https://www.cadilapharma.com"
+      }
+     ]
+    },
+    {
+     "name": "Public Sector Pharma",
+     "companies": [
+      {
+       "name": "Indian Drugs & Pharmaceuticals Limited (IDPL)",
+       "hq": "Gurugram",
+       "country": "India",
+       "products": "Pharmaceutical manufacturing (PSU)",
+       "plants": [
+        {
+         "state": "Haryana",
+         "city": "Gurugram",
+         "area": "Gurugram"
+        },
+        {
+         "state": "Uttarakhand",
+         "city": "Rishikesh",
+         "area": "Rishikesh"
+        }
+       ]
+      },
+      {
+       "name": "Rajasthan Drugs and Pharmaceuticals",
+       "hq": "Jaipur",
+       "country": "India",
+       "products": "Tablets, capsules, liquid orals, ophthalmics",
+       "plants": [
+        {
+         "state": "Rajasthan",
+         "city": "Jaipur",
+         "area": "VKI Industrial Area"
+        }
+       ]
+      },
+      {
+       "name": "Karnataka Antibiotics & Pharmaceuticals",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Pharmaceutical formulations (PSU)",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bengaluru"
+        }
+       ]
+      },
+      {
+       "name": "Bihar Drugs & Organic Chemicals",
+       "hq": "Muzaffarpur",
+       "country": "India",
+       "products": "Pharmaceutical manufacturing",
+       "plants": [
+        {
+         "state": "Bihar",
+         "city": "Muzaffarpur",
+         "area": "Muzaffarpur"
+        }
+       ]
+      },
+      {
+       "name": "Orissa Drugs & Chemicals",
+       "hq": "Bhubaneswar",
+       "country": "India",
+       "products": "Pharmaceutical manufacturing",
+       "plants": [
+        {
+         "state": "Odisha",
+         "city": "Bhubaneswar",
+         "area": "Bhubaneswar"
+        }
+       ]
+      },
+      {
+       "name": "Kerala State Drugs and Pharmaceuticals",
+       "hq": "Alappuzha",
+       "country": "India",
+       "products": "Pharmaceutical manufacturing (PSU)",
+       "plants": [
+        {
+         "state": "Kerala",
+         "city": "Alappuzha",
+         "area": "Alappuzha"
+        }
+       ]
+      },
+      {
+       "name": "Bengal Chemicals & Pharmaceuticals",
+       "hq": "Kolkata",
+       "country": "India",
+       "products": "Pharmaceuticals (PSU)",
+       "plants": [
+        {
+         "state": "West Bengal",
+         "city": "Kolkata",
+         "area": "Kolkata"
+        }
+       ],
+       "website": "https://www.bengalchemicals.co.in"
+      }
+     ]
+    },
+    {
+     "name": "Biotechnology & Vaccines",
+     "companies": [
+      {
+       "name": "Bharat Biotech",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Vaccines and biologics",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Genome Valley"
+        }
+       ],
+       "website": "https://www.bharatbiotech.com"
+      },
+      {
+       "name": "Biological E",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Vaccines and biologics",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad"
+        }
+       ],
+       "website": "https://www.biologicale.com"
+      },
+      {
+       "name": "Serum Institute of India",
+       "hq": "Pune",
+       "country": "India",
+       "products": "Vaccines",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Pune",
+         "area": "Hadapsar"
+        }
+       ],
+       "website": "https://www.seruminstitute.com"
+      }
+     ]
+    },
+    {
+     "name": "Pharma R&D & Clinical Research",
+     "companies": [
+      {
+       "name": "Syngene International",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Contract research and development",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Biocon Park"
+        }
+       ],
+       "website": "https://www.syngeneintl.com"
+      },
+      {
+       "name": "Anthem Biosciences",
+       "hq": "Bengaluru",
+       "country": "India",
+       "products": "Contract research and manufacturing",
+       "plants": [
+        {
+         "state": "Karnataka",
+         "city": "Bengaluru",
+         "area": "Bommasandra"
+        }
+       ],
+       "website": "https://www.anthembio.com"
+      },
+      {
+       "name": "Neuland Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "API research and manufacturing",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Bonthapally"
+        }
+       ],
+       "website": "https://www.neulandlabs.com"
+      }
+     ]
+    }
+   ],
+   "roles": {
+    "Production": [
+     "Production Chemist",
+     "Production Officer",
+     "Granulation Operator",
+     "Compression Operator",
+     "Packing Supervisor"
+    ],
+    "Quality": [
+     "QC Analyst",
+     "QA Executive",
+     "Microbiologist",
+     "HPLC Analyst",
+     "IPQA Officer",
+     "Validation Executive"
+    ],
+    "R&D": [
+     "Formulation Scientist",
+     "Analytical Research Scientist",
+     "Synthesis Chemist",
+     "Clinical Research Associate"
+    ],
+    "Regulatory & Safety": [
+     "Regulatory Affairs Executive",
+     "Pharmacovigilance Associate",
+     "EHS Officer"
+    ],
+    "Sales & Supply": [
+     "Medical Representative",
+     "Area Business Manager",
+     "Stores Officer",
+     "Warehouse Executive"
+    ]
+   }
+  }
+ ]
+}
