@@ -21,13 +21,13 @@ class SectorDirectoryController extends Controller
         $openings = $results ? $this->directory->openings($results->pluck('id'), $filters) : collect();
         if ($request->wantsJson()) return response()->json(['sectors' => $tree, 'results' => $results, 'openings' => $openings]);
         return view('sectors.index', ['tree' => $tree, 'results' => $results, 'openings' => $openings,
-            'hubs' => $this->directory->hubs(), 'cards' => $results === null ? $this->directory->groups() : collect()] + $this->base($filters));
+            'hubs' => $this->directory->hubs(), 'cards' => $results === null ? $this->directory->safeGroups() : collect()] + $this->base($filters));
     }
 
     /** A category card opened: its sub-categories as cards. */
     public function group(Request $request, string $group)
     {
-        $card = $this->directory->group($group);
+        try { $card = $this->directory->group($group); } catch (\Throwable $e) { report($e); return redirect()->route('sectors.index'); }
         abort_unless($card, 404);
         $companyIds = \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $card->subcategories->pluck('id'))->distinct()->limit(500)->pluck('company_id');
         $plantSectors = $this->directory->tree()->whereIn('slug', config('plant_flow.sectors', []))->pluck('id');

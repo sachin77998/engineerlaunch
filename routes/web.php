@@ -75,6 +75,9 @@ Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice');
 
 Route::get('/ai/chat', function () {return view('ai.chat');})->name('ai.chat');
+Route::get('/market', [\App\Http\Controllers\MarketController::class, 'index'])->name('market.index');
+Route::get('/admin/market/template/{type}', [\App\Http\Controllers\MarketController::class, 'template'])->middleware(['auth','admin'])->name('admin.market.template');
+Route::post('/admin/market/upload', [\App\Http\Controllers\MarketController::class, 'upload'])->middleware(['auth','admin'])->name('admin.market.upload');
 Route::get('/technologies', [\App\Http\Controllers\TechnologyController::class, 'index'])->name('technologies.index');
 Route::get('/technologies/{slug}', [\App\Http\Controllers\TechnologyController::class, 'show'])->name('technologies.show');
 Route::get('/recommendations/jobs', [\App\Http\Controllers\RecommendationController::class, 'jobs'])->middleware('throttle:60,1')->name('recommendations.jobs');

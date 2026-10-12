@@ -78,6 +78,26 @@ class SectorDirectory
         });
     }
 
+    /** Category cards, or plain sector cards if building them fails (the page must never return a 500). */
+    public function safeGroups(): Collection
+    {
+        try {
+            // Built by the queue (WarmSectorGroups); until then show plain sector cards instantly.
+            if (!Cache::has($this->key('groups')) && !app()->runningInConsole() && !app()->runningUnitTests()) {
+                \App\Jobs\WarmSectorGroups::dispatch()->onConnection('database')->onQueue('catalog');
+                throw new \RuntimeException('Sector cards are being prepared');
+            }
+            return $this->groups();
+        } catch (\Throwable $e) {
+            if (!$e instanceof \RuntimeException || $e->getMessage() !== 'Sector cards are being prepared') report($e);
+            report($e);
+            return $this->tree()->map(fn ($sector) => (object) [
+                'slug' => $sector->slug, 'name' => $sector->name, 'icon' => null, 'symbol' => $sector->symbol, 'color' => '#0b2545',
+                'image' => null, 'subcategories' => $sector->children, 'companies_count' => $sector->companies_count,
+                'openings_count' => 0, 'logos' => [], 'url' => route('sectors.show', $sector->slug),
+            ]);
+        }
+    }
     public function group(string $slug): ?object
     {
         return $this->groups()->firstWhere('slug', $slug);
@@ -201,16 +221,24 @@ class SectorDirectory
     /** Up to four companies per sub-category (most openings first) for the card logos. @return array<int,array> */
     private function previewCompanies(Collection $categoryIds): array
     {
-        if ($categoryIds->isEmpty()) return [];
-        $rows = \Illuminate\Support\Facades\DB::table('company_category_company as ccc')->join('companies', 'companies.id', '=', 'ccc.company_id')
-            ->where('companies.is_active', true)->whereIn('ccc.company_category_id', $categoryIds)
-            ->get(['ccc.company_category_id', 'companies.id', 'companies.name', 'companies.slug', 'companies.website', 'companies.logo_url']);
-        $jobs = Job::active()->whereIn('company_id', $rows->pluck('id')->unique())->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id');
+        // One small indexed query per sub-category: production has hundreds of thousands of registry companies,
+        // so loading every company of every category at once would exhaust memory.
+        $hiring = array_keys(Cache::remember($this->key('jobs-per-company'), now()->addMinutes(30),
+            fn () => Job::active()->whereNotNull('company_id')->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id')->all()));
         $previews = [];
-        foreach ($rows->groupBy('company_category_id') as $id => $companies) {
-            $previews[$id] = $companies->sortBy([fn ($a, $b) => ($jobs[$b->id] ?? 0) <=> ($jobs[$a->id] ?? 0), fn ($a, $b) => strcmp($a->name, $b->name)])
-                ->take(4)->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug,
-                    'logo' => (new Company(['website' => $c->website]))->forceFill(['logo_url' => $c->logo_url])->logo_url])->values()->all();
+        foreach ($categoryIds as $id) {
+            $query = fn () => \Illuminate\Support\Facades\DB::table('company_category_company as ccc')
+                ->join('companies', 'companies.id', '=', 'ccc.company_id')
+                ->where('ccc.company_category_id', $id)->where('companies.is_active', true)
+                ->select('companies.id', 'companies.name', 'companies.slug', 'companies.website', 'companies.logo_url');
+            // Companies with live openings first, then companies with a website (they have a logo).
+            $rows = $hiring ? $query()->whereIn('companies.id', array_slice($hiring, 0, 5000))->limit(4)->get() : collect();
+            if ($rows->count() < 4) {
+                $rows = $rows->merge($query()->whereNotIn('companies.id', $rows->pluck('id')->all() ?: [0])
+                    ->orderByRaw('companies.website IS NULL')->orderBy('companies.id')->limit(4 - $rows->count())->get());
+            }
+            $previews[$id] = $rows->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug,
+                'logo' => (new Company(['website' => $c->website]))->forceFill(['logo_url' => $c->logo_url])->logo_url])->values()->all();
         }
         return $previews;
     }

@@ -56,7 +56,7 @@
 </style>@endpush
 @php
     $base = $subcategory ? route('sectors.subcategory', [$sector->slug, $subcategory->slug]) : ($sector ? route('sectors.show', $sector->slug) : route('sectors.index'));
-    $navGroups = app(\App\Services\SectorDirectory::class)->groups();
+    $navGroups = app(\App\Services\SectorDirectory::class)->safeGroups();
 @endphp
 @section('content')
 @include('partials.page-tabs',['tabs'=>[['Companies by Sector',route('sectors.index'),true],['Industrial Areas & Tech Parks',route('sectors.index').'#hubs',false]]])

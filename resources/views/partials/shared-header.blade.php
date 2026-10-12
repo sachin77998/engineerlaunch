@@ -18,7 +18,7 @@
             ['resume.builder', 'Resume Builder'], ['resume.builder', 'ATS-Friendly Resume', [], 'ats-preview'],
         ]],
         'Explore' => [['company.experiences.*', 'news.*'], [
-            ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'],
+            ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'], ['market.index', 'Market Data (Sales & Prices)'], ['technologies.index', 'Jobs by Language & Technology'],
         ]],
         'About' => [['about', 'contact'], [['about', 'About Us'], ['contact', 'Contact']]],
     ];

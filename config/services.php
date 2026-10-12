@@ -63,6 +63,9 @@ return [
         'app_key' => env('ADZUNA_APP_KEY'),
     ],
 
+    // Gold and silver spot prices (free key at goldapi.io).
+    'goldapi' => ['key' => env('GOLDAPI_KEY')],
+
     'jooble' => [
         'key' => env('JOOBLE_API_KEY'),
         'host' => env('JOOBLE_HOST', 'jooble.org'),

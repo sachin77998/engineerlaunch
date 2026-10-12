@@ -22,6 +22,19 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
         <a class="mt-btn" href="{{ route('sectors.index') }}" target="_blank">Open Companies by Sector ↗</a>
         <a class="mt-btn" href="{{ route('admin.deploy-log') }}" target="_blank">Raw deployment log ↗</a>
     </div>
+    <div class="mt-step" style="grid-template-columns:1fr" id="mt-market">
+        <div><strong>Market data upload</strong><br><small>Monthly model-wise vehicle sales (company releases, SIAM wholesale, FADA retail) or commodity prices (copper, steel, sand, gold by city). Download a template, fill it, upload. Existing rows for the same model/month or commodity/day are updated.</small>
+        @if(session('success'))<p style="color:#087443;font-weight:700;margin:6px 0">{{ session('success') }}</p>@endif
+        @error('file')<p style="color:#b42318;font-weight:700;margin:6px 0">{{ $message }}</p>@enderror
+        <form method="post" action="{{ route('admin.market.upload') }}" enctype="multipart/form-data" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px">@csrf
+            <select name="type" class="mt-btn"><option value="vehicles">Vehicle sales</option><option value="prices">Commodity prices</option></select>
+            <input type="file" name="file" accept=".csv" required>
+            <button class="primary" type="submit">Upload CSV</button>
+            <a class="mt-btn" href="{{ route('admin.market.template', 'vehicles') }}">Vehicle template</a>
+            <a class="mt-btn" href="{{ route('admin.market.template', 'prices') }}">Price template</a>
+            <a class="mt-btn" href="{{ route('market.index') }}" target="_blank">Open Market Data ↗</a>
+        </form></div>
+    </div>
     <div class="mt-step" style="grid-template-columns:1fr" id="mt-repos">
         <div><strong>GitHub repository on this server</strong><br>
         @forelse($repos as $i => $repo)

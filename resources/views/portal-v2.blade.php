@@ -903,7 +903,7 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
             <a class="tab" href="{{ route('sectors.index') }}">All sectors</a>
         </div>
         <div class="cat-grid">
-            @foreach(rescue(fn () => app(\App\Services\SectorDirectory::class)->groups()->take(9), collect(), false) as $categoryCard)
+            @foreach(rescue(fn () => app(\App\Services\SectorDirectory::class)->safeGroups()->take(9), collect(), false) as $categoryCard)
                 @include('sectors.partials.category-card', ['card' => $categoryCard])
             @endforeach
         </div>
