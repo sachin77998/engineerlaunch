@@ -263,13 +263,6 @@ TXT),
             ['Why is boosting sometimes more sensitive to noise than bagging?', 'Boosting keeps focusing on examples the ensemble gets wrong; if those are mislabelled or extreme, it spends effort fitting noise. Regularisation, shallow trees, small learning rates, early stopping and robust losses help.'],
         ]),
     ]],
-    ['id' => 'next', 'title' => 'Next: Questions 11–20', 'blocks' => [
-        $table('Coming next', ['#', 'Topic'], [
-            [11, 'Gradient descent and its variants'], [12, 'Bias–variance trade-off'], [13, 'Overfitting and underfitting'], [14, 'Cross-validation and hyperparameter tuning'],
-            [15, 'K-means clustering'], [16, 'DBSCAN and hierarchical clustering'], [17, 'PCA and dimensionality reduction'], [18, 'Gradient Boosting and XGBoost'],
-            [19, 'Neural networks and backpropagation'], [20, 'Evaluation metrics: precision, recall, F1, ROC-AUC, PR-AUC'],
-        ]),
-    ]],
 ];
 
 return [
