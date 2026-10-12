@@ -123,6 +123,66 @@ return [
             'queries' => ['London business news', 'Scotland economy', 'Germany industry news', 'Switzerland banks news', 'Europe economy outlook'],
             'skills' => ['Finance', 'Engineering', 'Consulting'], 'audience' => 'professionals targeting UK and European roles',
         ],
+        'car-sales' => [
+            'name' => 'Car Sales & Launches (Maruti, Hyundai, Tata, Toyota, Skoda, VW, BMW, Mercedes, Volvo)', 'category' => 'car-sales', 'icon' => '🚘',
+            'queries' => ['Maruti Suzuki monthly sales', 'Hyundai India monthly sales', 'Tata Motors passenger vehicle sales', 'Toyota Kirloskar sales', 'Skoda Volkswagen India sales', 'Mahindra SUV sales', 'BMW Mercedes Volvo India sales', 'FADA retail sales cars', 'SIAM passenger vehicle wholesales', 'best selling cars India'],
+            'skills' => ['Automotive Engineering', 'Dealer Sales', 'Supply Chain', 'Quality'], 'audience' => 'automotive engineers, dealers and sales professionals',
+        ],
+        'two-wheeler-sales' => [
+            'name' => 'Bikes & Scooters (Hero, Honda, TVS, Bajaj, Ather, Royal Enfield, Jawa, Harley-Davidson)', 'category' => 'two-wheeler-sales', 'icon' => '🏍️',
+            'queries' => ['Hero MotoCorp sales', 'Honda two wheeler sales India', 'TVS Motor sales', 'Bajaj Auto sales', 'Ather Energy sales', 'Royal Enfield sales', 'Jawa Yezdi news', 'Harley-Davidson India', 'best selling bikes India', 'electric scooter sales India'],
+            'skills' => ['Automotive Engineering', 'EV Technology', 'Dealer Sales'], 'audience' => 'two-wheeler industry professionals',
+        ],
+        'tractor-sales' => [
+            'name' => 'Tractors & Farm Equipment (Mahindra, Sonalika, Escorts Kubota, John Deere, Eicher, Massey, Kartar, Shaktimaan)', 'category' => 'tractor-sales', 'icon' => '🚜',
+            'queries' => ['tractor sales India monthly', 'Mahindra tractor sales', 'Sonalika tractor sales', 'Escorts Kubota tractor sales', 'John Deere India', 'Eicher tractors', 'Massey Ferguson TAFE', 'Kartar tractors', 'Shaktimaan farm machinery', 'Kubota India'],
+            'skills' => ['Agricultural Engineering', 'Dealer Sales', 'Production'], 'audience' => 'farm-equipment engineers and dealers',
+        ],
+        'mobile-brands' => [
+            'name' => 'Mobiles & Wearables (Samsung, Apple, Realme, Oppo, Vivo, Nokia, Karbonn, boAt, Noise, Fire-Boltt, Titan)', 'category' => 'mobile-brands', 'icon' => '📲',
+            'queries' => ['smartphone shipments India', 'Samsung India smartphone', 'Apple iPhone India sales', 'Realme Oppo Vivo India', 'Nokia Karbonn phones', 'boAt Noise Fire-Boltt smartwatch', 'Titan Eye Plus', 'wearables market India'],
+            'skills' => ['Android', 'Hardware', 'Retail Sales', 'Supply Chain'], 'audience' => 'mobile and consumer-electronics professionals',
+        ],
+        'tyres-components' => [
+            'name' => 'Tyres & Auto Components (MRF, Apollo, CEAT, JK, Michelin, Bridgestone, Goodyear, Continental, Yokohama, Bosch, TVS)', 'category' => 'tyres-components', 'icon' => '🛞',
+            'queries' => ['MRF tyres news', 'Apollo Tyres news', 'CEAT tyres', 'JK Tyre news', 'Michelin Bridgestone Goodyear', 'Continental Yokohama tyres', 'Bosch India', 'auto components industry India'],
+            'skills' => ['Rubber Technology', 'Manufacturing', 'Quality'], 'audience' => 'tyre and auto-component professionals',
+        ],
+        'electricals' => [
+            'name' => 'Electricals, Wires & Cables (Havells, Crompton, Polycab, KEI, Finolex)', 'category' => 'electricals', 'icon' => '💡',
+            'queries' => ['Havells news', 'Crompton Greaves Consumer', 'wires and cables industry India', 'Polycab KEI Finolex', 'consumer electricals India'],
+            'skills' => ['Electrical Engineering', 'Sales', 'Manufacturing'], 'audience' => 'electrical engineers and dealers',
+        ],
+        'commodity-prices' => [
+            'name' => 'Gold, Silver, Copper, Steel & Sand Prices', 'category' => 'commodity-prices', 'icon' => '🪙',
+            'queries' => ['gold rate today per 10 gram', 'silver rate today per kg', 'copper price today', 'steel TMT price today', 'sand price news', 'MCX gold silver'],
+            'skills' => ['Commodity Trading', 'Procurement', 'Finance'], 'audience' => 'buyers, procurement and finance professionals',
+        ],
+        'mutual-funds' => [
+            'name' => 'Mutual Funds (ICICI Prudential, Nippon, HDFC, Axis, SBI, IDBI, Bandhan/IDFC)', 'category' => 'mutual-funds', 'icon' => '📊',
+            'queries' => ['mutual fund news India', 'ICICI Prudential mutual fund', 'Nippon India mutual fund', 'HDFC mutual fund', 'Axis mutual fund', 'SBI mutual fund', 'Bandhan IDFC mutual fund', 'SIP inflows AMFI'],
+            'skills' => ['Financial Analysis', 'Wealth Management', 'Investment Research'], 'audience' => 'finance and wealth-management professionals',
+        ],
+        'education' => [
+            'name' => 'Schools, Colleges & Exams', 'category' => 'education-news', 'icon' => '🎓',
+            'queries' => ['CBSE news', 'board exam results', 'college admissions India', 'IIT NIT news', 'university news India', 'JEE NEET news', 'school education news'],
+            'skills' => ['Teaching', 'Counselling', 'Administration'], 'audience' => 'students, teachers and education professionals',
+        ],
+        'politics' => [
+            'name' => 'Elections & Politics', 'category' => 'elections-politics', 'icon' => '🗳️',
+            'queries' => ['election news India', 'Election Commission India', 'state assembly elections', 'Parliament news', 'government policy jobs'],
+            'skills' => ['Public Policy', 'Journalism', 'Data Analysis'], 'audience' => 'policy, media and government-job aspirants',
+        ],
+        'cricket' => [
+            'name' => 'Cricket & Sports', 'category' => 'cricket-sports', 'icon' => '🏏',
+            'queries' => ['cricket news India', 'IPL news', 'Team India cricket', 'sports news India'],
+            'skills' => ['Sports Management', 'Media', 'Marketing'], 'audience' => 'sports and media professionals',
+        ],
+        'entertainment' => [
+            'name' => 'Bollywood, Music & Entertainment', 'category' => 'bollywood-music', 'icon' => '🎬',
+            'queries' => ['Bollywood news', 'new songs release', 'box office collection', 'OTT releases India', 'music industry India'],
+            'skills' => ['Media', 'Content', 'Marketing'], 'audience' => 'media and entertainment professionals',
+        ],
         'gulf' => [
             'name' => 'Dubai & Gulf', 'category' => 'dubai-gulf', 'icon' => '🏙️',
             'queries' => ['Dubai business news', 'UAE jobs economy', 'Dubai real estate news', 'Saudi Arabia investment news'],
