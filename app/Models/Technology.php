@@ -14,7 +14,13 @@ class Technology extends Model
         'name',
         'slug',
         'category',
+        'aliases',
+        'wikidata_id',
+        'popularity',
+        'jobs_count',
     ];
+
+    protected $casts = ['aliases' => 'array', 'popularity' => 'integer', 'jobs_count' => 'integer'];
 
     /**
      * Get all jobs that require this technology

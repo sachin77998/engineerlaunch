@@ -68,3 +68,19 @@ a.primary{display:inline-block;padding:10px 16px!important;border-radius:9px!imp
 .hero-label{color:var(--brand-gold)!important;border-color:rgba(244,180,0,.45)!important;background:rgba(244,180,0,.08)!important}
 .hero-stats strong,.hero-stats b,.hero-stats .stat-value{color:var(--brand-gold)!important}
 .sitebar[data-shared-header]{border-bottom:3px solid var(--brand-gold)!important}
+
+/* Learning pages use the same navy + gold palette as the rest of the site (no per-track or green themes). */
+.lh-card,.lt-hero,.lt-layout,.hero-band.lt-hero{--accent:#0b2545!important}
+.spring-hero,.dsa-hero,.tutorial-hero,.lt-hero,.hero-band.lt-hero,.sql-hero,.learning-hero{background:linear-gradient(120deg,#0b2545 0%,#13315c 100%)!important;color:#fff!important;border-bottom:3px solid #f4b400}
+.spring-hero a,.dsa-hero a,.tutorial-hero a,.lt-back{color:#f4b400!important}
+.spring-hero h1,.dsa-hero h1,.tutorial-hero h1,.lt-hero h1{color:#fff!important}
+.progress,.dsa-progress,.progress-bar{background:#f4b400!important}
+.number,.dsa-number,.lesson-number,.lt-num{background:#fff6dc!important;color:#0b2545!important}
+.concept,.dsa-concept,.question-answer{border-left-color:#f4b400!important;background:#fffbeb!important}
+.lesson[open],.dsa-lesson[open]{border-color:#f4b400!important;box-shadow:0 12px 30px rgba(11,37,69,.08)!important}
+.lesson-nav a:hover,.dsa-nav a:hover,.lt-links a:hover{color:#0b2545!important;background:#fff6dc!important}
+.block-quiz-button,.dsa-block-button,.lab-run,.language-tab.active,.copy,.copy-code{background:#0b2545!important;color:#fff!important;border-color:#0b2545!important}
+.block-quiz h2,.block-quiz-label,.dsa-block-label,.complexity-item strong,.lh-card h2,.lt-card h2,.sql-case-main h1,.sql-case-section h2{color:#0b2545!important}
+.code,.code-block,.dsa-code,.spring-code-example{background:#0b1933!important;color:#e2e8f0!important}
+.option:hover,.dsa-option:hover,.block-option:hover{border-color:#f4b400!important;background:#fffbeb!important}
+.sql-case-nav a,.lt-card b,.lh-card b{color:#1d4ed8}

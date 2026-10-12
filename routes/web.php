@@ -75,6 +75,8 @@ Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::get('/practice', [PracticeController::class, 'index'])->name('practice');
 
 Route::get('/ai/chat', function () {return view('ai.chat');})->name('ai.chat');
+Route::get('/technologies', [\App\Http\Controllers\TechnologyController::class, 'index'])->name('technologies.index');
+Route::get('/technologies/{slug}', [\App\Http\Controllers\TechnologyController::class, 'show'])->name('technologies.show');
 Route::get('/recommendations/jobs', [\App\Http\Controllers\RecommendationController::class, 'jobs'])->middleware('throttle:60,1')->name('recommendations.jobs');
 Route::post('/assistant/jobs', [\App\Http\Controllers\JobAssistantController::class, 'recommend'])->name('assistant.jobs');
 

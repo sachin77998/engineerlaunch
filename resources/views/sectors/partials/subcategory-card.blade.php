@@ -1,4 +1,5 @@
 {{-- One sub-category (e.g. Gears & Transmissions): opens its companies. --}}
+@include('sectors.partials.card-styles')
 <a class="cat-card sub" href="{{ route('sectors.subcategory', [$sectorSlug, $child->slug]) }}" style="--accent:{{ $accent ?? '#0b2545' }}">
     <div class="cat-visual" @if($child->image) style="background-image:linear-gradient(180deg,rgba(11,37,69,.05),rgba(11,37,69,.75)),url('{{ $child->image }}')" @endif>
         <span class="cat-icon">{{ $icon ?? '🏭' }}</span>

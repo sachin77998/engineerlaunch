@@ -879,9 +879,11 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
 <section id="skill-directory" aria-labelledby="skills-heading">
 <h2 id="skills-heading">Browse jobs by skill</h2>
 <div class="skill-links">
-@foreach(['C','C++','Java','Python','PHP','Ruby','Swift','Django','Laravel','Spring Boot','Kubernetes','Kafka','Docker','HTML','CSS','JavaScript','React Native','React Bootstrap','Node.js','TypeScript'] as $skill)
-<a class="tab" href="{{url('/')}}?q={{rawurlencode($skill)}}#jobs">{{$skill}}</a>
+@php($topTechnologies = rescue(fn () => \Illuminate\Support\Facades\Cache::remember('home:top-technologies', now()->addHour(), fn () => \App\Models\Technology::where('jobs_count', '>', 0)->orderByDesc('jobs_count')->limit(36)->get(['name', 'slug', 'jobs_count'])), collect(), false))
+@foreach($topTechnologies as $technology)
+<a class="tab" href="{{ route('technologies.show', $technology->slug) }}">{{ $technology->name }} <small style="opacity:.7">{{ number_format($technology->jobs_count) }}</small></a>
 @endforeach
+<a class="tab" href="{{ route('technologies.index') }}" style="font-weight:800">All languages &amp; technologies &rarr;</a>
 </div>
 <p><a href="{{route('companies.cyber-city')}}">Explore DLF Cyber City companies and official career pages &rarr;</a></p>
 </section>
@@ -900,13 +902,9 @@ html,body{max-width:100%;overflow-x:clip}.search-box{min-width:0}.search-box inp
             <div><h2>Browse companies by sector</h2><p>Automobile, forging, steel, food, pharma, IT, banking and more, with plants by industrial area.</p></div>
             <a class="tab" href="{{ route('sectors.index') }}">All sectors</a>
         </div>
-        <div class="hs-grid">
-            @foreach($sectorTree->take(12) as $sectorItem)
-                <a class="hs-card" href="{{ route('sectors.show', $sectorItem->slug) }}">
-                    <span class="hs-top"><span class="hs-sym">{{ $sectorItem->symbol }}</span><strong>{{ $sectorItem->name }}</strong></span>
-                    <small>{{ $sectorItem->children->take(4)->pluck('name')->implode(' · ') }}</small>
-                    <small><b style="color:#2563eb">{{ number_format($sectorItem->companies_count) }}</b> companies</small>
-                </a>
+        <div class="cat-grid">
+            @foreach(rescue(fn () => app(\App\Services\SectorDirectory::class)->groups()->take(9), collect(), false) as $categoryCard)
+                @include('sectors.partials.category-card', ['card' => $categoryCard])
             @endforeach
         </div>
         @if(isset($hubs) && $hubs->isNotEmpty())

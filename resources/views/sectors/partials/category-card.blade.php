@@ -1,4 +1,5 @@
 {{-- One category (e.g. Automobile & Ancillaries): opens its sub-categories. --}}
+@include('sectors.partials.card-styles')
 <a class="cat-card" href="{{ route('sectors.group', $card->slug) }}" style="--accent:{{ $card->color }}">
     <div class="cat-visual" @if($card->image) style="background-image:linear-gradient(180deg,rgba(11,37,69,.05),rgba(11,37,69,.75)),url('{{ $card->image }}')" @endif>
         <span class="cat-icon">{{ $card->icon ?: ($card->symbol ?: mb_substr($card->name, 0, 2)) }}</span>

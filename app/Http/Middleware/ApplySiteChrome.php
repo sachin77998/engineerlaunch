@@ -41,7 +41,7 @@ class ApplySiteChrome
         }
         // Brand theme last in <head> so it wins over page-level and older theme styles.
         if (!str_contains($html, 'css/ascendia-theme.css')) {
-            $theme = '<link rel="stylesheet" href="'.asset('css/ascendia-theme.css').'?v=20261008-2">';
+            $theme = '<link rel="stylesheet" href="'.asset('css/ascendia-theme.css').'?v=20261012-1">';
             $html = preg_replace('/<\/head>/i', $theme.'</head>', $html, 1);
         }
         if (str_contains($html, 'data-visual-explainer=') || str_contains($html, 'data-industrial-examples')) {
