@@ -1,0 +1,30 @@
+{
+ "sectors": [
+  {"name": "Semiconductors & Electronics", "subsectors": [
+   {"name": "Semiconductors & Chip Makers", "companies": [
+    {"name": "NXP Semiconductors", "website": "https://www.nxp.com", "hq": "Eindhoven", "country": "Netherlands", "products": "Automotive, IoT and secure connectivity chips; design centres in Bengaluru, Noida and Hyderabad",
+     "ats": ["workday", "nxp/careers", "https://nxp.wd3.myworkdayjobs.com/wday/cxs/nxp/careers/jobs"]},
+    {"name": "Analog Devices", "website": "https://www.analog.com", "hq": "Wilmington", "country": "United States", "products": "Analog, mixed-signal and power ICs; Bengaluru design centre",
+     "ats": ["workday", "analogdevices/External", "https://analogdevices.wd1.myworkdayjobs.com/wday/cxs/analogdevices/External/jobs"]},
+    {"name": "Micron Technology", "website": "https://www.micron.com", "hq": "Boise", "country": "United States", "products": "Memory and storage chips; Sanand (Gujarat) assembly and test plant, Hyderabad and Bengaluru",
+     "ats": ["workday", "micron/External", "https://micron.wd1.myworkdayjobs.com/wday/cxs/micron/External/jobs"]},
+    {"name": "Intel", "website": "https://www.intel.com", "hq": "Santa Clara", "country": "United States", "products": "Processors and semiconductors; Bengaluru and Hyderabad design centres",
+     "ats": ["workday", "intel/External", "https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External/jobs"]},
+    {"name": "NVIDIA", "website": "https://www.nvidia.com", "hq": "Santa Clara", "country": "United States", "products": "GPUs and AI computing; Bengaluru, Hyderabad and Pune",
+     "ats": ["workday", "nvidia/NVIDIAExternalCareerSite", "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs"]},
+    {"name": "Marvell Technology", "website": "https://www.marvell.com", "hq": "Wilmington", "country": "United States", "products": "Data infrastructure semiconductors; Bengaluru and Pune",
+     "ats": ["workday", "marvell/MarvellCareers", "https://marvell.wd1.myworkdayjobs.com/wday/cxs/marvell/MarvellCareers/jobs"]},
+    {"name": "Applied Materials", "website": "https://www.appliedmaterials.com", "hq": "Santa Clara", "country": "United States", "products": "Semiconductor manufacturing equipment; Bengaluru and Chennai",
+     "ats": ["workday", "amat/External", "https://amat.wd1.myworkdayjobs.com/wday/cxs/amat/External/jobs"]},
+    {"name": "Microchip Technology", "website": "https://www.microchip.com", "hq": "Chandler", "country": "United States", "products": "Microcontrollers and analog chips; Bengaluru and Chennai",
+     "ats": ["workday", "microchiphr/External", "https://microchiphr.wd5.myworkdayjobs.com/wday/cxs/microchiphr/External/jobs"]},
+    {"name": "Cadence Design Systems", "website": "https://www.cadence.com", "hq": "San Jose", "country": "United States", "products": "Chip design (EDA) software; Noida and Bengaluru",
+     "ats": ["workday", "cadence/External_Careers", "https://cadence.wd1.myworkdayjobs.com/wday/cxs/cadence/External_Careers/jobs"]},
+    {"name": "KLA", "website": "https://www.kla.com", "hq": "Milpitas", "country": "United States", "products": "Semiconductor process control and inspection; Chennai and Bengaluru",
+     "ats": ["workday", "kla/Search", "https://kla.wd1.myworkdayjobs.com/wday/cxs/kla/Search/jobs"]},
+    {"name": "GlobalFoundries", "website": "https://gf.com", "hq": "Malta, New York", "country": "United States", "products": "Semiconductor foundry; Bengaluru design centre",
+     "ats": ["workday", "globalfoundries/External", "https://globalfoundries.wd1.myworkdayjobs.com/wday/cxs/globalfoundries/External/jobs"]}
+   ]}
+  ]}
+ ]
+}

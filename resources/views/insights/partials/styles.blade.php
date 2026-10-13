@@ -40,5 +40,13 @@
 .ci-risk{display:flex;gap:10px;align-items:center;margin:0 0 6px;padding:9px 11px;border:1px solid #eef2f7;border-radius:9px;font-size:13.5px}.ci-risk .lvl{flex:0 0 auto;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;background:#eef2f7;color:#334155}
 .ci-risk .lvl.high{background:#fee2e2;color:#b42318}.ci-risk .lvl.moderate{background:#fff6dc;color:#7a5600}.ci-risk .lvl.low{background:#eef2f7;color:#334155}.ci-risk .lvl.ok{background:#e8f7ef;color:#087443}
 .ci-donut{width:150px;height:150px;border-radius:50%;margin:auto;position:relative}.ci-donut:after{content:'';position:absolute;inset:32px;border-radius:50%;background:#fff}
+/* Company page: section menu becomes a sticky sidebar on wide screens. */
+@media(min-width:1000px){
+  .ci-main.ci-layout{display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:22px;align-items:start}
+  .ci-main.ci-layout>*{grid-column:2;min-width:0}
+  .ci-main.ci-layout>.ci-tabs{grid-column:1;grid-row:1 / span 60;position:sticky;top:12px;flex-direction:column;flex-wrap:nowrap;gap:2px;padding:10px;background:#fff;border:1px solid #dfe6f1;border-radius:14px}
+  .ci-main.ci-layout>.ci-tabs a{border:0;border-radius:8px;padding:9px 12px;background:transparent}
+  .ci-main.ci-layout>.ci-tabs a:hover{background:#fff6dc}
+}
 details.ci-more summary{cursor:pointer;font-weight:700;color:#0b2545}
 </style>

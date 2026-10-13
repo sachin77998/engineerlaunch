@@ -33,7 +33,7 @@
         </form>
     </div>
 </section>
-<main class="ci-wrap ci-main">
+<main class="ci-wrap ci-main ci-layout">
     @if(session('success'))<p class="ci-flash ok">{{ session('success') }}</p>@endif
     @if(session('warning'))<p class="ci-flash warn">{{ session('warning') }}</p>@endif
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
