@@ -33,6 +33,16 @@ class CompanyInsightsController extends Controller
         $query = trim((string) $request->query('q', ''));
         $identified = $query !== '' ? $this->insights->identify($query) : null;
         $results = $query !== '' ? $this->insights->search($query) : collect();
+        // Not in the database yet: look it up in the public registries (GLEIF, MCA master data) and add it.
+        $searchedOnline = false;
+        if ($query !== '' && $results->isEmpty() && in_array($identified['type'], ['cin', 'name'], true) && mb_strlen($query) >= 3) {
+            try {
+                $searchedOnline = true;
+                $results = app(\App\Services\Insights\CompanyLookup::class)->discover($query)->each(fn ($c) => $c->load('registryDetail'));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
         if ($identified && $identified['type'] !== 'name' && $results->count() === 1) {
             return redirect()->route('insights.show', $results->first());
         }
@@ -57,7 +67,7 @@ class CompanyInsightsController extends Controller
             }
         }
         $instaReady = $insta->configured();
-        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady'));
+        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline'));
     }
 
     /** Owner: fetch a company's MCA master data, directors and charges from InstaFinancials (paid call) and save them. */
@@ -121,6 +131,11 @@ class CompanyInsightsController extends Controller
 
     public function show(Company $company)
     {
+        // Registry details and public figures are refreshed in the background, at most once a month.
+        $enrichedAt = $company->registryDetail?->enriched_at;
+        if (!$enrichedAt || $enrichedAt->lt(now()->subDays(30))) {
+            try { \App\Jobs\EnrichCompanyInsights::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
+        }
         $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors']);
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
@@ -128,8 +143,11 @@ class CompanyInsightsController extends Controller
         // Group structure from discovery ("Part of Tata Group."): subsidiaries of this company and its own parent.
         $subsidiaries = Company::where('description', 'Part of ' . $company->name . '.')->where('is_active', true)->orderBy('name')->limit(60)->get(['id', 'name', 'slug', 'industry', 'logo_url', 'website']);
         $parent = preg_match('/^Part of (.+)\.$/', (string) $company->description, $m) ? Company::where('name', $m[1])->first(['id', 'name', 'slug']) : null;
+        $ratios = $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated);
         return view('insights.show', [
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
+            'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
+            'compliance' => $this->insights->compliance($company->registryDetail),
             'decoded' => $cin && preg_match(CompanyInsights::CIN, $cin) ? $this->insights->decodeCin($cin) : null,
             'ratios' => $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated),
             'consolidatedRatios' => $standalone->isNotEmpty() && $consolidated->isNotEmpty() ? $this->insights->ratios($consolidated) : collect(),

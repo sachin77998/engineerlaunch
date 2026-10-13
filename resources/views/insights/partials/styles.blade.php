@@ -32,5 +32,13 @@
 .ci-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}.ci-tabs a{padding:7px 13px;border-radius:999px;border:1px solid #dfe6f1;background:#fff;color:#0b2545;text-decoration:none;font-weight:600;font-size:13.5px}.ci-tabs a:hover{border-color:#f4b400}
 .ci-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
 .ci-form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.ci-form-grid label{display:grid;gap:3px;font-size:12.5px;color:#334155}.ci-form-grid input,.ci-form-grid select{padding:8px 9px;border:1px solid #dfe6f1;border-radius:8px;font:inherit}
+.ci-metric small{display:block;margin-top:4px;font-size:12px}
+.ci-health{display:grid;grid-template-columns:minmax(200px,260px) 1fr;gap:16px}@media(max-width:700px){.ci-health{grid-template-columns:1fr}}
+.ci-health-score{padding:16px;border-radius:12px;background:#f4f6fb}.ci-health-score span{font-size:12px;color:#5b6b82}.ci-health-score b{display:block;font-size:44px;color:#0b2545;line-height:1.1}.ci-health-score b small{font-size:16px;color:#5b6b82}.ci-health-score em{font-style:normal;font-weight:800;color:#0b2545;font-size:18px}
+.ci-gauge{height:7px;border-radius:4px;background:#e5ecf4;overflow:hidden;margin-top:8px}.ci-gauge i{display:block;height:100%;background:linear-gradient(90deg,#0b2545,#f4b400)}
+.ci-health-parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.ci-health-parts>div{padding:12px;border:1px solid #e8edf5;border-radius:10px}.ci-health-parts strong{display:flex;justify-content:space-between;color:#0b2545}.ci-health-parts small{color:#5b6b82;font-size:12px}
+.ci-risk{display:flex;gap:10px;align-items:center;margin:0 0 6px;padding:9px 11px;border:1px solid #eef2f7;border-radius:9px;font-size:13.5px}.ci-risk .lvl{flex:0 0 auto;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;background:#eef2f7;color:#334155}
+.ci-risk .lvl.high{background:#fee2e2;color:#b42318}.ci-risk .lvl.moderate{background:#fff6dc;color:#7a5600}.ci-risk .lvl.low{background:#eef2f7;color:#334155}.ci-risk .lvl.ok{background:#e8f7ef;color:#087443}
+.ci-donut{width:150px;height:150px;border-radius:50%;margin:auto;position:relative}.ci-donut:after{content:'';position:absolute;inset:32px;border-radius:50%;background:#fff}
 details.ci-more summary{cursor:pointer;font-weight:700;color:#0b2545}
 </style>

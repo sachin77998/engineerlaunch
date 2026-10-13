@@ -99,36 +99,124 @@ class FilingParser
         return $data;
     }
 
+    /** Original text with line breaks, for same-line label/value lookups. */
+    private ?string $raw = null;
+
+    private const DESIGNATIONS ='managing director|whole[- ]?time director|independent director|nominee director|additional director|alternate director|director|cfo|ceo|company secretary|manager';
+
+    /**
+     * MGT-7 annual return (tested on a real 2024-25 filing). Depending on the PDF-to-text tool a value can come before
+     * or after its label, so single values are looked up on both sides of the label.
+     */
     public function parseMgt7(string $text): array
     {
+        $this->raw = str_replace(["\r\n", "\r"], "\n", $text);
         $flat = $this->flatten($text);
+        $date = '(\d{2}\/\d{2}\/\d{4})';
         $data = ['cin' => $this->cin($flat), 'company_name' => $this->companyName($flat), 'financial_year' => null];
-        if ($end = $this->periodEnd($flat)) $data['financial_year'] = self::financialYear($end);
-        $data['authorised_capital'] = $this->amountAfter($flat, 'total (?:amount of )?authori[sz]ed capital') ?? $this->amountAfter($flat, 'authori[sz]ed (?:share )?capital');
-        $data['paid_up_capital'] = $this->amountAfter($flat, 'total (?:amount of )?paid[- ]up capital') ?? $this->amountAfter($flat, 'paid[- ]up (?:share )?capital');
-        // "Turnover and net worth of the company (as defined in the Act)": (i) Turnover  (ii) Net worth.
-        $data['turnover'] = $this->amountAfter($flat, '\(?i\)?\s*turnover') ?? $this->amountAfter($flat, 'turnover');
-        $data['net_worth'] = $this->amountAfter($flat, '\(?ii\)?\s*net worth of the company') ?? $this->amountAfter($flat, 'net worth');
-        if (preg_match('/\(PAN\)[^A-Z]{0,60}\b([A-Z]{5}\d{4}[A-Z])\b/', $flat, $m)) $data['pan'] = $m[1];
-        // Principal business activities: "1  C  Manufacturing  C7  Metal products ...  85.6"
+        if ($end = $this->date((string) $this->near($flat, '\(to date\)\s*\(dd\/mm\/yyyy\)', $date)) ?? $this->periodEnd($flat)) $data['financial_year'] = self::financialYear($end);
+        $data['incorporation_date'] = $this->date((string) $this->near($flat, 'date of incorporation\s*\(dd\/mm\/yyyy\)', $date))?->toDateString();
+        $data['last_agm_date'] = $this->date((string) $this->near($flat, 'if yes, date of agm\s*\(dd\/mm\/yyyy\)', $date))?->toDateString();
+        $data['website'] = $this->near($flat, '\(e\)\s*website', '(https?:\/\/[^\s]+|www\.[^\s]+)');
+        foreach (['company_class' => 'class of company', 'company_category' => 'category of the company', 'company_subcategory' => 'sub-category of the company'] as $field => $label) {
+            $data[$field] = $this->near($flat, '\*?' . $label . ' \(as on the financial year end date\)', '(public company|private company|one person company|company limited by shares|company limited by guarantee|unlimited company|indian non-government company|union government company|state government company|guarantee and association company|subsidiary of foreign company)');
+        }
+        // "Total amount of equity shares (in rupees)  Authorised  Issued  Subscribed  Paid-up".
+        if (preg_match('/total amount of equity\s*shares \(in rupees\)\s*([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)/i', $flat, $m)) {
+            $data['authorised_capital'] = (float) str_replace(',', '', $m[1]);
+            $data['paid_up_capital'] = (float) str_replace(',', '', $m[4]);
+        } else {
+            $data['authorised_capital'] = $this->amountAfter($flat, 'total (?:amount of )?authori[sz]ed capital');
+            $data['paid_up_capital'] = $this->amountAfter($flat, 'total (?:amount of )?paid[- ]up capital');
+        }
+        if (preg_match('/total number of equity shares\s*([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)/i', $flat, $m)) $data['shares_outstanding'] = (int) str_replace(',', '', $m[4]);
+        // Section V: turnover and net worth in rupees ("5579242635 i *Turnover" or "i *Turnover 5579242635").
+        $data['turnover'] = ($v = $this->near($flat, '\bi\s*\*\s*turnover', '(\d{4,}(?:\.\d+)?)')) !== null ? (float) $v : null;
+        $data['net_worth'] = ($v = $this->near($flat, 'net worth of the company', '(-?\d{4,}(?:\.\d+)?)')) !== null ? (float) $v : null;
+        // Masked values on the public copy ("AA******2G", "*****@X.COM") are skipped.
+        $pan = $this->near($flat, 'permanent account number \(pan\) of the company', '([A-Z]{5}\d{4}[A-Z])');
+        if ($pan) $data['pan'] = $pan;
+        if (($email = $this->near($flat, 'e-?mail id of the company', '([\w.+-]+@[\w-]+\.[\w.-]+)')) && !str_contains($email, '*')) $data['email'] = strtolower($email);
+        if (preg_match('/registered office address\s*(.{10,250}?\d{6})/i', $flat, $m)) $data['registered_address'] = trim($m[1], " ,");
+        $data['members_count'] = ($v = $this->near($flat, 'total number of shareholders \(promoters \+ public\/other than promoters\)', '(\d+)(?:\.00)?')) !== null ? (int) $v : null;
+
+        // Principal business activities: "1 C Manufacturing 32 Other manufacturing 100".
         $data['activities'] = [];
-        if (preg_match_all('/\b\d{1,2}\s+([A-U])\s+([A-Z][A-Za-z ,&\-]{3,60}?)\s+([A-U]\d{1,2})\s+([A-Za-z][A-Za-z ,&\-\/()]{3,120}?)\s+(\d{1,3}\.\d{1,2})\b/', $flat, $matches, PREG_SET_ORDER)) {
+        if (preg_match('/principal business activities of the company(.{0,1500}?)(?:\bIII\b|particulars of holding)/is', $flat, $section)
+            && preg_match_all('/\b\d{1,2}\s+([A-U])\s+([A-Z][A-Za-z ,&\-]{3,60}?)\s+(\d{2,5}|[A-U]\d{1,2})\s+([A-Za-z][A-Za-z ,&\-\/()]{3,120}?)\s+(\d{1,3}(?:\.\d{1,2})?)(?!\d)/', $section[1], $matches, PREG_SET_ORDER)) {
             foreach ($matches as $m) {
                 if ((float) $m[5] <= 100) $data['activities'][] = ['code' => $m[3], 'description' => trim($m[4]), 'main_activity' => trim($m[2]), 'turnover_percentage' => (float) $m[5]];
             }
         }
-        if (preg_match('/(?:e-?mail id|email address)[^@]{0,30}?\s([\w.+-]+@[\w-]+\.[\w.-]+)/i', $flat, $m)) $data['email'] = strtolower($m[1]);
-        if (preg_match('/(?:total )?number of (?:members|shareholders)[^0-9]{0,40}([\d,]+)/i', $flat, $m)) $data['members_count'] = (int) str_replace(',', '', $m[1]);
-        if (preg_match('/registered office address\s*[:\-]?\s*(.{10,250}?)(?=\s+(?:latitude|e-?mail|telephone|phone|website|\(c\)|\(d\)|\*|[a-z]\)))/i', $flat, $m)) $data['registered_address'] = trim($m[1], " ,");
-        // Directors and key managerial personnel: "DIN/PAN  NAME  DESIGNATION  ... date of appointment".
+
+        // VI Shareholding pattern: promoter and public totals, plus each category row with shares.
+        $data['shareholdings'] = [];
+        foreach (['Promoters' => '/\bA\s+Promoters\b(.*?)\bTotal\s+([\d.,]+)\s+([\d.]+)/s', 'Public / other than promoters' => '/\bB\s+Public\s*\/\s*Other than promoters\b(.*?)\bTotal\s+([\d.,]+)\s+([\d.]+)/s'] as $group => $pattern) {
+            if (!preg_match($pattern, $flat, $m)) continue;
+            $data['shareholdings'][] = ['category' => $group, 'shares' => (int) str_replace(',', '', $m[2]), 'percentage' => (float) $m[3]];
+            if (preg_match_all('/(\((?:i|ii|iii)\)\s*[A-Za-z][A-Za-z \-]{2,40}?(?:\([A-Z]+\))?|\d{1,2}\s+[A-Z][A-Za-z \/()]{3,60}?)\s+([1-9][\d,]*)\s+(\d{1,3}\.\d{2})\s+\d/', $m[1], $rows, PREG_SET_ORDER)) {
+                foreach ($rows as $row) {
+                    $label = trim(preg_replace('/^\d{1,2}\s+|\s+/', ' ', $row[1]));
+                    $data['shareholdings'][] = ['category' => $group . ' › ' . $label, 'shares' => (int) str_replace(',', '', $row[2]), 'percentage' => (float) $row[3]];
+                }
+            }
+        }
+        if (!empty($data['shares_outstanding'])) {
+            foreach ($data['shareholdings'] as &$holding) {
+                // MGT-7 rounds small holdings to 0.00%; recompute from shares where possible.
+                if ($holding['shares']) $holding['percentage'] = round($holding['shares'] / $data['shares_outstanding'] * 100, 4);
+            }
+            unset($holding);
+        }
+
+        // VIII Directors and KMP at year end: "GEETA KHANNA 07206191 Director 0" (name, DIN/PAN, designation, shares).
         $data['officers'] = [];
-        if (preg_match_all('/\b(\d{8}|[A-Z]{5}\d{4}[A-Z])\s+([A-Z][A-Za-z .\']{2,60}?)\s+(managing director|whole[- ]?time director|independent director|nominee director|additional director|director|cfo|ceo|company secretary|manager)\b(?:[^0-9]{0,40}(\d{2}\/\d{2}\/\d{4}))?/i', $flat, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $m) {
-                $data['officers'][] = ['din' => ctype_digit($m[1]) ? $m[1] : null, 'name' => ucwords(strtolower(trim($m[2]))), 'designation' => ucwords(strtolower($m[3])),
-                    'appointed_on' => isset($m[4]) ? $this->date($m[4])?->toDateString() : null];
+        $designations = self::DESIGNATIONS;
+        if (preg_match('/details of directors and key managerial personnel as on the closure of financial year(.*?)(?:B\s*\(ii\)|particulars of change in director)/is', $flat, $section)
+            && preg_match_all("/([A-Z][A-Z .']{2,60}?)\s+(\d{8}|[A-Z]{5}\d{4}[A-Z])\s+((?i:{$designations}))\s+(\d+)/", $section[1], $rows, PREG_SET_ORDER)) {
+            foreach ($rows as $row) {
+                $data['officers'][] = ['din' => ctype_digit($row[2]) ? $row[2] : null, 'pan' => ctype_digit($row[2]) ? null : $row[2], 'name' => ucwords(strtolower(trim($row[1]))),
+                    'designation' => ucwords(strtolower($row[3])), 'shares_held' => (int) $row[4], 'appointed_on' => null, 'ceased_on' => null];
+            }
+        }
+        // Changes during the year: "RANBIR SINGH SEEHRA 01572708 Director 13/09/2024 Cessation".
+        if (preg_match_all("/([A-Z][A-Z .']{2,60}?)\s+(\d{8}|[A-Z]{5}\d{4}[A-Z])\s+((?i:{$designations}))\s+(\d{2}\/\d{2}\/\d{4})\s+((?i:appointment|cessation|change in designation))/", $flat, $rows, PREG_SET_ORDER)) {
+            foreach ($rows as $row) {
+                $change = strtolower($row[5]);
+                $data['officers'][] = ['din' => ctype_digit($row[2]) ? $row[2] : null, 'pan' => null, 'name' => ucwords(strtolower(trim($row[1]))), 'designation' => ucwords(strtolower($row[3])),
+                    'shares_held' => null, 'appointed_on' => $change === 'appointment' ? $this->date($row[4])?->toDateString() : null,
+                    'ceased_on' => $change === 'cessation' ? $this->date($row[4])?->toDateString() : null];
             }
         }
         return $data;
+    }
+
+    /**
+     * Value for a label. A value on the label's own line wins (after it, then before it, e.g. "06/08/2025 (b) If yes,
+     * date of AGM"); otherwise the text right after the label is used. Every occurrence of the label is tried, so a
+     * section heading that repeats the words does not hide the field.
+     */
+    private function near(string $flat, string $label, string $valuePattern): ?string
+    {
+        $text = $this->raw ?? $flat;
+        $after = '~^[ \t]*[:\-]?[ \t]*' . $valuePattern . '~i';
+        $before = '~' . $valuePattern . '[ \t]*(?:[ivx]+[ \t]*)?(?:\([a-z]\)[ \t]*)?\*?[ \t]*$~i';
+        if (preg_match_all('~' . $label . '~i', $text, $all, PREG_OFFSET_CAPTURE)) {
+            foreach ($all[0] as [$match, $offset]) {
+                $lineStart = strrpos(substr($text, 0, $offset), "\n");
+                $lineStart = $lineStart === false ? 0 : $lineStart + 1;
+                $lineEnd = strpos($text, "\n", $offset + strlen($match));
+                $lineEnd = $lineEnd === false ? strlen($text) : $lineEnd;
+                if (preg_match($after, substr($text, $offset + strlen($match), $lineEnd - $offset - strlen($match)), $v)) return trim($v[1]);
+                if (preg_match($before, substr($text, $lineStart, $offset - $lineStart), $v)) return trim($v[1]);
+            }
+        }
+        if (preg_match_all('~' . $label . '~i', $flat, $all, PREG_OFFSET_CAPTURE)) {
+            foreach ($all[0] as [$match, $offset]) {
+                if (preg_match('~^\s*[:\-]?\s*' . $valuePattern . '~i', substr($flat, $offset + strlen($match), 150), $v)) return trim($v[1]);
+            }
+        }
+        return null;
     }
 
     /**

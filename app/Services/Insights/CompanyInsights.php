@@ -151,6 +151,73 @@ class CompanyInsights
         });
     }
 
+    /**
+     * Financial health score (0–100) from the latest year's ratios and the filing record. Every point comes from a
+     * stated rule, so the page can list the reasons (risk factors and strengths) next to the score.
+     */
+    public function health(Collection $ratios, ?\App\Models\CompanyRegistryDetail $registry, Collection $charges): ?array
+    {
+        $latest = $ratios->last();
+        if (!$latest || $latest['revenue'] === null) return null;
+        $risks = [];
+        $strengths = [];
+        $score = fn (?float $v, float $bad, float $good) => $v === null ? null : max(0, min(1, ($v - $bad) / ($good - $bad)));
+
+        $profitability = collect([$score($latest['net_margin'], 0, 10), $score($latest['roe'], 0, 20), $score($latest['roce'], 5, 20)])->filter(fn ($v) => $v !== null);
+        $growthYears = $ratios->slice(-5);
+        $profitableYears = $growthYears->filter(fn ($r) => ($r['pat'] ?? 0) > 0)->count();
+        $growth = collect([$score($latest['revenue_growth'], -10, 15), $growthYears->count() > 1 ? $profitableYears / $growthYears->count() : null])->filter(fn ($v) => $v !== null);
+        $solvency = collect([$latest['debt_to_equity'] === null ? null : 1 - $score($latest['debt_to_equity'], 0.3, 2), $score($latest['interest_cover'], 1.5, 6), $score($latest['current_ratio'], 0.8, 1.8)])->filter(fn ($v) => $v !== null);
+        $efficiency = collect([$score($latest['asset_turnover'], 0.3, 1.5), $score($latest['ebitda_margin'], 3, 15)])->filter(fn ($v) => $v !== null);
+        $parts = ['Profitability' => [$profitability, 'Returns and margins'], 'Growth' => [$growth, 'Revenue and profit consistency'], 'Solvency' => [$solvency, 'Leverage and liquidity'], 'Efficiency' => [$efficiency, 'Asset use and operating margin']];
+        $breakdown = [];
+        foreach ($parts as $name => [$values, $hint]) if ($values->isNotEmpty()) $breakdown[$name] = ['value' => (int) round($values->avg() * 100), 'hint' => $hint];
+        if (!$breakdown) return null;
+        $total = (int) round(collect($breakdown)->avg('value'));
+
+        if ($latest['pat'] !== null && $latest['pat'] < 0) $risks[] = ['High', 'Loss-making in FY ' . $latest['year']];
+        if ($latest['debt_to_equity'] !== null && $latest['debt_to_equity'] > 2) $risks[] = ['High', 'High leverage (debt/equity ' . number_format($latest['debt_to_equity'], 2) . ')'];
+        elseif ($latest['debt_to_equity'] !== null && $latest['debt_to_equity'] > 1) $risks[] = ['Moderate', 'Debt above equity (debt/equity ' . number_format($latest['debt_to_equity'], 2) . ')'];
+        if ($latest['interest_cover'] !== null && $latest['interest_cover'] < 2) $risks[] = ['Moderate', 'Low interest cover (' . number_format($latest['interest_cover'], 1) . '×)'];
+        if ($latest['roce'] !== null && $latest['roce'] < 10) $risks[] = ['Low', 'Below-average ROCE (' . number_format($latest['roce'], 1) . '%)'];
+        if ($latest['net_margin'] !== null && $latest['net_margin'] >= 0 && $latest['net_margin'] < 3) $risks[] = ['Low', 'Thin net margin (' . number_format($latest['net_margin'], 1) . '%)'];
+        if ($latest['revenue_growth'] !== null && $latest['revenue_growth'] < 0) $risks[] = ['Low', 'Revenue fell ' . number_format(abs($latest['revenue_growth']), 1) . '% year on year'];
+        if ($latest['current_ratio'] !== null && $latest['current_ratio'] < 1) $risks[] = ['Moderate', 'Current liabilities exceed current assets (current ratio ' . number_format($latest['current_ratio'], 2) . ')'];
+        $lenders = $charges->filter(fn ($c) => !preg_match('/satisf|closed/i', (string) $c->status))->pluck('lender')->filter()->unique()->count();
+        if ($lenders >= 8) $risks[] = ['Moderate', "High lender concentration ({$lenders} lenders)"];
+        foreach ($this->compliance($registry) as $item) if ($item['overdue']) $risks[] = ['Moderate', $item['label'] . ' overdue (due ' . $item['due']->format('d M Y') . ')'];
+
+        if ($growthYears->count() > 1 && $profitableYears === $growthYears->count()) $strengths[] = "Profitable in all {$profitableYears} years analysed";
+        if ($latest['revenue_growth'] !== null && $latest['revenue_growth'] >= 10) $strengths[] = 'Revenue grew ' . number_format($latest['revenue_growth'], 1) . '% year on year';
+        if ($latest['debt_to_equity'] !== null && $latest['debt_to_equity'] <= 0.5) $strengths[] = 'Low leverage (debt/equity ' . number_format($latest['debt_to_equity'], 2) . ')';
+        if ($latest['asset_turnover'] !== null && $latest['asset_turnover'] >= 1) $strengths[] = 'High asset turnover (' . number_format($latest['asset_turnover'], 1) . '×)';
+        if ($latest['roe'] !== null && $latest['roe'] >= 15) $strengths[] = 'Strong return on equity (' . number_format($latest['roe'], 1) . '%)';
+        if ($registry && preg_match('/^active/i', (string) $registry->company_status)) $strengths[] = 'Company status is Active';
+
+        $label = match (true) { $total >= 80 => 'Excellent', $total >= 65 => 'Very good', $total >= 50 => 'Good', $total >= 35 => 'Fair', default => 'Poor' };
+        return ['score' => $total, 'label' => $label, 'year' => $latest['year'], 'breakdown' => $breakdown, 'risks' => $risks, 'strengths' => $strengths];
+    }
+
+    /**
+     * Statutory filing calendar after the last balance sheet: AGM within six months of year end (30 Sep for a
+     * March year end), AOC-4 within 30 days of the AGM, MGT-7 within 60 days of the AGM.
+     */
+    public function compliance(?\App\Models\CompanyRegistryDetail $registry): array
+    {
+        if (!$registry?->last_balance_sheet_date && !$registry?->last_agm_date) return [];
+        $yearEnd = ($registry->last_balance_sheet_date ?? $registry->last_agm_date->copy()->subMonths(6)->endOfMonth())->copy();
+        $nextYearEnd = $yearEnd->copy()->addYear();
+        $agmDue = $nextYearEnd->copy()->addMonthsNoOverflow(6)->endOfMonth();
+        $agmHeld = $registry->last_agm_date && $registry->last_agm_date->gt($nextYearEnd);
+        $base = $agmHeld ? $registry->last_agm_date : $agmDue;
+        $items = [
+            ['label' => 'AGM for FY ' . FilingParser::financialYear($nextYearEnd), 'due' => $agmDue, 'done' => $agmHeld],
+            ['label' => 'AOC-4 for FY ' . FilingParser::financialYear($nextYearEnd), 'due' => $base->copy()->addDays(30), 'done' => false],
+            ['label' => 'MGT-7 for FY ' . FilingParser::financialYear($nextYearEnd), 'due' => $base->copy()->addDays(60), 'done' => false],
+        ];
+        return array_map(fn ($i) => $i + ['overdue' => !$i['done'] && $i['due']->isPast(), 'days' => (int) now()->startOfDay()->diffInDays($i['due'], false)], $items);
+    }
+
     /** "₹1,234.5 Cr" style figure for rupee amounts. */
     public static function money($value): string
     {

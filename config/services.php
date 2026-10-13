@@ -66,6 +66,12 @@ return [
     // Company insights: InstaFinancials (paid) for CIN search and InstaBasic master data / directors / charges.
     'instafinancials' => ['base_url' => env('INSTAFINANCIALS_BASE_URL'), 'api_key' => env('INSTAFINANCIALS_API_KEY')],
 
+    // MCA Company Master Data on data.gov.in (free key: data.gov.in → sign in → My Account → Generate API key).
+    'datagov' => [
+        'key' => env('DATAGOV_API_KEY'),
+        'company_resources' => array_filter(explode(',', env('DATAGOV_COMPANY_RESOURCES', 'ec58dab7-d891-4abb-936e-d5d274a6ce9b'))),
+    ],
+
     // Gold and silver spot prices (free key at goldapi.io).
     'goldapi' => ['key' => env('GOLDAPI_KEY')],
 
