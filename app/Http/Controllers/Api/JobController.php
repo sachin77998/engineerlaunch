@@ -77,10 +77,13 @@ class JobController extends Controller
             });
         }
 
-        foreach (['posting_source', 'source', 'work_mode', 'role_family'] as $filter) {
+        foreach (['posting_source', 'source', 'work_mode'] as $filter) {
             if ($request->filled($filter)) {
                 $query->where($filter, $request->get($filter));
             }
+        }
+        if ($request->filled('role_family')) {
+            \App\Support\JobRoles::apply($query, (string) $request->get('role_family'));
         }
         if ($request->filled('posted_within_days')) {
             $query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));

@@ -1273,6 +1273,8 @@ class JobScraper
 
     protected function detectRoleFamily(string $title): ?string
     {
+        // Role keywords live in config/job_roles.php (shared with the job finder filter).
+        if ($role = \App\Support\JobRoles::detect($title)) return $role;
         $roles = [
             'quality-testing' => '/\b(qa|quality|tester|testing|sdet)\b/i',
             'frontend' => '/\b(front[ -]?end|react|angular|ui engineer)\b/i',
