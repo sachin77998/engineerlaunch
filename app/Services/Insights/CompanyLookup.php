@@ -32,9 +32,16 @@ class CompanyLookup
     {
         $id = app(CompanyInsights::class)->identify($query);
         $found = collect();
-        foreach ($this->gleif($id['type'] === 'cin' ? ['filter[entity.registeredAs]' => $id['value']] : ['filter[fulltext]' => $query, 'filter[entity.legalAddress.country]' => 'IN', 'page[size]' => 10]) as $row) {
-            $found->push($this->save($row));
+        $rows = $this->gleif($id['type'] === 'cin' ? ['filter[entity.registeredAs]' => $id['value']] : ['filter[fulltext]' => $query, 'filter[entity.legalAddress.country]' => 'IN', 'page[size]' => 10]);
+        if (!$rows && $id['type'] === 'name') {
+            // GLEIF full-text often misses multi-word phrases: search the most distinctive word, keep names containing every word.
+            $words = collect(preg_split('/[^a-z0-9&]+/', mb_strtolower($query)))->reject(fn ($w) => strlen($w) < 3 || in_array($w, ['private', 'pvt', 'limited', 'ltd', 'india', 'the', 'and', 'company'], true))->values();
+            if ($words->isNotEmpty()) {
+                $rows = collect($this->gleif(['filter[fulltext]' => $words->sortByDesc(fn ($w) => strlen($w))->first(), 'filter[entity.legalAddress.country]' => 'IN', 'page[size]' => 50]))
+                    ->filter(fn ($row) => $words->every(fn ($w) => str_contains(mb_strtolower($row['name']), $w)))->take(10)->values()->all();
+            }
         }
+        foreach ($rows as $row) $found->push($this->save($row));
         foreach ($this->dataGov($id['type'] === 'cin' ? $id['value'] : null, $id['type'] === 'name' ? $query : null) as $row) {
             $found->push($this->save($row));
         }
