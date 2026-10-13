@@ -43,7 +43,7 @@ return [
         'electrical' => ['name' => 'Wires, Cables & Electrical Equipment', 'icon' => '⚡', 'color' => '#ca8a04',
             'members' => [['Electrical Equipment & Appliances', ['Electrical Equipment, Switches & Cables', 'Wires & Cables', 'Transformers & Switchgear']]]],
         'building-materials' => ['name' => 'Cement, Paint, Wood & Building Materials', 'icon' => '🏗️', 'color' => '#57534e',
-            'members' => [['Cement, Building Materials & Polymers', ['Cement', 'Paints & Coatings', 'Paints, Panels & Construction Chemicals', 'Wallpaper & Wall Decor', 'Wood, Plywood & Furniture', 'Plastic Pipes & Water Tanks', 'Polymers & Petrochemicals']]]],
+            'members' => [['Cement, Building Materials & Polymers', ['Cement', 'Tiles & Ceramics', 'Sanitaryware & Bath Fittings', 'Paints & Coatings', 'Paints, Panels & Construction Chemicals', 'Wallpaper & Wall Decor', 'Wood, Plywood & Furniture', 'Plastic Pipes & Water Tanks', 'Polymers & Petrochemicals']]]],
         'steel-metals' => ['name' => 'Steel, Metals & Pipes', 'icon' => '🔩', 'color' => '#475569', 'image' => 'images/industries/steel/steel1.jpeg',
             'members' => [['Steel, Metals & Pipes', null]]],
         'pharma' => ['name' => 'Pharma & Healthcare', 'icon' => '💊', 'color' => '#0891b2', 'image' => 'images/industries/pharmaceuticals-hero.png',

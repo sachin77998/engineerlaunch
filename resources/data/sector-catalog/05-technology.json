@@ -171,9 +171,6 @@
             ]},
             {"name": "Microtek International", "website": "https://www.microtekdirect.com", "hq": "New Delhi", "country": "India", "products": "Inverters, UPS and solar electronics", "plants": [
               {"state": "Uttarakhand", "city": "Haridwar", "area": "SIDCUL IIE Haridwar Sector 11"}
-            ]},
-            {"name": "Jaquar & Company", "website": "https://www.jaquar.com", "hq": "Gurugram", "country": "India", "brands": ["Jaquar", "Essco"], "products": "Bath fittings and lighting", "plants": [
-              {"state": "Haryana", "city": "Manesar", "area": "IMT Manesar"}
             ]}
           ]
         },

@@ -19,6 +19,9 @@ return [
     // Registry (GLEIF) searches by trade word: every registered company whose name contains the word is filed
     // into a sector by the classifier and placed in its registered city (companies:discover gleif --gleif-trades).
     'trade_terms' => [
+        'cement', 'ceramic', 'ceramics', 'tiles', 'vitrified', 'granito', 'sanitaryware', 'sanitary', 'bathware', 'bath fittings', 'faucets',
+        'plywood', 'plyboards', 'laminates', 'veneers', 'stationery', 'notebooks', 'exercise books', 'writing instruments', 'pens',
+        'securities', 'broking', 'stock brokers', 'share brokers', 'capital markets', 'payments', 'payment solutions', 'fintech',
         'forging', 'forgings', 'forge', 'casting', 'castings', 'foundry', 'die casting', 'auto', 'automotive', 'motors', 'autocomp', 'auto parts',
         'gears', 'axle', 'bearings', 'fasteners', 'springs', 'pistons', 'radiators', 'brakes', 'tractors', 'engineering works', 'precision',
         'machine tools', 'tools', 'dies', 'moulds', 'molds', 'pumps', 'valves', 'compressors', 'hydraulics', 'boilers', 'cranes', 'fabricators',
