@@ -14,7 +14,7 @@ use Throwable;
 class DiscoverCompanies extends Command
 {
     protected $signature = 'companies:discover
-        {source=all : wikidata, osm, gleif, parks or all}
+        {source=all : wikidata, osm, gleif, parks, brands or all}
         {--country=* : ISO codes scanned on Wikidata (default IN)}
         {--pages=2 : Wikidata pages of 3000 rows per country and company type}
         {--area=* : Hub names from config/discovery.php (default: every hub)}
@@ -33,8 +33,13 @@ class DiscoverCompanies extends Command
     public function handle(): int
     {
         $source = $this->argument('source');
-        if (!in_array($source, ['wikidata', 'osm', 'gleif', 'parks', 'all'], true)) { $this->error('Source must be wikidata, osm, gleif, parks or all.'); return self::INVALID; }
+        if (!in_array($source, ['wikidata', 'osm', 'gleif', 'parks', 'brands', 'all'], true)) { $this->error('Source must be wikidata, osm, gleif, parks, brands or all.'); return self::INVALID; }
         $jobs = [];
+        // Brands and chains trading in India: the Name Suggestion Index, then every branded outlet per state (OpenStreetMap).
+        if (in_array($source, ['brands', 'all'], true)) {
+            $jobs[] = ['nsi', []];
+            foreach ($this->option('state') ?: array_keys(\App\Services\Discovery\ParkSource::STATES) as $state) $jobs[] = ['brands', ['state' => $state]];
+        }
         // IT parks, SEZs and industrial areas of every state first, so the area scans below include them.
         if ($source === 'parks') {
             foreach ($this->option('state') ?: array_keys(\App\Services\Discovery\ParkSource::STATES) as $state) $jobs[] = ['parks', ['state' => $state]];
@@ -51,12 +56,12 @@ class DiscoverCompanies extends Command
             }
             foreach ($this->option('gleif-all') as $code) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => 1, 'cursor' => '*', 'pages_left' => 5000]];
         }
-        if (!in_array($source, ['osm', 'gleif', 'parks'], true)) {
+        if (!in_array($source, ['osm', 'gleif', 'parks', 'brands'], true)) {
             $countries = config('discovery.countries');
             foreach ($this->option('country') ?: ['IN'] as $code) {
                 $country = $countries[strtoupper($code)] ?? null;
                 if (!$country) { $this->warn("Unknown country {$code}; add it to config/discovery.php."); continue; }
-                foreach (\App\Services\Discovery\WikidataCompanySource::TYPES as $type) {
+                foreach (array_merge(\App\Services\Discovery\WikidataCompanySource::MODES, \App\Services\Discovery\WikidataCompanySource::TYPES) as $type) {
                     for ($page = 0; $page < max(1, (int) $this->option('pages')); $page++) {
                         $jobs[] = ['wikidata', ['qid' => $country['qid'], 'country' => $country['name'], 'type' => $type, 'offset' => $page * 3000, 'limit' => 3000]];
                     }

@@ -29,7 +29,12 @@ class DiscoverCompaniesChunk implements ShouldQueue
     public function handle(DiscoveryWriter $writer): void
     {
         if ($this->batch()?->cancelled()) return;
-        if ($this->source === 'parks') {
+        if ($this->source === 'nsi') {
+            $result = $writer->write(app(\App\Services\Discovery\BrandSource::class)->fromNameSuggestionIndex());
+        } elseif ($this->source === 'brands') {
+            $result = $writer->write(app(\App\Services\Discovery\BrandSource::class)->fromOpenStreetMap($this->params['state']));
+            sleep(5); // the shared Overpass server limits heavy queries
+        } elseif ($this->source === 'parks') {
             $source = app(\App\Services\Discovery\ParkSource::class);
             $result = $source->write($source->fetch($this->params['state']));
             sleep(5); // the shared Overpass server limits heavy queries

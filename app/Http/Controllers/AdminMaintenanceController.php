@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RunMaintenanceStep;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -32,6 +35,39 @@ class AdminMaintenanceController extends Controller
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
+    ];
+
+    // Quick steps run inside the browser request; every other step is queued and finished by the cron queue worker.
+    public const INLINE = ['env', 'clear', 'prepare', 'migrate', 'status', 'https'];
+
+    /** "Refresh everything" (one click each morning): module => [label => [command, arguments]]. All run on the queue. */
+    public const REFRESH_MODULES = [
+        'jobs' => ['Jobs', [
+            'Company career pages (every verified feed)' => ['jobs:dispatch-daily', ['--triggered-by' => 'owner']],
+            'Job boards (Arbeitnow, Remotive, Adzuna, Jooble)' => ['jobs:import-feeds', ['--now' => true, '--queries' => 20]],
+            'Match industrial jobs to companies' => ['industrial:sync-jobs', ['--limit' => 2000]],
+            'Classify jobs into categories' => ['jobs:classify', []],
+        ]],
+        'companies' => ['Companies & sectors', [
+            'Research new companies: IT parks, registries, trades, brands, group subsidiaries (each when due)' => ['discovery:bootstrap', []],
+            'Import sector catalog' => ['companies:import-catalog', []],
+            'Re-sort unclassified companies into sectors' => ['companies:reclassify', []],
+            'Rebuild Companies by Sector cards' => ['sectors:warm', []],
+        ]],
+        'news' => ['Latest in Tech', [
+            'Fetch news sources' => ['news:fetch', []],
+            'Fetch every industry topic' => ['news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
+            'Process articles' => ['news:process', []],
+            'Publish articles' => ['news:publish', []],
+        ]],
+        'learning' => ['Learning & technologies', [
+            'Refresh every language, framework and tool with live job counts' => ['technologies:sync', ['--skip-discovery' => true]],
+            'Rebuild skill graph for recommendations' => ['recommendations:build-skill-graph', []],
+            'Refresh learning pages' => ['view:clear', []],
+        ]],
+        'market' => ['Market data', [
+            'Gold and silver prices (needs GOLDAPI_KEY)' => ['market:data', ['action' => 'fetch-metals']],
+        ]],
     ];
 
     // Seeders run one per request: running them all in one web request exceeds shared-hosting time limits.
@@ -137,6 +173,56 @@ class AdminMaintenanceController extends Controller
         } catch (Throwable $e) {
             return [1, $e->getMessage()];
         }
+    }
+
+    /** Queues one step (or every queued step with "all") for the background worker. */
+    public function queue(string $step)
+    {
+        $steps = self::steps();
+        $keys = $step === 'all' ? array_values(array_diff(array_keys($steps), self::INLINE, ['gleif-india', 'https'])) : [$step];
+        abort_unless($step === 'all' || (isset($steps[$step]) && !in_array($step, self::INLINE, true)), 404);
+        foreach ($keys as $key) {
+            [$label, $command, $arguments] = $steps[$key];
+            RunMaintenanceStep::markQueued($key, $label);
+            RunMaintenanceStep::dispatch($key, $label, $command, $arguments);
+        }
+        return response()->json(['queued' => $keys]);
+    }
+
+    /** One click each morning: every module's refresh as a single batch on the queue. */
+    public function refreshAll()
+    {
+        $jobs = [];
+        foreach (self::REFRESH_MODULES as $module => [$moduleLabel, $tasks]) {
+            foreach ($tasks as $label => [$command, $arguments]) {
+                $key = 'refresh-' . $module . '-' . md5($label);
+                RunMaintenanceStep::markQueued($key, $label);
+                $jobs[] = new RunMaintenanceStep($key, $label, $command, $arguments);
+            }
+        }
+        $batch = Bus::batch($jobs)->name('Refresh everything')->allowFailures()->onConnection('database')->onQueue('maintenance')->dispatch();
+        Cache::put('maintenance-refresh', ['batch' => $batch->id, 'started_at' => now()->toDateTimeString()], now()->addDays(7));
+        return response()->json(['batch' => $batch->id, 'jobs' => count($jobs)]);
+    }
+
+    /** States of queued steps and of the latest "Refresh everything" run, polled by the page. */
+    public function status()
+    {
+        $steps = [];
+        foreach (array_keys(self::steps()) as $key) {
+            if ($state = Cache::get(RunMaintenanceStep::statusKey($key))) $steps[$key] = $state;
+        }
+        $modules = [];
+        foreach (self::REFRESH_MODULES as $module => [$moduleLabel, $tasks]) {
+            foreach ($tasks as $label => $task) {
+                $modules[$module][] = ['label' => $label] + (Cache::get(RunMaintenanceStep::statusKey('refresh-' . $module . '-' . md5($label))) ?: ['state' => 'idle']);
+            }
+        }
+        $refresh = Cache::get('maintenance-refresh');
+        $batch = $refresh ? Bus::findBatch($refresh['batch']) : null;
+        $pending = \Illuminate\Support\Facades\DB::table(config('queue.connections.database.table', 'jobs_queue'))->where('queue', 'maintenance')->count();
+        return response()->json(['steps' => $steps, 'modules' => $modules, 'pending' => $pending,
+            'refresh' => $refresh ? $refresh + ['progress' => $batch?->progress(), 'finished' => (bool) $batch?->finished(), 'failed' => $batch?->failedJobs] : null]);
     }
 
     public function run(Request $request, string $step)

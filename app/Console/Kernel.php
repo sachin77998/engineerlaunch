@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('jobs:dispatch-daily --triggered-by=scheduler')
             ->dailyAt('02:00')
             ->withoutOverlapping(180);
-        $schedule->command('queue:work database --queue=catalog,feeds,discovery,ingestion --stop-when-empty --max-time=300 --tries=3 --timeout=900')
+        $schedule->command('queue:work database --queue=maintenance,catalog,feeds,discovery,ingestion --stop-when-empty --max-time=300 --tries=3 --timeout=900')
             ->everyMinute()
             ->withoutOverlapping(180);
         $schedule->command('queue:work --queue=resume-processing,emails,default --stop-when-empty --max-time=300 --tries=3 --timeout=300')

@@ -100,6 +100,7 @@ class SectorCatalogImporter
             'industry' => $company->industry ?: $sector,
             'sector' => $company->sector ?: $subsector,
             'products' => $company->products ?: ($entry['products'] ?? null),
+            'description' => $company->description ?: ($entry['description'] ?? null),
             'brands' => array_values(array_unique(array_merge($company->brands ?? [], $entry['brands'] ?? []))) ?: null,
             'employee_count' => $company->employee_count ?: ($entry['employees'] ?? null),
             'is_active' => true,

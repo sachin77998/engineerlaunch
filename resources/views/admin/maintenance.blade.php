@@ -11,12 +11,36 @@
 .mt-out{grid-column:1/-1;max-height:260px;overflow:auto;background:#0b1220;color:#d6e2f2;border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;margin:6px 0 0}
 .mt-out:empty{display:none}
 .mt-btn{padding:9px 14px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font:inherit;font-weight:600}
+.mt-dot.queued{background:#93c5fd}
+.mt-refresh{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px}
+.mt-refresh-head{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}.mt-refresh-head small{color:var(--muted)}
+.mt-progress{height:8px;border-radius:4px;background:#e5ecf4;margin:12px 0;overflow:hidden}.mt-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#0b2545,#f4b400);transition:width .4s}
+.mt-modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.mt-module{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.mt-module h3{margin:0 0 6px;font-size:15px;color:#0b2545}
+.mt-module ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}.mt-module li{display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:start;font-size:13px}
+.mt-module li small{grid-column:2;color:var(--muted);font-size:11.5px}.mt-module .mt-dot{width:10px;height:10px;margin-top:4px}
+.mt-worker{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
 details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto;background:#0b1220;color:#d6e2f2;border-radius:10px;padding:12px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
 </style>@endpush
 @section('content')
 <div class="mt">
     <h1>Production Setup</h1>
-    <p class="mt-sub">Runs these commands on this server. "Run all" goes top to bottom and continues past failures.</p>
+    <p class="mt-sub">Quick steps run immediately; long steps are queued and finished by the background worker (cron), so they never hit the server's time limit. Status updates on its own.</p>
+    <section class="mt-refresh">
+        <div class="mt-refresh-head">
+            <div><strong>Refresh everything</strong><br><small id="mt-refresh-meta">Fetches the latest jobs, companies, news, technologies and prices for every module in one queued batch.</small></div>
+            <button class="primary" type="button" id="mt-refresh-all">Refresh everything</button>
+        </div>
+        <div class="mt-progress"><span id="mt-refresh-bar"></span></div>
+        <div class="mt-modules">
+            @foreach(\App\Http\Controllers\AdminMaintenanceController::REFRESH_MODULES as $module => [$moduleLabel, $tasks])
+                <div class="mt-module" data-module="{{ $module }}"><h3>{{ $moduleLabel }}</h3>
+                    <ul>@foreach($tasks as $label => $task)<li data-task="{{ $loop->index }}"><span class="mt-dot"></span><span>{{ $label }}</span><small></small></li>@endforeach</ul>
+                </div>
+            @endforeach
+        </div>
+        <p class="mt-worker" id="mt-worker"></p>
+    </section>
     <div class="mt-actions">
         <button class="primary" type="button" id="mt-all">Run all</button>
         <a class="mt-btn" href="{{ route('sectors.index') }}" target="_blank">Open Companies by Sector ↗</a>
@@ -51,7 +75,7 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
         <div class="mt-step" data-step="{{ $key }}">
             <span class="mt-dot"></span>
             <div><strong>{{ $label }}</strong><br><code>php artisan {{ $command }}</code> <small class="mt-time"></small></div>
-            <button class="mt-btn" type="button" data-run="{{ $key }}">Run</button>
+            <button class="mt-btn" type="button" data-run="{{ $key }}" data-inline="{{ in_array($key, \App\Http\Controllers\AdminMaintenanceController::INLINE, true) ? 1 : 0 }}">{{ in_array($key, \App\Http\Controllers\AdminMaintenanceController::INLINE, true) ? 'Run' : 'Queue' }}</button>
             <pre class="mt-out"></pre>
         </div>
     @endforeach
@@ -102,19 +126,62 @@ details.mt-log{margin-top:22px}details.mt-log pre{max-height:420px;overflow:auto
         } catch (e) { out.textContent = 'The server did not respond (' + e + '). Check the deployment log below in a minute.'; }
         b.disabled = false;
     }));
-    document.querySelectorAll('[data-run]').forEach(b => b.addEventListener('click', () => run(b.dataset.run)));
+    // Long steps go to the background queue; the page then follows their status.
+    async function enqueue(step) {
+        const res = await fetch('{{ url('/admin/maintenance/queue') }}/' + step, {method: 'POST', headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}});
+        if (!res.ok) { alertBox('Could not queue (HTTP ' + res.status + '). Wait a minute and try again.'); return; }
+        (await res.json()).queued.forEach(key => paint(key, {state: 'queued'}));
+        poll();
+    }
+    const labels = {queued: 'queued · waiting for the background worker', running: 'running…', done: 'done', failed: 'failed'};
+    function paint(key, s) {
+        const row = document.querySelector(`[data-step="${key}"]`);
+        if (!row) return;
+        row.querySelector('.mt-dot').className = 'mt-dot ' + ({queued: 'queued', running: 'run', done: 'ok', failed: 'fail'}[s.state] || '');
+        row.querySelector('.mt-time').textContent = '· ' + (labels[s.state] || s.state) + (s.seconds !== undefined ? ` · ${s.seconds}s` : '') + (s.finished_at ? ` · ${s.finished_at}` : '');
+        if (s.output) row.querySelector('.mt-out').textContent = s.output;
+    }
+    let polling = null;
+    async function poll() {
+        clearTimeout(polling);
+        let data;
+        try { data = await (await fetch('{{ route('admin.maintenance.status') }}', {headers: {'Accept': 'application/json'}})).json(); } catch (e) { polling = setTimeout(poll, 10000); return; }
+        let active = false;
+        Object.entries(data.steps || {}).forEach(([key, s]) => { paint(key, s); active ||= ['queued', 'running'].includes(s.state); });
+        Object.entries(data.modules || {}).forEach(([module, tasks]) => tasks.forEach((t, i) => {
+            const li = document.querySelector(`[data-module="${module}"] [data-task="${i}"]`);
+            if (!li) return;
+            li.querySelector('.mt-dot').className = 'mt-dot ' + ({queued: 'queued', running: 'run', done: 'ok', failed: 'fail'}[t.state] || '');
+            li.querySelector('small').textContent = t.state === 'idle' ? '' : (labels[t.state] || t.state) + (t.finished_at ? ' · ' + t.finished_at : '') + (t.state === 'failed' && t.output ? ' · ' + t.output.slice(-160) : '');
+            active ||= ['queued', 'running'].includes(t.state);
+        }));
+        if (data.refresh) {
+            document.getElementById('mt-refresh-bar').style.width = (data.refresh.progress ?? 0) + '%';
+            document.getElementById('mt-refresh-meta').textContent = `Last started ${data.refresh.started_at} · ${data.refresh.progress ?? 0}% complete` + (data.refresh.finished ? ' · finished' : '') + (data.refresh.failed ? ` · ${data.refresh.failed} failed` : '');
+        }
+        document.getElementById('mt-worker').textContent = data.pending ? `${data.pending} job(s) waiting. The cron worker picks them up every minute; nothing runs if the cron job below is not set up.` : '';
+        if (active || data.pending) polling = setTimeout(poll, 5000);
+    }
+    document.getElementById('mt-refresh-all').addEventListener('click', async e => {
+        e.target.disabled = true;
+        const res = await fetch('{{ route('admin.maintenance.refresh-all') }}', {method: 'POST', headers: {'X-CSRF-TOKEN': token, 'Accept': 'application/json'}});
+        if (!res.ok) alertBox('Could not start the refresh (HTTP ' + res.status + '). Wait a minute and try again.');
+        e.target.disabled = false;
+        poll();
+    });
+    document.querySelectorAll('[data-run]').forEach(b => b.addEventListener('click', () => b.dataset.inline === '1' ? run(b.dataset.run) : enqueue(b.dataset.run)));
     document.getElementById('mt-all').addEventListener('click', async e => {
         e.target.disabled = true;
-        let downInARow = 0;
-        for (const row of document.querySelectorAll('[data-step]')) {
-            const result = await run(row.dataset.step);
-            downInARow = result === 'down' ? downInARow + 1 : 0;
-            // Shared hosting throttles bursts: stop instead of failing every remaining step.
-            if (downInARow >= 2) { alertBox('The server is busy or throttling requests. Wait 2-3 minutes, then press Run on the first red step and continue from there.'); break; }
-            await pause(1200);
+        // Quick steps run now, top to bottom; then every long step is queued in one request.
+        for (const b of document.querySelectorAll('[data-run][data-inline="1"]')) {
+            if (b.dataset.run === 'https') continue;
+            if (await run(b.dataset.run) === 'down') { alertBox('The server is busy. Wait 2-3 minutes and press Run all again.'); e.target.disabled = false; return; }
+            await pause(800);
         }
+        await enqueue('all');
         e.target.disabled = false;
     });
+    poll();
     function alertBox(text) {
         let box = document.getElementById('mt-alert');
         if (!box) { box = document.createElement('p'); box.id = 'mt-alert'; box.style.cssText = 'padding:12px 14px;border-radius:10px;background:#fff6dc;border:1px solid #f4b400;color:#0b2545;font-weight:600'; document.querySelector('.mt-actions').after(box); }

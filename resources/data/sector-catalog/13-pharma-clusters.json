@@ -1,0 +1,2121 @@
+{
+ "sectors": [
+  {
+   "name": "Pharmaceuticals & Healthcare",
+   "symbol": "PH",
+   "subsectors": [
+    {
+     "name": "State-wise Pharma Manufacturers",
+     "companies": [
+      {
+       "name": "A. R. Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Jeedimetla"
+        }
+       ]
+      },
+      {
+       "name": "Acura Labs",
+       "hq": "Bibinagar",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Bibinagar",
+         "area": "Mallapur / Bibinagar"
+        }
+       ]
+      },
+      {
+       "name": "Admiron Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur"
+        }
+       ]
+      },
+      {
+       "name": "Aktinos Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur"
+        }
+       ]
+      },
+      {
+       "name": "Alekhya Drugs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Sanath Nagar"
+        }
+       ]
+      },
+      {
+       "name": "Almelo Private Limited",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Kukatpally / Mankhal"
+        }
+       ]
+      },
+      {
+       "name": "Amara Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Bollaram"
+        }
+       ]
+      },
+      {
+       "name": "Aparna Pharmaceuticals",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad"
+        }
+       ]
+      },
+      {
+       "name": "API Pharma Tech",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Prasanthi Nagar, Kukatpally"
+        }
+       ]
+      },
+      {
+       "name": "Apitoria Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad"
+        }
+       ]
+      },
+      {
+       "name": "Aptra Synthesis",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Balanagar"
+        }
+       ]
+      },
+      {
+       "name": "Arde's Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Gajularamaram / Pochampally"
+        }
+       ]
+      },
+      {
+       "name": "Arene Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Pashamylaram"
+        }
+       ]
+      },
+      {
+       "name": "Aurore Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "HITEC City"
+        }
+       ]
+      },
+      {
+       "name": "Aspen Biopharma Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Genome Valley"
+        }
+       ]
+      },
+      {
+       "name": "Aurigene Pharmaceutical Services",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Miyapur"
+        }
+       ]
+      },
+      {
+       "name": "Azico Biophore India",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur"
+        }
+       ]
+      },
+      {
+       "name": "Bacto Chem Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Balanagar"
+        }
+       ]
+      },
+      {
+       "name": "Bharat Biotech",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Genome Valley"
+        }
+       ]
+      },
+      {
+       "name": "Biochemical & Synthetic Products",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Balanagar"
+        }
+       ]
+      },
+      {
+       "name": "Bio Pharma Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Bollaram"
+        }
+       ]
+      },
+      {
+       "name": "Biophore India Pharmaceuticals",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Kavuri Hills"
+        }
+       ]
+      },
+      {
+       "name": "Biotech Solutions & Pharmaceuticals",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Kondapur"
+        }
+       ]
+      },
+      {
+       "name": "Emnar Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Sanath Nagar"
+        }
+       ]
+      },
+      {
+       "name": "Enal Drugs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Jeedimetla"
+        }
+       ]
+      },
+      {
+       "name": "Everest Organics",
+       "hq": "Sangareddy",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Sangareddy district"
+        }
+       ]
+      },
+      {
+       "name": "Fleming Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Jeedimetla"
+        }
+       ]
+      },
+      {
+       "name": "Forel Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Banjara Hills"
+        }
+       ]
+      },
+      {
+       "name": "Gennex Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Bollaram"
+        }
+       ]
+      },
+      {
+       "name": "Gland Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Dundigal / Pashamylaram"
+        }
+       ]
+      },
+      {
+       "name": "Globalchem India",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Amberpet"
+        }
+       ]
+      },
+      {
+       "name": "Glochem Industries",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Sanath Nagar / Bollaram"
+        }
+       ]
+      },
+      {
+       "name": "GPT Pharmaceuticals",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Nacharam"
+        }
+       ]
+      },
+      {
+       "name": "Lara Drugs",
+       "hq": "Choutuppal",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Choutuppal",
+         "area": "Choutuppal"
+        }
+       ]
+      },
+      {
+       "name": "Laurus Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Hyderabad / Genome Valley"
+        }
+       ]
+      },
+      {
+       "name": "LAXAI Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Jeedimetla / Genome Valley"
+        }
+       ]
+      },
+      {
+       "name": "Lee Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Balanagar"
+        }
+       ]
+      },
+      {
+       "name": "Lifecare Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Ameerpet"
+        }
+       ]
+      },
+      {
+       "name": "Lucent Drugs",
+       "hq": "Sangareddy",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Sangareddy",
+         "area": "Sangareddy district"
+        }
+       ]
+      },
+      {
+       "name": "Magnum Chemi-Gran",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Cherlapally"
+        }
+       ]
+      },
+      {
+       "name": "Maithili Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Kukatpally"
+        }
+       ]
+      },
+      {
+       "name": "Maithri Drugs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur / Bonthapally"
+        }
+       ]
+      },
+      {
+       "name": "Ocimum Labs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Cherlapally"
+        }
+       ]
+      },
+      {
+       "name": "Optimus Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur"
+        }
+       ]
+      },
+      {
+       "name": "Ortin Laboratories",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Banjara Hills"
+        }
+       ]
+      },
+      {
+       "name": "Pellets Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Pashamylaram"
+        }
+       ]
+      },
+      {
+       "name": "Pellsys Pharma",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "IDA Cherlapally"
+        }
+       ]
+      },
+      {
+       "name": "Pharma Noble Chem",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Mailardevpally"
+        }
+       ]
+      },
+      {
+       "name": "Raghava Life Sciences",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Banjara Hills"
+        }
+       ]
+      },
+      {
+       "name": "Rakshit Drugs",
+       "hq": "Hyderabad",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and formulations",
+       "plants": [
+        {
+         "state": "Telangana",
+         "city": "Hyderabad",
+         "area": "Madhapur"
+        }
+       ]
+      },
+      {
+       "name": "AAK India",
+       "hq": "Khalapur",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Khalapur",
+         "area": "Khalapur / Khopoli"
+        }
+       ]
+      },
+      {
+       "name": "Aarambh Life Science",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Ghatkopar, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Aarey Drugs & Pharmaceuticals",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Andheri East, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Aarti Pharmalabs",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Aastrid Life Sciences",
+       "hq": "Navi Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Navi Mumbai",
+         "area": "MIDC Mahape / Mahad"
+        }
+       ]
+      },
+      {
+       "name": "Aastrid International",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Goregaon East, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Ajanta Pharma",
+       "hq": "Chhatrapati Sambhajinagar",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Chhatrapati Sambhajinagar",
+         "area": "Waluj, Chhatrapati Sambhajinagar"
+        }
+       ]
+      },
+      {
+       "name": "ALG Chemicals",
+       "hq": "Navi Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Navi Mumbai",
+         "area": "MIDC Mahad / Navi Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Aligns International",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Alivira Animal Health",
+       "hq": "Thane",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Thane",
+         "area": "Wagle Industrial Estate, Thane"
+        }
+       ]
+      },
+      {
+       "name": "Alivus Life Sciences",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Andheri East, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Alkem Laboratories",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Lower Parel, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Allmpus Laboratories",
+       "hq": "Dombivli",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Dombivli",
+         "area": "Dombivli"
+        }
+       ]
+      },
+      {
+       "name": "Amoli Organics",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Amsal Chem",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Anmol Chemicals",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Anuh Pharma",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai / Boisar"
+        }
+       ]
+      },
+      {
+       "name": "Aquatic Remedies",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Chembur, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "Arch Pharmalabs",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Andheri East, Mumbai"
+        }
+       ]
+      },
+      {
+       "name": "ASolution Pharmaceuticals",
+       "hq": "Mumbai",
+       "country": "India",
+       "products": "Pharmaceuticals, APIs and specialty chemicals",
+       "plants": [
+        {
+         "state": "Maharashtra",
+         "city": "Mumbai",
+         "area": "Mumbai / Ambernath"
+        }
+       ]
+      },
+      {
+       "name": "Able Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gullarwala, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Acme Generics",
+       "hq": "Nalagarh",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Nalagarh",
+         "area": "Davni, Nalagarh"
+        }
+       ]
+      },
+      {
+       "name": "ADDII Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Kaundi, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Addy Pharmaceutical",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Sai Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Aishwarya Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Thana, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Alexi Pharmicia",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Davni, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Alive Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "HPSIDC, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Alliaance Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Katha, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Allkind Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "EPIP Phase II, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Altop Health Care",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Juddi Kalan, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Alventa Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Kishanpura, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "AMSTER Labs",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Saraj Majra, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Arion Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Kishanpura, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Associated Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gurumajra, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Bhanu Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gurumajra, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Blueglide Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "HPSIDC, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "BRD MediLabs",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "DIC Industrial Area, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Cadlay Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Capillon Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Malpur Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Capsoft Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Sai Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Colard Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Sai Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Colard Life Science",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gullarwala, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "D.S.R. Life Care",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gullarwala, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Eurocrit Labs",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Thana, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Evitalife Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Sai Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Healthgenic Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Jharmajri, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Iatric Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Innova Captab",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Jharmajri, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Maya Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Kondi, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "MDC Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Sai Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Medipol Pharmaceutical India",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Bhud, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Mgee Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Dharampur, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Mickle Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Barotiwala Road, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Mox Healthcare",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Naxpar Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gurumajra, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Neptune Life Sciences",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "EPIP Phase II, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Saar Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Bhud, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Salus Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Gurumajra, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Shervotec Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Sigma Softgel",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "HPSIDC Industrial Area, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Tanishka Pharmaceutical",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Nandpur, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Unispeed Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Katha, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Vadsp Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "EPIP Phase I, Jharmajri"
+        }
+       ]
+      },
+      {
+       "name": "Vankab Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "EPIP Phase I, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "V B Pharma",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "EPIP Phase II, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "VFC Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Bhatoli Khurd, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Wellone Pharmaceuticals",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "Baddi-Pinjore Road"
+        }
+       ]
+      },
+      {
+       "name": "Wings Biotech",
+       "hq": "Baddi",
+       "country": "India",
+       "products": "Pharmaceutical formulations (Baddi–Barotiwala–Nalagarh cluster)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Baddi",
+         "area": "HPSIDC Industrial Area, Baddi"
+        }
+       ]
+      },
+      {
+       "name": "Digital Vision",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals – manufacturing and export (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Symbiosis Pharmaceutical",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals – formulations (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "Orison Pharma International",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Khari, Sadhaura Road"
+        }
+       ]
+      },
+      {
+       "name": "Shivam Enterprises",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "Biological Inc.",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "Sojin Flora",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Accura Care",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals – contract manufacturing (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Integrated Lab",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Athens Life Sciences",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Alps Communication",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Nibvir Pharma",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Westin Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Helpzyn Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Ronald Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Saitech Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Trilokpur Road"
+        }
+       ]
+      },
+      {
+       "name": "Kirsvy Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "M.B.C. Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Vellinton Healthcare",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Trilokpur Road"
+        }
+       ]
+      },
+      {
+       "name": "Vidhyasha Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "GMT Pharma International",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Iskon Remedies",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Primus Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Sadhaura Road"
+        }
+       ]
+      },
+      {
+       "name": "Grampus Laboratories",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Sidhi Vinayak Industries",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Shedwell Pharma",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Kala Amb Industrial Area"
+        }
+       ]
+      },
+      {
+       "name": "MMG Healthcare",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "Sarv Biolabs",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Trilokpur Road"
+        }
+       ]
+      },
+      {
+       "name": "Pushkar Pharma",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Khari-Toka Sahib Road"
+        }
+       ]
+      },
+      {
+       "name": "Samay Pharma India",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Kala Amb Industrial Area"
+        }
+       ]
+      },
+      {
+       "name": "Candour Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "SBS Biotech",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Rampur Jatan"
+        }
+       ]
+      },
+      {
+       "name": "Oscar Remedies",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Johron"
+        }
+       ]
+      },
+      {
+       "name": "JMM Formulation",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Suketi Road"
+        }
+       ]
+      },
+      {
+       "name": "Algen Healthcare",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Sadhaura Road"
+        }
+       ]
+      },
+      {
+       "name": "Elnova Pharma",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Gnosis Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Indkus Biotech India",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Wel Cure Remedies",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Sunvet Pharma",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Sainwala-Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Panm Biotech",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "Medisys Biotech",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Nahan Road"
+        }
+       ]
+      },
+      {
+       "name": "Itearsa Biotech",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Mogi Nand"
+        }
+       ]
+      },
+      {
+       "name": "DDM Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Ogli, Sadhaura Road"
+        }
+       ]
+      },
+      {
+       "name": "Laafon Galaxy Pharmaceuticals",
+       "hq": "Kala Amb",
+       "country": "India",
+       "products": "Pharmaceuticals (Kala Amb directory listing; verification pending)",
+       "plants": [
+        {
+         "state": "Himachal Pradesh",
+         "city": "Kala Amb",
+         "area": "Kala Amb"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

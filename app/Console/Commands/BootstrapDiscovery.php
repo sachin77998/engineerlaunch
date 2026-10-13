@@ -15,12 +15,16 @@ use Throwable;
 class BootstrapDiscovery extends Command
 {
     protected $signature = 'discovery:bootstrap {--force : Queue every import now}';
-    protected $description = 'Queue IT parks, registry trade search and technology discovery when they are due';
+    protected $description = 'Queue IT parks, registry trade search, brands, Wikidata research and technology discovery when they are due';
 
     private const TASKS = [
         'parks' => ['companies:discover', ['source' => 'parks'], 30],
         'gleif-trades' => ['companies:discover', ['source' => 'gleif', '--gleif-trades' => true], 30],
         'technologies' => ['technologies:sync', [], 30],
+        // Brands and chains with outlets in each state (OpenStreetMap) and brands listed for India (Name Suggestion Index).
+        'brands' => ['companies:discover', ['source' => 'brands'], 14],
+        // Every Indian company tagged with an industry, subsidiaries of Indian groups and their brands (Wikidata).
+        'wikidata' => ['companies:discover', ['source' => 'wikidata', '--country' => ['IN'], '--pages' => 1], 7],
     ];
 
     public function handle(): int

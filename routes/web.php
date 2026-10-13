@@ -142,6 +142,9 @@ Route::get("/api/career-explorer", [\App\Http\Controllers\CareerExplorerControll
 
 Route::get('/admin/maintenance', [\App\Http\Controllers\AdminMaintenanceController::class, 'index'])->middleware(['auth','admin'])->name('admin.maintenance');
 Route::post('/admin/maintenance/repository/{index}/{action}', [\App\Http\Controllers\AdminMaintenanceController::class, 'repository'])->whereNumber('index')->whereIn('action',['clean','deploy'])->middleware(['auth','admin'])->name('admin.maintenance.repository');
+Route::post('/admin/maintenance/queue/{step}', [\App\Http\Controllers\AdminMaintenanceController::class, 'queue'])->middleware(['auth','admin'])->name('admin.maintenance.queue');
+Route::post('/admin/maintenance/refresh-all', [\App\Http\Controllers\AdminMaintenanceController::class, 'refreshAll'])->middleware(['auth','admin'])->name('admin.maintenance.refresh-all');
+Route::get('/admin/maintenance/status', [\App\Http\Controllers\AdminMaintenanceController::class, 'status'])->middleware(['auth','admin'])->name('admin.maintenance.status');
 Route::post('/admin/maintenance/run/{step}', [\App\Http\Controllers\AdminMaintenanceController::class, 'run'])->middleware(['auth','admin'])->name('admin.maintenance.run');
 Route::get('/admin/deploy-log', \App\Http\Controllers\AdminDeployLogController::class)->middleware(['auth','admin'])->name('admin.deploy-log');
 Route::get('/admin/job-sources', [\App\Http\Controllers\AdminJobSourcesController::class,'index'])->middleware(['auth','admin'])->name('admin.job-sources');

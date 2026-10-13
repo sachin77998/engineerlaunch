@@ -51,15 +51,18 @@ class DispatchDailyJobSync extends Command
             'updated_by' => $userId,
         ]);
 
-        foreach ($companies as $company) {
-            BatchRunItem::create([
+        // Bulk insert: thousands of single inserts are slow on shared hosting.
+        foreach ($companies->chunk(500) as $chunk) {
+            BatchRunItem::insert($chunk->map(fn ($company) => [
                 'batch_run_id' => $run->id,
                 'company_id' => $company->id,
                 'item_key' => (string) $company->id,
                 'item_name' => $company->name,
                 'created_by' => $userId,
                 'updated_by' => $userId,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ])->all());
         }
 
         if ($companies->isEmpty()) {
@@ -71,7 +74,10 @@ class DispatchDailyJobSync extends Command
         $runId = $run->id;
         $jobs = $companies->map(fn ($company) => new SyncCompanyJobs((int) $company->id, $runId))->all();
         try {
-            $batch = Bus::batch($jobs)
+            // Start with the first chunk and add the rest in chunks: queuing every company in one INSERT exceeds MySQL's
+            // max_allowed_packet (1 MB on shared hosting) and fails with "MySQL server has gone away".
+            $chunks = array_chunk($jobs, 300);
+            $batch = Bus::batch(array_shift($chunks))
                 ->name($run->name)
                 ->then(fn (Batch $batch) => app(BatchAuditService::class)->refreshRun($runId, true))
                 ->catch(function (Batch $batch, Throwable $exception) use ($runId) {
@@ -79,6 +85,7 @@ class DispatchDailyJobSync extends Command
                 })
                 ->finally(fn (Batch $batch) => app(BatchAuditService::class)->refreshRun($runId, true))
                 ->allowFailures()->onConnection('database')->onQueue('ingestion')->dispatch();
+            foreach ($chunks as $chunk) $batch->add($chunk);
         } catch (Throwable $exception) {
             $run->update(['status' => 'failed', 'failure_stage' => 'dispatch', 'failure_reason' => $exception->getMessage(), 'finished_at' => now()]);
             report($exception);
