@@ -125,8 +125,11 @@ class CompanyInsightsController extends Controller
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
         $consolidated = $company->financialStatements->where('is_consolidated', true);
+        // Group structure from discovery ("Part of Tata Group."): subsidiaries of this company and its own parent.
+        $subsidiaries = Company::where('description', 'Part of ' . $company->name . '.')->where('is_active', true)->orderBy('name')->limit(60)->get(['id', 'name', 'slug', 'industry', 'logo_url', 'website']);
+        $parent = preg_match('/^Part of (.+)\.$/', (string) $company->description, $m) ? Company::where('name', $m[1])->first(['id', 'name', 'slug']) : null;
         return view('insights.show', [
-            'company' => $company, 'cin' => $cin,
+            'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'decoded' => $cin && preg_match(CompanyInsights::CIN, $cin) ? $this->insights->decodeCin($cin) : null,
             'ratios' => $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated),
             'consolidatedRatios' => $standalone->isNotEmpty() && $consolidated->isNotEmpty() ? $this->insights->ratios($consolidated) : collect(),

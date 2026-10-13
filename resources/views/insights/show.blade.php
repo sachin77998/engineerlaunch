@@ -185,6 +185,16 @@
         </section>
     </div>
 
+    @if($subsidiaries->isNotEmpty() || $parentName)
+        <section class="ci-card" id="group">
+            <h2>Group companies</h2>
+            @if($parentName)<p class="ci-muted" style="margin-top:0">Part of @if($parent)<a href="{{ route('insights.show', $parent) }}">{{ $parentName }}</a>@else{{ $parentName }}@endif</p>@endif
+            @if($subsidiaries->isNotEmpty())
+                <div class="ci-grid">@foreach($subsidiaries as $sub)<a class="ci-company" href="{{ route('insights.show', $sub) }}"><span class="ci-logo">@if($sub->logo_url)<img src="{{ $sub->logo_url }}" alt="" loading="lazy">@else{{ mb_strtoupper(mb_substr($sub->name, 0, 1)) }}@endif</span><span class="ci-company-body"><strong>{{ $sub->name }}</strong><small>{{ $sub->industry }}</small></span></a>@endforeach</div>
+            @endif
+        </section>
+    @endif
+
     <section class="ci-card" id="business">
         <h2>Business activities and related parties</h2>
         @if($company->businessProducts->isNotEmpty())
