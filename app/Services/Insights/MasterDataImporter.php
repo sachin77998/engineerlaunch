@@ -16,20 +16,21 @@ class MasterDataImporter
 {
     // data.gov.in has used several header spellings over the years.
     private const COLUMNS = [
-        'cin' => ['corporate_identification_number', 'cin', 'corporate_identity_number'],
-        'name' => ['company_name', 'company_llp_name', 'name'],
+        // data.gov.in CSVs and MCA's monthly "companies registered during the month" Excel files.
+        'cin' => ['corporate_identification_number', 'cin', 'corporate_identity_number', 'company_cin', 'cin_fcrn'],
+        'name' => ['company_name', 'company_llp_name', 'name_of_the_company', 'name'],
         'status' => ['company_status', 'company_status_for_efiling', 'status'],
         'class' => ['company_class', 'class_of_company', 'class'],
         'category' => ['company_category', 'category'],
         'subcategory' => ['company_sub_category', 'company_subcategory', 'sub_category'],
-        'registered' => ['date_of_registration', 'company_registration_date', 'date_of_incorporation'],
+        'registered' => ['date_of_registration', 'company_registration_date', 'date_of_incorporation', 'date_of_incorporation_registration', 'date_of_incorporation_or_registration', 'doi'],
         'state' => ['registered_state', 'company_state', 'state'],
-        'authorised' => ['authorized_cap', 'authorised_cap', 'authorized_capital', 'authorised_capital', 'authorized_capital_inr', 'authorised_capital_inr'],
-        'paid_up' => ['paidup_capital', 'paid_up_capital', 'paidup_cap', 'paid_up_capital_inr'],
-        'nic' => ['industrial_class', 'nic_code', 'activity_code', 'company_industrial_classification'],
-        'activity' => ['principal_business_activity_as_per_cin', 'principal_business_activity', 'activity_description'],
+        'authorised' => ['authorized_cap', 'authorised_cap', 'authorized_capital', 'authorised_capital', 'authorized_capital_inr', 'authorised_capital_inr', 'authorized_capital_rs', 'authorised_capital_rs', 'authorized_capital_in_rs', 'authorised_capital_in_rs'],
+        'paid_up' => ['paidup_capital', 'paid_up_capital', 'paidup_cap', 'paid_up_capital_inr', 'paid_up_capital_rs', 'paid_up_capital_in_rs'],
+        'nic' => ['industrial_class', 'nic_code', 'activity_code', 'company_industrial_classification', 'principal_business_activity_code'],
+        'activity' => ['principal_business_activity_as_per_cin', 'principal_business_activity', 'activity_description', 'description_of_main_division'],
         'address' => ['registered_office_address', 'company_address', 'registered_address', 'address'],
-        'roc' => ['registrar_of_companies', 'roc', 'roc_code', 'company_roc', 'company_roc_code'],
+        'roc' => ['registrar_of_companies', 'roc', 'roc_code', 'company_roc', 'company_roc_code', 'roc_name'],
         'email' => ['email_addr', 'email', 'email_id'],
         'annual_return' => ['latest_year_annual_return', 'latest_annual_return'],
         'financials' => ['latest_year_financial_statement', 'latest_financial_statement'],
@@ -37,34 +38,57 @@ class MasterDataImporter
 
     public function __construct(private RegistryWriter $writer) {}
 
-    /** @return array{rows:int,created:int,detailed:int} */
-    public function import(string $path): array
+    /**
+     * CSV or Excel (.xlsx). The header is found anywhere in the file (MCA files start with title rows, and each
+     * worksheet — companies, LLPs — has its own header), so every sheet is read with its own column positions.
+     * @return array{rows:int,created:int,detailed:int}
+     */
+    public function import(string $path, ?string $originalName = null): array
     {
-        $handle = fopen($path, 'r');
-        if (!$handle) throw new RuntimeException('Cannot read the CSV file.');
-        // The header is not always the first row (MCA exports can start with a title line).
+        $isExcel = str_ends_with(strtolower($originalName ?? $path), '.xlsx') || $this->isZip($path);
+        $rows = $isExcel ? app(XlsxReader::class)->rows($path) : $this->csvRows($path);
         $index = [];
-        for ($line = 0; $line < 20 && !isset($index['cin'], $index['name']) && ($cells = fgetcsv($handle)) !== false; $line++) {
-            $header = array_map(fn ($h) => strtolower(trim(preg_replace('/[^a-z0-9]+/i', '_', preg_replace('/^\xEF\xBB\xBF/', '', (string) $h)), '_')), $cells);
-            $index = [];
-            foreach (self::COLUMNS as $field => $aliases) {
-                foreach ($aliases as $alias) if (($i = array_search($alias, $header, true)) !== false) { $index[$field] = $i; break; }
-            }
-        }
-        if (!isset($index['cin'], $index['name'])) throw new RuntimeException('This does not look like MCA company master data: CIN and company name columns are required.');
-
         $totals = ['rows' => 0, 'created' => 0, 'detailed' => 0];
         $batch = [];
-        while (($row = fgetcsv($handle)) !== false) {
+        foreach ($rows as $row) {
+            if ($found = $this->header($row)) { $index = $found; continue; }
+            if (!isset($index['cin'], $index['name'])) continue;
             $get = fn ($field) => isset($index[$field]) ? trim((string) ($row[$index[$field]] ?? '')) : '';
             $cin = strtoupper($get('cin'));
-            if (!preg_match(CompanyInsights::CIN, $cin) || $get('name') === '') continue;
+            if (!preg_match(CompanyInsights::CIN, $cin) || $get('name') === '') continue;   // LLPINs and blank rows are skipped
             $batch[] = ['cin' => $cin] + array_map($get, array_combine(array_keys(self::COLUMNS), array_keys(self::COLUMNS)));
             if (count($batch) === 500) { $this->flush($batch, $totals); $batch = []; }
         }
         if ($batch) $this->flush($batch, $totals);
-        fclose($handle);
+        if (!$totals['rows'] && !$index) throw new RuntimeException('This does not look like MCA company data: CIN and company name columns are required.');
         return $totals;
+    }
+
+    /** Column positions when the row is a header row (has CIN and company name columns), otherwise null. */
+    private function header(array $cells): ?array
+    {
+        $header = array_map(fn ($h) => strtolower(trim(preg_replace('/[^a-z0-9]+/i', '_', preg_replace('/^\xEF\xBB\xBF/', '', (string) $h)), '_')), $cells);
+        $index = [];
+        foreach (self::COLUMNS as $field => $aliases) {
+            foreach ($aliases as $alias) if (($i = array_search($alias, $header, true)) !== false) { $index[$field] = $i; break; }
+        }
+        return isset($index['cin'], $index['name']) ? $index : null;
+    }
+
+    private function csvRows(string $path): \Generator
+    {
+        $handle = fopen($path, 'r');
+        if (!$handle) throw new RuntimeException('Cannot read the file.');
+        while (($row = fgetcsv($handle)) !== false) yield $row;
+        fclose($handle);
+    }
+
+    private function isZip(string $path): bool
+    {
+        $handle = @fopen($path, 'rb');
+        $magic = $handle ? fread($handle, 4) : '';
+        if ($handle) fclose($handle);
+        return $magic === "PK\x03\x04";
     }
 
     private function flush(array $rows, array &$totals): void
@@ -122,6 +146,8 @@ class MasterDataImporter
 
     private function date(string $value): ?string
     {
+        // Excel serial date (days since 1899-12-30), as found in MCA's .xlsx downloads.
+        if (preg_match('/^\d{4,5}(\.\d+)?$/', $value) && (int) $value > 1000) return Carbon::create(1899, 12, 30)->addDays((int) $value)->toDateString();
         foreach (['d-m-Y', 'd/m/Y', 'Y-m-d', 'm/d/Y', 'd-M-Y', 'd-M-y'] as $format) {
             try { $date = Carbon::createFromFormat($format, $value); if ($date && $date->year > 1850) return $date->toDateString(); } catch (\Throwable) {}
         }

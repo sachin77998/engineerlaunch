@@ -61,10 +61,10 @@
 
     @if($isOwner)
         <section class="ci-card ci-admin">
-            <h2>Import MCA company master data</h2>
-            <p class="ci-muted">Download a state's “Company Master Data” CSV from data.gov.in (search “Company Master Data” + state) and upload it here. Each company gets its CIN, status, class, category, date of incorporation, authorised and paid-up capital, ROC, address and latest filing year. Large files import in the background.</p>
+            <h2>Import MCA company data</h2>
+            <p class="ci-muted">Upload MCA's Excel downloads (mca.gov.in → Data &amp; Reports → Company/LLP Info → “Incorporated/Closed during the month”) or a Company Master Data CSV. Each company gets its CIN, class, category, date of incorporation, authorised and paid-up capital, ROC, activity and address. Large files import in the background.</p>
             <form method="post" action="{{ route('insights.master-data') }}" enctype="multipart/form-data" class="ci-inline">@csrf
-                <input type="file" name="csv" accept=".csv" required>
+                <input type="file" name="csv" accept=".csv,.xlsx" required>
                 <button class="ci-btn" type="submit">Upload CSV</button>
             </form>
         </section>

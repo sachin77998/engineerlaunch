@@ -196,7 +196,7 @@ class CompanyInsightsController extends Controller
     /** Owner: MCA Company Master Data CSV from data.gov.in, imported in the background. */
     public function masterData(Request $request)
     {
-        $request->validate(['csv' => 'required|file|mimes:csv,txt|max:204800']);
+        $request->validate(['csv' => 'required|file|mimes:csv,txt,xlsx,zip|max:204800'], ['csv.mimes' => 'Upload a .csv or .xlsx file (old .xls files: open in Excel and save as .xlsx).']);
         $path = $request->file('csv')->store('insights/master-data');
         $key = 'insights-master-' . now()->format('YmdHis');
         RunMaintenanceStep::markQueued($key, 'Import company master data');
