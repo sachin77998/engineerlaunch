@@ -41,6 +41,15 @@ Route::get('/sectors/{slug}/{sub}', [\App\Http\Controllers\SectorDirectoryContro
 Route::get('/companies/category/{category:slug}', [CompanyDiscoveryController::class, 'index'])->name('companies.category');
 Route::get('/companies/dlf-cyber-city', [CompanyDiscoveryController::class, 'cyberCity'])->name('companies.cyber-city');
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
+// Insights into Company: registry, financials and ratios from MCA filings.
+Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController::class, 'index'])->name('insights.index');
+Route::get('/company-insights/{company:slug}', [\App\Http\Controllers\CompanyInsightsController::class, 'show'])->name('insights.show');
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::post('/company-insights/{company:slug}/filings', [\App\Http\Controllers\CompanyInsightsController::class, 'upload'])->name('insights.upload');
+    Route::post('/company-insights/{company:slug}/statements', [\App\Http\Controllers\CompanyInsightsController::class, 'saveStatement'])->name('insights.statements');
+    Route::post('/company-insights-instafinancials', [\App\Http\Controllers\CompanyInsightsController::class, 'importInsta'])->name('insights.insta');
+    Route::post('/company-insights-master-data', [\App\Http\Controllers\CompanyInsightsController::class, 'masterData'])->name('insights.master-data');
+});
 Route::post('/companies/{company:slug}/reviews', [CompanyReviewController::class, 'store'])->middleware(['auth','throttle:6,1'])->name('companies.reviews.store');
 Route::get('/jobs-posted-by-hr',HrJobListingController::class)->name('jobs.hr');
 Route::prefix('company-experiences')->name('company.experiences.')->group(function(){

@@ -63,6 +63,9 @@ return [
         'app_key' => env('ADZUNA_APP_KEY'),
     ],
 
+    // Company insights: InstaFinancials (paid) for CIN search and InstaBasic master data / directors / charges.
+    'instafinancials' => ['base_url' => env('INSTAFINANCIALS_BASE_URL'), 'api_key' => env('INSTAFINANCIALS_API_KEY')],
+
     // Gold and silver spot prices (free key at goldapi.io).
     'goldapi' => ['key' => env('GOLDAPI_KEY')],
 

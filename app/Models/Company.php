@@ -108,6 +108,35 @@ class Company extends Model
     {
         return $this->hasMany(CompanyFacility::class);
     }
+    // Company insights (registry, AOC-4 financials, MGT-7 directors and shareholding).
+    public function registryDetail(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(CompanyRegistryDetail::class);
+    }
+    public function financialStatements(): HasMany
+    {
+        return $this->hasMany(CompanyFinancialStatement::class)->orderBy('financial_year');
+    }
+    public function filings(): HasMany
+    {
+        return $this->hasMany(CompanyFiling::class)->latest();
+    }
+    public function officers(): HasMany
+    {
+        return $this->hasMany(CompanyOfficer::class);
+    }
+    public function shareholdings(): HasMany
+    {
+        return $this->hasMany(CompanyShareholding::class);
+    }
+    public function businessProducts(): HasMany
+    {
+        return $this->hasMany(CompanyProduct::class);
+    }
+    public function relatedParties(): HasMany
+    {
+        return $this->hasMany(CompanyRelatedParty::class);
+    }
     public function reviews(): HasMany
     {
         return $this->hasMany(CompanyReview::class);
