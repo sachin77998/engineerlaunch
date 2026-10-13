@@ -117,7 +117,7 @@
                             @foreach(['revenue_growth' => ['Revenue growth', 'pct'], 'profit_growth' => ['Profit growth', 'pct'], 'ebitda_margin' => ['EBITDA margin', 'pct'], 'net_margin' => ['Net profit margin', 'pct'],
                                       'roe' => ['Return on equity (ROE)', 'pct'], 'roce' => ['Return on capital employed (ROCE)', 'pct'], 'roa' => ['Return on assets', 'pct'],
                                       'debt_to_equity' => ['Debt / equity', 'x'], 'debt_to_ebitda' => ['Debt / EBITDA', 'x'], 'interest_cover' => ['Interest coverage', 'x'],
-                                      'current_ratio' => ['Current ratio', 'x'], 'asset_turnover' => ['Asset turnover', 'x'], 'eps' => ['EPS (₹)', 'num'], 'pe' => ['P/E', 'num']] as $key => [$label, $kind])
+                                      'current_ratio' => ['Current ratio', 'x'], 'asset_turnover' => ['Asset turnover', 'x'], 'equity_multiplier' => ['Equity multiplier', 'x'], 'sales_to_fixed_assets' => ['Sales to fixed assets', 'x'], 'eps' => ['EPS (₹)', 'num'], 'pe' => ['P/E', 'num']] as $key => [$label, $kind])
                                 <tr><td>{{ $label }}</td>@foreach($set as $r)<td>{!! $kind === 'pct' ? $pct($r[$key]) : ($kind === 'x' ? $x($r[$key]) : ($r[$key] === null ? '—' : number_format($r[$key], 2))) !!}</td>@endforeach</tr>
                             @endforeach
                         </tbody>

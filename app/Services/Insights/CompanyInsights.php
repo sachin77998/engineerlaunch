@@ -140,6 +140,8 @@ class CompanyInsights
                 'interest_cover' => $s->finance_cost > 0 && $ebitda !== null ? $ratio($ebitda, $s->finance_cost, 1) : null,
                 'current_ratio' => $ratio($s->current_assets, $s->current_liabilities, 1),
                 'asset_turnover' => $ratio($s->revenue, $s->total_assets, 1),
+                'equity_multiplier' => $equity > 0 ? $ratio($s->total_assets, $equity, 1) : null,
+                'sales_to_fixed_assets' => $ratio($s->revenue, $s->fixed_assets, 1),
                 'eps' => $s->eps ?? ($s->shares_outstanding ? round($s->profit_after_tax / $s->shares_outstanding, 2) : null),
             ];
             // P/E needs a market price, which filings do not contain: only shown when a price is recorded for the year.
