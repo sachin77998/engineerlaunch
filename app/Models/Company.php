@@ -137,6 +137,14 @@ class Company extends Model
     {
         return $this->hasMany(CompanyRelatedParty::class);
     }
+    public function charges(): HasMany
+    {
+        return $this->hasMany(CompanyCharge::class)->orderByDesc('created_on');
+    }
+    public function auditors(): HasMany
+    {
+        return $this->hasMany(CompanyAuditor::class)->orderByDesc('financial_year');
+    }
     public function reviews(): HasMany
     {
         return $this->hasMany(CompanyReview::class);

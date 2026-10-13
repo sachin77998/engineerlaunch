@@ -101,6 +101,11 @@ class CompanyInsightsController extends Controller
             \App\Models\CompanyOfficer::updateOrCreate(['company_id' => $company->id, 'name' => $person['name'], 'designation' => $person['designation']],
                 array_filter(['din' => $person['din'], 'appointed_on' => $date($person['appointed_on'])]) + ['source' => 'InstaFinancials']);
         }
+        foreach (InstaFinancials::charges($json) as $charge) {
+            \App\Models\CompanyCharge::updateOrCreate(['company_id' => $company->id, 'charge_id' => $charge['charge_id']],
+                ['created_on' => $date($charge['created_on']), 'modified_on' => $date($charge['modified_on']), 'satisfied_on' => $date($charge['satisfied_on'])]
+                + array_intersect_key($charge, array_flip(['lender', 'amount', 'status', 'assets_charged'])) + ['source' => 'InstaFinancials']);
+        }
         \App\Models\CompanyFiling::create(['company_id' => $company->id, 'form' => 'InstaBasic', 'status' => 'parsed', 'uploaded_by' => $request->user()?->id,
             'parsed_fields' => ['cin' => $cin, 'all_fields' => InstaFinancials::flatten($json)]]);
         return redirect()->route('insights.show', $company)->with('success', 'Master data and directors fetched from InstaFinancials.');
@@ -116,7 +121,7 @@ class CompanyInsightsController extends Controller
 
     public function show(Company $company)
     {
-        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties']);
+        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors']);
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
         $consolidated = $company->financialStatements->where('is_consolidated', true);

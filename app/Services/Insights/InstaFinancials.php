@@ -99,6 +99,32 @@ class InstaFinancials
         return array_values($people);
     }
 
+    /** Registered charges anywhere in the response (charge id, holder, amount, status, dates, assets). */
+    public static function charges(array $json): array
+    {
+        $charges = [];
+        $walk = function ($node) use (&$walk, &$charges) {
+            if (!is_array($node)) return;
+            $id = self::pick($node, ['chargeid', 'srn', 'chargeidentificationnumber']);
+            $holder = self::pick($node, ['chargeholdername', 'chargeholder', 'nameofchargeholder', 'lender', 'bankname']);
+            if ($id !== null && $holder !== null && is_scalar($id) && is_scalar($holder)) {
+                $amount = self::pick($node, ['amount', 'chargeamount', 'amountsecured']);
+                $charges[(string) $id] = [
+                    'charge_id' => mb_substr((string) $id, 0, 30), 'lender' => mb_substr((string) $holder, 0, 250),
+                    'amount' => is_scalar($amount) && is_numeric($clean = preg_replace('/[^\d.]/', '', (string) $amount)) ? (float) $clean : null,
+                    'status' => is_scalar($s = self::pick($node, ['status', 'chargestatus'])) ? ucfirst(strtolower((string) $s)) : null,
+                    'created_on' => self::pick($node, ['dateofcreation', 'creationdate', 'datecreated']),
+                    'modified_on' => self::pick($node, ['dateofmodification', 'modificationdate']),
+                    'satisfied_on' => self::pick($node, ['dateofsatisfaction', 'satisfactiondate']),
+                    'assets_charged' => is_scalar($assets = self::pick($node, ['assetsundercharge', 'assetscharged', 'propertycharged'])) ? (string) $assets : null,
+                ];
+            }
+            foreach ($node as $child) if (is_array($child)) $walk($child);
+        };
+        $walk($json);
+        return array_values($charges);
+    }
+
     /** Flat "path => value" list of every scalar, for display. */
     public static function flatten(array $json, string $prefix = ''): array
     {

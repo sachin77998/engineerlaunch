@@ -70,6 +70,20 @@ class FilingParser
                     'turnover_percentage' => !empty($data['revenue']) ? round(min(100, $turnover / $data['revenue'] * 100), 2) : null];
             }
         }
+        // Statutory auditor: firm name, firm registration number (e.g. 117366W/W-100018), membership number, PAN.
+        $data['auditors'] = [];
+        if (preg_match_all('/name of (?:the )?audit(?:or|ing)?\s*(?:\/|or|&)?\s*(?:audit(?:or\'?s)?\s*)?firm\s*[:\-]?\s*(.{3,120}?)(?=\s+(?:membership|income|firm\'?s? registration|registration|address|pan|city|whether|category)\b)(.{0,400})/i', $flat, $matches, PREG_SET_ORDER)) {
+            foreach (array_slice($matches, 0, 5) as $m) {
+                $after = $m[2];
+                $data['auditors'][] = [
+                    'name' => trim($m[1], " .,"),
+                    'firm_registration_number' => preg_match('/\b(\d{6}[A-Z](?:\s*\/\s*[A-Z]-?\d{6})?)\b/', $after, $f) ? preg_replace('/\s+/', '', $f[1]) : null,
+                    'membership_number' => preg_match('/membership (?:number|no\.?)[^0-9]{0,40}(\d{5,6})\b/i', $after, $f) ? $f[1] : null,
+                    'pan' => preg_match('/\b([A-Z]{5}\d{4}[A-Z])\b/', $after, $f) ? $f[1] : null,
+                    'city' => preg_match('/\bcity\s*[:\-]?\s*([A-Za-z][A-Za-z ]{2,40}?)(?=\s+(?:state|pin|country|district|$))/i', $after, $f) ? ucwords(strtolower($f[1])) : null,
+                ];
+            }
+        }
         // Related-party transactions (AOC-2 section of AOC-4).
         $data['related_parties'] = [];
         if (preg_match_all('/name\(?s?\)? of (?:the )?related party\s*(.{2,120}?)\s*nature of (?:the )?related party relationship\s*(.{2,120}?)\s*(?:description of )?nature of (?:the )?(?:material )?contracts?\s*\/?\s*arrangements?\s*\/?\s*transactions?\s*(.{2,200}?)(?=\s*(?:duration|salient|amount|date|name\(?s?\)? of (?:the )?related party|$))(?:.{0,200}?amount[^0-9]{0,60}([\d,]+(?:\.\d+)?))?/i', $flat, $matches, PREG_SET_ORDER)) {

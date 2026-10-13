@@ -40,7 +40,7 @@
 
     <nav class="ci-tabs">
         <a href="#overview">Overview</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#registry">Registry details</a>
-        <a href="#people">Directors</a><a href="#business">Business</a><a href="#filings">Filings</a>
+        <a href="#people">Directors</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
         <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
 
@@ -156,6 +156,31 @@
                 @if($loop->last)</tbody></table></div>@endif
             @empty
                 <p class="ci-muted">Directors are read from the MGT-7 annual return and AOC-4 signatories.</p>
+            @endforelse
+        </section>
+    </div>
+
+    <div class="ci-two">
+        <section class="ci-card" id="charges">
+            <h2>Charges (secured borrowings)</h2>
+            @if($company->charges->isNotEmpty())
+                @php($open = $company->charges->filter(fn ($c) => !preg_match('/satisf|closed/i', (string) $c->status)))
+                <p class="ci-muted" style="margin-top:0">{{ $open->count() }} open · {{ $company->charges->count() - $open->count() }} satisfied · open amount {{ $money($open->sum('amount')) }}</p>
+                <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Charge holder</th><th>Amount</th><th>Status</th><th>Created</th><th>Satisfied</th></tr></thead><tbody>
+                    @foreach($company->charges as $charge)<tr><td style="white-space:normal">{{ $charge->lender }}</td><td>{{ $money($charge->amount) }}</td><td>{{ $charge->status ?? '—' }}</td><td>{{ $charge->created_on?->format('d M Y') ?? '—' }}</td><td>{{ $charge->satisfied_on?->format('d M Y') ?? '—' }}</td></tr>@endforeach
+                </tbody></table></div>
+            @else
+                <p class="ci-muted">Registered charges come from the MCA index of charges (InstaFinancials import).</p>
+            @endif
+        </section>
+        <section class="ci-card" id="auditors">
+            <h2>Statutory auditors</h2>
+            @forelse($company->auditors as $auditor)
+                @if($loop->first)<div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Audit firm</th><th>FY</th><th>Firm reg. no.</th><th>City</th></tr></thead><tbody>@endif
+                <tr><td style="white-space:normal">{{ $auditor->name }}</td><td>{{ $auditor->financial_year ?? '—' }}</td><td>{{ $auditor->firm_registration_number ?? '—' }}</td><td>{{ $auditor->city ?? '—' }}</td></tr>
+                @if($loop->last)</tbody></table></div>@endif
+            @empty
+                <p class="ci-muted">Auditors are read from the AOC-4 auditor's report section.</p>
             @endforelse
         </section>
     </div>

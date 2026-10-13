@@ -3,6 +3,7 @@
 namespace App\Services\Insights;
 
 use App\Models\Company;
+use App\Models\CompanyAuditor;
 use App\Models\CompanyFiling;
 use App\Models\CompanyFinancialStatement;
 use App\Models\CompanyOfficer;
@@ -64,6 +65,10 @@ class FilingImporter
                 foreach ($data['related_parties'] as $party) {
                     CompanyRelatedParty::create(['company_id' => $company->id, 'financial_year' => $data['financial_year']] + $party);
                 }
+            }
+            foreach ($data['auditors'] ?? [] as $auditor) {
+                CompanyAuditor::updateOrCreate(['company_id' => $company->id, 'financial_year' => $data['financial_year'], 'name' => $auditor['name']],
+                    array_filter($auditor) + ['source' => $filing->form]);
             }
             foreach ($data['officers'] ?? [] as $officer) {
                 CompanyOfficer::updateOrCreate(['company_id' => $company->id, 'name' => $officer['name'], 'designation' => $officer['designation']],
