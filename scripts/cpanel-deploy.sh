@@ -57,6 +57,7 @@ run db:seed --class=ItCompanyDirectorySeeder --force
 run technologies:sync --skip-discovery
 run discovery:bootstrap
 run recommendations:build-skill-graph
+run jobs:role-counts
 run optimize:clear
 
 echo "" >> "$LOG"

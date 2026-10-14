@@ -63,8 +63,38 @@ return [
         'app_key' => env('ADZUNA_APP_KEY'),
     ],
 
-    // Company insights: InstaFinancials (paid) for CIN search and InstaBasic master data / directors / charges.
-    'instafinancials' => ['base_url' => env('INSTAFINANCIALS_BASE_URL'), 'api_key' => env('INSTAFINANCIALS_API_KEY')],
+    // Company insights data providers (paid; each switches on when its key is set).
+    'insights' => [
+        'providers' => env('INSIGHTS_PROVIDERS', 'surepass,instafinancials,rapidapi'),
+        // Fetch automatically on search misses and for company pages without financials (each call is billed).
+        'auto' => env('INSIGHTS_PROVIDERS_AUTO', true),
+    ],
+    'instafinancials' => [
+        'base_url' => env('INSTAFINANCIALS_BASE_URL', 'https://instafinancials.com/api'),
+        'api_key' => env('INSTAFINANCIALS_API_KEY'),
+        'summary_path' => env('INSTAFINANCIALS_SUMMARY_PATH', '/InstaReports/v1/InstaSummary/CompanyCIN/{cin}'),
+    ],
+    'surepass' => [
+        'base_url' => env('SUREPASS_BASE_URL', 'https://kyc-api.surepass.io/api/v1'),
+        'token' => env('SUREPASS_TOKEN'),
+        'paths' => [
+            'company' => env('SUREPASS_COMPANY_PATH', 'corporate/company-details'),
+            'gstin' => env('SUREPASS_GSTIN_PATH', 'corporate/gstin'),
+            'din' => env('SUREPASS_DIN_PATH', 'corporate/din'),
+            'search' => env('SUREPASS_SEARCH_PATH'),
+        ],
+    ],
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'host' => env('RAPIDAPI_HOST'),
+        // URL templates of the subscribed RapidAPI company-data API; {cin}, {gstin}, {din}, {name} are filled in.
+        'urls' => [
+            'company' => env('RAPIDAPI_COMPANY_URL'),
+            'gstin' => env('RAPIDAPI_GSTIN_URL'),
+            'din' => env('RAPIDAPI_DIN_URL'),
+            'search' => env('RAPIDAPI_SEARCH_URL'),
+        ],
+    ],
 
     // MCA Company Master Data on data.gov.in (free key: data.gov.in → sign in → My Account → Generate API key).
     'datagov' => [

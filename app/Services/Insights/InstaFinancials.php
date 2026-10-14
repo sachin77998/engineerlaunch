@@ -29,6 +29,12 @@ class InstaFinancials
         return $this->get('/InstaReports/v2/InstaBasic/CompanyCIN/' . rawurlencode(strtoupper($cin)), ['daysToIgnore' => max(0, $daysToIgnore)]);
     }
 
+    /** Any InstaFinancials path (used for InstaSummary financials). */
+    public function getPath(string $path, array $query = []): array
+    {
+        return $this->get('/' . ltrim($path, '/'), $query);
+    }
+
     private function get(string $path, array $query = []): array
     {
         if (!$this->configured()) throw new RuntimeException('InstaFinancials is not configured (set INSTAFINANCIALS_BASE_URL and INSTAFINANCIALS_API_KEY).');

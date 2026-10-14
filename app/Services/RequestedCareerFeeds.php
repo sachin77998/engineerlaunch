@@ -25,8 +25,45 @@ trait RequestedCareerFeeds
         }
         // Bounded discovery never establishes that all employer pages were exhausted.
         $this->completeFeed=false;
-        if (!$jobs) throw new \RuntimeException('No importable vacancies found after checking '.$scan['pages'].' official pages. '.implode('; ',$scan['errors']).' Source needs review; existing jobs retained.');
+        if (!$jobs) {
+            $this->rememberApplyContact($company);
+            throw new \RuntimeException('No importable vacancies found after checking '.$scan['pages'].' official pages. '.implode('; ',$scan['errors']).' Source needs review; existing jobs retained.');
+        }
         return array_values($jobs);
+    }
+
+    /**
+     * Many employers list no vacancies and only ask for CVs ("send your resume to hr@…"). Keep their careers page,
+     * HR email and phone so the company page can show candidates how to apply.
+     */
+    protected function rememberApplyContact(Company $company): void
+    {
+        if (!$company->website && !$company->careers_url) return;
+        $base = rtrim(preg_replace('~^(https?://[^/]+).*$~i', '$1', $company->careers_url ?: $company->website), '/');
+        $candidates = array_unique(array_filter([$company->careers_url, $base.'/careers', $base.'/pages/careers', $base.'/career', $base.'/careers.html', $base.'/jobs', $base.'/join-us', $base.'/contact-us', $base.'/contact']));
+        foreach (array_slice($candidates, 0, 6) as $url) {
+            try {
+                $response = $this->httpClient->get($url, ['http_errors' => false, 'timeout' => 15]);
+                if ($response->getStatusCode() !== 200) continue;
+                $html = (string) $response->getBody();
+            } catch (\Throwable) {
+                continue;
+            }
+            $text = html_entity_decode(preg_replace('/\s+/', ' ', strip_tags(preg_replace('~<(script|style)\b.*?</\1>~is', ' ', $html))));
+            $isCareers = (bool) preg_match('/career|job|resume|\bcv\b|recruit|vacanc|hiring/i', $text);
+            preg_match_all('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i', $text, $emails);
+            $emails = collect($emails[0])->map(fn ($e) => strtolower(trim($e, '.')))->reject(fn ($e) => preg_match('/\.(png|jpe?g|gif|webp|svg)$|example\.|sentry|wixpress/', $e))->unique();
+            // Prefer HR / careers addresses over generic info@ or sales@.
+            $email = $emails->first(fn ($e) => preg_match('/^(hr|careers?|jobs?|recruit|talent|hiring|people)/', $e)) ?? ($isCareers ? $emails->first() : null);
+            $phone = preg_match('/(?:phone|tel|call|contact)[^0-9+]{0,15}(\+?\d[\d\s-]{8,16}\d)/i', $text, $p) ? trim($p[1]) : null;
+            if (!$isCareers && !$email) continue;
+            $changes = [];
+            if ($isCareers && !$company->careers_url) $changes['careers_url'] = $url;
+            if ($email && \Illuminate\Support\Facades\Schema::hasColumn('companies', 'company_email') && !$company->company_email) $changes['company_email'] = $email;
+            if ($phone && \Illuminate\Support\Facades\Schema::hasColumn('companies', 'phone_number') && !$company->phone_number) $changes['phone_number'] = $phone;
+            if ($changes) $company->forceFill($changes)->saveQuietly();
+            if ($isCareers) return;
+        }
     }
 
 

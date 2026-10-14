@@ -40,15 +40,36 @@ class JobRoles
         return null;
     }
 
-    /** Active job counts per role (cached for an hour), for the homepage role chips. */
+    /**
+     * Cached active job counts per role, for the homepage chips. Never computed in a web request: the scheduler
+     * refreshes them (refreshCounts); until then the chips show no numbers.
+     */
     public static function counts(): array
     {
-        return Cache::remember('job-roles:counts', now()->addHour(), function () {
-            $counts = [];
-            foreach (array_keys(config('job_roles', [])) as $slug) {
-                $counts[$slug] = self::apply(\App\Models\Job::active(), $slug)->count();
+        return Cache::get('job-roles:counts', []);
+    }
+
+    /**
+     * Counts every role in one pass over active job titles (seconds, instead of one LIKE-heavy query per role).
+     * A job counts for each role whose keywords match, the same rule as the filter.
+     */
+    public static function refreshCounts(): array
+    {
+        $roles = config('job_roles', []);
+        $counts = array_fill_keys(array_keys($roles), 0);
+        \App\Models\Job::active()->select(['jobs.id', 'jobs.title', 'jobs.role_family'])->chunkById(5000, function ($jobs) use ($roles, &$counts) {
+            foreach ($jobs as $job) {
+                $title = ' ' . mb_strtolower((string) $job->title) . ' ';
+                foreach ($roles as $slug => $role) {
+                    foreach (self::family($slug) as $member) {
+                        $hit = $job->role_family === $member;
+                        foreach ($roles[$member]['keywords'] ?? [] as $keyword) if ($hit || ($hit = str_contains($title, $keyword))) break;
+                        if ($hit) { $counts[$slug]++; break; }
+                    }
+                }
             }
-            return $counts;
-        });
+        }, 'jobs.id', 'id');
+        Cache::put('job-roles:counts', $counts, now()->addDays(2));
+        return $counts;
     }
 }

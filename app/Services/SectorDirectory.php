@@ -74,23 +74,30 @@ class SectorDirectory
                 if (isset($used[$name]) || $sector->children->isEmpty()) continue;
                 $groups[$sector->slug] = $this->groupCard($sector->slug, ['name' => $name, 'icon' => null, 'symbol' => $sector->symbol], $sector->children, $openings, $previews);
             }
-            return $groups->filter(fn ($group) => $group->subcategories->isNotEmpty())->values();
+            $built = $groups->filter(fn ($group) => $group->subcategories->isNotEmpty())->values();
+            // Survives catalog changes (which bump the cache version) so pages never fall back to plain cards.
+            Cache::forever(self::LAST_GOOD_KEY, $built);
+            return $built;
         });
     }
+
+    private const LAST_GOOD_KEY = 'sector-directory:last-good-groups';
 
     /** Category cards, or plain sector cards if building them fails (the page must never return a 500). */
     public function safeGroups(): Collection
     {
         try {
-            // Built by the queue (WarmSectorGroups); until then show plain sector cards instantly.
+            // Built by the queue (WarmSectorGroups); meanwhile show the last built cards (logos, counts), or plain cards
+            // only if cards were never built on this server.
             if (!Cache::has($this->key('groups')) && !app()->runningInConsole() && !app()->runningUnitTests()) {
                 \App\Jobs\WarmSectorGroups::dispatch()->onConnection('database')->onQueue('catalog');
+                if ($lastGood = Cache::get(self::LAST_GOOD_KEY)) return $lastGood;
                 throw new \RuntimeException('Sector cards are being prepared');
             }
             return $this->groups();
         } catch (\Throwable $e) {
             if (!$e instanceof \RuntimeException || $e->getMessage() !== 'Sector cards are being prepared') report($e);
-            report($e);
+            if ($lastGood = Cache::get(self::LAST_GOOD_KEY)) return $lastGood;
             return $this->tree()->map(fn ($sector) => (object) [
                 'slug' => $sector->slug, 'name' => $sector->name, 'icon' => null, 'symbol' => $sector->symbol, 'color' => '#0b2545',
                 'image' => null, 'subcategories' => $sector->children, 'companies_count' => $sector->companies_count,
