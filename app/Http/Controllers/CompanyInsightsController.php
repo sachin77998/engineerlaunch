@@ -71,10 +71,30 @@ class CompanyInsightsController extends Controller
             'gstin' => $this->insights->decodeGstin($identified['value']),
             default => null,
         };
-        $stats = [
-            'companies' => CompanyRegistryDetail::count(),
+        $stats = cache()->remember('insights:stats', now()->addMinutes(30), fn () => [
+            'companies' => Company::whereNotNull('registry_cin')->count(),
             'with_financials' => CompanyFinancialStatement::distinct('company_id')->count('company_id'),
-        ];
+            'directors' => \App\Models\CompanyOfficer::count(),
+            'charges' => \App\Models\CompanyCharge::count(),
+        ]);
+        // No search: browse the company database (registered companies with a CIN), filterable like a directory.
+        $directory = null;
+        $filters = $request->only(['status', 'state', 'industry', 'listing']);
+        if ($query === '') {
+            $directory = Company::query()->whereNotNull('registry_cin')->where('is_active', true)
+                ->with('registryDetail')->withCount('financialStatements')
+                ->when($filters['status'] ?? null, fn ($q, $v) => $q->where('registry_status', $v))
+                ->when($filters['state'] ?? null, fn ($q, $v) => $q->where('registered_state', $v))
+                ->when($filters['industry'] ?? null, fn ($q, $v) => $q->where('industry', $v))
+                ->when($filters['listing'] ?? null, fn ($q, $v) => $q->where('registry_cin', 'like', ($v === 'listed' ? 'L' : 'U') . '%'))
+                ->orderByDesc('financial_statements_count')->orderBy('name')
+                ->paginate(25)->withQueryString();
+            $facets = cache()->remember('insights:facets', now()->addHour(), fn () => [
+                'status' => Company::whereNotNull('registry_cin')->whereNotNull('registry_status')->distinct()->orderBy('registry_status')->pluck('registry_status'),
+                'state' => Company::whereNotNull('registry_cin')->whereNotNull('registered_state')->distinct()->orderBy('registered_state')->pluck('registered_state'),
+                'industry' => Company::whereNotNull('registry_cin')->whereNotNull('industry')->distinct()->orderBy('industry')->pluck('industry'),
+            ]);
+        }
         $recent = Company::whereHas('financialStatements')->with('registryDetail')->latest('updated_at')->limit(9)->get();
         // Nothing local: ask InstaFinancials (only when its key is configured).
         $external = [];
@@ -88,7 +108,7 @@ class CompanyInsightsController extends Controller
         }
         $instaReady = $insta->configured();
         $instaReady = $instaReady || $providers->enabled();
-        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies'));
+        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies', 'directory', 'filters') + ['facets' => $facets ?? []]);
     }
 
     /** Owner: fetch a company's MCA master data, directors and charges from the configured providers (paid calls) and save them. */

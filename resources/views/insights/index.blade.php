@@ -2,7 +2,7 @@
 @section('title', $query ? "Company insights: {$query}" : 'Insights into Company — CIN, GSTIN and financials')
 @push('styles')@include('insights.partials.styles')@endpush
 @section('content')
-@php($isOwner = auth()->check() && (auth()->user()->role_code === 2 || auth()->user()->role === 'admin'))
+@php $isOwner = auth()->check() && (auth()->user()->role_code === 2 || auth()->user()->role === 'admin'); @endphp
 <section class="ci-hero">
     <div class="ci-wrap">
         <h1>Insights into Company</h1>
@@ -52,10 +52,49 @@
                 <p class="ci-muted">InstaFinancials search failed: {{ $externalError }}</p>
             @endif
         </section>
-    @elseif($recent->isNotEmpty())
+    @elseif($directory)
         <section>
-            <h2 class="ci-h2">Companies with financial statements</h2>
-            <div class="ci-grid">@foreach($recent as $company)@include('insights.partials.company-card', ['company' => $company])@endforeach</div>
+            <div class="ci-metrics" style="margin-bottom:16px">
+                <div class="ci-metric"><span>Registered companies</span><b>{{ number_format($stats['companies']) }}</b><small>with CIN</small></div>
+                <div class="ci-metric"><span>With financial statements</span><b>{{ number_format($stats['with_financials']) }}</b></div>
+                <div class="ci-metric"><span>Directors & KMP</span><b>{{ number_format($stats['directors']) }}</b></div>
+                <div class="ci-metric"><span>Charges</span><b>{{ number_format($stats['charges']) }}</b></div>
+            </div>
+            <div class="ci-card">
+                <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center">
+                    <h2 style="margin:0">Companies <small class="ci-muted" style="font-size:14px;font-weight:400">{{ number_format($directory->total()) }} records</small></h2>
+                    <form method="get" class="ci-inline">
+                        <select name="status" onchange="this.form.submit()"><option value="">All statuses</option>@foreach($facets['status'] as $v)<option @selected(($filters['status'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
+                        <select name="state" onchange="this.form.submit()"><option value="">All states</option>@foreach($facets['state'] as $v)<option @selected(($filters['state'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
+                        <select name="industry" onchange="this.form.submit()"><option value="">All industries</option>@foreach($facets['industry'] as $v)<option @selected(($filters['industry'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
+                        <select name="listing" onchange="this.form.submit()"><option value="">Listed & unlisted</option><option value="listed" @selected(($filters['listing'] ?? '') === 'listed')>Listed</option><option value="unlisted" @selected(($filters['listing'] ?? '') === 'unlisted')>Unlisted</option></select>
+                        @if(array_filter($filters))<a class="ci-btn light" href="{{ route('insights.index') }}" style="padding:7px 12px">Clear</a>@endif
+                    </form>
+                </div>
+                <div class="ci-table-wrap" style="margin-top:12px">
+                    <table class="ci-table">
+                        <thead><tr><th>Company</th><th>Status</th><th>Type</th><th>State</th><th>Industry</th><th>Incorporated</th><th>Paid-up capital</th><th>Financials</th></tr></thead>
+                        <tbody>
+                        @forelse($directory as $c)
+                            @php $cinType = (new \App\Services\Insights\CompanyInsights)->decodeCin($c->registry_cin); $detail = $c->registryDetail; @endphp
+                            <tr>
+                                <td style="white-space:normal;min-width:240px"><a href="{{ route('insights.show', $c) }}"><strong>{{ $c->name }}</strong></a><br><small class="ci-muted">{{ $c->registry_cin }}</small></td>
+                                <td>@if($c->registry_status)<span class="{{ preg_match('/^active/i', $c->registry_status) ? 'up' : 'down' }}">{{ ucfirst(strtolower($c->registry_status)) }}</span>@else — @endif</td>
+                                <td style="white-space:normal">{{ $cinType['Listing'] === 'Listed on a stock exchange' ? 'Listed' : 'Unlisted' }} · {{ $cinType['Company type'] }}</td>
+                                <td>{{ $c->registered_state ?? $cinType['State of registration'] }}</td>
+                                <td style="white-space:normal">{{ $c->industry ?? '—' }}</td>
+                                <td>{{ $detail?->incorporation_date?->format('d M Y') ?? $cinType['Year of incorporation'] }}</td>
+                                <td>{{ \App\Services\Insights\CompanyInsights::money($detail?->paid_up_capital) }}</td>
+                                <td>{{ $c->financial_statements_count ? $c->financial_statements_count . ' yrs' : '—' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="8">No companies match these filters.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px">{{ $directory->links() }}</div>
+            </div>
         </section>
     @endif
 

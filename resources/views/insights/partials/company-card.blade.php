@@ -1,4 +1,4 @@
-@php($detail = $company->registryDetail)
+@php $detail = $company->registryDetail; @endphp
 <a class="ci-company" href="{{ route('insights.show', $company) }}">
     <span class="ci-logo">@if($company->logo_url)<img src="{{ $company->logo_url }}" alt="" loading="lazy">@else{{ mb_strtoupper(mb_substr($company->name, 0, 1)) }}@endif</span>
     <span class="ci-company-body">

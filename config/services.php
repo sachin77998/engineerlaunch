@@ -70,9 +70,9 @@ return [
         'auto' => env('INSIGHTS_PROVIDERS_AUTO', true),
     ],
     'instafinancials' => [
-        'base_url' => env('INSTAFINANCIALS_BASE_URL', 'https://instafinancials.com/api'),
+        'base_url' => env('INSTAFINANCIALS_BASE_URL', 'https://api.instafinancials.com'),
         'api_key' => env('INSTAFINANCIALS_API_KEY'),
-        'summary_path' => env('INSTAFINANCIALS_SUMMARY_PATH', '/InstaReports/v1/InstaSummary/CompanyCIN/{cin}'),
+        'summary_path' => env('INSTAFINANCIALS_SUMMARY_PATH'),
     ],
     // Sandbox (sandbox.co.in): POST /authenticate with key + secret gives a 24-hour token for the MCA/GST APIs.
     'sandbox' => [
