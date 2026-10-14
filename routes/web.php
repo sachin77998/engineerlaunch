@@ -43,6 +43,7 @@ Route::get('/companies/dlf-cyber-city', [CompanyDiscoveryController::class, 'cyb
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
 // Insights into Company: registry, financials and ratios from MCA filings.
 Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController::class, 'index'])->name('insights.index');
+Route::get('/company-insights/cin/{cin}', [\App\Http\Controllers\CompanyInsightsController::class, 'byCin'])->where('cin', '[A-Za-z0-9]{21}')->name('insights.cin');
 Route::get('/company-insights/{company:slug}', [\App\Http\Controllers\CompanyInsightsController::class, 'show'])->name('insights.show');
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/company-insights/{company:slug}/filings', [\App\Http\Controllers\CompanyInsightsController::class, 'upload'])->name('insights.upload');

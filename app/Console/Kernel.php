@@ -23,6 +23,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work --queue=resume-processing,emails,default --stop-when-empty --max-time=300 --tries=3 --timeout=300')
             ->everyMinute()
             ->withoutOverlapping(15);
+        // MCA company register import (data.gov.in): its own worker so discovery work never holds it up.
+        $schedule->command('queue:work database --queue=registry --stop-when-empty --max-time=280 --tries=3 --timeout=600')
+            ->everyMinute()
+            ->withoutOverlapping(15);
+        // Re-reads the register monthly for new incorporations and status changes.
+        $schedule->command('insights:import-mca')->monthlyOn(5, '00:30')->withoutOverlapping(60);
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
         $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);

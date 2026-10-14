@@ -42,9 +42,9 @@ class CompanyLookup
             }
         }
         foreach ($rows as $row) $found->push($this->save($row));
-        foreach ($this->dataGov($id['type'] === 'cin' ? $id['value'] : null, $id['type'] === 'name' ? $query : null) as $row) {
-            $found->push($this->save($row));
-        }
+        try {
+            foreach ($this->dataGov($id['type'] === 'cin' ? $id['value'] : null, $id['type'] === 'name' ? $query : null) as $row) $found->push($this->save($row));
+        } catch (Throwable $e) { report($e); }
         return $found->filter()->unique('id')->values();
     }
 
@@ -97,34 +97,27 @@ class CompanyLookup
     /** MCA Company Master Data from data.gov.in (exact CIN, or exact registered name). */
     private function dataGov(?string $cin, ?string $name): array
     {
-        $key = config('services.datagov.key');
-        if (!$key || (!$cin && !$name)) return [];
+        $mca = app(DataGovMca::class);
+        if (!$mca->configured() || (!$cin && !$name)) return [];
+        // Stored register first, then the live API (names tried in their usual legal forms).
+        $stored = $cin ? (array) (\Illuminate\Support\Facades\DB::table('mca_companies')->where('cin', $cin)->first() ?? []) : [];
+        if ($stored) {
+            $records = [$stored];
+        } else {
+            $records = $cin ? array_filter([$mca->byCin($cin)]) : $mca->byName($name);
+            $mca->store($records);
+        }
         $rows = [];
-        foreach ((array) config('services.datagov.company_resources') as $resource) {
-            $filters = $cin ? ['corporate_identification_number' => $cin, 'cin' => $cin] : ['company_name' => mb_strtoupper(trim($name))];
-            foreach ($filters as $field => $value) {
-                $response = Http::timeout(25)->get("https://api.data.gov.in/resource/{$resource}", ['api-key' => $key, 'format' => 'json', 'limit' => 10, "filters[{$field}]" => $value]);
-                $records = $response->successful() ? $response->json('records', []) : [];
-                if (!$records) continue;
-                foreach ($records as $record) {
-                    $record = array_change_key_case($record, CASE_LOWER);
-                    $get = function (array $keys) use ($record) { foreach ($keys as $k) if (!empty($record[$k]) && strtoupper((string) $record[$k]) !== 'NA') return trim((string) $record[$k]); return null; };
-                    $rowCin = strtoupper((string) $get(['corporate_identification_number', 'cin']));
-                    if (!preg_match(CompanyInsights::CIN, $rowCin)) continue;
-                    $address = $get(['registered_office_address', 'company_address', 'registered_address']);
-                    $rows[] = [
-                        'name' => $get(['company_name', 'company_llp_name']), 'cin' => $rowCin, 'lei' => null,
-                        'status' => $get(['company_status', 'company_status_for_efiling']), 'class' => $get(['company_class', 'class_of_company']),
-                        'category' => $get(['company_category']), 'subcategory' => $get(['company_sub_category', 'company_subcategory']),
-                        'roc' => $get(['registrar_of_companies', 'company_roc_code', 'roc']), 'incorporated' => $get(['date_of_registration', 'company_registration_date', 'date_of_incorporation']),
-                        'authorised' => $get(['authorized_cap', 'authorised_cap', 'authorized_capital']), 'paid_up' => $get(['paidup_capital', 'paid_up_capital']),
-                        'nic' => $get(['industrial_class', 'nic_code', 'company_industrial_classification']), 'email' => $get(['email_addr', 'email']),
-                        'address' => $address, 'pin_code' => $address && preg_match('/\b([1-9]\d{5})\b/', $address, $m) ? $m[1] : null, 'city' => null,
-                        'state' => $get(['registered_state', 'company_state']), 'source' => 'MCA Company Master Data (data.gov.in)',
-                    ];
-                }
-                break;
-            }
+        foreach ($records as $r) {
+            if (!preg_match(CompanyInsights::CIN, (string) $r['cin'])) continue;
+            $address = $r['address'] ?? null;
+            $rows[] = [
+                'name' => $r['name'], 'cin' => $r['cin'], 'lei' => null, 'status' => $r['status'], 'class' => $r['company_class'],
+                'category' => $r['category'], 'subcategory' => $r['sub_category'], 'roc' => $r['roc'], 'incorporated' => $r['registered_on'],
+                'authorised' => $r['authorised_capital'], 'paid_up' => $r['paid_up_capital'], 'nic' => null, 'email' => null,
+                'address' => $address, 'pin_code' => $address && preg_match('/\b([1-9]\d{5})\b/', $address, $m) ? $m[1] : null, 'city' => null,
+                'state' => $r['state'], 'source' => 'MCA Company Master Data (data.gov.in)',
+            ];
         }
         return $rows;
     }

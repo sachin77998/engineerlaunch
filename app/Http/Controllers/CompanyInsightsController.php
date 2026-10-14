@@ -33,9 +33,28 @@ class CompanyInsightsController extends Controller
         $query = trim((string) $request->query('q', ''));
         $identified = $query !== '' ? $this->insights->identify($query) : null;
         $results = $query !== '' ? $this->insights->search($query) : collect();
+        $mca = app(\App\Services\Insights\DataGovMca::class);
+        // CIN not on a company page yet: create it from the MCA register (stored copy or live data.gov.in).
+        if ($results->isEmpty() && ($identified['type'] ?? '') === 'cin') {
+            try { if ($company = $mca->companyFor($identified['value'])) $results = collect([$company->load('registryDetail')]); } catch (\Throwable $e) { report($e); }
+        }
+        // Names: matches in the MCA register (40 lakh companies), plus an exact live lookup when the register has none.
+        $register = collect();
+        if (($identified['type'] ?? '') === 'name' && mb_strlen($query) >= 3) {
+            $register = $this->registerSearch($query);
+            if ($register->isEmpty() && $mca->configured()) {
+                try {
+                    $live = $mca->byName($query);
+                    $mca->store($live);
+                    $register = collect($live)->map(fn ($r) => (object) $r);
+                } catch (\Throwable $e) { report($e); }
+            }
+            $onPages = $results->pluck('registry_cin')->filter()->all();
+            $register = $register->reject(fn ($r) => in_array($r->cin, $onPages, true))->values();
+        }
         // Not in the database yet: look it up in the public registries (GLEIF, MCA master data) and add it.
         $searchedOnline = false;
-        if ($query !== '' && $results->isEmpty() && in_array($identified['type'], ['cin', 'name'], true) && mb_strlen($query) >= 3) {
+        if ($query !== '' && $results->isEmpty() && $register->isEmpty() && in_array($identified['type'], ['cin', 'name'], true) && mb_strlen($query) >= 3) {
             try {
                 $searchedOnline = true;
                 $results = app(\App\Services\Insights\CompanyLookup::class)->discover($query)->each(fn ($c) => $c->load('registryDetail'));
@@ -71,8 +90,9 @@ class CompanyInsightsController extends Controller
             'gstin' => $this->insights->decodeGstin($identified['value']),
             default => null,
         };
-        $stats = cache()->remember('insights:stats', now()->addMinutes(30), fn () => [
-            'companies' => Company::whereNotNull('registry_cin')->count(),
+        $registerCount = cache()->remember('insights:register-count', now()->addMinutes(10), fn () => \Illuminate\Support\Facades\DB::table('mca_companies')->count());
+        $stats = cache()->remember('insights:stats', now()->addMinutes(10), fn () => [
+            'companies' => max($registerCount, Company::whereNotNull('registry_cin')->count()),
             'with_financials' => CompanyFinancialStatement::distinct('company_id')->count('company_id'),
             'directors' => \App\Models\CompanyOfficer::count(),
             'charges' => \App\Models\CompanyCharge::count(),
@@ -80,7 +100,21 @@ class CompanyInsightsController extends Controller
         // No search: browse the company database (registered companies with a CIN), filterable like a directory.
         $directory = null;
         $filters = $request->only(['status', 'state', 'industry', 'listing']);
-        if ($query === '') {
+        if ($query === '' && $registerCount > 0) {
+            // The full MCA register: filters on indexed columns, no total count over lakhs of rows (simple pagination).
+            $directory = \Illuminate\Support\Facades\DB::table('mca_companies')
+                ->when($filters['status'] ?? null, fn ($q, $v) => $q->where('status', $v))
+                ->when($filters['state'] ?? null, fn ($q, $v) => $q->where('state', $v))
+                ->when($filters['industry'] ?? null, fn ($q, $v) => $q->where('company_class', $v))
+                ->when($filters['listing'] ?? null, fn ($q, $v) => $q->where('cin', 'like', ($v === 'listed' ? 'L' : 'U') . '%'))
+                ->orderByDesc('paid_up_capital')->simplePaginate(25)->withQueryString();
+            $facets = cache()->remember('insights:register-facets', now()->addDay(), fn () => [
+                'status' => \Illuminate\Support\Facades\DB::table('mca_companies')->whereNotNull('status')->distinct()->orderBy('status')->pluck('status'),
+                'state' => collect(\App\Services\Insights\DataGovMca::STATES),
+                'industry' => \Illuminate\Support\Facades\DB::table('mca_companies')->whereNotNull('company_class')->distinct()->orderBy('company_class')->pluck('company_class'),
+            ]);
+            $directoryIsRegister = true;
+        } elseif ($query === '') {
             $directory = Company::query()->whereNotNull('registry_cin')->where('is_active', true)
                 ->with('registryDetail')->withCount('financialStatements')
                 ->when($filters['status'] ?? null, fn ($q, $v) => $q->where('registry_status', $v))
@@ -108,7 +142,34 @@ class CompanyInsightsController extends Controller
         }
         $instaReady = $insta->configured();
         $instaReady = $instaReady || $providers->enabled();
-        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies', 'directory', 'filters') + ['facets' => $facets ?? []]);
+        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies', 'directory', 'filters', 'register', 'registerCount') + ['facets' => $facets ?? [], 'directoryIsRegister' => $directoryIsRegister ?? false]);
+    }
+
+    /** Company names in the MCA register: full-text words first, then a name prefix. */
+    private function registerSearch(string $query): \Illuminate\Support\Collection
+    {
+        $words = collect(preg_split('/[^a-z0-9]+/i', mb_strtolower($query)))
+            ->reject(fn ($w) => strlen($w) < 3 || in_array($w, ['pvt', 'private', 'ltd', 'limited', 'the', 'and', 'company', 'india'], true));
+        if ($words->isEmpty()) return collect();
+        $boolean = $words->map(fn ($w) => '+' . $w . '*')->implode(' ');
+        try {
+            $rows = \Illuminate\Support\Facades\DB::table('mca_companies')->whereRaw('MATCH(name) AGAINST (? IN BOOLEAN MODE)', [$boolean])
+                ->orderByRaw("status = 'Active' DESC")->orderByDesc('paid_up_capital')->limit(30)->get();
+        } catch (\Throwable $e) {
+            report($e);
+            $rows = collect();
+        }
+        return $rows->isNotEmpty() ? $rows : \Illuminate\Support\Facades\DB::table('mca_companies')->where('name', 'like', strtoupper($query) . '%')->limit(30)->get();
+    }
+
+    /** Opens a company by CIN: the company page is created from the MCA register on first visit. */
+    public function byCin(string $cin)
+    {
+        $cin = strtoupper($cin);
+        abort_unless(preg_match(CompanyInsights::CIN, $cin), 404);
+        $company = app(\App\Services\Insights\DataGovMca::class)->companyFor($cin);
+        abort_unless($company, 404, 'This CIN is not in the MCA register.');
+        return redirect()->route('insights.show', $company);
     }
 
     /** Owner: fetch a company's MCA master data, directors and charges from the configured providers (paid calls) and save them. */

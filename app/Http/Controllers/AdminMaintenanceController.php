@@ -33,6 +33,7 @@ class AdminMaintenanceController extends Controller
         'news' => ['Refresh Latest Intelligence news (all topics; queued, also runs every 6 hours)', 'news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
         'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
+        'mca-register' => ['Import the MCA company register, all states (data.gov.in, ~40 lakh companies; needs DATAGOV_API_KEY; runs for several hours)', 'insights:import-mca', []],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
     ];

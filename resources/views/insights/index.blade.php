@@ -33,12 +33,16 @@
     @if($query !== '')
         <section>
             <h2 class="ci-h2">{{ $results->count() }} {{ Str::plural('company', $results->count()) }} found</h2>
-            @if($results->isEmpty() && !$decoded)<p class="ci-muted">No company matches “{{ $query }}”. Try the registered name (e.g. “Happy Forgings”), the 21-character CIN or the 15-character GSTIN.</p>@endif
+            @if($results->isEmpty() && $register->isEmpty() && !$decoded)<p class="ci-muted">No company matches “{{ $query }}”. Try the registered name (e.g. “Happy Forgings”), the 21-character CIN or the 15-character GSTIN.</p>@endif
             <div class="ci-grid">
                 @foreach($results as $company)
                     @include('insights.partials.company-card', ['company' => $company])
                 @endforeach
             </div>
+            @if($register->isNotEmpty())
+                <h2 class="ci-h2">{{ $register->count() }} in the MCA company register</h2>
+                @include('insights.partials.register-table', ['rows' => $register])
+            @endif
             @if($external)
                 <h2 class="ci-h2">Registered companies found on InstaFinancials</h2>
                 <div class="ci-grid">
@@ -62,15 +66,18 @@
             </div>
             <div class="ci-card">
                 <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center">
-                    <h2 style="margin:0">Companies <small class="ci-muted" style="font-size:14px;font-weight:400">{{ number_format($directory->total()) }} records</small></h2>
+                    <h2 style="margin:0">Companies <small class="ci-muted" style="font-size:14px;font-weight:400">{{ number_format($directoryIsRegister ? $registerCount : $directory->total()) }} records</small></h2>
                     <form method="get" class="ci-inline">
                         <select name="status" onchange="this.form.submit()"><option value="">All statuses</option>@foreach($facets['status'] as $v)<option @selected(($filters['status'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
                         <select name="state" onchange="this.form.submit()"><option value="">All states</option>@foreach($facets['state'] as $v)<option @selected(($filters['state'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
-                        <select name="industry" onchange="this.form.submit()"><option value="">All industries</option>@foreach($facets['industry'] as $v)<option @selected(($filters['industry'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
+                        <select name="industry" onchange="this.form.submit()"><option value="">{{ $directoryIsRegister ? 'All classes' : 'All industries' }}</option>@foreach($facets['industry'] as $v)<option @selected(($filters['industry'] ?? '') === $v)>{{ $v }}</option>@endforeach</select>
                         <select name="listing" onchange="this.form.submit()"><option value="">Listed & unlisted</option><option value="listed" @selected(($filters['listing'] ?? '') === 'listed')>Listed</option><option value="unlisted" @selected(($filters['listing'] ?? '') === 'unlisted')>Unlisted</option></select>
                         @if(array_filter($filters))<a class="ci-btn light" href="{{ route('insights.index') }}" style="padding:7px 12px">Clear</a>@endif
                     </form>
                 </div>
+                @if($directoryIsRegister)
+                    <div style="margin-top:12px">@include('insights.partials.register-table', ['rows' => $directory])</div>
+                @else
                 <div class="ci-table-wrap" style="margin-top:12px">
                     <table class="ci-table">
                         <thead><tr><th>Company</th><th>Status</th><th>Type</th><th>State</th><th>Industry</th><th>Incorporated</th><th>Paid-up capital</th><th>Financials</th></tr></thead>
@@ -93,6 +100,7 @@
                         </tbody>
                     </table>
                 </div>
+                @endif
                 <div style="margin-top:12px">{{ $directory->links() }}</div>
             </div>
         </section>
