@@ -39,7 +39,7 @@
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
 
     <nav class="ci-tabs">
-        <a href="#overview">Overview</a><a href="#health">Health score</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
+        <a href="#summary">Summary</a><a href="#overview">Overview</a><a href="#health">Health score</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
         <a href="#people">Directors</a><a href="#ownership">Ownership</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
         <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
@@ -55,7 +55,55 @@
         };
         $threeBack = $ratios->count() >= 4 ? $ratios->slice(-4, 1)->first() : null;
         $cagr = $threeBack && ($threeBack['revenue'] ?? 0) > 0 && ($latest['revenue'] ?? 0) > 0 ? (pow($latest['revenue'] / $threeBack['revenue'], 1 / 3) - 1) * 100 : null;
+        $nic = $detail?->nic_code ?? ($cin ? substr($cin, 1, 5) : null);
+        $incorporated = $detail?->incorporation_date ?? ($register?->registered_on ? \Carbon\Carbon::parse($register->registered_on) : null);
+        $nextDue = collect($compliance)->first(fn ($i) => !$i['done'] && $i['days'] >= 0);
+        $dash = fn ($v) => filled($v) ? $v : '—';
     @endphp
+    <section class="ci-card" id="summary">
+        <h2>Company summary</h2>
+        <h3 class="ci-h3">Entity details</h3>
+        <div class="ci-facts">
+            @foreach([
+                'CIN' => $cin, 'LEI code' => $detail?->lei, 'State code' => $cin ? substr($cin, 6, 2) : null, 'PIN code' => $detail?->pin_code ?? \App\Services\Insights\CompanyInsights::pinFromAddress($register?->address),
+                'Current legal name' => $register?->name ?? mb_strtoupper($company->name),
+                'Classification' => collect([$detail?->company_class ?? $register?->company_class, $detail?->company_category ?? $register?->category, $detail?->company_subcategory ?? $register?->sub_category])->filter()->implode(' · '),
+                'Listing status' => $detail?->listing_status ?? ($cin ? ($cin[0] === 'L' ? 'Listed' : 'Unlisted') : null), 'Registration no.' => $decoded['Registration number'] ?? null,
+                'Company age' => $incorporated ? $incorporated->diff(now())->format('%y years, %m months') : null, 'PAN' => $detail?->pan,
+                'Country' => $company->country ?: 'India', 'City' => $detail?->city, 'State' => $register?->state ?? $company->registered_state ?? ($decoded['State of registration'] ?? null),
+                'Current status' => $status, 'Date of incorporation' => $incorporated?->format('d M Y'), 'Registrar of companies' => $detail?->roc ?? $register?->roc,
+                'Authorised capital' => ($detail?->authorised_capital ?? $register?->authorised_capital) !== null ? $money($detail?->authorised_capital ?? $register?->authorised_capital) : null,
+                'Paid-up capital' => ($detail?->paid_up_capital ?? $register?->paid_up_capital) !== null ? $money($detail?->paid_up_capital ?? $register?->paid_up_capital) : null,
+                'Employee count' => $detail?->employees ? number_format($detail->employees) : null,
+            ] as $label => $value)
+                <div><span>{{ $label }}</span><b>{{ $dash($value) }}</b></div>
+            @endforeach
+        </div>
+        <div class="ci-two" style="margin-top:6px">
+            <div>
+                <h3 class="ci-h3">Compliance</h3>
+                <div class="ci-facts">
+                    <div><span>Last AGM date</span><b>{{ $dash($detail?->last_agm_date?->format('d M Y')) }}</b></div>
+                    <div><span>Last balance sheet</span><b>{{ $dash($detail?->last_balance_sheet_date?->format('d M Y')) }}</b></div>
+                    <div><span>Next filing due</span><b>{{ $nextDue ? $nextDue['label'] . ' · ' . $nextDue['due']->format('d M Y') : '—' }}</b></div>
+                </div>
+            </div>
+            <div>
+                <h3 class="ci-h3">Industry classification</h3>
+                <div class="ci-facts">
+                    <div><span>NIC code</span><b>{{ $dash($nic) }}</b></div>
+                    <div><span>Description of main activity</span><b>{{ $dash($detail?->principal_activity ?? $register?->activity ?? \App\Services\Insights\CompanyInsights::nicDivision($nic)) }}</b></div>
+                    <div><span>Description of business activity</span><b>{{ $dash(\App\Services\Insights\CompanyInsights::nicDivision($nic)) }}</b></div>
+                    @if($company->sector || $company->industry)<div><span>Sector</span><b>{{ collect([$company->industry, $company->sector])->filter()->unique()->implode(' · ') }}</b></div>@endif
+                </div>
+            </div>
+        </div>
+    </section>
+    @if($providerStatus && $company->financialStatements->isEmpty())
+        <p class="ci-flash warn">Owner: financial statements, charges and AGM dates for private companies come from their MCA filings through the data providers.
+            @foreach($providerStatus as $provider => $s) {{ ucfirst($provider) }}: {{ $s ? ($s['ok'] ? 'last call worked (' . $s['at'] . ')' : $s['message'] . ' (' . $s['at'] . ')') : 'not called yet' }}.@endforeach
+            When a provider has API calls available, every company page fetches its figures automatically.</p>
+    @endif
     @if($premium)
     <section class="ci-card" id="overview">
         <h2>Key metrics{{ $latest ? ' · FY ' . $latest['year'] : '' }}</h2>
@@ -118,7 +166,13 @@
                 <p class="ci-muted" style="font-size:12.5px;margin:6px 0 0"><span style="color:#d99a00">■</span> Revenue &nbsp; <span style="color:#1d4ed8">■</span> Profit after tax (red = loss)</p>
             @endif
         @else
-            <p class="ci-muted">No financial statements are on record for this company yet. They come from its AOC-4 filings with the Ministry of Corporate Affairs.@if($isOwner) Upload an AOC-4 below, or enter a year's figures by hand.@endif</p>
+            <div class="ci-metrics">
+                @foreach(['Revenue', 'EBITDA', 'Net profit', 'Net worth', 'Total assets', 'Total debt'] as $label)<div class="ci-metric"><span>{{ $label }}</span><b>—</b></div>@endforeach
+                <div class="ci-metric"><span>Authorised capital</span><b>{{ $money($detail?->authorised_capital ?? $register?->authorised_capital) }}</b></div>
+                <div class="ci-metric"><span>Paid-up capital</span><b>{{ $money($detail?->paid_up_capital ?? $register?->paid_up_capital) }}</b></div>
+                @foreach(['Revenue CAGR (3Y)', 'Net profit margin', 'ROCE', 'ROE', 'Debt / equity'] as $label)<div class="ci-metric"><span>{{ $label }}</span><b>—</b></div>@endforeach
+            </div>
+            <p class="ci-muted">Financial statements for this company are being fetched from its MCA filings (AOC-4). They appear here as soon as they are available.</p>
         @endif
     </section>
 
@@ -134,7 +188,7 @@
                 @if($detail?->last_balance_sheet_date)<div><span>Last balance sheet</span><b>{{ $detail->last_balance_sheet_date->format('d M Y') }}</b></div>@endif
                 @foreach($compliance as $item)
                     <div><span>{{ $item['label'] }}</span><b>{{ $item['due']->format('d M Y') }}</b>
-                        <small class="{{ $item['done'] ? 'up' : ($item['overdue'] ? 'down' : '') }}" style="display:block;font-weight:700">{{ $item['done'] ? 'Held' : ($item['overdue'] ? 'Overdue by ' . abs($item['days']) . ' days' : $item['days'] . ' days left') }}</small></div>
+                        <small class="{{ $item['done'] ? 'up' : ($item['overdue'] ? 'down' : '') }}" style="display:block;font-weight:700">{{ $item['done'] === null ? ($item['days'] >= 0 ? 'Statutory due date · ' . $item['days'] . ' days left' : 'Statutory due date passed') : ($item['done'] ? 'Held' : ($item['overdue'] ? 'Overdue by ' . abs($item['days']) . ' days' : $item['days'] . ' days left')) }}</small></div>
                 @endforeach
             </div>
             <p class="ci-muted" style="font-size:12.5px">Due dates follow the Companies Act: AGM within six months of the year end, AOC-4 within 30 days and MGT-7 within 60 days of the AGM. A filing made but not yet uploaded here shows as pending.</p>
@@ -227,22 +281,14 @@
 
     <div class="ci-two">
         <section class="ci-card" id="registry">
-            <h2>Registry details</h2>
+            <h2>Registered office and contact</h2>
             <div class="ci-facts">
-                @foreach(array_filter([
-                    'CIN' => $cin, 'LEI' => $detail?->lei, 'PAN' => $detail?->pan,
-                    'City' => $detail?->city, 'PIN code' => $detail?->pin_code, 'Employees' => $detail?->employees ? number_format($detail->employees) : null,
-                    'Company age' => $detail?->incorporation_date ? $detail->incorporation_date->diff(now())->format('%y years, %m months') : null, 'GSTIN' => $detail?->gstins ? implode(', ', $detail->gstins) : null, 'Status' => $status,
-                    'Class' => $detail?->company_class, 'Category' => $detail?->company_category, 'Sub-category' => $detail?->company_subcategory,
-                    'Listing' => $detail?->listing_status ?? ($decoded['Listing'] ?? null), 'Date of incorporation' => $detail?->incorporation_date?->format('d M Y') ?? ($decoded ? 'Year ' . $decoded['Year of incorporation'] : null),
-                    'Registrar (ROC)' => $detail?->roc, 'State' => $decoded['State of registration'] ?? $company->registered_state, 'Industry code (NIC)' => $detail?->nic_code ?? ($decoded['Industry (NIC code)'] ?? null),
-                    'Authorised capital' => $detail?->authorised_capital !== null ? $money($detail->authorised_capital) : null,
-                    'Paid-up capital' => $detail?->paid_up_capital !== null ? $money($detail->paid_up_capital) : null,
+                @foreach([
+                    'Registered office' => $detail?->registered_address ?? $register?->address ?? $company->headquarters,
+                    'GSTIN' => $detail?->gstins ? implode(', ', $detail->gstins) : null, 'Email' => $detail?->email, 'Website' => $company->website,
                     'Members / shareholders' => $detail?->members_count ? number_format($detail->members_count) : null,
-                    'Latest balance sheet' => $detail?->last_balance_sheet_date?->format('d M Y'), 'Email' => $detail?->email, 'Website' => $company->website,
-                    'Registered office' => $detail?->registered_address ?? $company->headquarters,
-                ]) as $label => $value)
-                    <div><span>{{ $label }}</span><b>{{ $value }}</b></div>
+                ] as $label => $value)
+                    <div><span>{{ $label }}</span><b>{{ $dash($value) }}</b></div>
                 @endforeach
             </div>
         </section>
@@ -369,14 +415,16 @@
                 @endif
             </details>
         @empty
-            <p class="ci-muted">No filings uploaded yet.</p>
+            <p class="ci-muted">No filings on record yet.</p>
         @endforelse
 
         @if($isOwner)
             @if($cin && app(\App\Services\Insights\InstaFinancials::class)->configured())
                 <form method="post" action="{{ route('insights.insta') }}" style="margin-top:12px">@csrf<input type="hidden" name="cin" value="{{ $cin }}"><button class="ci-btn light" type="submit">Refresh master data and directors from InstaFinancials (paid call)</button></form>
             @endif
-            <h3 style="font-size:15px;color:#0b2545;margin-top:16px">Upload an MCA filing</h3>
+            <details class="ci-more" style="margin-top:16px">
+            <summary>Owner tools: add a filing or figures manually</summary>
+            <h3 style="font-size:15px;color:#0b2545;margin-top:12px">Upload an MCA filing</h3>
             <p class="ci-muted">AOC-4 / AOC-4 XBRL (financial statements) or MGT-7 (annual return) as PDF or text. The PDF is read in your browser; image-only scans cannot be read.</p>
             <form method="post" action="{{ route('insights.upload', $company) }}" enctype="multipart/form-data" class="ci-inline" id="ci-upload">@csrf
                 <select name="form" aria-label="Form type">@foreach($forms as $form)<option>{{ $form }}</option>@endforeach</select>
@@ -397,6 +445,7 @@
                     </div>
                     <button class="ci-btn" type="submit" style="margin-top:10px">Save figures</button>
                 </form>
+            </details>
             </details>
         @endif
     </section>

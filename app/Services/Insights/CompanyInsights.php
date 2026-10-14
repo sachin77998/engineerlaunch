@@ -38,6 +38,32 @@ class CompanyInsights
         'NPL' => 'Not-for-profit licensed company (Section 8)', 'ULL' => 'Public unlimited company', 'ULT' => 'Private unlimited company', 'OPC' => 'One Person Company',
         'FTC' => 'Subsidiary of a foreign company', 'GOV' => 'Government company',
     ];
+    // NIC 2004 divisions: the industry code in a CIN (characters 2–6) follows NIC 2004.
+    private const NIC_DIVISIONS = [
+        '01' => 'Agriculture, hunting and related service activities', '02' => 'Forestry and logging', '05' => 'Fishing and aquaculture',
+        '10' => 'Mining of coal and lignite', '11' => 'Extraction of crude petroleum and natural gas', '12' => 'Mining of uranium and thorium ores',
+        '13' => 'Mining of metal ores', '14' => 'Other mining and quarrying', '15' => 'Manufacture of food products and beverages',
+        '16' => 'Manufacture of tobacco products', '17' => 'Manufacture of textiles', '18' => 'Manufacture of wearing apparel',
+        '19' => 'Leather, luggage, handbags and footwear', '20' => 'Manufacture of wood and wood products', '21' => 'Manufacture of paper and paper products',
+        '22' => 'Publishing, printing and reproduction of recorded media', '23' => 'Coke, refined petroleum products and nuclear fuel',
+        '24' => 'Manufacture of chemicals and chemical products (incl. pharmaceuticals)', '25' => 'Manufacture of rubber and plastics products',
+        '26' => 'Manufacture of other non-metallic mineral products (cement, glass, ceramics)', '27' => 'Manufacture of basic metals (iron, steel, non-ferrous, casting)',
+        '28' => 'Manufacture of fabricated metal products (forging, pressing, structural metal)', '29' => 'Manufacture of machinery and equipment',
+        '30' => 'Manufacture of office, accounting and computing machinery', '31' => 'Manufacture of electrical machinery and apparatus',
+        '32' => 'Manufacture of radio, television and communication equipment', '33' => 'Medical, precision and optical instruments, watches and clocks',
+        '34' => 'Manufacture of motor vehicles, trailers and auto components', '35' => 'Manufacture of other transport equipment',
+        '36' => 'Manufacture of furniture; other manufacturing (jewellery, sports goods, toys)', '37' => 'Recycling',
+        '40' => 'Electricity, gas, steam and hot water supply', '41' => 'Collection, purification and distribution of water', '45' => 'Construction',
+        '50' => 'Sale, maintenance and repair of motor vehicles; retail sale of fuel', '51' => 'Wholesale trade and commission trade',
+        '52' => 'Retail trade; repair of personal and household goods', '55' => 'Hotels and restaurants', '60' => 'Land transport; transport via pipelines',
+        '61' => 'Water transport', '62' => 'Air transport', '63' => 'Supporting transport activities; travel agencies', '64' => 'Post and telecommunications',
+        '65' => 'Financial intermediation (banking, NBFC)', '66' => 'Insurance and pension funding', '67' => 'Activities auxiliary to financial intermediation (broking, advisory)',
+        '70' => 'Real estate activities', '71' => 'Renting of machinery, equipment and personal goods', '72' => 'Computer and related activities (software, IT services)',
+        '73' => 'Research and development', '74' => 'Other business activities (consultancy, engineering, advertising, staffing)',
+        '75' => 'Public administration and defence', '80' => 'Education', '85' => 'Health and social work', '90' => 'Sewage and refuse disposal, sanitation',
+        '91' => 'Activities of membership organisations', '92' => 'Recreational, cultural and sporting activities', '93' => 'Other service activities',
+        '95' => 'Private households with employed persons', '99' => 'Extra-territorial organisations and bodies',
+    ];
     private const PAN_HOLDERS = ['C' => 'Company', 'P' => 'Individual', 'H' => 'Hindu Undivided Family', 'F' => 'Firm / LLP', 'A' => 'Association of Persons',
         'T' => 'Trust', 'B' => 'Body of Individuals', 'L' => 'Local authority', 'J' => 'Artificial juridical person', 'G' => 'Government'];
 
@@ -61,6 +87,35 @@ class CompanyInsights
             'Company type' => self::CIN_CLASSES[substr($cin, 12, 3)] ?? substr($cin, 12, 3),
             'Registration number' => substr($cin, 15, 6),
         ];
+    }
+
+    /** Industry division for a NIC code (the first two digits). */
+    public static function nicDivision(?string $code): ?string
+    {
+        return $code ? self::NIC_DIVISIONS[substr($code, 0, 2)] ?? null : null;
+    }
+
+    /** PIN code from a registered office address (the last six-digit group). */
+    public static function pinFromAddress(?string $address): ?string
+    {
+        return $address && preg_match_all('/(?<!\d)([1-9]\d{5})(?!\d)/', $address, $m) ? end($m[1]) : null;
+    }
+
+    /** District for a PIN code from the India Post directory on data.gov.in (cached for a year). */
+    public static function cityForPin(?string $pin): ?string
+    {
+        $key = config('services.datagov.key');
+        if (!$pin || !$key) return null;
+        return cache()->remember('pincode:' . $pin, now()->addYear(), function () use ($pin, $key) {
+            try {
+                $records = \Illuminate\Support\Facades\Http::timeout(20)->get('https://api.data.gov.in/resource/6176ee09-3d56-4a3b-8115-21841576b2f6',
+                    ['api-key' => $key, 'format' => 'json', 'limit' => 1, 'filters[pincode]' => $pin])->json('records', []);
+                $district = $records[0]['districtname'] ?? null;
+                return $district ? \Illuminate\Support\Str::title(strtolower($district)) : '';
+            } catch (\Throwable) {
+                return null;
+            }
+        }) ?: null;
     }
 
     public function decodeGstin(string $gstin): array
@@ -206,7 +261,17 @@ class CompanyInsights
      */
     public function compliance(?\App\Models\CompanyRegistryDetail $registry): array
     {
-        if (!$registry?->last_balance_sheet_date && !$registry?->last_agm_date) return [];
+        if (!$registry?->last_balance_sheet_date && !$registry?->last_agm_date) {
+            // No filing dates on record: the statutory calendar for the latest financial year (year ending 31 March).
+            $fyEnd = \Carbon\Carbon::create(now()->month >= 4 ? now()->year : now()->year - 1, 3, 31);
+            $agmDue = $fyEnd->copy()->addMonthsNoOverflow(6)->endOfMonth();
+            $fy = FilingParser::financialYear($fyEnd);
+            return array_map(fn ($i) => $i + ['done' => null, 'overdue' => false, 'days' => (int) now()->startOfDay()->diffInDays($i['due'], false)], [
+                ['label' => 'AGM for FY ' . $fy, 'due' => $agmDue],
+                ['label' => 'AOC-4 for FY ' . $fy, 'due' => $agmDue->copy()->addDays(30)],
+                ['label' => 'MGT-7 for FY ' . $fy, 'due' => $agmDue->copy()->addDays(60)],
+            ]);
+        }
         $yearEnd = ($registry->last_balance_sheet_date ?? $registry->last_agm_date->copy()->subMonths(6)->endOfMonth())->copy();
         $nextYearEnd = $yearEnd->copy()->addYear();
         $agmDue = $nextYearEnd->copy()->addMonthsNoOverflow(6)->endOfMonth();

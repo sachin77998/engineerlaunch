@@ -49,6 +49,7 @@
   .ci-main.ci-layout>.ci-tabs a:hover{background:#fff6dc}
 }
 details.ci-more summary{cursor:pointer;font-weight:700;color:#0b2545}
+.ci-h3{font-size:15px;color:#0b2545;margin:14px 0 8px}
 </style>
 <style>
 .ci-locked{position:relative;border:1px dashed #f4b400;background:linear-gradient(180deg,#fffdf5,#fff)}

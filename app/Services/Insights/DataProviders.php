@@ -44,8 +44,18 @@ class DataProviders
             } catch (Throwable $e) {
                 $out[$provider] = ['_error' => $e->getMessage()];
             }
+            // Last outcome per provider, shown to the owner on company pages (e.g. "API call limit exhausted").
+            \Illuminate\Support\Facades\Cache::put('insights:provider-status:' . $provider, [
+                'ok' => !isset($out[$provider]['_error']), 'message' => $out[$provider]['_error'] ?? null, 'at' => now()->toDateTimeString(),
+            ], now()->addDays(30));
         }
         return array_filter($out, fn ($json) => $json !== null && $json !== []);
+    }
+
+    /** Last recorded outcome for each enabled provider. */
+    public function status(): array
+    {
+        return collect($this->enabled())->mapWithKeys(fn ($p) => [$p => \Illuminate\Support\Facades\Cache::get('insights:provider-status:' . $p)])->all();
     }
 
     public function gstin(string $gstin): array

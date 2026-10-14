@@ -201,6 +201,12 @@ class CompanyInsightsController extends Controller
         if (!$enrichedAt || $enrichedAt->lt(now()->subDays(30))) {
             try { \App\Jobs\EnrichCompanyInsights::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
+        // Fill entity details missing from older records (activity, PIN, city) from the MCA register, once a day at most.
+        $knownCin = $company->registryDetail?->cin ?? $company->registry_cin;
+        if ($knownCin && preg_match(CompanyInsights::CIN, $knownCin) && (!$company->registryDetail?->principal_activity || !$company->registryDetail?->city)
+            && cache()->add('insights:register-fill:' . $company->id, 1, now()->addDay())) {
+            try { app(\App\Services\Insights\DataGovMca::class)->companyFor($knownCin); $company->unsetRelation('registryDetail'); } catch (\Throwable $e) { report($e); }
+        }
         $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors']);
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
@@ -223,6 +229,8 @@ class CompanyInsightsController extends Controller
             'ratios' => $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated),
             'consolidatedRatios' => $standalone->isNotEmpty() && $consolidated->isNotEmpty() ? $this->insights->ratios($consolidated) : collect(),
             'forms' => self::FORMS, 'fields' => self::FIELDS,
+            'register' => $cin ? \Illuminate\Support\Facades\DB::table('mca_companies')->where('cin', $cin)->first() : null,
+            'providerStatus' => auth()->user()?->isOwner() ? app(\App\Services\Insights\DataProviders::class)->status() : [],
         ]);
     }
 

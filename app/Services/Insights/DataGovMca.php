@@ -109,6 +109,10 @@ class DataGovMca
             if (($row[$key] ?? null) !== null && blank($registry->{$field})) $registry->{$field} = $row[$key];
         }
         $registry->listing_status ??= $cin[0] === 'L' ? 'Listed' : 'Unlisted';
+        $registry->nic_code ??= substr($cin, 1, 5);
+        if (blank($registry->principal_activity) && filled($row['activity'] ?? null)) $registry->principal_activity = $row['activity'];
+        $registry->pin_code ??= CompanyInsights::pinFromAddress($row['address'] ?? null);
+        $registry->city ??= CompanyInsights::cityForPin($registry->pin_code);
         $registry->source = $registry->source ?: 'MCA Company Master Data (data.gov.in)';
         $registry->save();
         $company->forceFill(array_filter(['registry_cin' => $company->registry_cin ?: $cin, 'registry_status' => $company->registry_status ?: $row['status'],
