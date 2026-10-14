@@ -612,7 +612,9 @@ public class Main {
 - Time: O(n): every character is output once and each operator is pushed and popped at most once.
 - Space: O(n) for the stack and the output.
 
-Note: `^` (power) is right-associative, so `A^B^C` should give `ABC^^`. To support that, pop only when the top has strictly greater precedence for `^`: change the condition to `precedence(top) > precedence(c) || (precedence(top) == precedence(c) && c != '^')`.
+This compact version assumes single-character operands and left-associative operators.
+
+Note: exponentiation requires a right-associativity adjustment. `^` (power) is right-associative, so `A^B^C` should give `ABC^^`. To support that, pop only when the top has strictly greater precedence for `^`: change the condition to `precedence(top) > precedence(c) || (precedence(top) == precedence(c) && c != '^')`.
 MD,
 
 ];
