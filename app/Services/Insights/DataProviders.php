@@ -19,8 +19,9 @@ class DataProviders
     /** @return string[] providers with credentials, in the configured order */
     public function enabled(): array
     {
-        $order = array_filter(array_map('trim', explode(',', (string) config('services.insights.providers', 'surepass,instafinancials,rapidapi'))));
+        $order = array_filter(array_map('trim', explode(',', (string) config('services.insights.providers', 'sandbox,surepass,instafinancials,rapidapi'))));
         return array_values(array_filter($order, fn ($p) => match ($p) {
+            'sandbox' => filled(config('services.sandbox.api_key')) && filled(config('services.sandbox.api_secret')),
             'surepass' => filled(config('services.surepass.token')),
             'instafinancials' => filled(config('services.instafinancials.api_key')) && filled(config('services.instafinancials.base_url')),
             'rapidapi' => filled(config('services.rapidapi.key')) && filled(config('services.rapidapi.host')),
@@ -35,6 +36,7 @@ class DataProviders
         foreach ($this->enabled() as $provider) {
             try {
                 $out[$provider] = match ($provider) {
+                    'sandbox' => $this->sandbox('company', ['@entity' => 'in.co.sandbox.kyc.mca.master_data.request', 'id' => $cin, 'consent' => 'y', 'reason' => 'Company due diligence']),
                     'surepass' => $this->surepass('company', ['id_number' => $cin]),
                     'instafinancials' => $this->instaCompany($cin),
                     'rapidapi' => $this->rapid('company', ['cin' => $cin]),
@@ -52,6 +54,7 @@ class DataProviders
         foreach ($this->enabled() as $provider) {
             try {
                 $json = match ($provider) {
+                    'sandbox' => $this->sandbox('gstin', ['gstin' => $gstin]),
                     'surepass' => $this->surepass('gstin', ['id_number' => $gstin, 'filing_status_get' => true]),
                     'rapidapi' => $this->rapid('gstin', ['gstin' => $gstin]),
                     default => null,
@@ -70,6 +73,7 @@ class DataProviders
         foreach ($this->enabled() as $provider) {
             try {
                 $json = match ($provider) {
+                    'sandbox' => $this->sandbox('director', ['@entity' => 'in.co.sandbox.kyc.mca.director_master_data.request', 'id' => $din, 'consent' => 'y', 'reason' => 'Director due diligence']),
                     'surepass' => $this->surepass('din', ['id_number' => $din]),
                     'rapidapi' => $this->rapid('din', ['din' => $din]),
                     default => null,
@@ -99,6 +103,31 @@ class DataProviders
             }
         }
         return collect($rows)->unique('cin')->values()->all();
+    }
+
+    /** Sandbox: cached access token (valid 24 h), then POST the MCA / GST endpoint with it. */
+    private function sandbox(string $endpoint, array $body): ?array
+    {
+        $path = config("services.sandbox.paths.{$endpoint}");
+        if (!$path) return null;
+        $base = rtrim(config('services.sandbox.base_url'), '/');
+        $headers = ['x-api-key' => config('services.sandbox.api_key'), 'x-api-version' => config('services.sandbox.api_version')];
+        $token = \Illuminate\Support\Facades\Cache::remember('sandbox:access-token:' . md5((string) config('services.sandbox.api_key')), now()->addHours(23), function () use ($base, $headers) {
+            $response = Http::withHeaders($headers + ['x-api-secret' => config('services.sandbox.api_secret')])->acceptJson()->timeout(30)
+                ->post($base . config('services.sandbox.paths.auth'));
+            $token = $response->json('access_token') ?? $response->json('data.access_token');
+            if (!$response->successful() || !$token) throw new RuntimeException('Sandbox authentication failed (HTTP ' . $response->status() . '): ' . mb_substr((string) ($response->json('message') ?? $response->body()), 0, 200));
+            return $token;
+        });
+        $response = Http::withHeaders($headers + ['authorization' => $token])->acceptJson()->timeout(60)->post($base . $path, $body);
+        if ($response->status() === 401 || $response->status() === 403) {
+            \Illuminate\Support\Facades\Cache::forget('sandbox:access-token:' . md5((string) config('services.sandbox.api_key')));
+        }
+        $json = $response->json();
+        if (!$response->successful() || !is_array($json)) {
+            throw new RuntimeException('Sandbox ' . $endpoint . ' failed (HTTP ' . $response->status() . '): ' . mb_substr((string) ($json['message'] ?? $response->body()), 0, 200));
+        }
+        return $json['data'] ?? $json;
     }
 
     private function surepass(string $endpoint, array $body): ?array

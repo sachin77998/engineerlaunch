@@ -97,7 +97,8 @@ class InstaFinancials
             if (is_string($name) && ($din !== null || self::pick($node, ['designation']) !== null)) {
                 $people[mb_strtolower($name)] = ['name' => ucwords(mb_strtolower(trim($name))), 'din' => is_scalar($din) && preg_match('/^\d{8}$/', (string) $din) ? (string) $din : null,
                     'designation' => ucwords(mb_strtolower((string) (self::pick($node, ['designation', 'role']) ?? 'Director'))),
-                    'appointed_on' => self::pick($node, ['dateofappointment', 'appointmentdate', 'beginDate', 'begindate'])];
+                    'appointed_on' => self::pick($node, ['dateofappointment', 'appointmentdate', 'begindate', 'datejoined']),
+                    'ceased_on' => self::pick($node, ['dateofcessation', 'cessationdate', 'enddate'])];
             }
             foreach ($node as $child) if (is_array($child)) $walk($child);
         };
@@ -113,7 +114,9 @@ class InstaFinancials
             if (!is_array($node)) return;
             $id = self::pick($node, ['chargeid', 'srn', 'chargeidentificationnumber']);
             $holder = self::pick($node, ['chargeholdername', 'chargeholder', 'nameofchargeholder', 'lender', 'bankname']);
-            if ($id !== null && $holder !== null && is_scalar($id) && is_scalar($holder)) {
+            // A row is a charge when it has a charge id plus a holder, an amount or the charged assets.
+            if ($id !== null && is_scalar($id) && ($holder !== null || self::pick($node, ['amount', 'chargeamount', 'assetsundercharge']) !== null)) {
+                $holder = is_scalar($holder) ? $holder : 'Not stated';
                 $amount = self::pick($node, ['amount', 'chargeamount', 'amountsecured']);
                 $charges[(string) $id] = [
                     'charge_id' => mb_substr((string) $id, 0, 30), 'lender' => mb_substr((string) $holder, 0, 250),

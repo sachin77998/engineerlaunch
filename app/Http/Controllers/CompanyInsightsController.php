@@ -43,7 +43,27 @@ class CompanyInsightsController extends Controller
                 report($e);
             }
         }
-        if ($identified && $identified['type'] !== 'name' && $results->count() === 1) {
+        // Still nothing for a CIN: ask the paid MCA data providers (Sandbox, Surepass, InstaFinancials) when configured.
+        $providers = app(\App\Services\Insights\DataProviders::class);
+        if ($results->isEmpty() && ($identified['type'] ?? '') === 'cin' && $providers->enabled() && config('services.insights.auto')) {
+            try {
+                if ($company = app(\App\Services\Insights\ProviderImporter::class)->fetchCin($identified['value'])) $results = collect([$company->load('registryDetail')]);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+        // Director (DIN) not on record yet: list the companies the providers report for that director.
+        $directorCompanies = [];
+        if ($results->isEmpty() && ($identified['type'] ?? '') === 'din' && $providers->enabled()) {
+            try {
+                foreach ($providers->din($identified['value']) as $json) {
+                    if (!isset($json['_error'])) $directorCompanies = array_merge($directorCompanies, InstaFinancials::searchResults($json));
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+        if ($identified && !in_array($identified['type'], ['name', 'din'], true) && $results->count() === 1) {
             return redirect()->route('insights.show', $results->first());
         }
         $decoded = match ($identified['type'] ?? null) {
@@ -67,58 +87,22 @@ class CompanyInsightsController extends Controller
             }
         }
         $instaReady = $insta->configured();
-        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline'));
+        $instaReady = $instaReady || $providers->enabled();
+        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies'));
     }
 
-    /** Owner: fetch a company's MCA master data, directors and charges from InstaFinancials (paid call) and save them. */
-    public function importInsta(Request $request, InstaFinancials $insta)
+    /** Owner: fetch a company's MCA master data, directors and charges from the configured providers (paid calls) and save them. */
+    public function importInsta(Request $request, \App\Services\Insights\ProviderImporter $importer)
     {
         $cin = strtoupper(trim((string) $request->input('cin')));
         abort_unless(preg_match(CompanyInsights::CIN, $cin), 422, 'A valid CIN is required.');
         try {
-            $json = $insta->basic($cin);
+            $company = $importer->fetchCin($cin);
         } catch (\Throwable $e) {
             return back()->withErrors(['cin' => $e->getMessage()]);
         }
-        $name = (string) (InstaFinancials::find($json, ['companyname', 'name']) ?: $request->input('name') ?: $cin);
-        $company = Company::where('registry_cin', $cin)->first()
-            ?? CompanyRegistryDetail::where('cin', $cin)->first()?->company
-            ?? Company::where('name_key', Company::nameKey($name))->first();
-        if (!$company) {
-            $match = app(\App\Services\Discovery\CompanyClassifier::class)->classify($name);
-            $company = Company::create(['name' => $name, 'slug' => $this->uniqueSlug($name), 'country' => 'India', 'industry' => $match[0], 'sector' => $match[1],
-                'is_active' => true, 'sync_enabled' => false, 'registry_cin' => $cin]);
-        }
-        $date = function ($value) { try { return $value ? \Carbon\Carbon::parse(str_replace('/', '-', (string) $value))->toDateString() : null; } catch (\Throwable) { return null; } };
-        $number = fn ($value) => is_numeric($clean = preg_replace('/[^\d.\-]/', '', (string) $value)) ? (float) $clean : null;
-        $registry = CompanyRegistryDetail::firstOrNew(['company_id' => $company->id]);
-        $registry->fill(array_filter([
-            'cin' => CompanyRegistryDetail::where('cin', $cin)->where('company_id', '!=', $company->id)->exists() ? null : $cin,
-            'company_status' => InstaFinancials::find($json, ['companystatus', 'status', 'companystatusforefiling']),
-            'company_class' => InstaFinancials::find($json, ['companyclass', 'classofcompany']),
-            'company_category' => InstaFinancials::find($json, ['companycategory', 'category']),
-            'company_subcategory' => InstaFinancials::find($json, ['companysubcategory', 'subcategory']),
-            'roc' => InstaFinancials::find($json, ['roc', 'roccode', 'registrarofcompanies']),
-            'incorporation_date' => $date(InstaFinancials::find($json, ['dateofincorporation', 'incorporationdate', 'dateofregistration'])),
-            'authorised_capital' => $number(InstaFinancials::find($json, ['authorisedcapital', 'authorizedcapital'])),
-            'paid_up_capital' => $number(InstaFinancials::find($json, ['paidupcapital', 'paidupcapitalinr'])),
-            'email' => InstaFinancials::find($json, ['email', 'emailid', 'emailaddress']),
-            'registered_address' => InstaFinancials::find($json, ['registeredaddress', 'registeredofficeaddress', 'address']),
-            'last_agm_date' => $date(InstaFinancials::find($json, ['dateoflastagm', 'lastagmdate'])),
-            'last_balance_sheet_date' => $date(InstaFinancials::find($json, ['dateofbalancesheet', 'balancesheetdate'])),
-        ], fn ($v) => $v !== null && $v !== ''))->fill(['listing_status' => $cin[0] === 'L' ? 'Listed' : 'Unlisted', 'source' => 'InstaFinancials'])->save();
-        foreach (InstaFinancials::people($json) as $person) {
-            \App\Models\CompanyOfficer::updateOrCreate(['company_id' => $company->id, 'name' => $person['name'], 'designation' => $person['designation']],
-                array_filter(['din' => $person['din'], 'appointed_on' => $date($person['appointed_on'])]) + ['source' => 'InstaFinancials']);
-        }
-        foreach (InstaFinancials::charges($json) as $charge) {
-            \App\Models\CompanyCharge::updateOrCreate(['company_id' => $company->id, 'charge_id' => $charge['charge_id']],
-                ['created_on' => $date($charge['created_on']), 'modified_on' => $date($charge['modified_on']), 'satisfied_on' => $date($charge['satisfied_on'])]
-                + array_intersect_key($charge, array_flip(['lender', 'amount', 'status', 'assets_charged'])) + ['source' => 'InstaFinancials']);
-        }
-        \App\Models\CompanyFiling::create(['company_id' => $company->id, 'form' => 'InstaBasic', 'status' => 'parsed', 'uploaded_by' => $request->user()?->id,
-            'parsed_fields' => ['cin' => $cin, 'all_fields' => InstaFinancials::flatten($json)]]);
-        return redirect()->route('insights.show', $company)->with('success', 'Master data and directors fetched from InstaFinancials.');
+        if (!$company) return back()->withErrors(['cin' => 'No provider returned data for ' . $cin . '. Check the API keys in .env.']);
+        return redirect()->route('insights.show', $company)->with('success', 'Master data, directors and charges fetched.');
     }
 
     private function uniqueSlug(string $name): string
@@ -144,7 +128,13 @@ class CompanyInsightsController extends Controller
         $subsidiaries = Company::where('description', 'Part of ' . $company->name . '.')->where('is_active', true)->orderBy('name')->limit(60)->get(['id', 'name', 'slug', 'industry', 'logo_url', 'website']);
         $parent = preg_match('/^Part of (.+)\.$/', (string) $company->description, $m) ? Company::where('name', $m[1])->first(['id', 'name', 'slug']) : null;
         $ratios = $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated);
+        $premium = (bool) auth()->user()?->hasActivePremium();
+        // Premium viewers of a company without financials: fetch them from the providers in the background (billed per call).
+        if ($premium && $cin && $company->financialStatements->isEmpty() && config('services.insights.auto') && app(\App\Services\Insights\DataProviders::class)->enabled()) {
+            try { \App\Jobs\FetchCompanyFromProviders::dispatch($company->id, $cin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
+        }
         return view('insights.show', [
+            'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
             'compliance' => $this->insights->compliance($company->registryDetail),

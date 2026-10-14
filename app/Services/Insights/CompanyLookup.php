@@ -61,6 +61,11 @@ class CompanyLookup
             foreach ($this->dataGov($cin, $cin ? null : $company->name) as $row) { $this->fill($company, $registry, $row); break; }
         } catch (Throwable $e) { report($e); }
         try { $this->wikidata($company, $registry); } catch (Throwable $e) { report($e); }
+        // Paid MCA providers (Sandbox, Surepass…) give the official master data, directors and charges when configured.
+        $cin = $registry->cin ?? $company->registry_cin;
+        if ($cin && config('services.insights.auto') && app(DataProviders::class)->enabled()) {
+            try { app(ProviderImporter::class)->fetchCin($cin, $company); $registry->refresh(); } catch (Throwable $e) { report($e); }
+        }
         $registry->enriched_at = now();
         $registry->source = $registry->source ?: 'Public registries';
         $registry->save();

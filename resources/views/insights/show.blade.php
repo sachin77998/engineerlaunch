@@ -39,7 +39,7 @@
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
 
     <nav class="ci-tabs">
-        <a href="#overview">Overview</a><a href="#health">Health score</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#registry">Registry details</a>
+        <a href="#overview">Overview</a><a href="#health">Health score</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
         <a href="#people">Directors</a><a href="#ownership">Ownership</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
         <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
@@ -56,6 +56,7 @@
         $threeBack = $ratios->count() >= 4 ? $ratios->slice(-4, 1)->first() : null;
         $cagr = $threeBack && ($threeBack['revenue'] ?? 0) > 0 && ($latest['revenue'] ?? 0) > 0 ? (pow($latest['revenue'] / $threeBack['revenue'], 1 / 3) - 1) * 100 : null;
     @endphp
+    @if($premium)
     <section class="ci-card" id="overview">
         <h2>Key metrics{{ $latest ? ' · FY ' . $latest['year'] : '' }}</h2>
         @if($latest)
@@ -121,6 +122,10 @@
         @endif
     </section>
 
+    @else
+        @include('insights.partials.locked', ['id' => 'overview'])
+    @endif
+
     @if($compliance)
         <section class="ci-card" id="compliance">
             <h2>Filing compliance</h2>
@@ -136,7 +141,7 @@
         </section>
     @endif
 
-    @if($health)
+    @if($health && $premium)
         <section class="ci-card" id="health">
             <h2>Financial health score</h2>
             <div class="ci-health">
@@ -158,7 +163,7 @@
         </section>
     @endif
 
-    @if($years->isNotEmpty())
+    @if($years->isNotEmpty() && $premium)
         <section class="ci-card" id="financials">
             <h2>Financial statements (standalone{{ $consolidatedRatios->isNotEmpty() ? '; consolidated figures in the second table of ratios' : '' }})</h2>
             <div class="ci-table-wrap">
@@ -205,6 +210,18 @@
                 </div>
             @endforeach
             <p class="ci-muted" style="font-size:12.5px">ROE = PAT ÷ net worth · ROCE = (PBT + finance cost) ÷ (net worth + debt) · Debt includes long- and short-term borrowings · EBITDA = PBT + finance cost + depreciation when not stated.</p>
+        </section>
+    @endif
+
+    @if($premium && $peers->count() > 1)
+        <section class="ci-card" id="peers">
+            <h2>Peer comparison · {{ $company->sector }}</h2>
+            <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Company</th><th>FY</th><th>Revenue</th><th>Net profit</th><th>Growth</th><th>Net margin</th><th>ROE</th><th>ROCE</th><th>Debt / equity</th></tr></thead><tbody>
+                @foreach($peers as $peer)
+                    <tr style="{{ $peer->company->id === $company->id ? 'font-weight:700;background:#fff6dc' : '' }}"><td style="white-space:normal">@if($peer->company->id === $company->id){{ $peer->company->name }}@else<a href="{{ route('insights.show', $peer->company) }}">{{ $peer->company->name }}</a>@endif</td>
+                        <td>{{ $peer->year }}</td><td>{{ $money($peer->revenue) }}</td><td>{{ $money($peer->pat) }}</td><td>{!! $pct($peer->revenue_growth) !!}</td><td>{!! $pct($peer->net_margin) !!}</td><td>{!! $pct($peer->roe) !!}</td><td>{!! $pct($peer->roce) !!}</td><td>{{ $x($peer->debt_to_equity) }}</td></tr>
+                @endforeach
+            </tbody></table></div>
         </section>
     @endif
 
@@ -256,7 +273,7 @@
     </div>
 
     @php $holdings = $company->shareholdings->groupBy('financial_year')->sortKeysDesc(); @endphp
-    @if($holdings->isNotEmpty())
+    @if($holdings->isNotEmpty() && $premium)
         @php
             $latestHoldings = $holdings->first();
             $promoter = (float) ($latestHoldings->firstWhere('category', 'Promoters')?->percentage ?? 0);
@@ -280,6 +297,9 @@
     <div class="ci-two">
         <section class="ci-card" id="charges">
             <h2>Charges (secured borrowings)</h2>
+            @if(!$premium)
+                <p class="ci-muted">{{ $company->charges->count() }} registered {{ Str::plural('charge', $company->charges->count()) }}. Lenders, amounts and dates are part of the premium plan.</p>
+            @else
             @if($company->charges->isNotEmpty())
                 @php $open = $company->charges->filter(fn ($c) => !preg_match('/satisf|closed/i', (string) $c->status)); @endphp
                 <div class="ci-facts" style="margin-bottom:10px">
@@ -293,6 +313,7 @@
                 </tbody></table></div>
             @else
                 <p class="ci-muted">Registered charges come from the MCA index of charges (InstaFinancials import).</p>
+            @endif
             @endif
         </section>
         <section class="ci-card" id="auditors">
@@ -324,7 +345,7 @@
                 @foreach($company->businessProducts->sortByDesc('turnover_percentage') as $product)<tr><td style="white-space:normal">{{ $product->description }}</td><td>{{ $product->product_code }}</td><td>{{ $product->financial_year }}</td><td>{{ $product->turnover_percentage !== null ? $product->turnover_percentage . '%' : '—' }}</td></tr>@endforeach
             </tbody></table></div>
         @endif
-        @if($company->relatedParties->isNotEmpty())
+        @if($company->relatedParties->isNotEmpty() && $premium)
             <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Related party</th><th>Relationship</th><th>Transaction</th><th>Amount</th></tr></thead><tbody>
                 @foreach($company->relatedParties as $party)<tr><td style="white-space:normal">{{ $party->party_name }}</td><td style="white-space:normal">{{ $party->relationship }}</td><td style="white-space:normal">{{ $party->transaction_description }}</td><td>{{ $money($party->amount) }}</td></tr>@endforeach
             </tbody></table></div>

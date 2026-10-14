@@ -65,7 +65,7 @@ return [
 
     // Company insights data providers (paid; each switches on when its key is set).
     'insights' => [
-        'providers' => env('INSIGHTS_PROVIDERS', 'surepass,instafinancials,rapidapi'),
+        'providers' => env('INSIGHTS_PROVIDERS', 'sandbox,surepass,instafinancials,rapidapi'),
         // Fetch automatically on search misses and for company pages without financials (each call is billed).
         'auto' => env('INSIGHTS_PROVIDERS_AUTO', true),
     ],
@@ -73,6 +73,19 @@ return [
         'base_url' => env('INSTAFINANCIALS_BASE_URL', 'https://instafinancials.com/api'),
         'api_key' => env('INSTAFINANCIALS_API_KEY'),
         'summary_path' => env('INSTAFINANCIALS_SUMMARY_PATH', '/InstaReports/v1/InstaSummary/CompanyCIN/{cin}'),
+    ],
+    // Sandbox (sandbox.co.in): POST /authenticate with key + secret gives a 24-hour token for the MCA/GST APIs.
+    'sandbox' => [
+        'base_url' => env('SANDBOX_BASE_URL', 'https://api.sandbox.co.in'),
+        'api_key' => env('SANDBOX_API_KEY'),
+        'api_secret' => env('SANDBOX_API_SECRET'),
+        'api_version' => env('SANDBOX_API_VERSION', '1.0'),
+        'paths' => [
+            'auth' => env('SANDBOX_AUTH_PATH', '/authenticate'),
+            'company' => env('SANDBOX_COMPANY_PATH', '/kyc/mca/company/master-data/search'),
+            'director' => env('SANDBOX_DIRECTOR_PATH', '/kyc/mca/director/master-data/search'),
+            'gstin' => env('SANDBOX_GSTIN_PATH', '/gst/compliance/public/gstin/search'),
+        ],
     ],
     'surepass' => [
         'base_url' => env('SUREPASS_BASE_URL', 'https://kyc-api.surepass.io/api/v1'),

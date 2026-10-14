@@ -50,3 +50,9 @@
 }
 details.ci-more summary{cursor:pointer;font-weight:700;color:#0b2545}
 </style>
+<style>
+.ci-locked{position:relative;border:1px dashed #f4b400;background:linear-gradient(180deg,#fffdf5,#fff)}
+.ci-lock-badge{display:inline-block;padding:3px 10px;border-radius:999px;background:#0b2545;color:#f4b400;font-size:12px;font-weight:800;margin-bottom:8px}
+.ci-lock-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0 16px;filter:blur(3px);user-select:none;pointer-events:none}
+.ci-lock-preview div{padding:12px;border:1px solid #e8edf5;border-radius:10px;background:#fff}.ci-lock-preview span{display:block;font-size:12px;color:#5b6b82}.ci-lock-preview b{color:#0b2545;font-size:18px}
+</style>

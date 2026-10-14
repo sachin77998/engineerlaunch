@@ -87,4 +87,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(InterviewExperience::class);
     }
+    public function isOwner(): bool
+    {
+        return $this->role_code === 2 || $this->role === 'admin';
+    }
+    /** Paid plan in force (company financials, ratios, charges); the owner always has full access. */
+    public function hasActivePremium(): bool
+    {
+        return $this->isOwner() || ($this->is_premium && (!$this->premium_expires_at || $this->premium_expires_at->isFuture()));
+    }
 }

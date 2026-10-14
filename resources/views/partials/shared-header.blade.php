@@ -20,7 +20,6 @@
         'Explore' => [['company.experiences.*', 'news.*'], [
             ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'], ['market.index', 'Market Data (Sales & Prices)'], ['technologies.index', 'Jobs by Language & Technology'],
         ]],
-        'Insights into Company' => [['insights.*'], [['insights.index', 'Company Check (name, CIN, GSTIN, PAN)']]],
         'About' => [['about', 'contact'], [['about', 'About Us'], ['contact', 'Contact']]],
     ];
 @endphp
@@ -47,14 +46,9 @@
 .sitebar[data-shared-header] .header-menu hr{border:0;border-top:1px solid #eef2f8;margin:6px 4px}
 .sitebar[data-shared-header] summary:focus-visible,.sitebar[data-shared-header] .header-menu a:focus-visible,.sitebar[data-shared-header] .header-menu button:focus-visible{outline:3px solid #f4b400;outline-offset:2px}
 .sitebar[data-shared-header] .header-toggle{display:none;margin-left:auto;padding:9px 14px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:transparent;color:#fff;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
-.sitebar[data-shared-header] .header-insights{flex:0 1 300px;min-width:0;display:grid;gap:3px;margin:0}
-.sitebar[data-shared-header] .header-insights a{color:#f4b400!important;font:800 12.5px Inter,system-ui,sans-serif;text-decoration:none;letter-spacing:.2px}
-.sitebar[data-shared-header] .header-insights span{display:flex;border:1px solid rgba(244,180,0,.7);border-radius:9px;overflow:hidden;background:rgba(255,255,255,.08)}
-.sitebar[data-shared-header] .header-insights input{flex:1;min-width:0;padding:8px 10px;border:0;background:transparent;color:#fff;font:14px Inter,system-ui,sans-serif;outline:0}
-.sitebar[data-shared-header] .header-insights input::placeholder{color:#b9c7dc}
-.sitebar[data-shared-header] .header-insights button{border:0;background:#f4b400;color:#0b2545;font-weight:800;padding:0 12px;cursor:pointer}
+.sitebar[data-shared-header] .header-insights-btn{flex:0 0 auto;padding:10px 16px;border-radius:9px;background:#f4b400;color:#0b2545!important;font:800 14px Inter,system-ui,sans-serif;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(244,180,0,.25)}
+.sitebar[data-shared-header] .header-insights-btn:hover,.sitebar[data-shared-header] .header-insights-btn.is-active{background:#ffc933;box-shadow:0 0 0 2px #fff inset}
 @media(max-width:1180px){
-  .sitebar[data-shared-header] .header-insights{order:3;flex:1 1 100%}
   .sitebar[data-shared-header] .sitebar-inner{flex-wrap:wrap;padding:10px 0;gap:10px}
   .sitebar[data-shared-header] .header-toggle{display:block}
   .sitebar[data-shared-header] .site-nav{display:none;width:100%;flex-direction:column;align-items:stretch;gap:2px;padding-bottom:8px}
@@ -68,10 +62,7 @@
 <header class="sitebar" data-shared-header>
   <div class="sitebar-inner">
     <a class="site-logo" href="{{ route('home') }}" aria-label="Ascendia home"><img src="{{ asset('images/ascendia-logo.png') }}" alt="Ascendia"></a>
-    <form class="header-insights" method="get" action="{{ route('insights.index') }}" role="search" aria-label="Insights into Company">
-      <a href="{{ route('insights.index') }}">Insights into Company</a>
-      <span><input type="search" name="q" placeholder="Company name, CIN or GSTIN" aria-label="Company name, CIN or GSTIN"><button type="submit" aria-label="Search company">⌕</button></span>
-    </form>
+    <a class="header-insights-btn {{ request()->routeIs('insights.*') ? 'is-active' : '' }}" href="{{ route('insights.index') }}">Insights into Company</a>
     <button class="header-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
       @foreach($menus as $label => [$activeRoutes, $links])

@@ -15,6 +15,7 @@ class CompanyInsights
     public const CIN = '/^[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/';
     public const GSTIN = '/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/';
     public const PAN = '/^[A-Z]{5}\d{4}[A-Z]$/';
+    public const DIN = '/^\d{8}$/';
 
     // CIN and GSTIN state codes.
     private const CIN_STATES = [
@@ -44,7 +45,7 @@ class CompanyInsights
     public function identify(string $query): array
     {
         $value = strtoupper(preg_replace('/\s+/', '', $query));
-        foreach (['cin' => self::CIN, 'gstin' => self::GSTIN, 'pan' => self::PAN] as $type => $pattern) {
+        foreach (['cin' => self::CIN, 'gstin' => self::GSTIN, 'pan' => self::PAN, 'din' => self::DIN] as $type => $pattern) {
             if (preg_match($pattern, $value)) return ['type' => $type, 'value' => $value];
         }
         return ['type' => 'name', 'value' => trim($query)];
@@ -93,6 +94,7 @@ class CompanyInsights
         $base = Company::query()->where('is_active', true)->with('registryDetail');
         return match ($type) {
             'cin' => $base->where(fn ($q) => $q->where('registry_cin', $value)->orWhereHas('registryDetail', fn ($r) => $r->where('cin', $value)))->limit($limit)->get(),
+            'din' => $base->whereHas('officers', fn ($o) => $o->where('din', $value))->limit($limit)->get(),
             'gstin', 'pan' => $base->whereHas('registryDetail', fn ($r) => $r->where('pan', $type === 'pan' ? $value : substr($value, 2, 10))
                 ->orWhereJsonContains('gstins', $value))->limit($limit)->get(),
             default => $this->byName($base, $value, $limit),
@@ -216,6 +218,23 @@ class CompanyInsights
             ['label' => 'MGT-7 for FY ' . FilingParser::financialYear($nextYearEnd), 'due' => $base->copy()->addDays(60), 'done' => false],
         ];
         return array_map(fn ($i) => $i + ['overdue' => !$i['done'] && $i['due']->isPast(), 'days' => (int) now()->startOfDay()->diffInDays($i['due'], false)], $items);
+    }
+
+    /** Companies in the same sub-category with filed financials, compared on their latest year (largest revenue first). */
+    public function peers(Company $company, int $limit = 6): Collection
+    {
+        if (!$company->sector) return collect();
+        $rows = Company::where('sector', $company->sector)->where('is_active', true)
+            ->whereHas('financialStatements', fn ($q) => $q->whereNotNull('revenue'))
+            ->with(['financialStatements' => fn ($q) => $q->where('is_consolidated', false)])
+            ->limit(60)->get();
+        if (!$rows->contains('id', $company->id)) $rows->push($company->loadMissing('financialStatements'));
+        return $rows->map(function (Company $peer) {
+            $latest = $this->ratios($peer->financialStatements)->last();
+            return $latest ? (object) ['company' => $peer, 'year' => $latest['year'], 'revenue' => $latest['revenue'], 'pat' => $latest['pat'],
+                'net_margin' => $latest['net_margin'], 'roe' => $latest['roe'], 'roce' => $latest['roce'], 'debt_to_equity' => $latest['debt_to_equity'],
+                'revenue_growth' => $latest['revenue_growth']] : null;
+        })->filter()->sortByDesc('revenue')->take($limit)->values();
     }
 
     /** "₹1,234.5 Cr" style figure for rupee amounts. */
