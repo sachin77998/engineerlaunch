@@ -105,4 +105,8 @@ return [
         'performance'=>['title'=>'Performance and Testing','questions'=>['Why does a component re-render?','How does React.memo work?','What is code splitting?','How do you test user behavior?','How do you diagnose a slow React page?']],
         'architecture'=>['title'=>'Frontend Architecture','questions'=>['How should a React project be structured?','How do error boundaries work?','How do you secure API calls?','What is hydration?','CSR versus SSR versus SSG?']],
     ]],
+    'system-design'=>['title'=>'System Design Case Studies','icon'=>'SD','color'=>'#0b2545','description'=>'How real Indian and global products are built: payment gateways, UPI apps, stock broking, core banking, ride hailing, food delivery and quick commerce, with requirements, scale, architecture, data models, flows and failure handling.','topics'=>[
+        'payments-fintech'=>['title'=>'Payments, Broking and Banking','questions'=>array_keys(require __DIR__.'/learning_deep/system-design/payments.php')],
+        'mobility-delivery'=>['title'=>'Ride Hailing, Food Delivery and Quick Commerce','questions'=>array_keys(require __DIR__.'/learning_deep/system-design/mobility-delivery.php')],
+    ]],
 ];
