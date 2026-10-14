@@ -37,7 +37,9 @@ class LearningController extends Controller
             $topic = $tracks[$track]['topics'][$module];
             $lessonConfig = $topic['lessons_config'] ?? null;
             $lessons = $lessonConfig
-                ? array_slice(config($lessonConfig, []), $topic['offset'] ?? 0, $topic['limit'] ?? null)
+                ? (isset($topic['indexes'])
+                    ? array_values(array_intersect_key(config($lessonConfig, []), array_flip($topic['indexes'])))
+                    : array_slice(config($lessonConfig, []), $topic['offset'] ?? 0, $topic['limit'] ?? null))
                 : array_merge(config('laravel_foundations', []), config('laravel_advanced', []));
             // In-depth explanations (config/learning_deep/{track}.php) replace short lesson summaries.
             $lessons = array_map(fn ($lesson) => ($deep = LearningPresentation::deep($track, $lesson['title'] ?? '')) ? ['summary' => $deep] + $lesson : $lesson, $lessons);
