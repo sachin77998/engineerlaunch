@@ -1,0 +1,1 @@
+@if($rating)<span class="dt-stars" title="{{ $rating }} of 5 (3-year return rank within the category)">{{ str_repeat('★', $rating) }}<i>{{ str_repeat('★', 5 - $rating) }}</i></span>@else<span class="dt-muted">—</span>@endif

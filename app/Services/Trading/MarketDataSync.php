@@ -55,15 +55,15 @@ class MarketDataSync
     {
         $current = DB::table('mf_schemes')->where('is_active', true)->get(['scheme_code', 'nav', 'nav_date'])->keyBy('scheme_code');
         $updates = [];
-        foreach ([1 => 'return_1y', 3 => 'return_3y', 5 => 'return_5y'] as $years => $column) {
-            [$date, $past] = $this->navsOn(Carbon::now()->subYears($years));
+        foreach ([0 => 'return_6m', 1 => 'return_1y', 3 => 'return_3y', 5 => 'return_5y'] as $years => $column) {
+            [$date, $past] = $this->navsOn($years === 0 ? Carbon::now()->subMonths(6) : Carbon::now()->subYears($years));
             if (!$past) continue;
             foreach ($past as $code => $oldNav) {
                 $s = $current[$code] ?? null;
                 if (!$s || $oldNav <= 0 || !$s->nav) continue;
                 $span = max(0.5, Carbon::parse($date)->diffInDays(Carbon::parse($s->nav_date)) / 365.25);
                 $ratio = $s->nav / $oldNav;
-                $updates[$code][$column] = round($years === 1 ? ($ratio - 1) * 100 : (pow($ratio, 1 / $span) - 1) * 100, 2);
+                $updates[$code][$column] = round($years <= 1 ? ($ratio - 1) * 100 : (pow($ratio, 1 / $span) - 1) * 100, 2);
             }
         }
         foreach (array_chunk($updates, 500, true) as $chunk) {

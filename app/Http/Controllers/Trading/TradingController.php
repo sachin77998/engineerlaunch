@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\Trading;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\RunMaintenanceStep;
+use App\Models\Trading\MfAmc;
+use App\Models\Trading\MfCategory;
+use App\Models\Trading\MfCollection;
 use App\Models\Trading\MfHolding;
 use App\Models\Trading\MfOrder;
 use App\Models\Trading\MfScheme;
 use App\Models\Trading\TradingClient;
 use App\Services\Trading\FeeCalculator;
+use App\Services\Trading\FundCatalogue;
+use App\Services\Trading\FundQuery;
 use App\Services\Trading\FundRecommender;
 use App\Services\Trading\MarketCalendar;
 use App\Services\Trading\OrderExporter;
@@ -16,33 +22,56 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-/** "Do Trading" pages: fund explorer, fund page with buy/redeem and recommendations, calculators, orders and holdings. */
+/** "Do Trading" mutual fund pages: explore, screener, collections, fund houses, fund page, calculators, orders. */
 class TradingController extends Controller
 {
-    public function index(Request $request, MarketCalendar $calendar)
+    /** Explore: collections, popular funds, fund houses and categories. */
+    public function index(MarketCalendar $calendar)
     {
-        $filters = $request->only(['q', 'amc', 'asset_class', 'category', 'plan', 'option', 'sort']);
-        $q = trim((string) ($filters['q'] ?? ''));
-        $sort = in_array($filters['sort'] ?? '', ['return_1y', 'return_3y', 'return_5y', 'name', 'nav'], true) ? $filters['sort'] : 'return_3y';
-        $funds = MfScheme::where('is_active', true)->where('scheme_type', 'Open Ended')
-            ->when($q !== '', fn ($query) => mb_strlen($q) >= 3 ? $query->where(fn ($w) => $w->whereFullText('name', self::words($q), ['mode' => 'boolean'])->orWhere('amc', 'like', '%' . $q . '%')) : $query->where('name', 'like', $q . '%'))
-            ->when($filters['amc'] ?? null, fn ($query, $v) => $query->where('amc', $v))
-            ->when($filters['asset_class'] ?? null, fn ($query, $v) => $query->where('asset_class', $v))
-            ->when($filters['category'] ?? null, fn ($query, $v) => $query->where('category', $v))
-            ->when($filters['plan'] ?? 'Direct', fn ($query, $v) => $v === 'all' ? $query : $query->where('plan', $v))
-            ->when($filters['option'] ?? 'Growth', fn ($query, $v) => $v === 'all' ? $query : $query->where('option', $v))
-            ->when($sort === 'name', fn ($query) => $query->orderBy('name'), fn ($query) => $query->orderByRaw($sort . ' IS NULL')->orderByDesc($sort))
-            ->paginate(30)->withQueryString();
-        $facets = Cache::remember('trading:fund-facets', 3600, fn () => [
-            'amc' => MfScheme::where('is_active', true)->distinct()->orderBy('amc')->pluck('amc'),
-            'asset_class' => MfScheme::where('is_active', true)->whereNotNull('asset_class')->distinct()->orderBy('asset_class')->pluck('asset_class'),
-            'category' => MfScheme::where('is_active', true)->whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
-            'count' => MfScheme::where('is_active', true)->count(),
-            'nav_date' => MfScheme::where('is_active', true)->max('nav_date'),
+        $this->ensureData();
+        $data = Cache::remember('trading:catalogue', 900, fn () => [
+            'collections' => MfCollection::where('is_active', true)->orderBy('sort_order')->get(),
+            'popular' => app(FundQuery::class)->build(['min_rating' => 4, 'sub_category' => ['Flexi Cap', 'Mid Cap', 'Small Cap', 'Large Cap'], 'sort' => 'return_3y'])->limit(40)->get()->unique('amc')->take(8)->values(),
+            'amcs' => MfAmc::orderByDesc('scheme_count')->limit(18)->get(),
+            'categories' => MfCategory::whereIn('asset_class', ['Equity', 'Debt', 'Hybrid', 'Commodities'])->where('scheme_count', '>', 20)->orderBy('sort_order')->orderByDesc('scheme_count')->get()->groupBy('asset_class'),
+            'stats' => ['schemes' => MfScheme::where('is_active', true)->count(), 'amcs' => MfAmc::count(), 'nav_date' => MfScheme::max('nav_date')],
         ]);
         $now = $calendar->now();
-        return view('trading.index', ['funds' => $funds, 'filters' => $filters + ['plan' => 'Direct', 'option' => 'Growth'], 'facets' => $facets,
-            'marketClosed' => $calendar->closedReason($now), 'nextDay' => $calendar->nextBusinessDay($now)]);
+        return view('trading.explore', $data + ['marketClosed' => $calendar->closedReason($now), 'nextDay' => $calendar->nextBusinessDay($now)]);
+    }
+
+    /** Screener: every fund with Groww-style filters. */
+    public function funds(Request $request)
+    {
+        return $this->screener($request, $request->all(), ['title' => 'All mutual funds']);
+    }
+
+    public function collection(Request $request, MfCollection $collection)
+    {
+        return $this->screener($request, array_merge($collection->rules, array_filter($request->all(), fn ($v) => $v !== null && $v !== '')), ['title' => $collection->title, 'description' => $collection->description, 'collection' => $collection]);
+    }
+
+    public function amc(Request $request, MfAmc $amc)
+    {
+        return $this->screener($request, array_merge($request->all(), ['amc' => [$amc->name]]), ['title' => $amc->short_name . ' Mutual Fund', 'description' => number_format($amc->scheme_count) . ' schemes', 'amcRow' => $amc]);
+    }
+
+    public function category(Request $request, MfCategory $category)
+    {
+        return $this->screener($request, array_merge($request->all(), ['asset_class' => [$category->asset_class], 'sub_category' => [$category->sub_category]]),
+            ['title' => $category->sub_category . ' funds', 'description' => $category->asset_class . ' · ' . $category->risk_level . ' risk · ' . number_format($category->scheme_count) . ' schemes']);
+    }
+
+    private function screener(Request $request, array $filters, array $meta)
+    {
+        $this->ensureData();
+        $funds = app(FundQuery::class)->build($filters)->with('fundHouse:id,name,short_name,color,slug')->paginate(25)->withQueryString();
+        $facets = Cache::remember('trading:fund-facets', 3600, fn () => [
+            'categories' => MfCategory::orderBy('sort_order')->orderByDesc('scheme_count')->get(['id', 'asset_class', 'sub_category', 'scheme_count'])->groupBy('asset_class'),
+            'amcs' => MfAmc::orderBy('short_name')->get(['id', 'name', 'short_name', 'scheme_count']),
+            'collections' => MfCollection::where('is_active', true)->orderBy('sort_order')->get(['slug', 'title']),
+        ]);
+        return view('trading.funds', ['funds' => $funds, 'filters' => $filters, 'facets' => $facets, 'meta' => $meta, 'risks' => FundCatalogue::RISK_LEVELS]);
     }
 
     public function fund(Request $request, MfScheme $scheme, FundRecommender $recommender, MarketCalendar $calendar, FeeCalculator $fees)
@@ -50,12 +79,15 @@ class TradingController extends Controller
         $client = $request->user() ? TradingClient::where('user_id', $request->user()->id)->first() : null;
         $holding = $client ? MfHolding::where('trading_client_id', $client->id)->where('scheme_code', $scheme->scheme_code)->first() : null;
         $owned = $client ? MfHolding::where('trading_client_id', $client->id)->where('units', '>', 0)->pluck('scheme_code')->all() : [];
-        $history = DB::table('mf_nav_history')->where('scheme_code', $scheme->scheme_code)->orderBy('nav_date')->get(['nav_date', 'nav']);
         $now = $calendar->now();
+        $scheme->load('fundHouse', 'categoryRow');
         return view('trading.fund', [
-            'scheme' => $scheme, 'client' => $client, 'holding' => $holding, 'history' => $history,
+            'scheme' => $scheme, 'client' => $client, 'holding' => $holding,
+            'history' => DB::table('mf_nav_history')->where('scheme_code', $scheme->scheme_code)->orderBy('nav_date')->get(['nav_date', 'nav']),
             'recommended' => $recommender->for($scheme, 6, $owned),
             'variants' => MfScheme::where('is_active', true)->where('amc', $scheme->amc)->where('name', $scheme->name)->where('scheme_code', '!=', $scheme->scheme_code)->get(['scheme_code', 'plan', 'option', 'nav']),
+            'peers' => MfScheme::where('is_active', true)->where('sub_category', $scheme->sub_category)->where('plan', $scheme->plan)->where('option', $scheme->option)->whereNotNull('return_3y')
+                ->selectRaw('count(*) n, avg(return_1y) r1, avg(return_3y) r3, avg(return_5y) r5')->first(),
             'marketClosed' => $calendar->closedReason($now), 'navDate' => $calendar->applicableNavDate($scheme), 'sampleFees' => $fees->quote('buy', 10000),
         ]);
     }
@@ -68,13 +100,12 @@ class TradingController extends Controller
     public function orders(Request $request)
     {
         $client = TradingClient::where('user_id', $request->user()->id)->first();
-        $orders = MfOrder::with('scheme:scheme_code,name,plan,option')->where('user_id', $request->user()->id)
+        $orders = MfOrder::with('scheme:scheme_code,name,plan,option,amc')->where('user_id', $request->user()->id)
             ->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))->latest('id')->paginate(20)->withQueryString();
-        $holdings = $client ? MfHolding::with('scheme:scheme_code,name,plan,option,nav,nav_date,amc,category')->where('trading_client_id', $client->id)->where('units', '>', 0)->get() : collect();
+        $holdings = $client ? MfHolding::with('scheme:scheme_code,name,plan,option,nav,nav_date,amc,category,sub_category')->where('trading_client_id', $client->id)->where('units', '>', 0)->get() : collect();
         return view('trading.orders', compact('client', 'orders', 'holdings'));
     }
 
-    /** The investor's own orders as Excel or PDF. */
     public function exportMine(Request $request, string $format, OrderExporter $exporter, TradingAudit $audit)
     {
         abort_unless(in_array($format, ['xlsx', 'pdf'], true), 404);
@@ -89,9 +120,12 @@ class TradingController extends Controller
             : $exporter->pdf($rows, 'My orders · ' . $request->user()->name)->download($name . '.pdf');
     }
 
-    /** Boolean full-text query requiring every word (prefix match): "hdfc flexi" → "+hdfc* +flexi*". */
-    private static function words(string $q): string
+    /** First visit after a deployment with an empty catalogue: load the market data in the background (once an hour at most). */
+    private function ensureData(): void
     {
-        return collect(preg_split('/[^\pL\pN]+/u', mb_strtolower($q)))->filter(fn ($w) => mb_strlen($w) >= 2)->map(fn ($w) => '+' . $w . '*')->implode(' ');
+        if (MfScheme::query()->exists() && MfCollection::query()->exists()) return;
+        if (!Cache::add('trading:bootstrap-queued', true, now()->addHour())) return;
+        RunMaintenanceStep::markQueued('trading', 'Do Trading market data');
+        RunMaintenanceStep::dispatch('trading', 'Do Trading market data', 'trading:sync', []);
     }
 }

@@ -28,9 +28,9 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->withoutOverlapping(15);
         // Do Trading: holidays, NAVs and margins after AMFI publishes (late evening), allotment, returns weekly, end-of-day export.
-        $schedule->command('trading:sync --holidays --navs --margins --allot')->dailyAt('22:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
+        $schedule->command('trading:sync --holidays --navs --margins --instruments --catalogue --allot')->dailyAt('22:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
         $schedule->command('trading:sync --navs --allot')->dailyAt('08:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
-        $schedule->command('trading:sync --returns')->weeklyOn(0, '06:00')->timezone('Asia/Kolkata')->withoutOverlapping(60);
+        $schedule->command('trading:sync --returns --catalogue')->weeklyOn(0, '06:00')->timezone('Asia/Kolkata')->withoutOverlapping(60);
         $schedule->command('trading:eod-export')->weekdays()->at('23:45')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // NSE-listed companies: audited results, shareholding and prices weekly (only companies not synced in a week); prices daily.
         $schedule->command('insights:import-nse')->weeklyOn(6, '21:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);

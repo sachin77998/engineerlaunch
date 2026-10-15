@@ -77,8 +77,11 @@
         <summary>Do Trading</summary>
         <div class="header-menu">
           <a href="{{ route('trading.index') }}">Mutual funds</a>
-          <a href="{{ route('trading.calculators') }}">Calculators: returns, SIP, EMI, loan, margin</a>
-          <a href="{{ route('trading.orders') }}">My orders &amp; holdings</a>
+          <a href="{{ route('trading.stocks') }}">Stocks</a>
+          <a href="{{ route('trading.etfs') }}">ETFs</a>
+          <a href="{{ route('trading.calculators') }}">Calculators: SIP, lumpsum, EMI, margin</a>
+          <a href="{{ route('trading.loans') }}">Loans &amp; amortization</a>
+          <a href="{{ route('trading.orders') }}">Orders &amp; holdings</a>
           <a href="{{ route('trading.onboarding') }}">Account opening (KYC)</a>
           @if($user?->isOwner())<a href="{{ route('trading.admin.dashboard') }}">Trading back office</a>@endif
         </div>

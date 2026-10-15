@@ -30,7 +30,7 @@ class OrderExporter
     }
 
     /** Writes an .xlsx file and returns its path. */
-    public function xlsx(array $rows, string $title = 'Orders'): string
+    public function xlsx(array $rows, string $title = 'Orders', ?array $columns = null): string
     {
         if (!class_exists(ZipArchive::class)) throw new RuntimeException('The zip extension is required for Excel export.');
         $path = tempnam(sys_get_temp_dir(), 'xlsx');
@@ -39,7 +39,8 @@ class OrderExporter
         $esc = fn ($v) => htmlspecialchars((string) $v, ENT_XML1 | ENT_QUOTES, 'UTF-8');
         $col = function (int $i) { $s = ''; for ($i++; $i > 0; $i = intdiv($i - 1, 26)) $s = chr(65 + ($i - 1) % 26) . $s; return $s; };
         $sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetData>';
-        $all = array_merge([array_values(self::COLUMNS)], array_map('array_values', $rows));
+        $columns ??= self::COLUMNS;
+        $all = array_merge([array_values($columns)], array_map('array_values', $rows));
         foreach ($all as $r => $row) {
             $sheet .= '<row r="' . ($r + 1) . '">';
             foreach (array_values($row) as $c => $value) {
@@ -51,7 +52,7 @@ class OrderExporter
             }
             $sheet .= '</row>';
         }
-        $sheet .= '</sheetData><autoFilter ref="A1:' . $col(count(self::COLUMNS) - 1) . max(1, count($all)) . '"/></worksheet>';
+        $sheet .= '</sheetData><autoFilter ref="A1:' . $col(count($columns) - 1) . max(1, count($all)) . '"/></worksheet>';
         $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>');
         $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
         $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="' . $esc(mb_substr($title, 0, 31)) . '" sheetId="1" r:id="rId1"/></sheets></workbook>');

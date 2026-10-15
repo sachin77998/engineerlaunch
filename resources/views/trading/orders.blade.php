@@ -4,6 +4,7 @@
 @section('content')
 @include('trading.partials.hero', ['title' => 'My orders & holdings', 'subtitle' => $client ? 'Client ' . $client->client_code . ' · ' . ucfirst($client->status) : 'Open an account to start investing.'])
 <main class="dt-wrap dt-main">
+    <div class="dt-chips"><a class="dt-chip on" href="{{ route('trading.orders') }}">Mutual funds</a><a class="dt-chip" href="{{ route('trading.stock-orders') }}">Stocks &amp; ETFs</a></div>
     @if(request('placed'))<p class="dt-flash ok">Order {{ request('placed') }} confirmed. Units are allotted at the NAV of the applicable date, usually by the next business day.</p>@endif
     @php
         $value = $holdings->sum(fn ($h) => $h->units * ($h->scheme->nav ?? 0));

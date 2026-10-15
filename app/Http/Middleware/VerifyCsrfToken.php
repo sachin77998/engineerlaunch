@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // Zerodha order postbacks (verified by checksum in MarketController::postback).
+        'trading/broker/kite/postback',
     ];
 }

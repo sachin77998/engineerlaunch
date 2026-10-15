@@ -121,6 +121,13 @@ return [
         'otp_template' => env('MSG91_OTP_TEMPLATE_ID'),
     ],
 
+    // Zerodha Kite Connect: each investor logs in with their own Zerodha account. Set the redirect URL in the Kite
+    // developer console to {APP_URL}/trading/broker/kite/callback and the postback URL to {APP_URL}/trading/broker/kite/postback.
+    'kite' => [
+        'api_key' => env('KITE_API_KEY'),
+        'api_secret' => env('KITE_API_SECRET'),
+    ],
+
     // Groww Trade API (the owner's own account): read-only market data. Key and secret live only in .env.
     'groww' => [
         'base_url' => env('GROWW_BASE_URL', 'https://api.groww.in'),

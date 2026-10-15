@@ -1,0 +1,1 @@
+<span class="dt-logo {{ $size ?? '' }}" style="background:{{ $color ?? \App\Services\Trading\FundCatalogue::color($name) }}" aria-hidden="true">{{ \App\Services\Trading\FundCatalogue::initials($name) }}</span>

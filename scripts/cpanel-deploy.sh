@@ -58,6 +58,10 @@ run technologies:sync --skip-discovery
 run discovery:bootstrap
 run recommendations:build-skill-graph
 run jobs:role-counts
+# Market data for Do Trading (funds, ETFs, stocks, holidays, margins) and the company registers (queued).
+run trading:sync
+run insights:import-nse
+run insights:import-mca
 run optimize:clear
 
 echo "" >> "$LOG"

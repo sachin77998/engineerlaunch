@@ -46,6 +46,32 @@ Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController
 // Do Trading: mutual funds (AMFI data), calculators, onboarding/KYC, orders. API endpoints answer JSON.
 Route::prefix('trading')->name('trading.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Trading\TradingController::class, 'index'])->name('index');
+    Route::get('/mutual-funds', [\App\Http\Controllers\Trading\TradingController::class, 'funds'])->name('funds');
+    Route::get('/mutual-funds/collections/{collection}', [\App\Http\Controllers\Trading\TradingController::class, 'collection'])->name('collection');
+    Route::get('/mutual-funds/fund-house/{amc}', [\App\Http\Controllers\Trading\TradingController::class, 'amc'])->name('amc');
+    Route::get('/mutual-funds/category/{category:slug}', [\App\Http\Controllers\Trading\TradingController::class, 'category'])->name('category');
+    Route::get('/stocks', [\App\Http\Controllers\Trading\MarketController::class, 'stocks'])->name('stocks');
+    Route::get('/etfs', [\App\Http\Controllers\Trading\MarketController::class, 'etfs'])->name('etfs');
+    Route::get('/markets/search', [\App\Http\Controllers\Trading\MarketController::class, 'search'])->middleware('throttle:trading-read')->name('markets.search');
+    Route::get('/markets/charges', [\App\Http\Controllers\Trading\MarketController::class, 'charges'])->middleware('throttle:trading-read')->name('markets.charges');
+    Route::get('/markets/{exchange}/{symbol}', [\App\Http\Controllers\Trading\MarketController::class, 'instrument'])->where(['exchange' => 'NSE|BSE|nse|bse', 'symbol' => '[A-Za-z0-9&_.-]+'])->name('instrument');
+    Route::post('/broker/kite/postback', [\App\Http\Controllers\Trading\MarketController::class, 'postback'])->middleware('throttle:trading-read')->name('broker.postback');
+    Route::middleware('auth')->group(function () {
+        Route::get('/broker/kite/connect', [\App\Http\Controllers\Trading\MarketController::class, 'connect'])->name('broker.connect');
+        Route::get('/broker/kite/callback', [\App\Http\Controllers\Trading\MarketController::class, 'callback'])->name('broker.callback');
+        Route::post('/broker/kite/disconnect', [\App\Http\Controllers\Trading\MarketController::class, 'disconnect'])->name('broker.disconnect');
+        Route::get('/broker/kite/ticker', [\App\Http\Controllers\Trading\MarketController::class, 'ticker'])->middleware('throttle:trading-read')->name('broker.ticker');
+        Route::post('/markets/{exchange}/{symbol}/orders', [\App\Http\Controllers\Trading\MarketController::class, 'place'])->where(['exchange' => 'NSE|BSE|nse|bse', 'symbol' => '[A-Za-z0-9&_.-]+'])->middleware('throttle:trading-order')->name('stock-orders.place');
+        Route::get('/stock-orders', [\App\Http\Controllers\Trading\MarketController::class, 'stockOrders'])->name('stock-orders');
+        Route::get('/stock-orders/{order}', [\App\Http\Controllers\Trading\MarketController::class, 'showOrder'])->middleware('throttle:trading-read')->name('stock-orders.show');
+        Route::post('/stock-orders/{order}/cancel', [\App\Http\Controllers\Trading\MarketController::class, 'cancelOrder'])->middleware('throttle:trading-otp')->name('stock-orders.cancel');
+        Route::get('/loans', [\App\Http\Controllers\Trading\LoanController::class, 'index'])->name('loans');
+        Route::post('/loans/preview', [\App\Http\Controllers\Trading\LoanController::class, 'preview'])->middleware('throttle:trading-read')->name('loans.preview');
+        Route::post('/loans', [\App\Http\Controllers\Trading\LoanController::class, 'store'])->middleware('throttle:trading-kyc')->name('loans.store');
+        Route::get('/loans/{loan}', [\App\Http\Controllers\Trading\LoanController::class, 'show'])->name('loans.show');
+        Route::delete('/loans/{loan}', [\App\Http\Controllers\Trading\LoanController::class, 'destroy'])->name('loans.destroy');
+        Route::get('/loans/{loan}/export/{format}', [\App\Http\Controllers\Trading\LoanController::class, 'export'])->middleware('throttle:trading-export')->name('loans.export');
+    });
     Route::get('/funds/{scheme}', [\App\Http\Controllers\Trading\TradingController::class, 'fund'])->whereNumber('scheme')->name('fund');
     Route::get('/calculators', [\App\Http\Controllers\Trading\TradingController::class, 'calculators'])->name('calculators');
     Route::middleware('throttle:trading-read')->prefix('api')->name('api.')->group(function () {
