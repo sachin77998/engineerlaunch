@@ -115,6 +115,19 @@ return [
         'company_resources' => array_filter(explode(',', env('DATAGOV_COMPANY_RESOURCES', 'ec58dab7-d891-4abb-936e-d5d274a6ce9b'))),
     ],
 
+    // SMS OTP for mobile verification (MSG91 OTP API: auth key and a DLT-approved OTP template).
+    'msg91' => [
+        'key' => env('MSG91_AUTH_KEY'),
+        'otp_template' => env('MSG91_OTP_TEMPLATE_ID'),
+    ],
+
+    // Groww Trade API (the owner's own account): read-only market data. Key and secret live only in .env.
+    'groww' => [
+        'base_url' => env('GROWW_BASE_URL', 'https://api.groww.in'),
+        'api_key' => env('GROWW_API_KEY'),
+        'api_secret' => env('GROWW_API_SECRET'),
+    ],
+
     // Gold and silver spot prices (free key at goldapi.io).
     'goldapi' => ['key' => env('GOLDAPI_KEY')],
 

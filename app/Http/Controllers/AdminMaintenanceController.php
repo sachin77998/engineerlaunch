@@ -33,6 +33,7 @@ class AdminMaintenanceController extends Controller
         'news' => ['Refresh Latest Intelligence news (all topics; queued, also runs every 6 hours)', 'news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
         'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
+        'trading' => ['Do Trading: mutual fund NAVs and returns (AMFI), NSE holidays and margins, allot orders', 'trading:sync', []],
         'nse-listed' => ['Import every NSE-listed company: CIN, audited results since FY 2016-17, shareholding, share price (queued, several hours)', 'insights:import-nse', []],
         'mca-register' => ['Import the MCA company register, all states (data.gov.in, ~40 lakh companies; needs DATAGOV_API_KEY; runs for several hours)', 'insights:import-mca', []],
         'status' => ['Show migration status', 'migrate:status', []],
@@ -67,6 +68,10 @@ class AdminMaintenanceController extends Controller
             'Refresh every language, framework and tool with live job counts' => ['technologies:sync', ['--skip-discovery' => true]],
             'Rebuild skill graph for recommendations' => ['recommendations:build-skill-graph', []],
             'Refresh learning pages' => ['view:clear', []],
+        ]],
+        'trading' => ['Do Trading', [
+            'Mutual fund NAVs, NSE holidays and margins; allot orders' => ['trading:sync', ['--holidays' => true, '--navs' => true, '--margins' => true, '--allot' => true]],
+            'Fund returns (1, 3 and 5 years)' => ['trading:sync', ['--returns' => true]],
         ]],
         'market' => ['Market data', [
             'Gold and silver prices (needs GOLDAPI_KEY)' => ['market:data', ['action' => 'fetch-metals']],

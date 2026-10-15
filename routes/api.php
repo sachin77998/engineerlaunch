@@ -135,3 +135,15 @@ Route::prefix('ai')->middleware('throttle:60,1')->group(function () {
         ->whereNumber('conversationId')
         ->name('api.ai.conversations.close');
 });
+
+// Do Trading API for token clients (Sanctum): the same endpoints as /trading/api.
+Route::middleware('auth:sanctum')->prefix('trading')->name('api.trading.')->group(function () {
+    Route::get('/fees', [\App\Http\Controllers\Trading\TradingApiController::class, 'fees'])->middleware('throttle:trading-read')->name('fees');
+    Route::get('/market', [\App\Http\Controllers\Trading\TradingApiController::class, 'market'])->middleware('throttle:trading-read')->name('market');
+    Route::get('/orders', [\App\Http\Controllers\Trading\TradingApiController::class, 'index'])->middleware('throttle:trading-read')->name('orders.index');
+    Route::post('/orders', [\App\Http\Controllers\Trading\TradingApiController::class, 'place'])->middleware('throttle:trading-order')->name('orders.place');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Trading\TradingApiController::class, 'show'])->middleware('throttle:trading-read')->name('orders.show');
+    Route::post('/orders/{order}/verify', [\App\Http\Controllers\Trading\TradingApiController::class, 'verify'])->middleware('throttle:trading-otp')->name('orders.verify');
+    Route::post('/orders/{order}/cancel', [\App\Http\Controllers\Trading\TradingApiController::class, 'cancel'])->middleware('throttle:trading-otp')->name('orders.cancel');
+    Route::patch('/orders/{order}/status', [\App\Http\Controllers\Trading\TradingApiController::class, 'updateStatus'])->middleware('throttle:trading-read')->name('orders.status');
+});

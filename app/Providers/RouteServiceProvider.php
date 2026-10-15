@@ -50,6 +50,11 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Do Trading: each kind of request has its own counter, so fee previews never use up the order or export allowance.
+        foreach (['trading-read' => 180, 'trading-order' => 20, 'trading-otp' => 15, 'trading-kyc' => 40, 'trading-export' => 10] as $name => $perMinute) {
+            RateLimiter::for($name, fn (Request $request) => Limit::perMinute($perMinute)->by($name . ':' . ($request->user()?->id ?: $request->ip())));
+        }
+
         RateLimiter::for('discovery', function (Request $request) {
             return [
                 Limit::perMinute(60)->by('discovery:'.$request->ip()),

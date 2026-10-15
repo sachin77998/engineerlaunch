@@ -73,6 +73,16 @@
     <a class="header-insights-btn {{ request()->routeIs('insights.*') ? 'is-active' : '' }}" href="{{ route('insights.index') }}">Insights into Company</a>
     <button class="header-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <details class="header-group header-primary {{ request()->routeIs('trading.*') ? 'is-active' : '' }}">
+        <summary>Do Trading</summary>
+        <div class="header-menu">
+          <a href="{{ route('trading.index') }}">Mutual funds</a>
+          <a href="{{ route('trading.calculators') }}">Calculators: returns, SIP, EMI, loan, margin</a>
+          <a href="{{ route('trading.orders') }}">My orders &amp; holdings</a>
+          <a href="{{ route('trading.onboarding') }}">Account opening (KYC)</a>
+          @if($user?->isOwner())<a href="{{ route('trading.admin.dashboard') }}">Trading back office</a>@endif
+        </div>
+      </details>
       @foreach(array_slice($menus, 0, 2, true) as $label => [$activeRoutes, $links])
         <details class="header-group header-primary {{ request()->routeIs(...$activeRoutes) ? 'is-active' : '' }}">
           <summary>{{ $label }}</summary>

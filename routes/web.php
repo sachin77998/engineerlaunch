@@ -43,6 +43,53 @@ Route::get('/companies/dlf-cyber-city', [CompanyDiscoveryController::class, 'cyb
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
 // Insights into Company: registry, financials and ratios from MCA filings.
 Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController::class, 'index'])->name('insights.index');
+// Do Trading: mutual funds (AMFI data), calculators, onboarding/KYC, orders. API endpoints answer JSON.
+Route::prefix('trading')->name('trading.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Trading\TradingController::class, 'index'])->name('index');
+    Route::get('/funds/{scheme}', [\App\Http\Controllers\Trading\TradingController::class, 'fund'])->whereNumber('scheme')->name('fund');
+    Route::get('/calculators', [\App\Http\Controllers\Trading\TradingController::class, 'calculators'])->name('calculators');
+    Route::middleware('throttle:trading-read')->prefix('api')->name('api.')->group(function () {
+        Route::get('/fees', [\App\Http\Controllers\Trading\TradingApiController::class, 'fees'])->name('fees');
+        Route::get('/funds', [\App\Http\Controllers\Trading\TradingApiController::class, 'funds'])->name('funds');
+        Route::get('/funds/{scheme}/recommendations', [\App\Http\Controllers\Trading\TradingApiController::class, 'recommendations'])->whereNumber('scheme')->name('recommendations');
+        Route::post('/calculators/{type}', [\App\Http\Controllers\Trading\TradingApiController::class, 'calculate'])->name('calculate');
+        Route::get('/market', [\App\Http\Controllers\Trading\TradingApiController::class, 'market'])->name('market');
+    });
+    Route::middleware('auth')->group(function () {
+        Route::get('/orders', [\App\Http\Controllers\Trading\TradingController::class, 'orders'])->name('orders');
+        Route::get('/orders/export/{format}', [\App\Http\Controllers\Trading\TradingController::class, 'exportMine'])->middleware('throttle:trading-export')->name('orders.export');
+        Route::get('/onboarding', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'show'])->name('onboarding');
+        Route::post('/onboarding/step/{step}', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'save'])->whereNumber('step')->middleware('throttle:trading-kyc')->name('onboarding.save');
+        Route::post('/onboarding/minor-to-major', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'minorToMajor'])->middleware('throttle:trading-kyc')->name('onboarding.minor-major');
+        Route::get('/onboarding/document/{document}', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'document'])->name('onboarding.document');
+        Route::get('/onboarding/pincode', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'pincode'])->middleware('throttle:trading-kyc')->name('onboarding.pincode');
+        Route::get('/onboarding/ifsc', [\App\Http\Controllers\Trading\TradingOnboardingController::class, 'ifsc'])->middleware('throttle:trading-kyc')->name('onboarding.ifsc');
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/orders', [\App\Http\Controllers\Trading\TradingApiController::class, 'index'])->middleware('throttle:trading-read')->name('orders.index');
+            Route::post('/orders', [\App\Http\Controllers\Trading\TradingApiController::class, 'place'])->middleware('throttle:trading-order')->name('orders.place');
+            Route::get('/orders/{order}', [\App\Http\Controllers\Trading\TradingApiController::class, 'show'])->middleware('throttle:trading-read')->name('orders.show');
+            Route::post('/orders/{order}/verify', [\App\Http\Controllers\Trading\TradingApiController::class, 'verify'])->middleware('throttle:trading-otp')->name('orders.verify');
+            Route::post('/orders/{order}/cancel', [\App\Http\Controllers\Trading\TradingApiController::class, 'cancel'])->middleware('throttle:trading-otp')->name('orders.cancel');
+            Route::patch('/orders/{order}/status', [\App\Http\Controllers\Trading\TradingApiController::class, 'updateStatus'])->middleware('throttle:trading-read')->name('orders.status');
+        });
+    });
+    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Trading\TradingAdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/clients/{client}', [\App\Http\Controllers\Trading\TradingAdminController::class, 'client'])->name('client');
+        Route::post('/clients/{client}/check', [\App\Http\Controllers\Trading\TradingAdminController::class, 'verifyCheck'])->name('client.check');
+        Route::post('/clients/{client}/decide', [\App\Http\Controllers\Trading\TradingAdminController::class, 'decide'])->name('client.decide');
+        Route::post('/documents/{document}', [\App\Http\Controllers\Trading\TradingAdminController::class, 'reviewDocument'])->name('document');
+        Route::post('/minor-major/{minorMajor}', [\App\Http\Controllers\Trading\TradingAdminController::class, 'minorMajor'])->name('minor-major');
+        Route::get('/orders', [\App\Http\Controllers\Trading\TradingAdminController::class, 'orders'])->name('orders');
+        Route::post('/orders/{order}', [\App\Http\Controllers\Trading\TradingAdminController::class, 'updateOrder'])->name('order');
+        Route::get('/orders/export/{format}', [\App\Http\Controllers\Trading\TradingAdminController::class, 'export'])->name('orders.export');
+        Route::get('/settings', [\App\Http\Controllers\Trading\TradingAdminController::class, 'settings'])->name('settings');
+        Route::post('/settings', [\App\Http\Controllers\Trading\TradingAdminController::class, 'saveSettings'])->name('settings.save');
+        Route::post('/holidays', [\App\Http\Controllers\Trading\TradingAdminController::class, 'addHoliday'])->name('holidays.add');
+        Route::post('/sync', [\App\Http\Controllers\Trading\TradingAdminController::class, 'syncMarket'])->name('sync');
+        Route::get('/audit', [\App\Http\Controllers\Trading\TradingAdminController::class, 'audit'])->name('audit');
+    });
+});
 Route::get('/company-insights/cin/{cin}', [\App\Http\Controllers\CompanyInsightsController::class, 'byCin'])->where('cin', '[A-Za-z0-9]{21}')->name('insights.cin');
 Route::get('/company-insights/{company:slug}', [\App\Http\Controllers\CompanyInsightsController::class, 'show'])->name('insights.show');
 Route::middleware(['auth', 'admin'])->group(function () {
