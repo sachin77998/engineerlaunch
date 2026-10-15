@@ -308,8 +308,19 @@ class CompanyInsights
         if ($value === null) return '—';
         $abs = abs((float) $value);
         $sign = $value < 0 ? '−' : '';
-        if ($abs >= 1e7) return $sign . '₹' . number_format($abs / 1e7, 2) . ' Cr';
-        if ($abs >= 1e5) return $sign . '₹' . number_format($abs / 1e5, 2) . ' L';
-        return $sign . '₹' . number_format($abs, 0);
+        // Indian grouping; fewer decimals as amounts grow (₹5,24,105 Cr, ₹562 Cr, ₹15.3 Cr, ₹2.45 Cr).
+        $fmt = fn (float $n) => self::indian($n, $n >= 1000 ? 0 : ($n >= 100 ? 0 : ($n >= 10 ? 1 : 2)));
+        if ($abs >= 1e7) return $sign . '₹' . $fmt($abs / 1e7) . ' Cr';
+        if ($abs >= 1e5) return $sign . '₹' . $fmt($abs / 1e5) . ' L';
+        return $sign . '₹' . self::indian($abs, 0);
+    }
+
+    /** Number with Indian digit grouping: 1234567.8 → 12,34,567.8. */
+    public static function indian(float $n, int $decimals = 0): string
+    {
+        $parts = explode('.', number_format($n, $decimals, '.', ''));
+        $int = $parts[0];
+        if (strlen($int) > 3) $int = preg_replace('/\B(?=(\d{2})+(?!\d))/', ',', substr($int, 0, -3)) . ',' . substr($int, -3);
+        return $int . (isset($parts[1]) ? '.' . $parts[1] : '');
     }
 }

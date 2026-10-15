@@ -33,6 +33,7 @@ class AdminMaintenanceController extends Controller
         'news' => ['Refresh Latest Intelligence news (all topics; queued, also runs every 6 hours)', 'news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
         'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
+        'nse-listed' => ['Import every NSE-listed company: CIN, audited results since FY 2016-17, shareholding, share price (queued, several hours)', 'insights:import-nse', []],
         'mca-register' => ['Import the MCA company register, all states (data.gov.in, ~40 lakh companies; needs DATAGOV_API_KEY; runs for several hours)', 'insights:import-mca', []],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
@@ -54,6 +55,7 @@ class AdminMaintenanceController extends Controller
             'Import sector catalog' => ['companies:import-catalog', []],
             'Re-sort unclassified companies into sectors' => ['companies:reclassify', []],
             'Rebuild Companies by Sector cards' => ['sectors:warm', []],
+            'Listed companies: NSE results, shareholding and prices (companies not synced this week)' => ['insights:import-nse', []],
         ]],
         'news' => ['Latest in Tech', [
             'Fetch news sources' => ['news:fetch', []],

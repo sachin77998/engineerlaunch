@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:work database --queue=registry --stop-when-empty --max-time=280 --tries=3 --timeout=600')
             ->everyMinute()
             ->withoutOverlapping(15);
+        // NSE-listed companies: audited results, shareholding and prices weekly (only companies not synced in a week); prices daily.
+        $schedule->command('insights:import-nse')->weeklyOn(6, '21:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        $schedule->command('insights:import-nse --prices')->weekdays()->at('19:30')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // Re-reads the register monthly for new incorporations and status changes.
         $schedule->command('insights:import-mca')->monthlyOn(5, '00:30')->withoutOverlapping(60);
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
