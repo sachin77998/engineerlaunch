@@ -39,7 +39,7 @@
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
 
     <nav class="ci-tabs">
-        <a href="#summary">Summary</a><a href="#overview">Overview</a><a href="#health">Health score</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
+        <a href="#summary">Summary</a><a href="#overview">Overview</a><a href="#health">Health score</a><a href="#vendor-checks">Vendor checks</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
         <a href="#people">Directors</a><a href="#ownership">Ownership</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
         <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
@@ -124,47 +124,7 @@
                 <div class="ci-metric"><span>Debt / equity</span><b>{{ $x($latest['debt_to_equity']) }}</b></div>
                 <div class="ci-metric"><span>EPS · P/E</span><b>{{ $latest['eps'] !== null ? '₹' . number_format($latest['eps'], 2) : '—' }} · {{ $latest['pe'] !== null ? number_format($latest['pe'], 1) : '—' }}</b><small>{{ $latest['pe'] === null ? 'P/E needs a share price (listed only)' : 'At the recorded price' }}</small></div>
             </div>
-            @php $margins = $ratios->filter(fn ($r) => $r['ebitda_margin'] !== null || $r['net_margin'] !== null)->values(); @endphp
-            @if($margins->count() > 1)
-                @php
-                    $w = 640; $h = 170; $pad = 28;
-                    $top = max(5, ceil($margins->max(fn ($r) => max($r['ebitda_margin'] ?? 0, $r['net_margin'] ?? 0)) / 5) * 5);
-                    $bottom = min(0, floor($margins->min(fn ($r) => min($r['ebitda_margin'] ?? 0, $r['net_margin'] ?? 0)) / 5) * 5);
-                    $px = fn ($i) => $pad + $i * ($w - 2 * $pad) / max(1, $margins->count() - 1);
-                    $py = fn ($v) => $h - $pad - ($v - $bottom) / max(1, $top - $bottom) * ($h - 2 * $pad);
-                    $line = fn ($key) => $margins->map(fn ($r, $i) => $r[$key] === null ? null : round($px($i), 1) . ',' . round($py($r[$key]), 1))->filter()->implode(' ');
-                @endphp
-                <h3 style="margin:18px 0 4px;color:#0b2545;font-size:15px">Margin trends</h3>
-                <div class="ci-table-wrap" style="border:0">
-                    <svg viewBox="0 0 {{ $w }} {{ $h }}" style="width:100%;min-width:420px;height:auto" role="img" aria-label="EBITDA margin and net profit margin by year">
-                        @foreach([$bottom, ($top + $bottom) / 2, $top] as $tick)<line x1="{{ $pad }}" x2="{{ $w - $pad }}" y1="{{ $py($tick) }}" y2="{{ $py($tick) }}" stroke="#e5ecf4"/><text x="2" y="{{ $py($tick) + 4 }}" font-size="10" fill="#5b6b82">{{ $tick }}%</text>@endforeach
-                        <polyline points="{{ $line('ebitda_margin') }}" fill="none" stroke="#0b2545" stroke-width="2.5"/>
-                        <polyline points="{{ $line('net_margin') }}" fill="none" stroke="#16a34a" stroke-width="2.5"/>
-                        @foreach($margins as $i => $r)
-                            @if($r['ebitda_margin'] !== null)<circle cx="{{ $px($i) }}" cy="{{ $py($r['ebitda_margin']) }}" r="3.5" fill="#fff" stroke="#0b2545" stroke-width="2"><title>FY {{ $r['year'] }} EBITDA margin {{ $r['ebitda_margin'] }}%</title></circle>@endif
-                            @if($r['net_margin'] !== null)<circle cx="{{ $px($i) }}" cy="{{ $py($r['net_margin']) }}" r="3.5" fill="#fff" stroke="#16a34a" stroke-width="2"><title>FY {{ $r['year'] }} net margin {{ $r['net_margin'] }}%</title></circle>@endif
-                            <text x="{{ $px($i) }}" y="{{ $h - 6 }}" font-size="10" fill="#5b6b82" text-anchor="middle">{{ $r['year'] }}</text>
-                        @endforeach
-                    </svg>
-                </div>
-                <p class="ci-muted" style="font-size:12.5px;margin:2px 0 0"><span style="color:#0b2545">●</span> EBITDA margin &nbsp; <span style="color:#16a34a">●</span> Net profit margin</p>
-            @endif
-            @if($ratios->count() > 1)
-                @php $peak = max(1, $ratios->max(fn ($r) => max(abs($r['revenue'] ?? 0), abs($r['pat'] ?? 0)))); @endphp
-                <h3 style="margin:18px 0 4px;color:#0b2545;font-size:15px">Revenue and profit by year</h3>
-                <div class="ci-bars" role="img" aria-label="Revenue and profit after tax by financial year">
-                    @foreach($ratios as $r)
-                        <div class="ci-bar" title="FY {{ $r['year'] }}: revenue {{ $money($r['revenue']) }}, PAT {{ $money($r['pat']) }}">
-                            <div style="display:flex;gap:3px;align-items:flex-end;height:130px;width:100%;justify-content:center">
-                                <i style="height:{{ max(2, abs($r['revenue'] ?? 0) / $peak * 100) }}%"></i>
-                                <i class="pat {{ ($r['pat'] ?? 0) < 0 ? 'neg' : '' }}" style="height:{{ max(2, abs($r['pat'] ?? 0) / $peak * 100) }}%"></i>
-                            </div>
-                            <span>{{ $r['year'] }}</span>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="ci-muted" style="font-size:12.5px;margin:6px 0 0"><span style="color:#d99a00">■</span> Revenue &nbsp; <span style="color:#1d4ed8">■</span> Profit after tax (red = loss)</p>
-            @endif
+            @include('insights.partials.financial-charts')
         @else
             <div class="ci-metrics">
                 @foreach(['Revenue', 'EBITDA', 'Net profit', 'Net worth', 'Total assets', 'Total debt'] as $label)<div class="ci-metric"><span>{{ $label }}</span><b>—</b></div>@endforeach
@@ -193,6 +153,12 @@
             </div>
             <p class="ci-muted" style="font-size:12.5px">Due dates follow the Companies Act: AGM within six months of the year end, AOC-4 within 30 days and MGT-7 within 60 days of the AGM. A filing made but not yet uploaded here shows as pending.</p>
         </section>
+    @endif
+
+    @if($premium || $isOwner)
+        @include('insights.partials.vendor-assessment')
+    @else
+        <section class="ci-card" id="vendor-checks"><h2>Vendor checks &amp; payment capacity</h2><p>Sign in with access to company financials to review vendor evidence.</p></section>
     @endif
 
     @if($health && $premium)
@@ -296,11 +262,11 @@
         <section class="ci-card" id="people">
             <h2>Directors and key people</h2>
             @php
-                [$past, $current] = $company->officers->partition(fn ($o) => $o->ceased_on !== null);
+                $past = $dashboard['past']; $current = $dashboard['current'];
                 $tenure = fn ($o) => $o->appointed_on ? $o->appointed_on->diff($o->ceased_on ?? now())->format('%yy %mm') : '—';
             @endphp
             @if($company->officers->isNotEmpty())
-                <div class="ci-facts" style="margin-bottom:10px"><div><span>Current</span><b>{{ $current->count() }}</b></div><div><span>Past</span><b>{{ $past->count() }}</b></div></div>
+                <div class="ci-facts" style="margin-bottom:10px"><div><span>Current Directors</span><b>{{ $current->count() }}</b></div><div><span>Past Directors</span><b>{{ $past->count() }}</b></div><div><span>Average current director tenure</span><b>{{ $dashboard['average_tenure'] === null ? 'Unknown' : $dashboard['average_tenure'].' years' }}</b><small>{{ $dashboard['tenure_count'] }} known appointment dates</small></div></div>
                 <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Name</th><th>Designation</th><th>DIN / PAN</th><th>Shares held</th><th>Appointed</th><th>Tenure</th></tr></thead><tbody>
                     @foreach($current->sortByDesc('shares_held') as $officer)
                         <tr><td>{{ $officer->name }}</td><td>{{ $officer->designation }}</td><td>{{ $officer->din ?? $officer->pan ?? '—' }}</td><td>{{ $officer->shares_held !== null ? number_format($officer->shares_held) : '—' }}</td><td>{{ $officer->appointed_on?->format('d M Y') ?? '—' }}</td><td>{{ $tenure($officer) }}</td></tr>
@@ -318,26 +284,8 @@
         </section>
     </div>
 
-    @php $holdings = $company->shareholdings->groupBy('financial_year')->sortKeysDesc(); @endphp
-    @if($holdings->isNotEmpty() && $premium)
-        @php
-            $latestHoldings = $holdings->first();
-            $promoter = (float) ($latestHoldings->firstWhere('category', 'Promoters')?->percentage ?? 0);
-            $public = (float) ($latestHoldings->firstWhere('category', 'Public / other than promoters')?->percentage ?? max(0, 100 - $promoter));
-        @endphp
-        <section class="ci-card" id="ownership">
-            <h2>Control and ownership</h2>
-            <div class="ci-two">
-                <div>
-                    <div class="ci-facts"><div><span>Promoters</span><b>{{ rtrim(rtrim(number_format($promoter, 4), '0'), '.') }}%</b><small>FY {{ $holdings->keys()->first() }}</small></div><div><span>Public / others</span><b>{{ rtrim(rtrim(number_format($public, 4), '0'), '.') }}%</b><small>FY {{ $holdings->keys()->first() }}</small></div></div>
-                    <div class="ci-donut" style="margin-top:14px;background:conic-gradient(#0b2545 0 {{ $promoter * 3.6 }}deg,#f4b400 {{ $promoter * 3.6 }}deg 360deg)" role="img" aria-label="Promoters {{ $promoter }} percent, public {{ $public }} percent"></div>
-                    <p class="ci-muted" style="text-align:center;font-size:12.5px"><span style="color:#0b2545">●</span> Promoters &nbsp; <span style="color:#d99a00">●</span> Public / others</p>
-                </div>
-                <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Category</th><th>FY</th><th>Shares</th><th>%</th></tr></thead><tbody>
-                    @foreach($holdings as $fy => $rows)@foreach($rows as $row)<tr><td style="white-space:normal">{{ $row->category }}</td><td>{{ $fy }}</td><td>{{ $row->shares !== null ? number_format($row->shares) : '—' }}</td><td>{{ $row->percentage !== null ? rtrim(rtrim(number_format($row->percentage, 4), '0'), '.') . '%' : '—' }}</td></tr>@endforeach @endforeach
-                </tbody></table></div>
-            </div>
-        </section>
+    @if($premium)
+        @include('insights.partials.ownership-dashboard')
     @endif
 
     <div class="ci-two">

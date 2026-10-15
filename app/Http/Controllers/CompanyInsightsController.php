@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
 /** "Insights into Company": search by name, CIN, GSTIN or PAN; registry details, financials and ratios from MCA filings. */
 class CompanyInsightsController extends Controller
 {
-    public const FORMS = ['AOC-4', 'AOC-4 XBRL', 'AOC-4 CFS', 'MGT-7', 'MGT-7A'];
+    public const FORMS = ['AOC-4', 'AOC-4 XBRL', 'AOC-4 CFS', 'MGT-7', 'MGT-7A', 'RATING REPORT'];
     public const FIELDS = [
         'revenue' => 'Revenue from operations', 'other_income' => 'Other income', 'total_expenses' => 'Total expenses', 'employee_cost' => 'Employee cost',
         'finance_cost' => 'Finance cost', 'depreciation' => 'Depreciation', 'profit_before_tax' => 'Profit before tax', 'tax_expense' => 'Tax expense',
@@ -194,8 +194,9 @@ class CompanyInsightsController extends Controller
         return $slug;
     }
 
-    public function show(Company $company)
+    public function show(Company $company, Request $request)
     {
+        $vendorInputs = $request->validate(['vendor_revenue_change'=>'nullable|numeric|between:-100,100']);
         // Registry details and public figures are refreshed in the background, at most once a month.
         $enrichedAt = $company->registryDetail?->enriched_at;
         if (!$enrichedAt || $enrichedAt->lt(now()->subDays(30))) {
@@ -224,6 +225,8 @@ class CompanyInsightsController extends Controller
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
+            'dashboard' => app(\App\Services\Insights\InsightsDashboard::class)->build($company),
+            'vendorAssessment' => app(\App\Services\Insights\VendorAssessment::class)->assess($company, (float)($vendorInputs['vendor_revenue_change'] ?? -10)),
             'compliance' => $this->insights->compliance($company->registryDetail),
             'decoded' => $cin && preg_match(CompanyInsights::CIN, $cin) ? $this->insights->decodeCin($cin) : null,
             'ratios' => $this->insights->ratios($standalone->isNotEmpty() ? $standalone : $consolidated),

@@ -46,6 +46,17 @@ class FilingImporter
             return $filing;
         }
         $company = $filing->company;
+        if ($filing->form === 'RATING REPORT') {
+            $evidence = app(RatingReportParser::class)->parse($text, $company->name);
+            $filing->update(['parsed_fields'=>$evidence, 'status'=>'review', 'message'=>$evidence['subject_matches']
+                ? 'Report stored for review. Agency authenticity and current facility rating have not been verified.'
+                : 'Company heading does not match. Do not use this report for this vendor until identity is resolved.']);
+            return $filing->refresh();
+        }
+        if (preg_match('/(?:ICRA|CARE Ratings|careedge)/i', mb_substr($text, 0, 7000)) && preg_match('/(?:Summary of rating action|Rating Action)/i', mb_substr($text, 0, 7000))) {
+            $filing->update(['status'=>'review','message'=>'This looks like a rating-agency report. Upload it as RATING REPORT; no financial figures were imported.']);
+            return $filing->refresh();
+        }
         $isXbrl = XbrlParser::looksLikeXbrl($text);
         $isMgt7 = !$isXbrl && str_starts_with($filing->form, 'MGT');
         try {
@@ -71,6 +82,8 @@ class FilingImporter
         $warnings = [];
         if ($data['cin'] && ($known = $company->registryDetail?->cin ?? $company->registry_cin) && $known !== $data['cin']) {
             $warnings[] = "The filing is for CIN {$data['cin']}, but this company is recorded as {$known}.";
+            $filing->update(['parsed_fields'=>$data, 'status'=>'review', 'message'=>implode(' ', $warnings).' No company records were changed.']);
+            return $filing->refresh();
         }
         if (!$isMgt7 && !$years) $warnings[] = $data['financial_year'] ? 'No financial figures were recognised in this file.' : 'The financial year could not be read.';
 

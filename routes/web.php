@@ -232,3 +232,5 @@ Route::post('/admin/maintenance/run/{step}', [\App\Http\Controllers\AdminMainten
 Route::get('/admin/deploy-log', \App\Http\Controllers\AdminDeployLogController::class)->middleware(['auth','admin'])->name('admin.deploy-log');
 Route::get('/admin/job-sources', [\App\Http\Controllers\AdminJobSourcesController::class,'index'])->middleware(['auth','admin'])->name('admin.job-sources');
 Route::post('/admin/job-sources/refresh', [\App\Http\Controllers\AdminJobSourcesController::class,'refresh'])->middleware(['auth','admin','throttle:2,1,job-source-refresh:'])->name('admin.job-sources.refresh');
+
+require __DIR__.'/insights-vendors.php';
