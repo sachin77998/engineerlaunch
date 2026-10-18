@@ -113,6 +113,11 @@ class Company extends Model
     {
         return $this->hasOne(CompanyRegistryDetail::class);
     }
+    // Listings on US exchanges (a company may have several share classes, e.g. GOOGL and GOOG).
+    public function usListings(): HasMany
+    {
+        return $this->hasMany(UsListedCompany::class)->orderByDesc('market_cap');
+    }
     public function financialStatements(): HasMany
     {
         return $this->hasMany(CompanyFinancialStatement::class)->orderBy('financial_year');

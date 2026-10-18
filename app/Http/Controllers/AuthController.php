@@ -42,6 +42,25 @@ class AuthController extends Controller
         abort_unless(session('pending_registration'), 403);
         return view('auth.otp', ['email' => session('pending_registration.email'), 'devOtp' => $otpService->usesFixedCode() ? session('dev_otp') : null]);
     }
+    public function resendOtp(VerificationOtpService $otpService)
+    {
+        $email = session('pending_registration.email');
+        if (!$email) return redirect()->route('register');
+        $code = $otpService->generate();
+        DB::table('email_otps')->where('email', $email)->whereNull('used_at')->delete();
+        DB::table('email_otps')->insert(['email' => $email, 'code_hash' => Hash::make($code), 'expires_at' => now()->addMinutes(10), 'created_at' => now(), 'updated_at' => now()]);
+        if ($otpService->usesFixedCode()) {
+            session(['dev_otp' => $code]);
+            return redirect()->route('otp.form')->with('otp_resent', 'A new code is ready.');
+        }
+        try {
+            $otpService->sendEmail($email, $code, 'Verify your Ascendia account');
+        } catch (\Throwable $e) {
+            report($e);
+            return redirect()->route('otp.form')->withErrors(['resend' => 'We could not send a new code. Please try again shortly.']);
+        }
+        return redirect()->route('otp.form')->with('otp_resent', 'A new code has been sent to ' . $email . '.');
+    }
     public function verify(Request $r)
     {
         $r->validate(['code' => 'required|digits:6']);

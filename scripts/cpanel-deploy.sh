@@ -62,6 +62,8 @@ run jobs:role-counts
 run trading:sync
 run insights:import-nse
 run insights:import-mca
+run insights:import-us
+run sectors:file-listed
 run optimize:clear
 
 echo "" >> "$LOG"

@@ -30,7 +30,10 @@
         @csrf
         <div class="otp-icon" aria-hidden="true">✉</div>
         <h1>Please Verify Your Email Address</h1>
-        <p>Enter the six digit verification code sent on email address.</p>
+        <p>Enter the six digit verification code sent to {{ $email }}.</p>
+        @if (session('otp_resent'))
+            <div class="otp-alert" role="status">{{ session('otp_resent') }}</div>
+        @endif
 
         @if (session('mail_warning'))
             <div class="otp-alert" role="alert">
@@ -55,6 +58,9 @@
         @error('rate_limit')
             <div class="otp-error" role="alert">{{ $message }}</div>
         @enderror
+        @error('resend')
+            <div class="otp-error" role="alert">{{ $message }}</div>
+        @enderror
 
         <label for="code" class="otp-field-label">Verification Code</label>
         <input id="code" class="otp-input" name="code" inputmode="numeric"
@@ -64,7 +70,11 @@
         <button id="otp-submit" type="submit" class="btn btn-primary otp-submit">
             Verify and Continue
         </button>
+        <p style="margin-top:14px;text-align:center;font-size:13px">Didn't get the code? Check spam, or
+            <button type="submit" form="otp-resend" style="border:0;background:none;padding:0;color:#2865d9;font-weight:700;cursor:pointer">send a new code</button>
+        </p>
     </form>
+    <form id="otp-resend" method="POST" action="{{ route('otp.resend') }}" hidden>@csrf</form>
 </main>
 
 <script>

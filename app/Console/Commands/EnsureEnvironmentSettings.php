@@ -20,6 +20,10 @@ class EnsureEnvironmentSettings extends Command
         'JOOBLE_COUNTRY' => '"United States"',
         'DISCOVERY_RADIUS' => '4500',
         'APP_FORCE_HTTPS' => 'false',
+        // SEC EDGAR requires a contact in the User-Agent (US company financials in Insights).
+        'SEC_USER_AGENT' => '"Ascendia Insights sachinsoni77998@gmail.com"',
+        // Used when MAIL_MAILER=failover: the host's sendmail takes over if the SMTP relay refuses a message.
+        'MAIL_FAILOVER' => 'smtp,sendmail',
     ];
 
     // Values enforced on production regardless of what is currently set.

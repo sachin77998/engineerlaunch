@@ -73,10 +73,8 @@ return [
 
         'failover' => [
             'transport' => 'failover',
-            'mailers' => [
-                'smtp',
-                'log',
-            ],
+            // e.g. MAIL_FAILOVER=smtp,sendmail on cPanel: OTP mail goes out through the host when the SMTP relay refuses it.
+            'mailers' => array_values(array_filter(array_map('trim', explode(',', (string) env('MAIL_FAILOVER', 'smtp,log'))))),
         ],
     ],
 

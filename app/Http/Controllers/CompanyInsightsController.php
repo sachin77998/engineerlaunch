@@ -17,7 +17,7 @@ class CompanyInsightsController extends Controller
 {
     public const FORMS = ['AOC-4', 'AOC-4 XBRL', 'AOC-4 CFS', 'MGT-7', 'MGT-7A', 'RATING REPORT'];
     public const FIELDS = [
-        'revenue' => 'Revenue from operations', 'other_income' => 'Other income', 'total_expenses' => 'Total expenses', 'employee_cost' => 'Employee cost',
+        'revenue' => 'Revenue from operations', 'other_income' => 'Other income', 'total_expenses' => 'Total expenses', 'cost_of_materials_consumed' => 'Cost of materials consumed', 'purchases_of_stock_in_trade' => 'Purchases of stock-in-trade', 'other_expenses' => 'Other expenses', 'employee_cost' => 'Employee cost',
         'finance_cost' => 'Finance cost', 'depreciation' => 'Depreciation', 'profit_before_tax' => 'Profit before tax', 'tax_expense' => 'Tax expense',
         'profit_after_tax' => 'Profit after tax', 'share_capital' => 'Share capital', 'reserves' => 'Reserves / other equity', 'net_worth' => 'Net worth',
         'long_term_borrowings' => 'Long-term borrowings', 'short_term_borrowings' => 'Short-term borrowings', 'trade_payables' => 'Trade payables',
@@ -31,6 +31,11 @@ class CompanyInsightsController extends Controller
     public function index(Request $request, InstaFinancials $insta)
     {
         $query = trim((string) $request->query('q', ''));
+        // A US ticker typed in capitals (AAPL, BRK-B) opens that company's page.
+        if (preg_match('/^[A-Z]{1,5}(?:[.\-][A-Z])?$/', $query)
+            && ($slug = \App\Models\UsListedCompany::where('ticker', str_replace('.', '-', $query))->join('companies', 'companies.id', '=', 'us_listed_companies.company_id')->value('companies.slug'))) {
+            return redirect()->route('insights.show', $slug);
+        }
         $identified = $query !== '' ? $this->insights->identify($query) : null;
         $results = $query !== '' ? $this->insights->search($query) : collect();
         $mca = app(\App\Services\Insights\DataGovMca::class);
@@ -208,7 +213,7 @@ class CompanyInsightsController extends Controller
             && cache()->add('insights:register-fill:' . $company->id, 1, now()->addDay())) {
             try { app(\App\Services\Insights\DataGovMca::class)->companyFor($knownCin); $company->unsetRelation('registryDetail'); } catch (\Throwable $e) { report($e); }
         }
-        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors']);
+        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials']);
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
         $consolidated = $company->financialStatements->where('is_consolidated', true);
@@ -226,6 +231,7 @@ class CompanyInsightsController extends Controller
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
             'dashboard' => app(\App\Services\Insights\InsightsDashboard::class)->build($company),
+            'analytics' => app(\App\Services\Insights\CompanyAnalytics::class)->build($company),
             'vendorAssessment' => app(\App\Services\Insights\VendorAssessment::class)->assess($company, (float)($vendorInputs['vendor_revenue_change'] ?? -10)),
             'compliance' => $this->insights->compliance($company->registryDetail),
             'decoded' => $cin && preg_match(CompanyInsights::CIN, $cin) ? $this->insights->decodeCin($cin) : null,

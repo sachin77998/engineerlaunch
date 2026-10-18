@@ -101,7 +101,7 @@
                     </table>
                 </div>
                 @endif
-                <div style="margin-top:12px">{{ $directory->links() }}</div>
+                <div class="ci-pager" style="margin-top:14px">{{ $directory->links() }}</div>
             </div>
         </section>
     @endif

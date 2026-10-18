@@ -144,4 +144,10 @@ return [
         'country' => env('JOOBLE_COUNTRY', 'United States'),
     ],
 
+
+    // SEC EDGAR asks every client to identify itself with a contact email (fair-access policy).
+    'sec' => [
+        'user_agent' => env('SEC_USER_AGENT', 'Ascendia Insights sachinsoni77998@gmail.com'),
+    ],
+
 ];

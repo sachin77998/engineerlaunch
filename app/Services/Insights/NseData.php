@@ -117,6 +117,9 @@ class NseData
             'other_income' => $otherIncome,
             'total_income' => $income,
             'total_expenses' => $d('Expenses', 'TotalExpenses'),
+            'cost_of_materials_consumed' => $d('CostOfMaterialsConsumed'),
+            'purchases_of_stock_in_trade' => $d('PurchasesOfStockInTrade'),
+            'other_expenses' => $d('OtherExpenses'),
             'employee_cost' => $d('EmployeeBenefitExpense', 'EmployeesCost', 'EmployeesRemunerationAndWelfareExpenses'),
             'finance_cost' => $d('FinanceCosts', 'InterestExpended'),
             'depreciation' => $d('DepreciationDepletionAndAmortisationExpense', 'DepreciationAndAmortisationExpense'),
@@ -189,6 +192,11 @@ class NseData
     public function import(object $listed): int
     {
         $company = $this->companyFor($listed);
+        try {
+            $sectors = app(ListedSectors::class);
+            $cin = DB::table('listed_companies')->where('id', $listed->id)->value('cin') ?: $company->registryDetail?->cin;
+            if ($decision = $sectors->classify($listed->name, $sectors->industries()[$listed->symbol] ?? null, $cin)) $sectors->file($company, $decision);
+        } catch (Throwable $e) { report($e); }
         $years = 0;
         foreach ($this->annualFilings($listed->symbol) as $filing) {
             if ($filing['year_end']->year < 2017) continue;

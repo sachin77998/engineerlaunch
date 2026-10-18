@@ -1,6 +1,7 @@
 @extends('layouts.site')
 @section('title', $company->name . ' — company insights, financials and ratios')
 @push('styles')@include('insights.partials.styles')@endpush
+@push('scripts')@include('insights.partials.chart-boot')@endpush
 @section('content')
 @php
     $money = fn ($v) => \App\Services\Insights\CompanyInsights::money($v);
@@ -12,6 +13,9 @@
     $statements = $company->financialStatements->sortBy('financial_year')->groupBy('financial_year');
     $years = $statements->keys();
     $status = $detail?->company_status ?? $company->registry_status;
+    // Listed only in the US, with no Indian registration: Indian registry fields and MCA deadlines do not apply.
+    $usOnly = $company->usListings->isNotEmpty() && !$cin;
+    $listing = $company->usListings->first();
 @endphp
 <section class="ci-hero">
     <div class="ci-wrap">
@@ -39,7 +43,7 @@
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
 
     <nav class="ci-tabs">
-        <a href="#summary">Summary</a><a href="#overview">Overview</a><a href="#health">Health score</a><a href="#vendor-checks">Vendor checks</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
+        <a href="#summary">Summary</a>@if($company->usListings->isNotEmpty())<a href="#us-market">US market</a><a href="#us-financials">SEC results</a>@endif<a href="#overview">Overview</a><a href="#health">Health score</a><a href="#vendor-checks">Vendor checks</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
         <a href="#people">Directors</a><a href="#ownership">Ownership</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
         <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
@@ -62,6 +66,16 @@
     @endphp
     <section class="ci-card" id="summary">
         <h2>Company summary</h2>
+        @if($usOnly)
+            <div class="ci-facts">
+                @foreach(['Legal name' => $listing->name, 'Ticker' => $company->usListings->pluck('ticker')->implode(', '), 'Exchange' => $listing->exchange,
+                          'Country' => $listing->country ?: $company->country, 'SEC CIK' => $listing->cik ? str_pad((string) $listing->cik, 10, '0', STR_PAD_LEFT) : null,
+                          'Listed since' => $listing->ipo_year, 'Industry' => $listing->industry,
+                          'Sector' => collect([$company->industry, $company->sector])->filter()->unique()->implode(' · '), 'Website' => $company->website] as $label => $value)
+                    <div><span>{{ $label }}</span><b>{{ $dash($value) }}</b></div>
+                @endforeach
+            </div>
+        @else
         <h3 class="ci-h3">Entity details</h3>
         <div class="ci-facts">
             @foreach([
@@ -98,13 +112,19 @@
                 </div>
             </div>
         </div>
+        @endif
     </section>
     @if($providerStatus && $company->financialStatements->isEmpty())
         <p class="ci-flash warn">Owner: financial statements, charges and AGM dates for private companies come from their MCA filings through the data providers.
             @foreach($providerStatus as $provider => $s) {{ ucfirst($provider) }}: {{ $s ? ($s['ok'] ? 'last call worked (' . $s['at'] . ')' : $s['message'] . ' (' . $s['at'] . ')') : 'not called yet' }}.@endforeach
             When a provider has API calls available, every company page fetches its figures automatically.</p>
     @endif
-    @if($premium)
+    @if($company->usListings->isNotEmpty())
+        @include('insights.partials.us-market')
+    @endif
+    {{-- A US-listed company with no Indian (MCA) filings: the MCA overview would only say figures are being fetched. --}}
+    @if($company->usListings->isNotEmpty() && $company->financialStatements->isEmpty())
+    @elseif($premium)
     <section class="ci-card" id="overview">
         <h2>Key metrics{{ $latest ? ' · FY ' . $latest['year'] : '' }}</h2>
         @if($latest)
@@ -140,7 +160,7 @@
         @include('insights.partials.locked', ['id' => 'overview'])
     @endif
 
-    @if($compliance)
+    @if($compliance && !$usOnly)
         <section class="ci-card" id="compliance">
             <h2>Filing compliance</h2>
             <div class="ci-facts">
@@ -210,6 +230,8 @@
             <p class="ci-muted" style="font-size:12.5px">Source: {{ $company->financialStatements->pluck('source')->filter()->unique()->implode(', ') }} filings. Cr = crore, L = lakh.</p>
         </section>
 
+        @include('insights.partials.analytics-trends')
+
         <section class="ci-card" id="ratios">
             <h2>Ratios</h2>
             @foreach(['Standalone' => $ratios, 'Consolidated' => $consolidatedRatios] as $title => $set)
@@ -259,7 +281,7 @@
             </div>
         </section>
 
-        <section class="ci-card" id="people">
+        <section class="ci-card" id="people" style="grid-column:1/-1;min-width:0">
             <h2>Directors and key people</h2>
             @php
                 $past = $dashboard['past']; $current = $dashboard['current'];
@@ -267,6 +289,17 @@
             @endphp
             @if($company->officers->isNotEmpty())
                 <div class="ci-facts" style="margin-bottom:10px"><div><span>Current Directors</span><b>{{ $current->count() }}</b></div><div><span>Past Directors</span><b>{{ $past->count() }}</b></div><div><span>Average current director tenure</span><b>{{ $dashboard['average_tenure'] === null ? 'Unknown' : $dashboard['average_tenure'].' years' }}</b><small>{{ $dashboard['tenure_count'] }} known appointment dates</small></div></div>
+                @if($analytics['board']['rows']->isNotEmpty())
+                    <h3 class="ci-h3">Board tenure timeline</h3>
+                    <div class="ci-chart" style="height:{{ max(200, min(640, 30 * $analytics['board']['rows']->count() + 80)) }}px"><canvas aria-label="Director tenures from appointment to cessation" data-chart="{{ json_encode([
+                        'type' => 'bar', 'yearAxis' => 'x',
+                        'data' => ['labels' => $analytics['board']['rows']->map(fn ($r) => $r['name']), 'datasets' => [[
+                            'label' => 'Tenure', 'data' => $analytics['board']['rows']->map(fn ($r) => [$r['from'], $r['to']]),
+                            'backgroundColor' => $analytics['board']['rows']->map(fn ($r) => $r['active'] ? (preg_match('/cfo|secretary/i', (string) $r['designation']) ? '#0b2545' : '#527fad') : '#cbd5e1'),
+                            'borderRadius' => 4, 'borderSkipped' => false]]],
+                        'options' => ['indexAxis' => 'y', 'plugins' => ['legend' => ['display' => false]], 'scales' => ['x' => ['min' => floor($analytics['board']['rows']->min('from')), 'max' => now()->year + 1, 'ticks' => ['precision' => 0]]]],
+                    ]) }}"></canvas></div>
+                @endif
                 <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Name</th><th>Designation</th><th>DIN / PAN</th><th>Shares held</th><th>Appointed</th><th>Tenure</th></tr></thead><tbody>
                     @foreach($current->sortByDesc('shares_held') as $officer)
                         <tr><td>{{ $officer->name }}</td><td>{{ $officer->designation }}</td><td>{{ $officer->din ?? $officer->pan ?? '—' }}</td><td>{{ $officer->shares_held !== null ? number_format($officer->shares_held) : '—' }}</td><td>{{ $officer->appointed_on?->format('d M Y') ?? '—' }}</td><td>{{ $tenure($officer) }}</td></tr>
@@ -289,22 +322,13 @@
     @endif
 
     <div class="ci-two">
-        <section class="ci-card" id="charges">
+        <section class="ci-card" id="charges" style="grid-column:1/-1;min-width:0">
             <h2>Charges (secured borrowings)</h2>
             @if(!$premium)
                 <p class="ci-muted">{{ $company->charges->count() }} registered {{ Str::plural('charge', $company->charges->count()) }}. Lenders, amounts and dates are part of the premium plan.</p>
             @else
             @if($company->charges->isNotEmpty())
-                @php $open = $company->charges->filter(fn ($c) => !preg_match('/satisf|closed/i', (string) $c->status)); @endphp
-                <div class="ci-facts" style="margin-bottom:10px">
-                    <div><span>Total charges</span><b>{{ $company->charges->count() }}</b></div>
-                    <div><span>Open</span><b>{{ $open->count() }}</b><small>{{ $money($open->sum('amount')) }}</small></div>
-                    <div><span>Satisfied</span><b>{{ $company->charges->count() - $open->count() }}</b><small>{{ $money($company->charges->sum('amount') - $open->sum('amount')) }}</small></div>
-                    <div><span>Lenders</span><b>{{ $company->charges->pluck('lender')->filter()->unique()->count() }}</b></div>
-                </div>
-                <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Charge holder</th><th>Amount</th><th>Status</th><th>Created</th><th>Satisfied</th></tr></thead><tbody>
-                    @foreach($company->charges as $charge)<tr><td style="white-space:normal">{{ $charge->lender }}</td><td>{{ $money($charge->amount) }}</td><td>{{ $charge->status ?? '—' }}</td><td>{{ $charge->created_on?->format('d M Y') ?? '—' }}</td><td>{{ $charge->satisfied_on?->format('d M Y') ?? '—' }}</td></tr>@endforeach
-                </tbody></table></div>
+                @include('insights.partials.charges-analytics')
             @else
                 <p class="ci-muted">Registered charges come from the MCA index of charges (InstaFinancials import).</p>
             @endif

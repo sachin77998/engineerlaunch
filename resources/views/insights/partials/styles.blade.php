@@ -56,4 +56,17 @@ details.ci-more summary{cursor:pointer;font-weight:700;color:#0b2545}
 .ci-lock-badge{display:inline-block;padding:3px 10px;border-radius:999px;background:#0b2545;color:#f4b400;font-size:12px;font-weight:800;margin-bottom:8px}
 .ci-lock-preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0 16px;filter:blur(3px);user-select:none;pointer-events:none}
 .ci-lock-preview div{padding:12px;border:1px solid #e8edf5;border-radius:10px;background:#fff}.ci-lock-preview span{display:block;font-size:12px;color:#5b6b82}.ci-lock-preview b{color:#0b2545;font-size:18px}
+/* Pagination (Bootstrap 5 markup; Bootstrap CSS is not loaded on these pages) */
+.ci-pager nav>div:first-child{display:none}.ci-pager nav>div:last-child{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.ci-pager p{margin:0;color:#5b6b82;font-size:13px}.ci-pager .small{font-size:13px}
+.ci-pager .pagination{display:flex;flex-wrap:wrap;gap:4px;margin:0;padding:0;list-style:none}
+.ci-pager .page-link{display:inline-block;min-width:34px;padding:6px 10px;border:1px solid #dbe3ef;border-radius:8px;background:#fff;color:#0b2545;font-size:13px;text-align:center;text-decoration:none}
+.ci-pager .page-item.active .page-link{background:#0b2545;border-color:#0b2545;color:#fff}.ci-pager .page-item.disabled .page-link{color:#a3afc0;background:#f6f8fc}
+.ci-pager a.page-link:hover{border-color:#f5b800}
+@media(max-width:640px){.ci-pager nav>div:first-child{display:flex;justify-content:space-between}.ci-pager nav>div:last-child{display:none}}
+/* Charts (Chart.js) and table tabs */
+.ci-chart{position:relative;height:280px;min-width:0}
+.ci-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.ci-tabs button{padding:6px 12px;border:1px solid #dbe3ef;border-radius:8px;background:#fff;color:#0b2545;font:600 13px inherit;cursor:pointer}
+.ci-tabs button.active{background:#eaf1fb;border-color:#527fad;color:#1d4f86}
+.ci-pill{display:inline-block;padding:2px 9px;border-radius:999px;background:#eef2f7;color:#526175;font-size:12px;font-weight:700}.ci-pill.ok{background:#e7f1fb;color:#1d4f86}
 </style>
