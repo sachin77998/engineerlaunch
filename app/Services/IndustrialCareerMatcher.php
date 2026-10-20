@@ -85,75 +85,30 @@ class IndustrialCareerMatcher
             }
         }
         if ($best === '') {
-            return [
-                'matches' => [],
-                'remaining' => $tokens,
-            ];
+            return ['matches' => [],'remaining' => $tokens,];
         }
-
         $directMatches = $matches;
-
         foreach ($directMatches as $roleId => $match) {
             if ($match['score'] < 90) {
                 continue;
             }
-
-            $role = $this->catalog()->firstWhere(
-                'id',
-                $roleId
-            );
-
+            $role = $this->catalog()->firstWhere('id',$roleId);
             if (! $role) {
                 continue;
             }
-
             foreach ($role->relatedRoles as $relatedRole) {
-                if (
-                    ! $this->catalog()->contains(
-                        'id',
-                        $relatedRole->id
-                    )
-                ) {
+                if (! $this->catalog()->contains('id',$relatedRole->id)) {
                     continue;
                 }
-
-                $relatedScore = min(
-                    $match['score'] - 1,
-                    (int) $relatedRole->pivot->weight
-                );
-
-                if (
-                    ($matches[$relatedRole->id]['score'] ?? 0)
-                    < $relatedScore
-                ) {
-                    $matches[$relatedRole->id] = [
-                        'score' => $relatedScore,
-                        'reason' => $relatedRole->pivot->reason,
-                    ];
+                $relatedScore = min($match['score'] - 1,(int) $relatedRole->pivot->weight);
+                if (($matches[$relatedRole->id]['score'] ?? 0)< $relatedScore) {
+                    $matches[$relatedRole->id] = ['score' => $relatedScore,'reason' => $relatedRole->pivot->reason,];
                 }
             }
         }
-
-        uasort(
-            $matches,
-            fn ($a, $b) => $b['score'] <=> $a['score']
-        );
-
-        $remainingPhrase = trim(
-            preg_replace(
-                '/(?<!\S)'.
-                    preg_quote($best, '/').
-                    '(?!\S)/u',
-                '',
-                $phrase,
-                1
-            )
-        );
-
-        $remaining = $remainingPhrase === ''
-            ? []
-            : preg_split('/\s+/u', $remainingPhrase);
-
+        uasort($matches,fn ($a, $b) => $b['score'] <=> $a['score']);
+        $remainingPhrase = trim(preg_replace('/(?<!\S)'.preg_quote($best, '/').'(?!\S)/u','',$phrase,1));
+        $remaining = $remainingPhrase === ''? []: preg_split('/\s+/u', $remainingPhrase);
         return ['matches' => $matches, 'remaining' => $remaining];
     }
 }

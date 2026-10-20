@@ -21,17 +21,7 @@ class CareerOpportunitySearch
         }
         $rules = [];
         foreach (['country', 'state', 'city', 'industrial_area', 'company', 'industry', 'products', 'business_unit', 'department', 'job_family', 'role', 'career_level', 'skills'] as $field) $rules[$field] = 'nullable|string|max:150';
-        $filters = Validator::make($parameters, $rules + [
-            'source_url' => 'nullable|url|max:1000',
-            'employee_min' => 'nullable|integer|min:0',
-            'employee_max' => 'nullable|integer|min:0',
-            'experience' => 'nullable|numeric|min:0|max:60',
-            'salary_min' => 'nullable|numeric|min:0',
-            'salary_currency' => 'nullable|in:INR,USD,EUR,GBP',
-            'page' => 'nullable|integer|min:1',
-            'industrial_page' => 'nullable|integer|min:1',
-            'companies_page' => 'nullable|integer|min:1',
-        ])->validate();
+        $filters = Validator::make($parameters, $rules + ['source_url' => 'nullable|url|max:1000','employee_min' => 'nullable|integer|min:0','employee_max' => 'nullable|integer|min:0','experience' => 'nullable|numeric|min:0|max:60','salary_min' => 'nullable|numeric|min:0','salary_currency' => 'nullable|in:INR,USD,EUR,GBP','page' => 'nullable|integer|min:1','industrial_page' => 'nullable|integer|min:1','companies_page' => 'nullable|integer|min:1',])->validate();
         $filters = array_filter($filters, fn($value) => $value !== null && $value !== '');
         if (isset($filters['employee_min'], $filters['employee_max']) && $filters['employee_max'] < $filters['employee_min']) {
             throw \Illuminate\Validation\ValidationException::withMessages(['employee_max' => 'Maximum must be at least the minimum.']);

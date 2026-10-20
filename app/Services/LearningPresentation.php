@@ -3,8 +3,7 @@ namespace App\Services;
 
 class LearningPresentation
 {
-    /** Keep code blocks and line breaks intact; never execute supplied examples. */
-    public function blocks(string $text): array
+     public function blocks(string $text): array
     {
         $blocks = [];
         // In-depth explanations (config/learning_deep) use "## Heading", "- item" lists, paragraphs and ``` code.

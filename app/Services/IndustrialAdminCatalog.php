@@ -18,7 +18,6 @@ class IndustrialAdminCatalog
         abort_unless(isset(self::MODELS[$type]), 404);
         return self::MODELS[$type];
     }
-
     public function fields(string $type): array
     {
         $model = $this->model($type);
@@ -43,19 +42,12 @@ class IndustrialAdminCatalog
                 continue;
             }
             $fields[$field] = match ($field) {
-                'is_active', 'is_featured', 'is_verified' => 'checkbox',
-                'description' => 'textarea',
-                'source_url', 'website' => 'url',
-                'last_verified_at', 'application_deadline' => 'datetime-local',
-                'area_type', 'facility_type', 'verification_status', 'employment_type', 'salary_period' => 'select',
-                'latitude', 'longitude', 'salary_min', 'salary_max', 'experience_min', 'experience_max' => 'number',
+                'is_active', 'is_featured', 'is_verified' => 'checkbox','description' => 'textarea','source_url', 'website' => 'url','last_verified_at', 'application_deadline' => 'datetime-local','area_type', 'facility_type', 'verification_status', 'employment_type', 'salary_period' => 'select','latitude', 'longitude', 'salary_min', 'salary_max', 'experience_min', 'experience_max' => 'number',
                 default => 'text',
             };
         }
-
         return $fields;
     }
-
     public function values($record): array
     {
         $values = [];
@@ -77,25 +69,11 @@ class IndustrialAdminCatalog
             $values['company_slug'] = $record->company?->slug;
             $values['role_slug'] = $record->role?->slug;
         }
-
         return $values;
     }
-
     public function options(array $values): array
     {
         $pairs = fn (array $items) => array_combine($items, array_map(fn ($s) => ucwords(str_replace('_', ' ', $s)), $items));
-
-        return [
-            'state_slug' => IndustrialState::orderBy('name')->pluck('name', 'slug'),
-            'area_slug' => empty($values['state_slug']) ? [] : IndustrialArea::whereHas('state', fn ($q) => $q->where('slug', $values['state_slug']))->orderBy('name')->pluck('name', 'slug'),
-            'company_slug' => empty($values['area_slug']) || empty($values['state_slug']) ? [] : IndustrialCompany::whereHas('area', fn ($q) => $q->where('slug', $values['area_slug'])->whereHas('state', fn ($s) => $s->where('slug', $values['state_slug'])))->orderBy('name')->pluck('name', 'slug'),
-            'department_slug' => IndustrialDepartment::orderBy('name')->pluck('name', 'slug'),
-            'role_slug' => empty($values['department_slug']) ? [] : IndustrialJobRole::whereHas('department', fn ($q) => $q->where('slug', $values['department_slug']))->orderBy('name')->pluck('name', 'slug'),
-            'area_type' => $pairs(IndustrialCsvImporter::AREA_TYPES),
-            'facility_type' => $pairs(['Plant', 'Factory', 'Warehouse', 'Depot', 'Distribution Centre', 'Office', 'R&D Centre', 'Service Centre', 'Industrial Unit', 'Logistics Hub', 'Manufacturing plant', 'SEZ unit']),
-            'verification_status' => $pairs(['unverified', 'government_source', 'company_source', 'admin_verified', 'community_verified']),
-            'employment_type' => $pairs(['Full Time', 'Contract', 'Apprenticeship', 'Trainee', 'Part Time']),
-            'salary_period' => $pairs(['hourly', 'daily', 'monthly', 'annual']),
-        ];
+        return ['state_slug' => IndustrialState::orderBy('name')->pluck('name', 'slug'),'area_slug' => empty($values['state_slug']) ? [] : IndustrialArea::whereHas('state', fn ($q) => $q->where('slug', $values['state_slug']))->orderBy('name')->pluck('name', 'slug'),'company_slug' => empty($values['area_slug']) || empty($values['state_slug']) ? [] : IndustrialCompany::whereHas('area', fn ($q) => $q->where('slug', $values['area_slug'])->whereHas('state', fn ($s) => $s->where('slug', $values['state_slug'])))->orderBy('name')->pluck('name', 'slug'),'department_slug' => IndustrialDepartment::orderBy('name')->pluck('name', 'slug'),'role_slug' => empty($values['department_slug']) ? [] : IndustrialJobRole::whereHas('department', fn ($q) => $q->where('slug', $values['department_slug']))->orderBy('name')->pluck('name', 'slug'),'area_type' => $pairs(IndustrialCsvImporter::AREA_TYPES),'facility_type' => $pairs(['Plant', 'Factory', 'Warehouse', 'Depot', 'Distribution Centre', 'Office', 'R&D Centre', 'Service Centre', 'Industrial Unit', 'Logistics Hub', 'Manufacturing plant', 'SEZ unit']),'verification_status' => $pairs(['unverified', 'government_source', 'company_source', 'admin_verified', 'community_verified']),'employment_type' => $pairs(['Full Time', 'Contract', 'Apprenticeship', 'Trainee', 'Part Time']),'salary_period' => $pairs(['hourly', 'daily', 'monthly', 'annual']),];
     }
 }

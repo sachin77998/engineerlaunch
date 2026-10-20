@@ -24,12 +24,7 @@ class IndustrialDirectoryService
         return IndustrialArea::locationNames($areas);
     }
     public function areas(int $stateId,?string $location = null): Collection {
-        return IndustrialArea::query()->visible()->where('state_id', $stateId)
-            ->when($location,fn(Builder $query) => $query->atLocation($location))
-            ->with('state')
-            ->withCount(['companies as companies_count' => fn($query) =>$query->visible(),'jobs as live_jobs_count' => fn($query) =>$query->live(),])
-            ->orderByDesc('is_featured')->orderBy('name')
-            ->get(['id','state_id','name','slug','city','district','area_type','sectors','description','latitude','longitude','is_featured',]);
+        return IndustrialArea::query()->visible()->where('state_id', $stateId)->when($location,fn(Builder $query) => $query->atLocation($location))->with('state')->withCount(['companies as companies_count' => fn($query) =>$query->visible(),'jobs as live_jobs_count' => fn($query) =>$query->live(),])->orderByDesc('is_featured')->orderBy('name')->get(['id','state_id','name','slug','city','district','area_type','sectors','description','latitude','longitude','is_featured',]);
     }
     public function area(int $areaId): ?IndustrialArea
     {

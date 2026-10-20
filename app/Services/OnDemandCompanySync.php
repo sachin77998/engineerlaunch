@@ -7,11 +7,7 @@ use App\Models\Company;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * A search for a company that has a careers feed but no imported jobs yet (e.g. "zscaler") fetches that feed
- * on the queue (processed by the every-minute worker) instead of waiting for the nightly sync. Large feeds take
- * minutes, so this never runs inside the web request. Each company is queued at most once every six hours.
- */
+
 class OnDemandCompanySync
 {
     /** @return array{queued:array<int,string>} */

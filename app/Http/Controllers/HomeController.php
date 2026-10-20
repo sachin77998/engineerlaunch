@@ -13,19 +13,10 @@ class HomeController extends Controller
 {
     public function index(): View
     {
-        $stats = Cache::remember(DiscoveryCache::key('home.stats'), DiscoveryCache::ttl(),
-            fn (): array => [
-                'total_jobs' => Job::active()->count(),
-                'total_companies' => Company::active()->count(),
-                'hiring_companies' => Company::active()->whereHas('activeJobs')->count(),
-                'total_technologies' => Technology::query()->count(),
-            ]);
-
-        // The sector strip is optional; a catalog problem must never take the homepage down.
+        $stats = Cache::remember(DiscoveryCache::key('home.stats'), DiscoveryCache::ttl(),fn (): array => ['total_jobs' => Job::active()->count(),'total_companies' => Company::active()->count(),'hiring_companies' => Company::active()->whereHas('activeJobs')->count(),'total_technologies' => Technology::query()->count(),]); 
         $directory = app(\App\Services\SectorDirectory::class);
         $sectorTree = rescue(fn () => $directory->tree(), collect(), false);
         $hubs = rescue(fn () => $directory->hubs(12), collect(), false);
-
         return view('portal-v2', ['dsaTracks' => config('interview.dsa', []),'homeStats' => $stats, 'sectorTree' => $sectorTree, 'hubs' => $hubs]);
     }
 }
