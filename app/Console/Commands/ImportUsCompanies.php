@@ -27,6 +27,8 @@ class ImportUsCompanies extends Command
         $years = range($last - max(1, (int) $this->option('years')) + 1, $last);
         $rows = $us->importFinancials($years);
         $this->info("SEC annual results saved: {$rows} company-years (" . implode(', ', $years) . ').');
+        $extra = $us->importMissingFromCompanyFacts($last);
+        $this->info("Results added from company facts (foreign filers, odd fiscal years): {$extra} companies.");
         SectorDirectory::flush();
         return self::SUCCESS;
     }

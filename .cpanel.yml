@@ -14,7 +14,7 @@ deployment:
     - /bin/cp -R tests "$DEPLOY_PATH"
     - /bin/cp -R public "$DEPLOY_PATH"
 
-    - /bin/cp -R public/css public/js public/images "$HOME/public_html/"
+    - /bin/cp -R public/css public/js public/images public/vendor "$HOME/public_html/"
     - /bin/cp public/favicon.ico public/robots.txt "$HOME/public_html/"
 
     - /bin/cp artisan "$DEPLOY_PATH"

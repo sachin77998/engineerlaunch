@@ -58,6 +58,14 @@ class EnsureEnvironmentSettings extends Command
         $contents = $original;
         $changed = [];
 
+        // On a developer machine (site opened on localhost) keep local settings: production values are for the server.
+        // Windows is the developer PC (the server is Linux); --url is the address the owner opened the site on.
+        $host = (string) parse_url((string) $this->option('url'), PHP_URL_HOST);
+        if (PHP_OS_FAMILY === 'Windows' || in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            $host = $host ?: 'this PC';
+            $this->info('Local site (' . $host . '): .env left unchanged.');
+            return self::SUCCESS;
+        }
         foreach (self::ENFORCED as $key => $value) {
             $pattern = '/^' . preg_quote($key, '/') . '=.*$/m';
             if (preg_match($pattern, $contents, $match)) {

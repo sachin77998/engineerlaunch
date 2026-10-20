@@ -104,6 +104,7 @@
 .dt-result{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:14px}
 .dt-modal{position:fixed;inset:0;background:rgba(16,24,40,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:60}
 .dt-modal>div{background:#fff;border-radius:18px;padding:22px;max-width:420px;width:100%}
+.dt-modal[hidden]{display:none!important}
 .dt-chart{width:100%;height:auto;display:block}
 .dt-bars{display:grid;gap:10px}
 .dt-barrow{display:grid;grid-template-columns:70px 1fr 70px;align-items:center;gap:10px;font-size:13px}

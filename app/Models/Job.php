@@ -139,6 +139,12 @@ class Job extends Model
         return $this->belongsToMany(Skill::class, 'job_skills')->withPivot('importance');
     }
     // Scope to only active jobs
+    /** Tells MySQL which index to read (it otherwise walks posted_at over the whole table for company-filtered lists). */
+    public function scopeForceIndex($query, string $index)
+    {
+        return $query->from(\Illuminate\Support\Facades\DB::raw('`jobs` FORCE INDEX (`' . str_replace('`', '', $index) . '`)'));
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true)->where('status', 'published')->where('job_visibility', 'public')->where(function ($q) {

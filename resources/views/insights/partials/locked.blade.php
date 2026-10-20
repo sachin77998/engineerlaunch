@@ -7,9 +7,9 @@
             @foreach($labels ?? ['Revenue', 'EBITDA', 'Net profit', 'Net worth', 'Total debt', 'ROCE'] as $label)<div><span>{{ $label }}</span><b>{{ $unit ?? '₹ ••• Cr' }}</b></div>@endforeach
         </div>
         @guest
-            <a class="ci-btn gold" href="{{ route('login') }}">Sign in to continue</a>
+            <a class="ci-btn gold" href="{{ route('login') }}">Sign in to continue</a> <a class="ci-btn" href="{{ route('premium.index') }}">See plans &amp; pricing</a>
         @else
-            <a class="ci-btn gold" href="{{ route('contact') }}?subject=Premium%20plan">Get premium</a>
+            <a class="ci-btn gold" href="{{ route('premium.index') }}">Get premium</a>
         @endguest
     </div>
 </section>

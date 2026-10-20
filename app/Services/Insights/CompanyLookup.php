@@ -27,8 +27,21 @@ class CompanyLookup
 
     public function __construct(private CompanyClassifier $classifier) {}
 
+    // Set while a search page waits on discover(): short timeouts, so a slow registry never holds the page for minutes.
+    private bool $interactive = false;
+
     /** Companies found online for a CIN or name, created locally with their registry details. */
     public function discover(string $query): Collection
+    {
+        $this->interactive = true;
+        try {
+            return $this->discoverNow($query);
+        } finally {
+            $this->interactive = false;
+        }
+    }
+
+    private function discoverNow(string $query): Collection
     {
         $id = app(CompanyInsights::class)->identify($query);
         $found = collect();
@@ -75,7 +88,7 @@ class CompanyLookup
     /** @return array<int, array> normalised rows */
     private function gleif(array $filter): array
     {
-        $response = Http::withHeaders(['Accept' => 'application/vnd.api+json', 'User-Agent' => config('discovery.user_agent', 'EngineerLaunch/1.0')])->timeout(20)->get(self::GLEIF, $filter);
+        $response = Http::withHeaders(['Accept' => 'application/vnd.api+json', 'User-Agent' => config('discovery.user_agent', 'EngineerLaunch/1.0')])->timeout($this->interactive ? 8 : 20)->get(self::GLEIF, $filter);
         if (!$response->successful()) return [];
         return collect($response->json('data', []))->map(function ($record) {
             $entity = $record['attributes']['entity'] ?? [];
@@ -97,7 +110,7 @@ class CompanyLookup
     /** MCA Company Master Data from data.gov.in (exact CIN, or exact registered name). */
     private function dataGov(?string $cin, ?string $name): array
     {
-        $mca = app(DataGovMca::class);
+        $mca = $this->interactive ? app(DataGovMca::class)->quick() : app(DataGovMca::class);
         if (!$mca->configured() || (!$cin && !$name)) return [];
         // Stored register first, then the live API (names tried in their usual legal forms).
         $stored = $cin ? (array) (\Illuminate\Support\Facades\DB::table('mca_companies')->where('cin', $cin)->first() ?? []) : [];

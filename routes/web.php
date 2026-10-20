@@ -43,6 +43,7 @@ Route::get('/companies/dlf-cyber-city', [CompanyDiscoveryController::class, 'cyb
 Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'show'])->name('companies.show');
 // Insights into Company: registry, financials and ratios from MCA filings.
 Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController::class, 'index'])->name('insights.index');
+Route::get('/company-insights/explore/{db}', [\App\Http\Controllers\InsightsExploreController::class, 'show'])->where('db', 'listed|companies|us|people')->name('insights.explore');
 // Do Trading: mutual funds (AMFI data), calculators, onboarding/KYC, orders. API endpoints answer JSON.
 Route::prefix('trading')->name('trading.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Trading\TradingController::class, 'index'])->name('index');
@@ -73,6 +74,7 @@ Route::prefix('trading')->name('trading.')->group(function () {
         Route::get('/loans/{loan}/export/{format}', [\App\Http\Controllers\Trading\LoanController::class, 'export'])->middleware('throttle:trading-export')->name('loans.export');
     });
     Route::get('/funds/{scheme}', [\App\Http\Controllers\Trading\TradingController::class, 'fund'])->whereNumber('scheme')->name('fund');
+    Route::get('/funds/{scheme}/history', [\App\Http\Controllers\Trading\TradingController::class, 'fundHistory'])->whereNumber('scheme')->middleware('throttle:60,1')->name('fund.history');
     Route::get('/calculators', [\App\Http\Controllers\Trading\TradingController::class, 'calculators'])->name('calculators');
     Route::middleware('throttle:trading-read')->prefix('api')->name('api.')->group(function () {
         Route::get('/fees', [\App\Http\Controllers\Trading\TradingApiController::class, 'fees'])->name('fees');
@@ -118,6 +120,7 @@ Route::prefix('trading')->name('trading.')->group(function () {
 });
 Route::get('/company-insights/cin/{cin}', [\App\Http\Controllers\CompanyInsightsController::class, 'byCin'])->where('cin', '[A-Za-z0-9]{21}')->name('insights.cin');
 Route::get('/company-insights/{company:slug}', [\App\Http\Controllers\CompanyInsightsController::class, 'show'])->name('insights.show');
+Route::post('/company-insights/{company:slug}/feedback', [\App\Http\Controllers\CompanyInsightsController::class, 'feedback'])->middleware('throttle:30,1')->name('insights.feedback');
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/company-insights/{company:slug}/filings', [\App\Http\Controllers\CompanyInsightsController::class, 'upload'])->name('insights.upload');
     Route::post('/company-insights/{company:slug}/statements', [\App\Http\Controllers\CompanyInsightsController::class, 'saveStatement'])->name('insights.statements');
@@ -159,6 +162,27 @@ Route::get('/practice', [PracticeController::class, 'index'])->name('practice');
 
 Route::get('/ai/chat', function () {return view('ai.chat');})->name('ai.chat');
 Route::get('/market', [\App\Http\Controllers\MarketController::class, 'index'])->name('market.index');
+// Financial calculators (gold/silver/copper with price trends, loans, investments, savings schemes, retirement, tax).
+Route::get('/calculators', [\App\Http\Controllers\CalculatorController::class, 'index'])->name('calculators.index');
+Route::get('/calculators/{slug}', [\App\Http\Controllers\CalculatorController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('calculators.show');
+// Insurance advisor (health, term, car, bike): cover, estimated premium and fee structure, insurers ranked by public figures.
+Route::get('/insurance/{product?}', [\App\Http\Controllers\InsuranceController::class, 'index'])->where('product', 'health|term|car|bike')->name('insurance.index');
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/insurers', [\App\Http\Controllers\InsuranceController::class, 'adminIndex'])->name('admin.insurers');
+    Route::patch('/admin/insurers/{insurer}', [\App\Http\Controllers\InsuranceController::class, 'adminUpdate'])->name('admin.insurers.update');
+    Route::get('/admin/premium-orders', [\App\Http\Controllers\PremiumController::class, 'adminOrders'])->name('admin.premium.orders');
+    Route::post('/admin/premium-orders/{order}/activate', [\App\Http\Controllers\PremiumController::class, 'adminActivate'])->name('admin.premium.activate');
+});
+// US stock market: screener of NYSE / Nasdaq stocks and price history per ticker.
+Route::get('/markets/us', [\App\Http\Controllers\UsMarketController::class, 'index'])->name('markets.us');
+Route::get('/markets/us/{ticker}/history', [\App\Http\Controllers\UsMarketController::class, 'history'])->where('ticker', '[A-Za-z0-9.\-]{1,16}')->middleware('throttle:60,1')->name('markets.us.history');
+// Premium plans: fee breakdown, checkout and Razorpay payment.
+Route::get('/premium', [\App\Http\Controllers\PremiumController::class, 'index'])->name('premium.index');
+Route::middleware('auth')->group(function () {
+    Route::post('/premium/checkout', [\App\Http\Controllers\PremiumController::class, 'checkout'])->middleware('throttle:10,1')->name('premium.checkout');
+    Route::get('/premium/orders/{orderNo}', [\App\Http\Controllers\PremiumController::class, 'pay'])->name('premium.pay');
+    Route::post('/premium/orders/{orderNo}/verify', [\App\Http\Controllers\PremiumController::class, 'verify'])->middleware('throttle:20,1')->name('premium.verify');
+});
 Route::get('/admin/market/template/{type}', [\App\Http\Controllers\MarketController::class, 'template'])->middleware(['auth','admin'])->name('admin.market.template');
 Route::post('/admin/market/upload', [\App\Http\Controllers\MarketController::class, 'upload'])->middleware(['auth','admin'])->name('admin.market.upload');
 Route::get('/technologies', [\App\Http\Controllers\TechnologyController::class, 'index'])->name('technologies.index');

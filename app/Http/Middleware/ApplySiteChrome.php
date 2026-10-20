@@ -20,6 +20,9 @@ class ApplySiteChrome
             $response->headers->set('Expires', '0');
         }
 
+        if ($response->isSuccessful() && str_contains((string) $response->headers->get('Content-Type'), 'text/html') && !$response->headers->has('Content-Disposition')) {
+            $response->setContent(self::speedUp((string) $response->getContent()));
+        }
         if (!$response->isSuccessful() || !str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             return $response;
         }
@@ -81,5 +84,22 @@ class ApplySiteChrome
         $html = preg_replace('/<\/body>/i', $footer.'</body>', $html, 1);
         $response->setContent($html);
         return $response;
+    }
+
+    /**
+     * Faster page changes: the browser starts loading a same-site page when the pointer rests on its link
+     * (Speculation Rules; ignored by browsers without support), and images below the fold load lazily.
+     */
+    public static function speedUp(string $html): string
+    {
+        if (!str_contains($html, '</head>') || str_contains($html, 'data-speed-rules')) return $html;
+        $rules = '<script type="speculationrules" data-speed-rules>{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},'
+            . '{"not":{"href_matches":["/logout","/logout/*","/admin/*/run/*","/*export*","/*download*","/premium/checkout"]}},{"not":{"selector_matches":"[rel~=nofollow],[download],[data-no-prefetch]"}}]},"eagerness":"moderate"}]}</script>';
+        $html = preg_replace('~</head>~i', $rules . '</head>', $html, 1);
+        // Lazy-load images that do not already choose a loading mode (the first few stay eager for the visible area).
+        $count = 0;
+        return preg_replace_callback('~<img(?![^>]*loading=)~i', function ($m) use (&$count) {
+            return ++$count <= 4 ? $m[0] : '<img loading="lazy" decoding="async"';
+        }, $html);
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @section('title', $company->name . ' — company insights, financials and ratios')
-@push('styles')@include('insights.partials.styles')@endpush
-@push('scripts')@include('insights.partials.chart-boot')@endpush
+@push('styles')@include('insights.partials.styles')@include('insights.partials.profile-styles')@endpush
+@push('scripts')@include('insights.partials.chart-boot')@include('insights.partials.profile-script')@endpush
 @section('content')
 @php
     $money = fn ($v) => \App\Services\Insights\CompanyInsights::money($v);
@@ -17,35 +17,14 @@
     $usOnly = $company->usListings->isNotEmpty() && !$cin;
     $listing = $company->usListings->first();
 @endphp
-<section class="ci-hero">
-    <div class="ci-wrap">
-        <div class="ci-head">
-            <span class="ci-logo">@if($company->logo_url)<img src="{{ $company->logo_url }}" alt="">@else{{ mb_strtoupper(mb_substr($company->name, 0, 1)) }}@endif</span>
-            <div>
-                <h1>{{ $company->name }}</h1>
-                <div class="ci-chips">
-                    @if($cin)<span>CIN {{ $cin }}</span>@endif
-                    @if($status)<span class="{{ preg_match('/^active/i', $status) ? 'ok' : (preg_match('/strike|dissol|liquid/i', $status) ? 'bad' : '') }}">{{ $status }}</span>@endif
-                    @if($decoded)<span>{{ $decoded['Listing'] }}</span><span>{{ $decoded['Company type'] }}</span>@endif
-                    @if($company->industry)<span>{{ $company->industry }}</span>@endif
-                </div>
-            </div>
-        </div>
-        <form class="ci-search" method="get" action="{{ route('insights.index') }}" style="margin-top:16px">
-            <input type="search" name="q" placeholder="Search another company: name, CIN, GSTIN or PAN" aria-label="Search another company">
-            <button class="ci-btn gold" type="submit">Search</button>
-        </form>
-    </div>
-</section>
+@include('insights.partials.profile-header')
 <main class="ci-wrap ci-main ci-layout">
     @if(session('success'))<p class="ci-flash ok">{{ session('success') }}</p>@endif
     @if(session('warning'))<p class="ci-flash warn">{{ session('warning') }}</p>@endif
     @if($errors->any())<p class="ci-flash warn">{{ $errors->first() }}</p>@endif
 
-    <nav class="ci-tabs">
-        <a href="#summary">Summary</a>@if($company->usListings->isNotEmpty())<a href="#us-market">US market</a><a href="#us-financials">SEC results</a>@endif<a href="#overview">Overview</a><a href="#health">Health score</a><a href="#vendor-checks">Vendor checks</a><a href="#financials">Financials</a><a href="#ratios">Ratios</a><a href="#peers">Peers</a><a href="#registry">Registry details</a>
-        <a href="#people">Directors</a><a href="#ownership">Ownership</a><a href="#charges">Charges</a><a href="#auditors">Auditors</a><a href="#business">Business</a><a href="#filings">Filings</a>
-        <a href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
+    <nav class="ci-tabs pf-nav" id="pf-nav" aria-label="Profile"><b class="pf-nav-title">Profile</b>
+        <a class="pf-jobs" href="{{ route('companies.show', $company) }}">Jobs at {{ Str::limit($company->name, 24) }}</a>
     </nav>
 
     @php
@@ -64,6 +43,8 @@
         $nextDue = collect($compliance)->first(fn ($i) => !$i['done'] && $i['days'] >= 0);
         $dash = fn ($v) => filled($v) ? $v : '—';
     @endphp
+    @include('insights.partials.profile-sections')
+
     <section class="ci-card" id="summary">
         <h2>Company summary</h2>
         @if($usOnly)
@@ -316,6 +297,8 @@
             @endif
         </section>
     </div>
+
+    @include('insights.partials.profile-competitors')
 
     @if($premium)
         @include('insights.partials.ownership-dashboard')

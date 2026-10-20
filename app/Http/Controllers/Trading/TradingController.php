@@ -88,8 +88,23 @@ class TradingController extends Controller
             'variants' => MfScheme::where('is_active', true)->where('amc', $scheme->amc)->where('name', $scheme->name)->where('scheme_code', '!=', $scheme->scheme_code)->get(['scheme_code', 'plan', 'option', 'nav']),
             'peers' => MfScheme::where('is_active', true)->where('sub_category', $scheme->sub_category)->where('plan', $scheme->plan)->where('option', $scheme->option)->whereNotNull('return_3y')
                 ->selectRaw('count(*) n, avg(return_1y) r1, avg(return_3y) r3, avg(return_5y) r5')->first(),
+            'ranks' => \Illuminate\Support\Facades\Cache::remember('fund-ranks:' . $scheme->scheme_code . ':' . now()->toDateString(), now()->addHours(12), function () use ($scheme) {
+                $peers = fn () => MfScheme::where('is_active', true)->where('sub_category', $scheme->sub_category)->where('plan', $scheme->plan)->where('option', $scheme->option);
+                $out = [];
+                foreach (['return_6m', 'return_1y', 'return_3y', 'return_5y'] as $k) {
+                    $out[$k] = $scheme->{$k} === null ? null : ['rank' => $peers()->where($k, '>', $scheme->{$k})->count() + 1, 'of' => $peers()->whereNotNull($k)->count(), 'avg' => $peers()->avg($k)];
+                }
+                return $out;
+            }),
+            'ratios' => rescue(fn () => app(\App\Services\Trading\FundHistory::class)->ratios(app(\App\Services\Trading\FundHistory::class)->points((int) $scheme->scheme_code)), [], false),
             'marketClosed' => $calendar->closedReason($now), 'navDate' => $calendar->applicableNavDate($scheme), 'sampleFees' => $fees->quote('buy', 10000),
         ]);
+    }
+
+    /** Daily NAV history (JSON) for the fund chart and SIP returns table. */
+    public function fundHistory(MfScheme $scheme, \App\Services\Trading\FundHistory $history)
+    {
+        return response()->json(['points' => $history->points((int) $scheme->scheme_code)])->header('Cache-Control', 'public, max-age=3600');
     }
 
     public function calculators()

@@ -59,7 +59,7 @@ class CompanyDiscoveryController extends Controller
             // scanning every job row against every alias timed out on production (~30k jobs).
             $companiesByLocation = collect(array_keys($locationMap))->mapWithKeys(fn($name) => [$name => []])->all();
             $matchedNames = [];
-            foreach (Job::query()->active()->whereNotNull('location')->whereNotNull('company_id')->distinct()->toBase()->get(['location', 'company_id']) as $pair) {
+            foreach (Job::forceIndex('jobs_open_location_index')->active()->whereNotNull('location')->whereNotNull('company_id')->distinct()->toBase()->get(['location', 'company_id']) as $pair) {
                 $value = Str::lower($pair->location);
                 $matchedNames[$value] ??= array_keys(array_filter($locationMap, fn ($aliases) => Str::contains($value, $aliases)));
                 foreach ($matchedNames[$value] as $name) $companiesByLocation[$name][$pair->company_id] = true;

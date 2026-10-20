@@ -16,28 +16,18 @@ use Illuminate\Validation\ValidationException;
 
 class IndustrialAreaController extends Controller
 {
-    public function __construct(
-        private \App\Services\IndustrialTaxonomy $taxonomyService,
-        private IndustrialSearch $search,
-        private IndustrialIntelligence $intelligence,
-        private \App\Services\IndustrialPresentation $presentation
-    ) {
+    public function __construct(private \App\Services\IndustrialTaxonomy $taxonomyService,private IndustrialSearch $search,private IndustrialIntelligence $intelligence,private \App\Services\IndustrialPresentation $presentation) {
     }
-
     public function index(Request $request)
     {
         $data = $this->data($request);
-
         return view('industrial.index', $data);
     }
-
      public function ajax(Request $request)
      {
          $data = $this->data($request);
-
          return response()->json(['html' => view('industrial.results', $data)->render(), 'options' => $data['options'], 'taxonomyHtml' => view('industrial.taxonomy', $data)->render(), 'hero' => $data['heroUrl'], 'heroText' => $data['heroText'], 'heroCaption' => $data['heroCaption'], 'filters' => $data['filters'], 'heading' => $data['contextCompany']->name ?? $data['contextArea']->name ?? 'Industrial India']);
      }
-
     private function data(Request $request): array
     {
         foreach (['state_id' => 'state', 'city' => 'location', 'area_id' => 'area', 'department_id' => 'department'] as $alias => $name) {
@@ -220,70 +210,21 @@ class IndustrialAreaController extends Controller
         $hubs = IndustrialArea::visible()->where('is_featured', true)->with('state')->orderBy('state_id')
             ->orderBy('city')->limit(200)->get()->groupBy('state.name');
         //  FILTER OPTIONS
-        $options = [
-            'state' => $states,
-
-            'location' => $locations
-                ->map(
-                    fn ($name) => [
-                        'id' => $name,
-                        'name' => $name,
-                    ]
-                )
-                ->values(),
-
+        $options = ['state' => $states,
+            'location' => $locations->map(fn ($name) => ['id' => $name,'name' => $name,])->values(),
             'area' => $areaOptions,
-
             'company' => $companyOptions,
-
             'department' => $departments,
-
             'role' => $roles,
         ];
-
         $options += [
             'sector' => $taxonomy['sectors'],
             'subsector' => $taxonomy['subOptions'],
             'process' => $taxonomy['processes'],
         ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | VIEW DATA
-        |--------------------------------------------------------------------------
-        */
-        $data = compact(
-            'taxonomy',
-            'filters',
-            'options',
-            'areas',
-            'areaCatalog',
-            'companies',
-            'jobs',
-            'hubs'
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | CURRENT AREA / COMPANY CONTEXT
-        |--------------------------------------------------------------------------
-        */
-        $data['contextArea'] = ! empty($filters['area'])
-            ? IndustrialArea::visible()
-            ->with('state')
-            ->find($filters['area'])
-            : null;
-
-        $data['contextCompany'] = ! empty($filters['company'])
-            ? IndustrialCompany::visible()
-            ->find($filters['company'])
-            : null;
-
-        /*
-        |--------------------------------------------------------------------------
-        | INDUSTRIAL INTELLIGENCE
-        |--------------------------------------------------------------------------
-        */
+        $data = compact('taxonomy','filters','options','areas','areaCatalog','companies','jobs','hubs');
+        $data['contextArea'] = ! empty($filters['area'])? IndustrialArea::visible()->with('state')->find($filters['area']): null;
+        $data['contextCompany'] = ! empty($filters['company'])? IndustrialCompany::visible()->find($filters['company']): null;
         if ($data['contextArea']) {
             $data += $this->intelligence->summary(
                 $data['contextArea'],
@@ -312,309 +253,92 @@ class IndustrialAreaController extends Controller
                 .' within the selected hierarchy.',
         ]);
     }
-
-    /**
-     * Individual live job opening.
-     */
     public function opening(int $job)
     {
-        $job = IndustrialJob::live()
-            ->with([
-                'area.state',
-                'company',
-                'department',
-                'role',
-            ])
-            ->findOrFail($job);
-
-        return view(
-            'industrial.job',
-            compact('job')
-        );
+        $job = IndustrialJob::live()->with(['area.state','company','department','role',])->findOrFail($job);
+        return view('industrial.job',compact('job'));
     }
-
-    /**
-     * Get cities / districts for a state.
-     *
-     * India
-     *   → Punjab
-     *       → Ludhiana
-     *       → Jalandhar
-     *       → Rajpura
-     */
     public function cities(Request $request)
     {
-        $data = $request->validate([
-            'state_id' => 'required|integer|min:1',
-        ]);
-
-        $state = IndustrialState::query()
-            ->where('is_active', true)
-            ->findOrFail(
-                $data['state_id']
-            );
-
-        return response()->json(
-            IndustrialArea::locationNames(
-                $state->areas()->visible()
-            )
-        );
+        $data = $request->validate(['state_id' => 'required|integer|min:1',]);
+        $state = IndustrialState::query()->where('is_active', true)->findOrFail($data['state_id']);
+        return response()->json(IndustrialArea::locationNames($state->areas()->visible()));
     }
-
-    /**
-     * Get industrial areas for state + city/district.
-     */
     public function areas(Request $request)
     {
-        $data = $request->validate([
-            'state_id' => 'required|integer|min:1',
-            'city' => 'nullable|string|max:255',
-        ]);
-
-        $state = IndustrialState::query()
-            ->where('is_active', true)
-            ->findOrFail(
-                $data['state_id']
-            );
-
-        return response()->json(
-            $state
-                ->areas()
-                ->visible()
-                ->when(
-                    ! empty($data['city']),
-                    fn ($q) => $q->atLocation(
-                        $data['city']
-                    )
-                )
+        $data = $request->validate(['state_id' => 'required|integer|min:1','city' => 'nullable|string|max:255',]);
+        $state = IndustrialState::query()->where('is_active', true)->findOrFail($data['state_id']);
+        return response()->json($state->areas()->visible()->when(! empty($data['city']),fn ($q) => $q->atLocation($data['city']))
                 ->orderBy('name')
-                ->get([
-                    'id',
-                    'name',
-                    'slug',
-                    'city',
-                    'district',
-                ])
-        );
+                ->get(['id','name','slug','city','district',]));
     }
-
-    /**
-     * Get companies / plants inside an industrial area.
-     *
-     * Area
-     *   → Companies / Plants
-     */
     public function companies(int $area)
     {
-        $area = IndustrialArea::visible()
-            ->findOrFail($area);
-
-        return response()->json(
-            $area
-                ->companies()
-                ->visible()
-                ->withCount([
-                    'jobs as live_jobs_count' => fn ($q) => $q->live(),
-                ])
-                ->orderBy('name')
-                ->get()
+        $area = IndustrialArea::visible()->findOrFail($area);
+        return response()->json($area->companies()->visible()->withCount(['jobs as live_jobs_count' => fn ($q) => $q->live(),])->orderBy('name')->get()
         );
     }
-
-    /**
-     * Resolve an area using state + area slug.
-     */
-    private function resolveArea(
-        string $stateSlug,
-        string $areaSlug
-    ): IndustrialArea {
-        return IndustrialArea::visible()
-            ->where(
-                'slug',
-                $areaSlug
-            )
-            ->whereHas(
-                'state',
-                fn ($q) => $q->where(
-                    'slug',
-                    $stateSlug
-                )
-            )
-            ->with('state')
-            ->firstOrFail();
+    private function resolveArea(string $stateSlug,string $areaSlug): IndustrialArea {
+        return IndustrialArea::visible()->where('slug',$areaSlug)->whereHas('state',fn ($q) => $q->where('slug',$stateSlug))->with('state')->firstOrFail();
     }
-
-    /**
-     * State → Area page.
-     */
-    public function show(
-        Request $request,
-        string $stateSlug,
-        string $areaSlug
-    ) {
-        $area = $this->resolveArea(
-            $stateSlug,
-            $areaSlug
-        );
-
-        $request->merge([
-            'state' => $area->state_id,
-
-            'location' => $area->city
-                ?: $area->district,
-
-            'area' => $area->id,
-        ]);
-
+    public function show(Request $request,string $stateSlug,string $areaSlug) {
+        $area = $this->resolveArea($stateSlug,$areaSlug);
+        $request->merge(['state' => $area->state_id,'location' => $area->city?: $area->district,'area' => $area->id,]);
         $data = $this->data($request);
-
-        return view(
-            'industrial.index',
-            $data
-        );
+        return view('industrial.index',$data);
     }
-
-    /**
-     * State → Area → Company page.
-     */
-    public function company(
-        Request $request,
-        string $stateSlug,
-        string $areaSlug,
-        string $companySlug
-    ) {
-        $area = $this->resolveArea(
-            $stateSlug,
-            $areaSlug
-        );
-
-        $company = $area
-            ->companies()
-            ->visible()
-            ->where(
-                'slug',
-                $companySlug
-            )
-            ->firstOrFail();
-
-        $request->merge([
-            'state' => $area->state_id,
-
-            'location' => $area->city
-                ?: $area->district,
-
-            'area' => $area->id,
-
-            'company' => $company->id,
-        ]);
-
+    public function company(Request $request,string $stateSlug,string $areaSlug,string $companySlug) {
+        $area = $this->resolveArea($stateSlug,$areaSlug);
+        $company = $area->companies()->visible()->where('slug',$companySlug)->firstOrFail();
+        $request->merge(['state' => $area->state_id,'location' => $area->city?: $area->district,'area' => $area->id,'company' => $company->id,]);
         $data = $this->data($request);
-
-        return view(
-            'industrial.index',
-            $data
-        );
+        return view('industrial.index',$data);
     }
-
-    /**
-     * Backward-compatible area URL.
-     */
-    public function legacyArea(
-        Request $request,
-        string $areaSlug
-    ) {
-        $query = IndustrialArea::visible()
-            ->where(
-                'slug',
-                $areaSlug
-            )
-            ->with('state');
-
+    public function legacyArea(Request $request,string $areaSlug) {
+        $query = IndustrialArea::visible()->where('slug',$areaSlug)->with('state');
         if ($request->filled('state')) {
-            $query->whereHas(
-                'state',
-                fn ($q) => $q->where(
-                    'slug',
-                    $request->query('state')
-                )
-            );
+            $query->whereHas('state',fn ($q) => $q->where('slug',$request->query('state')));
         }
-
-        $matches = $query
-            ->limit(2)
-            ->get();
-
-        abort_unless(
-            $matches->count() === 1,
-            404,
-            'Use a state-scoped area URL.'
-        );
-
+        $matches = $query->limit(2)->get();
+        abort_unless($matches->count() === 1,404,'Use a state-scoped area URL.');
         $area = $matches->first();
-
-        return redirect()->route(
-            'industrial.show',
-            [
-                $area->state->slug,
-                $area->slug,
-            ]
-        );
+        return redirect()->route('industrial.show',[$area->state->slug,$area->slug,]);
     }
-
-    /**
-     * Backward-compatible company URL.
-     */
-    public function legacyCompany(
-        Request $request,
-        string $companySlug
-    ) {
-        $matches = IndustrialCompany::visible()
-            ->where(
-                'slug',
-                $companySlug
-            )
-            ->with('area.state')
-            ->limit(2)
-            ->get();
-
-        abort_unless(
-            $matches->count() === 1,
-            404,
-            'Use an area-scoped company URL.'
-        );
-
+    public function legacyCompany(Request $request,string $companySlug) {
+        $matches = IndustrialCompany::visible()->where('slug',$companySlug)->with('area.state')->limit(2)->get();
+        abort_unless($matches->count() === 1,404,'Use an area-scoped company URL.');
         $company = $matches->first();
-
-        return redirect()->route(
-            'industrial.company',
-            [
-                $company->area->state->slug,
-                $company->area->slug,
-                $company->slug,
-            ]
-        );
+        return redirect()->route('industrial.company',[$company->area->state->slug,$company->area->slug,$company->slug,]);
     }
-
-    /** Counts catalogued companies (plants/offices) and live openings in each area's city. */
     private function attachCityActivity($areas): void
     {
         $hasFacilities = \Illuminate\Support\Facades\Schema::hasTable('company_facilities');
         $hasJobs = \Illuminate\Support\Facades\Schema::hasTable('jobs');
+        // Open jobs per location, counted once: a LIKE '%city%' count per area scans the whole jobs table each time.
+        $jobsByLocation = $hasJobs ? \Illuminate\Support\Facades\Cache::remember('industrial-city-activity:jobs-by-location', now()->addHour(),
+            function () {
+                $counts = [];
+                // Grouped on the raw column so MySQL reads only jobs_open_location_index; lower-cased here.
+                foreach (\App\Models\Job::forceIndex('jobs_open_location_index')->active()->whereNotNull('location')->selectRaw('location, COUNT(*) as n')->groupBy('location')->pluck('n', 'location') as $place => $n) {
+                    $counts[mb_strtolower((string) $place)] = ($counts[mb_strtolower((string) $place)] ?? 0) + (int) $n;
+                }
+                return $counts;
+            }) : [];
         foreach ($areas as $area) {
             $city = trim((string) ($area->city ?: $area->district));
             $area->setAttribute('activity_city', $city);
             if ($city === '') { $area->setAttribute('catalog_companies_count', 0); $area->setAttribute('city_jobs_count', 0); continue; }
-            $key = 'industrial-city-activity:' . \Illuminate\Support\Str::slug($city);
-            [$companies, $jobs] = \Illuminate\Support\Facades\Cache::remember($key, now()->addHour(), fn () => [
-                $hasFacilities ? \App\Models\CompanyFacility::where('city', $city)->distinct()->count('company_id') : 0,
-                $hasJobs ? \App\Models\Job::active()->where('location', 'like', '%' . addcslashes($city, '%_\\') . '%')->count() : 0,
-            ]);
+            $key = 'industrial-city-activity:v2:' . \Illuminate\Support\Str::slug($city);
+            [$companies, $jobs] = \Illuminate\Support\Facades\Cache::remember($key, now()->addHour(), function () use ($hasFacilities, $city, $jobsByLocation) {
+                $needle = mb_strtolower($city);
+                $jobs = 0;
+                foreach ($jobsByLocation as $place => $n) if (str_contains((string) $place, $needle)) $jobs += (int) $n;
+                return [$hasFacilities ? \App\Models\CompanyFacility::where('city', $city)->distinct()->count('company_id') : 0, $jobs];
+            });
             $area->setAttribute('catalog_companies_count', $companies);
             $area->setAttribute('city_jobs_count', $jobs);
         }
     }
-
-    /** Real companies with a plant or office in the selected area's city (area detail pages). */
     private function areaCatalog(Request $request)
     {
         if (!$request->filled('area') || !\Illuminate\Support\Facades\Schema::hasTable('company_facilities')) return collect();

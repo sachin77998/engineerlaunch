@@ -44,6 +44,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
         $schedule->command('market:data fetch-metals')->dailyAt('10:30')->timezone('Asia/Kolkata')->withoutOverlapping(30);
+        // Insights dashboard: index levels, movers and database counts stay cached, so no visitor waits for them.
+        $schedule->call(fn () => rescue(fn () => app(\App\Services\Insights\InsightsHome::class)->build()))->everyTenMinutes()->name('insights-home-warm')->withoutOverlapping(10);
+        // Gold, silver and copper price history for the calculators (last 5 years, refreshed daily).
+        $schedule->command('market:data metal-history')->dailyAt('07:00')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         $schedule->job(new \App\Jobs\WarmSectorGroups, 'catalog', 'database')->cron('0 */5 * * *');
         $schedule->command('discovery:bootstrap')->dailyAt('01:15')->withoutOverlapping(240);
         $schedule->command('technologies:sync --skip-discovery')->dailyAt('03:00')->withoutOverlapping(120);

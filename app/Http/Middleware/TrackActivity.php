@@ -13,7 +13,9 @@ class TrackActivity
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-        if (!$request->isMethod('get') || $request->is('admin*', 'api/*', 'login', 'forgot-password', 'reset-password/*', 'register', 'verify-otp', 'employers/register') ||
+        // Pages the browser loads ahead of a click (hover prefetch / prerender) are not visits.
+        $speculative = preg_match('/prefetch|prerender/i', (string) ($request->header('Sec-Purpose') . $request->header('Purpose')));
+        if ($speculative || !$request->isMethod('get') || $request->is('admin*', 'api/*', 'login', 'forgot-password', 'reset-password/*', 'register', 'verify-otp', 'employers/register') ||
             $response->getStatusCode() < 200 || $response->getStatusCode() >= 300 ||
             !str_contains((string)$response->headers->get('Content-Type'), 'text/html') ||
             $response->headers->has('Content-Disposition') ||

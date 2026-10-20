@@ -14,6 +14,19 @@ class CompanyAnalytics
 {
     private const CRORE = 10000000;
 
+    /** build(), or empty series if a record cannot be read: one bad row must not take the company page down. */
+    public function safeBuild(Company $company): array
+    {
+        try {
+            return $this->build($company);
+        } catch (\Throwable $e) {
+            report($e);
+            $empty = new Company();
+            foreach (['financialStatements', 'charges', 'officers', 'shareholdings', 'relatedParties'] as $relation) $empty->setRelation($relation, collect());
+            return $this->build($empty);
+        }
+    }
+
     public function build(Company $company): array
     {
         $statements = $this->statements($company);

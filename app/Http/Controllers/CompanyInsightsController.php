@@ -38,7 +38,7 @@ class CompanyInsightsController extends Controller
         }
         $identified = $query !== '' ? $this->insights->identify($query) : null;
         $results = $query !== '' ? $this->insights->search($query) : collect();
-        $mca = app(\App\Services\Insights\DataGovMca::class);
+        $mca = app(\App\Services\Insights\DataGovMca::class)->quick();
         // CIN not on a company page yet: create it from the MCA register (stored copy or live data.gov.in).
         if ($results->isEmpty() && ($identified['type'] ?? '') === 'cin') {
             try { if ($company = $mca->companyFor($identified['value'])) $results = collect([$company->load('registryDetail')]); } catch (\Throwable $e) { report($e); }
@@ -147,7 +147,9 @@ class CompanyInsightsController extends Controller
         }
         $instaReady = $insta->configured();
         $instaReady = $instaReady || $providers->enabled();
-        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies', 'directory', 'filters', 'register', 'registerCount') + ['facets' => $facets ?? [], 'directoryIsRegister' => $directoryIsRegister ?? false]);
+        // Dashboard (no search): database snapshot, markets today, sectors and recently viewed companies.
+        $home = $query === '' ? rescue(fn () => app(\App\Services\Insights\InsightsHome::class)->build(), null) : null;
+        return view('insights.index', compact('query', 'identified', 'results', 'decoded', 'stats', 'recent', 'external', 'externalError', 'instaReady', 'searchedOnline', 'directorCompanies', 'directory', 'filters', 'register', 'registerCount', 'home') + ['facets' => $facets ?? [], 'directoryIsRegister' => $directoryIsRegister ?? false]);
     }
 
     /** Company names in the MCA register: full-text words first, then a name prefix. */
@@ -172,7 +174,7 @@ class CompanyInsightsController extends Controller
     {
         $cin = strtoupper($cin);
         abort_unless(preg_match(CompanyInsights::CIN, $cin), 404);
-        $company = app(\App\Services\Insights\DataGovMca::class)->companyFor($cin);
+        $company = app(\App\Services\Insights\DataGovMca::class)->quick()->companyFor($cin);
         abort_unless($company, 404, 'This CIN is not in the MCA register.');
         return redirect()->route('insights.show', $company);
     }
@@ -199,6 +201,17 @@ class CompanyInsightsController extends Controller
         return $slug;
     }
 
+    /** "Is this section helpful?" on a company page: one answer per visitor and section (the latest counts). */
+    public function feedback(Company $company, Request $request)
+    {
+        $data = $request->validate(['section' => 'required|string|max:40|regex:/^[a-z0-9-]+$/', 'helpful' => 'required|boolean']);
+        $visitor = substr(hash('sha256', $request->session()->getId()), 0, 64);
+        \Illuminate\Support\Facades\DB::table('insights_feedback')->updateOrInsert(
+            ['company_id' => $company->id, 'section' => $data['section'], 'visitor' => $visitor],
+            ['helpful' => (bool) $data['helpful'], 'user_id' => $request->user()?->id, 'updated_at' => now(), 'created_at' => now()]);
+        return response()->json(['ok' => true]);
+    }
+
     public function show(Company $company, Request $request)
     {
         $vendorInputs = $request->validate(['vendor_revenue_change'=>'nullable|numeric|between:-100,100']);
@@ -211,7 +224,8 @@ class CompanyInsightsController extends Controller
         $knownCin = $company->registryDetail?->cin ?? $company->registry_cin;
         if ($knownCin && preg_match(CompanyInsights::CIN, $knownCin) && (!$company->registryDetail?->principal_activity || !$company->registryDetail?->city)
             && cache()->add('insights:register-fill:' . $company->id, 1, now()->addDay())) {
-            try { app(\App\Services\Insights\DataGovMca::class)->companyFor($knownCin); $company->unsetRelation('registryDetail'); } catch (\Throwable $e) { report($e); }
+            // Queued: data.gov.in can take minutes to answer, and the page must not wait for it.
+            try { \App\Jobs\FillRegistryFromMca::dispatch($knownCin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
         $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials']);
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
@@ -226,12 +240,16 @@ class CompanyInsightsController extends Controller
         if ($premium && $cin && $company->financialStatements->isEmpty() && config('services.insights.auto') && app(\App\Services\Insights\DataProviders::class)->enabled()) {
             try { \App\Jobs\FetchCompanyFromProviders::dispatch($company->id, $cin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
+        \App\Services\Insights\InsightsHome::remember($company, collect([$company->registryDetail?->city, $company->registered_state ?? $company->usListings->first()?->country, $company->country])->filter()->unique()->take(2)->implode(', '));
+        $profile = app(\App\Services\Insights\CompanyProfile::class);
         return view('insights.show', [
+            'areas' => rescue(fn () => $profile->operationalAreas($company), [], false),
+            'competitors' => rescue(fn () => $profile->competitors($company), collect(), false),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
             'dashboard' => app(\App\Services\Insights\InsightsDashboard::class)->build($company),
-            'analytics' => app(\App\Services\Insights\CompanyAnalytics::class)->build($company),
+            'analytics' => app(\App\Services\Insights\CompanyAnalytics::class)->safeBuild($company),
             'vendorAssessment' => app(\App\Services\Insights\VendorAssessment::class)->assess($company, (float)($vendorInputs['vendor_revenue_change'] ?? -10)),
             'compliance' => $this->insights->compliance($company->registryDetail),
             'decoded' => $cin && preg_match(CompanyInsights::CIN, $cin) ? $this->insights->decodeCin($cin) : null,

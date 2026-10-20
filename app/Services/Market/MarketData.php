@@ -117,6 +117,45 @@ class MarketData
         return $saved;
     }
 
+    // International futures (COMEX) in USD: gold and silver per troy ounce, copper per pound.
+    public const METAL_SYMBOLS = ['gold' => ['GC=F', '10 gram', 10 / 31.1034768], 'silver' => ['SI=F', 'kg', 1000 / 31.1034768], 'copper' => ['HG=F', 'kg', 1 / 0.45359237]];
+    public const METAL_SOURCE = 'International price (COMEX) × USD/INR, before import duty, GST and making charges';
+
+    /**
+     * Daily gold (₹/10 g), silver (₹/kg) and copper (₹/kg) for the last $range (Yahoo Finance chart data, converted
+     * with the same day's USD/INR). Stored as variant "international" so calculators can chart the trend. @return int rows saved
+     */
+    public function fetchMetalHistory(string $range = '5y'): int
+    {
+        $series = fn (string $symbol) => (function () use ($symbol, $range) {
+            $json = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'])
+                ->timeout(30)->retry(2, 2000)->get('https://query1.finance.yahoo.com/v8/finance/chart/' . rawurlencode($symbol), ['range' => $range, 'interval' => '1d'])->throw()->json('chart.result.0');
+            $out = [];
+            foreach ($json['timestamp'] ?? [] as $i => $ts) {
+                $close = $json['indicators']['quote'][0]['close'][$i] ?? null;
+                if ($close) $out[gmdate('Y-m-d', $ts)] = (float) $close;
+            }
+            return $out;
+        })();
+        $fx = $series('USDINR=X');
+        if (!$fx) throw new RuntimeException('No USD/INR rates returned');
+        $saved = 0;
+        $now = now();
+        foreach (self::METAL_SYMBOLS as $commodity => [$symbol, $unit, $factor]) {
+            $rate = null;
+            $rows = [];
+            foreach ($series($symbol) as $day => $usd) {
+                $rate = $fx[$day] ?? $rate; // markets close on different holidays: use the last known rate
+                if (!$rate) continue;
+                $rows[] = ['commodity' => $commodity, 'variant' => 'international', 'unit' => $unit, 'city' => '', 'priced_on' => $day,
+                    'price' => round($usd * $factor * $rate, 2), 'currency' => 'INR', 'source' => self::METAL_SOURCE, 'created_at' => $now, 'updated_at' => $now];
+            }
+            foreach (array_chunk($rows, 500) as $chunk) DB::table('commodity_prices')->upsert($chunk, ['commodity', 'variant', 'unit', 'city', 'priced_on'], ['price', 'source', 'updated_at']);
+            $saved += count($rows);
+        }
+        return $saved;
+    }
+
     /** Gold (24K/22K) and silver in INR per gram and per 10 g / kg from GoldAPI (free key). @return int rows saved */
     public function fetchMetals(): int
     {

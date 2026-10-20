@@ -25,7 +25,7 @@ class UsMarketData
 
     // Field => [concepts in order of preference (us-gaap, then IFRS for foreign filers), unit, instant?]
     public const FIELDS = [
-        'revenue' => [['us-gaap/Revenues', 'us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax', 'us-gaap/RevenueFromContractWithCustomerIncludingAssessedTax', 'us-gaap/SalesRevenueNet', 'ifrs-full/Revenue'], 'USD', false],
+        'revenue' => [['us-gaap/Revenues', 'us-gaap/RevenueFromContractWithCustomerExcludingAssessedTax', 'us-gaap/RevenueFromContractWithCustomerIncludingAssessedTax', 'us-gaap/SalesRevenueNet', 'ifrs-full/Revenue', 'ifrs-full/RevenueFromContractsWithCustomers'], 'USD', false],
         'operating_income' => [['us-gaap/OperatingIncomeLoss', 'ifrs-full/ProfitLossFromOperatingActivities'], 'USD', false],
         'net_income' => [['us-gaap/NetIncomeLoss', 'us-gaap/ProfitLoss', 'ifrs-full/ProfitLoss'], 'USD', false],
         'operating_cash_flow' => [['us-gaap/NetCashProvidedByUsedInOperatingActivities', 'ifrs-full/CashFlowsFromUsedInOperatingActivities'], 'USD', false],
@@ -134,7 +134,9 @@ class UsMarketData
     /** @return array{0:string,1:string} */
     public function classify(UsListedCompany $listing): array
     {
-        $match = $this->classifier->classify($listing->name, (string) $listing->industry);
+        // The exchange's industry describes the business; the name alone misleads ("Parker-Hannifin Corporation").
+        $match = $this->classifier->classify((string) $listing->industry);
+        if ($this->classifier->isFallback($match)) $match = $this->classifier->classify($listing->name);
         if ($this->classifier->isFallback($match)) $match = self::SECTORS[$listing->sector] ?? $match;
         // Bank rules are written for India; a US-listed bank belongs with the US banks.
         if ($match[0] === 'Banking & Financial Services' && in_array($match[1], ['Indian Banks', 'Public Sector & Government Banks'], true) && ($listing->country ?: 'United States') === 'United States')
@@ -173,30 +175,104 @@ class UsMarketData
                     }
                 }
             }
+            // Foreign filers reporting under IFRS in euros (e.g. Nokia): only for companies with no USD figures this year.
+            $euro = [];
+            foreach (self::FIELDS as $field => [$concepts, $unit, $instant]) {
+                foreach (array_filter($concepts, fn ($c) => str_starts_with($c, 'ifrs-full/')) as $concept) {
+                    [$taxonomy, $tag] = explode('/', $concept);
+                    try {
+                        $data = $this->sec(sprintf(self::FRAMES, $taxonomy, $tag, str_replace('USD', 'EUR', $unit), 'CY' . $year . ($instant ? 'Q4I' : '')))['data'] ?? [];
+                    } catch (RuntimeException $e) {
+                        continue;
+                    }
+                    foreach ($data as $fact) {
+                        $cik = (int) $fact['cik'];
+                        if (!isset($ciks[$cik]) || isset($rows[$cik]) || isset($euro[$cik][$field])) continue;
+                        $euro[$cik][$field] = $fact['val'];
+                        if ($instant) $euro[$cik]['balance_sheet_date'] ??= $fact['end'];
+                        else $euro[$cik]['period_end'] ??= $fact['end'];
+                    }
+                }
+            }
+            foreach ($rows as $cik => $values) $rows[$cik]['currency'] = 'USD';
+            foreach ($euro as $cik => $values) $rows[$cik] = $values + ['currency' => 'EUR'];
             $now = now();
             $records = [];
             foreach ($rows as $cik => $values) {
-                $records[] = array_merge(['cik' => $cik, 'fiscal_year' => $year, 'created_at' => $now, 'updated_at' => $now],
+                $records[] = array_merge(['cik' => $cik, 'fiscal_year' => $year, 'currency' => 'USD', 'created_at' => $now, 'updated_at' => $now],
                     array_fill_keys(array_keys(self::FIELDS), null), ['period_end' => null, 'balance_sheet_date' => null], $values);
             }
             foreach (array_chunk($records, 500) as $chunk) {
-                DB::table('us_company_financials')->upsert($chunk, ['cik', 'fiscal_year'], [...array_keys(self::FIELDS), 'period_end', 'balance_sheet_date', 'updated_at']);
+                DB::table('us_company_financials')->upsert($chunk, ['cik', 'fiscal_year'], [...array_keys(self::FIELDS), 'currency', 'period_end', 'balance_sheet_date', 'updated_at']);
             }
             $saved += count($records);
         }
         return $saved;
     }
 
-    /** "$1.25T", "$342.1B", "$12.4M" */
-    public static function money(?float $value): string
+    /**
+     * Companies the yearly frames miss (foreign filers on 20-F/40-F, odd fiscal years): read each one's SEC
+     * company-facts file and keep annual figures in its reporting currency. @return int companies updated
+     */
+    public function importMissingFromCompanyFacts(int $lastYear, int $limit = 600): int
     {
+        $stale = DB::table('us_listed_companies as l')->whereNotNull('l.cik')
+            ->leftJoin('us_company_financials as f', fn ($j) => $j->on('f.cik', '=', 'l.cik')->where('f.fiscal_year', '>=', $lastYear - 1)->whereNotNull('f.revenue'))
+            ->whereNull('f.id')->orderByDesc('l.market_cap')->distinct()->limit($limit)->pluck('l.cik');
+        $updated = 0;
+        foreach ($stale as $cik) {
+            try {
+                $facts = $this->sec(sprintf('https://data.sec.gov/api/xbrl/companyfacts/CIK%010d.json', $cik))['facts'] ?? [];
+            } catch (RuntimeException $e) {
+                continue;
+            }
+            $years = [];
+            foreach (self::FIELDS as $field => [$concepts, $unit, $instant]) {
+                foreach ($concepts as $concept) {
+                    [$taxonomy, $tag] = explode('/', $concept);
+                    $units = $facts[$taxonomy][$tag]['units'] ?? [];
+                    // Monetary facts: the reporting currency (USD, EUR, …); EPS: "<currency>/shares".
+                    foreach ($units as $unitName => $list) {
+                        $isEps = str_contains($unitName, '/shares');
+                        if ($isEps !== ($field === 'eps_diluted') || (!$isEps && strlen($unitName) !== 3)) continue;
+                        $currency = substr($unitName, 0, 3);
+                        foreach ($list as $fact) {
+                            if (!in_array($fact['form'] ?? '', ['10-K', '20-F', '40-F', '10-K/A', '20-F/A'], true) || ($fact['fp'] ?? '') !== 'FY') continue;
+                            if (!$instant && isset($fact['start']) && abs(strtotime($fact['end']) - strtotime($fact['start'])) < 300 * 86400) continue;
+                            $year = (int) substr($fact['end'], 0, 4);
+                            if ($year < $lastYear - 5 || $year > $lastYear + 1) continue;
+                            if (isset($years[$year]['currency']) && $years[$year]['currency'] !== $currency) continue;
+                            if (isset($years[$year][$field])) continue;
+                            $years[$year][$field] = $fact['val'];
+                            $years[$year]['currency'] = $currency;
+                            $years[$year][$instant ? 'balance_sheet_date' : 'period_end'] ??= $fact['end'];
+                        }
+                    }
+                    if (array_filter($years, fn ($y) => isset($y[$field]))) break; // first concept with data wins
+                }
+            }
+            $now = now();
+            foreach ($years as $year => $values) {
+                if (!isset($values['revenue']) && !isset($values['net_income'])) continue;
+                DB::table('us_company_financials')->updateOrInsert(['cik' => $cik, 'fiscal_year' => $year],
+                    array_merge(array_fill_keys(array_keys(self::FIELDS), null), ['period_end' => null, 'balance_sheet_date' => null], $values, ['updated_at' => $now, 'created_at' => $now]));
+            }
+            if ($years) $updated++;
+        }
+        return $updated;
+    }
+
+    /** "$1.25T", "$342.1B", "$12.4M" (or € for euro filers) */
+    public static function money(?float $value, string $currency = 'USD'): string
+    {
+        $symbol = ['USD' => '$', 'EUR' => '€', 'GBP' => '£', 'JPY' => '¥', 'INR' => '₹'][$currency] ?? $currency . ' ';
         if ($value === null) return '—';
         $sign = $value < 0 ? '−' : '';
         $abs = abs($value);
         foreach ([1e12 => 'T', 1e9 => 'B', 1e6 => 'M', 1e3 => 'K'] as $size => $suffix) {
-            if ($abs >= $size) return $sign . '$' . number_format($abs / $size, $abs / $size >= 100 ? 0 : 1) . $suffix;
+            if ($abs >= $size) return $sign . $symbol . number_format($abs / $size, $abs / $size >= 100 ? 0 : 1) . $suffix;
         }
-        return $sign . '$' . number_format($abs, 0);
+        return $sign . $symbol . number_format($abs, 0);
     }
 
     private function sec(string $url): array
@@ -216,7 +292,7 @@ class UsMarketData
 
     private function cleanName(string $name): string
     {
-        $name = preg_split('/\s+(?:Class [A-Z]\b|Common Stock|Common Shares|Ordinary Shares|American Depositary|Depositary Shares|Sponsored ADR|ADR\b|Shares of Beneficial|Subordinate Voting)/i', $name)[0];
+        $name = preg_split('/\s+(?:Class [A-Z]\b|Common Stock|Common Shares|Ordinary Shares|American Depositary|Depositary Shares|Sponsored\b|ADR\b|Shares of Beneficial|Subordinate Voting)/i', $name)[0];
         $name = trim(rtrim(trim($name), ','));
         return preg_replace('/^(.+?)\s*\(The\)$/i', 'The $1', $name) ?: $name;
     }

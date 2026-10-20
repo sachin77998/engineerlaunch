@@ -10,6 +10,11 @@ class UsListedCompany extends Model
     protected $guarded = [];
     protected $casts = ['price_date' => 'date', 'last_price' => 'float', 'change_pct' => 'float', 'market_cap' => 'float'];
 
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
     /** Annual results filed with the SEC (USD), oldest first. */
     public function financials(): HasMany
     {

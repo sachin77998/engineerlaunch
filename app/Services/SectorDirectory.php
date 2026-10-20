@@ -107,6 +107,12 @@ class SectorDirectory
     }
     public function group(string $slug): ?object
     {
+        // While the cards are being rebuilt (cache expired or catalog changed), serve the last built ones and let the
+        // queue rebuild: building them inline takes several seconds on production data.
+        if (!Cache::has($this->key('groups')) && !app()->runningInConsole() && ($lastGood = Cache::get(self::LAST_GOOD_KEY))) {
+            try { \App\Jobs\WarmSectorGroups::dispatch()->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
+            if ($card = $lastGood->firstWhere('slug', $slug)) return $card;
+        }
         return $this->groups()->firstWhere('slug', $slug);
     }
 
@@ -157,7 +163,10 @@ class SectorDirectory
     {
         if ($categoryIds->isEmpty()) return [];
         return Cache::remember($this->key('live-roles:' . md5($categoryIds->sort()->implode(','))), now()->addHours(3), function () use ($categoryIds, $limit) {
-            $titles = Job::active()->whereIn('company_id', fn ($q) => $q->select('company_id')->from('company_category_company')->whereIn('company_category_id', $categoryIds))
+            // Company ids first: an IN (subquery) here is re-run per index entry and takes tens of seconds.
+            $companyIds = \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $categoryIds)->distinct()->pluck('company_id');
+            if ($companyIds->isEmpty()) return [];
+            $titles = Job::forceIndex('jobs_open_company_posted_index')->active()->whereIn('company_id', $companyIds)
                 ->latest('posted_at')->limit(3000)->pluck('title');
             $counts = [];
             foreach ($titles as $title) {
@@ -302,7 +311,7 @@ class SectorDirectory
     public function openings(Collection $companyIds, array $filters, int $limit = 15): Collection
     {
         if ($companyIds->isEmpty()) return collect();
-        return Job::active()->whereIn('company_id', $companyIds)->with('company:id,name,slug')
+        return Job::forceIndex('jobs_open_company_posted_index')->active()->whereIn('company_id', $companyIds)->with('company:id,name,slug')
             ->when($filters['role'] ?? null, function ($q, $role) {
                 foreach (preg_split('/\s+/', trim($role)) as $word) $q->where('title', 'like', $this->like($word));
             })

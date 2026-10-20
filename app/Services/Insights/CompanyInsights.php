@@ -181,7 +181,8 @@ class CompanyInsights
             $debt = $s->total_debt ?? (($s->long_term_borrowings !== null || $s->short_term_borrowings !== null) ? (float) $s->long_term_borrowings + (float) $s->short_term_borrowings : null);
             $equity = $s->net_worth ?? (($s->share_capital !== null || $s->reserves !== null) ? (float) $s->share_capital + (float) $s->reserves : null);
             $ebitda = $s->ebitda ?? ($s->profit_before_tax !== null ? (float) $s->profit_before_tax + (float) $s->finance_cost + (float) $s->depreciation : null);
-            $ratio = fn ($a, $b, $scale = 100) => ($a === null || !$b) ? null : round($a / $b * $scale, 2);
+            // Decimal columns arrive as strings ("0.00" is truthy): compare as numbers, or banks with no current liabilities divide by zero.
+            $ratio = fn ($a, $b, $scale = 100) => ($a === null || $b === null || (float) $b == 0.0) ? null : round((float) $a / (float) $b * $scale, 2);
             $row = [
                 'year' => $s->financial_year, 'revenue' => $s->revenue, 'ebitda' => $ebitda, 'pat' => $s->profit_after_tax, 'net_worth' => $equity,
                 'total_debt' => $debt, 'total_assets' => $s->total_assets,

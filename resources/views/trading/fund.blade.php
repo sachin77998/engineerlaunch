@@ -29,47 +29,7 @@
                 </div>
             </section>
 
-            <section class="dt-card">
-                <h2>Returns</h2>
-                @php
-                    $periods = ['return_6m' => '6M', 'return_1y' => '1Y', 'return_3y' => '3Y (p.a.)', 'return_5y' => '5Y (p.a.)'];
-                    $catAvg = ['return_1y' => $peers?->r1, 'return_3y' => $peers?->r3, 'return_5y' => $peers?->r5];
-                    $scale = max(1, collect($periods)->keys()->map(fn ($k) => abs((float) $scheme->{$k}))->merge(collect($catAvg)->map(fn ($v) => abs((float) $v)))->max());
-                @endphp
-                <div class="dt-stats" style="margin-bottom:16px">
-                    @foreach($periods as $k => $l)<div class="dt-stat"><span>{{ $l }}</span><b class="{{ ($scheme->{$k} ?? 0) >= 0 ? 'up' : 'down' }}">{{ $scheme->{$k} !== null ? ($scheme->{$k} >= 0 ? '+' : '') . number_format($scheme->{$k}, 2) . '%' : '—' }}</b></div>@endforeach
-                </div>
-                <div class="dt-bars">
-                    @foreach(['return_1y' => '1Y', 'return_3y' => '3Y', 'return_5y' => '5Y'] as $k => $l)
-                        @continue($scheme->{$k} === null)
-                        <div class="dt-barrow"><span class="dt-muted">{{ $l }}</span>
-                            <div class="dt-bartrack"><i style="width:{{ max(2, abs($scheme->{$k}) / $scale * 100) }}%;{{ $scheme->{$k} < 0 ? 'background:#e5484d' : '' }}"></i></div>
-                            <b class="{{ $scheme->{$k} >= 0 ? 'up' : 'down' }}" style="text-align:right">{{ number_format($scheme->{$k}, 1) }}%</b></div>
-                        @if($catAvg[$k] !== null)<div class="dt-barrow"><span class="dt-muted" style="font-size:12px">Category</span><div class="dt-bartrack"><i class="cat" style="width:{{ max(2, abs($catAvg[$k]) / $scale * 100) }}%"></i></div><span class="dt-muted" style="text-align:right">{{ number_format($catAvg[$k], 1) }}%</span></div>@endif
-                    @endforeach
-                </div>
-                <p class="dt-muted" style="margin:12px 0 0">Category average across {{ $peers?->n ?? 0 }} {{ $scheme->sub_category }} funds ({{ $scheme->plan }}, {{ $scheme->option }}). Past returns do not guarantee future returns.</p>
-            </section>
-
-            @if($history->count() > 2)
-                @php
-                    $w = 760; $h = 220; $pad = 34;
-                    $min = $history->min('nav'); $max = $history->max('nav'); $span = max(0.0001, $max - $min);
-                    $pts = $history->values()->map(fn ($r, $i) => round($pad + $i * ($w - 2 * $pad) / max(1, $history->count() - 1), 1) . ',' . round($h - $pad - ($r->nav - $min) / $span * ($h - 2 * $pad), 1))->implode(' ');
-                    $upTrend = $history->last()->nav >= $history->first()->nav;
-                @endphp
-                <section class="dt-card">
-                    <h2>NAV history</h2>
-                    <svg class="dt-chart" viewBox="0 0 {{ $w }} {{ $h }}" role="img" aria-label="NAV history">
-                        <defs><linearGradient id="dtg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="{{ $upTrend ? '#00a676' : '#e5484d' }}" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-                        <polygon points="{{ $pad }},{{ $h - $pad }} {{ $pts }} {{ $w - $pad }},{{ $h - $pad }}" fill="url(#dtg)"/>
-                        <polyline points="{{ $pts }}" fill="none" stroke="{{ $upTrend ? '#00a676' : '#e5484d' }}" stroke-width="2"/>
-                        <text x="4" y="{{ $pad }}" font-size="11" fill="#7c7e8c">₹{{ number_format($max, 2) }}</text><text x="4" y="{{ $h - $pad }}" font-size="11" fill="#7c7e8c">₹{{ number_format($min, 2) }}</text>
-                        <text x="{{ $pad }}" y="{{ $h - 8 }}" font-size="11" fill="#7c7e8c">{{ \Carbon\Carbon::parse($history->first()->nav_date)->format('d M Y') }}</text>
-                        <text x="{{ $w - $pad }}" y="{{ $h - 8 }}" font-size="11" fill="#7c7e8c" text-anchor="end">{{ \Carbon\Carbon::parse($history->last()->nav_date)->format('d M Y') }}</text>
-                    </svg>
-                </section>
-            @endif
+            @include('trading.partials.fund-insights')
 
             <section class="dt-card">
                 <h2>Fund details</h2>

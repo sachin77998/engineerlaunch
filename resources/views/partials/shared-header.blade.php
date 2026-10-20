@@ -73,12 +73,15 @@
     <a class="header-insights-btn {{ request()->routeIs('insights.*') ? 'is-active' : '' }}" href="{{ route('insights.index') }}">Insights into Company</a>
     <button class="header-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
-      <details class="header-group header-primary {{ request()->routeIs('trading.*') ? 'is-active' : '' }}">
+      <details class="header-group header-primary {{ request()->routeIs('trading.*', 'calculators.*', 'insurance.*', 'markets.us*') ? 'is-active' : '' }}">
         <summary>Do Trading</summary>
         <div class="header-menu">
           <a href="{{ route('trading.index') }}">Mutual funds</a>
           <a href="{{ route('trading.stocks') }}">Stocks</a>
           <a href="{{ route('trading.etfs') }}">ETFs</a>
+          <a href="{{ route('markets.us') }}">US stocks: NYSE &amp; Nasdaq</a>
+          <a href="{{ route('calculators.index') }}">All calculators: gold, silver, EMI, SIP, PPF, FD, NPS, GST…</a>
+          <a href="{{ route('insurance.index') }}">Insurance: health, term, car, bike</a>
           <a href="{{ route('trading.calculators') }}">Calculators: SIP, lumpsum, EMI, margin</a>
           <a href="{{ route('trading.loans') }}">Loans &amp; amortization</a>
           <a href="{{ route('trading.orders') }}">Orders &amp; holdings</a>
@@ -117,7 +120,7 @@
             <div class="header-sub-links">
           @auth
             @if($isOwner)
-              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
+              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
             @elseif($isEmployer)
               <a href="{{ route('employer.dashboard') }}">HR Dashboard</a><a href="{{ route('employer.assistant', 'job') }}">Post a Job (Assistant)</a><a href="{{ route('employer.assistant', 'company') }}">Company Profile (Assistant)</a><a href="{{ route('employer.jobs.create') }}">Detailed Job Form</a>
             @else

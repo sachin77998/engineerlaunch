@@ -3,7 +3,10 @@
     $primary = $company->usListings->first();
     $usYears = $primary->financials->sortBy('fiscal_year')->take(-6)->keyBy('fiscal_year');
     $usLatest = $usYears->last();
-    $pe = $usLatest && $primary->last_price && $usLatest->eps_diluted > 0 ? $primary->last_price / $usLatest->eps_diluted : null;
+    $cur = $usLatest?->currency ?? 'USD';
+    $fin = fn ($v) => \App\Services\Insights\UsMarketData::money($v === null ? null : (float) $v, $cur);
+    // P/E only when results and share price are in the same currency.
+    $pe = $usLatest && $cur === 'USD' && $primary->last_price && $usLatest->eps_diluted > 0 ? $primary->last_price / $usLatest->eps_diluted : null;
 @endphp
 <section class="ci-card" id="us-market">
     <h2>US market &amp; SEC filings</h2>
@@ -21,16 +24,48 @@
         <div class="ci-metric"><span>Sector</span><b style="font-size:14px">{{ $primary->sector ?: '—' }}</b><small>{{ $primary->industry }}</small></div>
         <div class="ci-metric"><span>Country · IPO</span><b style="font-size:14px">{{ $primary->country ?: '—' }}</b><small>{{ $primary->ipo_year ? 'Listed ' . $primary->ipo_year : '' }}</small></div>
     </div>
+    <div class="ci-head-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px">
+        <h3 class="ci-h3" style="margin:0">{{ $primary->ticker }} share price</h3>
+        <div class="ci-tabs" id="us-ranges" style="margin:0">@foreach(['1M' => 30, '6M' => 182, '1Y' => 365, '3Y' => 1095, '5Y' => 1826] as $label => $days)<button type="button" data-days="{{ $days }}" class="{{ $label === '1Y' ? 'active' : '' }}">{{ $label }}</button>@endforeach</div>
+    </div>
+    <p class="ci-muted" id="us-price-stats" style="margin:6px 0"></p>
+    <div class="ci-chart"><canvas id="us-price-chart" aria-label="{{ $primary->ticker }} daily closing price"></canvas></div>
 </section>
+@push('scripts')
+<script>
+(() => {
+    let chart, points = [];
+    const canvas = document.getElementById('us-price-chart'), stats = document.getElementById('us-price-stats');
+    const show = days => {
+        if (!points.length || !window.Chart) return;
+        const from = new Date(points[points.length - 1][0]); from.setDate(from.getDate() - days);
+        const set = points.filter(p => new Date(p[0]) >= from), first = set[0][1], last = set[set.length - 1][1], ch = (last / first - 1) * 100;
+        stats.innerHTML = `$${last.toFixed(2)} · <b class="${ch >= 0 ? 'up' : 'down'}">${ch >= 0 ? '▲' : '▼'} ${Math.abs(ch).toFixed(2)}%</b> over this period · high $${Math.max(...set.map(p => p[1])).toFixed(2)} · low $${Math.min(...set.map(p => p[1])).toFixed(2)}`;
+        chart?.destroy();
+        chart = new Chart(canvas, {type: 'line', data: {labels: set.map(p => p[0]), datasets: [{label: 'Close (USD)', data: set.map(p => p[1]), borderColor: ch >= 0 ? '#087443' : '#b42318',
+            backgroundColor: ch >= 0 ? 'rgba(8,116,67,.1)' : 'rgba(180,35,24,.08)', fill: true, pointRadius: 0, borderWidth: 2, tension: .15}]},
+            options: {responsive: true, maintainAspectRatio: false, interaction: {mode: 'index', intersect: false}, plugins: {legend: {display: false}}, scales: {x: {ticks: {maxTicksLimit: 8}}}}});
+    };
+    document.querySelectorAll('#us-ranges [data-days]').forEach(b => b.addEventListener('click', () => {
+        document.querySelectorAll('#us-ranges [data-days]').forEach(x => x.classList.toggle('active', x === b)); show(+b.dataset.days);
+    }));
+    fetch(@json(route('markets.us.history', $primary->ticker))).then(r => r.json()).then(d => {
+        points = d.points || [];
+        if (!points.length) { canvas.parentElement.hidden = true; stats.textContent = 'Price history is not available right now.'; return; }
+        show(365);
+    }).catch(() => { canvas.parentElement.hidden = true; });
+})();
+</script>
+@endpush
 
 @if($usYears->isEmpty())
     <section class="ci-card" id="us-financials"><h2>Annual results (SEC EDGAR)</h2><p class="ci-muted">No annual results in SEC XBRL data for this company yet.</p></section>
 @elseif($premium)
     <section class="ci-card" id="us-financials">
-        <h2>Annual results (SEC EDGAR, USD)</h2>
+        <h2>Annual results (SEC EDGAR, {{ $cur }})</h2>
         <div class="ci-table-wrap">
             <table class="ci-table">
-                <thead><tr><th>USD · year</th>@foreach($usYears as $year => $row)<th>{{ $year }}</th>@endforeach</tr></thead>
+                <thead><tr><th>{{ $cur }} · year</th>@foreach($usYears as $year => $row)<th>{{ $year }}</th>@endforeach</tr></thead>
                 <tbody>
                 @foreach(['Income statement' => null, 'revenue' => 'Revenue', 'operating_income' => 'Operating income', 'net_income' => 'Net income', 'net_margin' => 'Net margin',
                           'eps_diluted' => 'Diluted EPS', 'operating_cash_flow' => 'Operating cash flow',
@@ -44,8 +79,8 @@
                                 <td>
                                     @if($field === 'net_margin'){!! $pct($row->revenue > 0 && $row->net_income !== null ? $row->net_income / $row->revenue * 100 : null) !!}
                                     @elseif($field === 'roe'){!! $pct($row->equity > 0 && $row->net_income !== null ? $row->net_income / $row->equity * 100 : null) !!}
-                                    @elseif($field === 'eps_diluted'){{ $row->eps_diluted !== null ? '$' . number_format($row->eps_diluted, 2) : '—' }}
-                                    @else<span class="{{ $row->{$field} !== null && $row->{$field} < 0 ? 'down' : '' }}">{{ $usd($row->{$field}) }}</span>@endif
+                                    @elseif($field === 'eps_diluted'){{ $row->eps_diluted !== null ? ($cur === 'EUR' ? '€' : '$') . number_format($row->eps_diluted, 2) : '—' }}
+                                    @else<span class="{{ $row->{$field} !== null && $row->{$field} < 0 ? 'down' : '' }}">{{ $fin($row->{$field}) }}</span>@endif
                                 </td>
                             @endforeach
                         </tr>

@@ -63,6 +63,8 @@ run trading:sync
 run insights:import-nse
 run insights:import-mca
 run insights:import-us
+run market:data metal-history
+run db:seed --class=InsurerSeeder --force
 run sectors:file-listed
 run optimize:clear
 

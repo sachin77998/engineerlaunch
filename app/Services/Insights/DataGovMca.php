@@ -24,6 +24,19 @@ class DataGovMca
         'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab',
         'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'];
 
+    // Background imports wait out a slow data.gov.in; a page someone is waiting on uses quick() instead.
+    private int $timeout = 120;
+    private int $retries = 3;
+
+    /** A copy for web requests: one attempt, 8 seconds, so a slow data.gov.in never holds a page for minutes. */
+    public function quick(): static
+    {
+        $copy = clone $this;
+        $copy->timeout = 8;
+        $copy->retries = 1;
+        return $copy;
+    }
+
     public function configured(): bool
     {
         return filled(config('services.datagov.key'));
@@ -39,7 +52,7 @@ class DataGovMca
         foreach ($ranges as $field => [$from, $to]) { $query["range[{$field}][gte]"] = $from; $query["range[{$field}][lt]"] = $to; }
         if ($ranges) $query['sort[corporate_identification_number]'] = 'asc';
         $resource = (array) config('services.datagov.company_resources');
-        $response = Http::timeout(120)->retry(3, 5000, throw: false)->get('https://api.data.gov.in/resource/' . reset($resource), $query);
+        $response = Http::timeout($this->timeout)->retry($this->retries, 5000, throw: false)->get('https://api.data.gov.in/resource/' . reset($resource), $query);
         $json = $response->json();
         if (!$response->successful() || !is_array($json)) throw new RuntimeException('data.gov.in returned HTTP ' . $response->status() . ': ' . mb_substr($response->body(), 0, 200));
         if (isset($json['error'])) throw new RuntimeException('data.gov.in: ' . $json['error']);
