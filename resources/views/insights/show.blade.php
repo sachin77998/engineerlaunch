@@ -162,6 +162,11 @@
         <section class="ci-card" id="vendor-checks"><h2>Vendor checks &amp; payment capacity</h2><p>Sign in with access to company financials to review vendor evidence.</p></section>
     @endif
 
+    @if($credit)
+        @include('insights.partials.credit-ratings')
+        @include('insights.partials.rated-debt')
+    @endif
+
     @if($health && $premium)
         <section class="ci-card" id="health">
             <h2>Financial health score</h2>
@@ -299,6 +304,9 @@
     </div>
 
     @include('insights.partials.profile-competitors')
+    @if($similar->isNotEmpty())
+        @include('insights.partials.similar-companies', ['items' => $similar])
+    @endif
 
     @if($premium)
         @include('insights.partials.ownership-dashboard')

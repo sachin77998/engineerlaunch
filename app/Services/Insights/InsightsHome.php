@@ -20,7 +20,17 @@ class InsightsHome
             'us' => rescue(fn () => $this->markets->indices(MarketSnapshot::US), [], false),
             'sectors' => $this->sectors(),
             'recent' => collect(session('insights.recent', []))->take(8),
+            'recommended' => rescue(fn () => app(CompanySimilarity::class)->forVisitor(collect(session('insights.recent', []))->pluck('slug')->all(), 6), collect(), false),
+            'ratings' => rescue(fn () => $this->ratingActions(), collect(), false),
         ];
+    }
+
+    /** Latest credit-rating actions (ICRA / CARE), for the dashboard's daily feed. */
+    private function ratingActions()
+    {
+        return Cache::remember('insights-home:ratings', now()->addMinutes(30), fn () => \App\Models\CreditRating::where('parse_status', 'parsed')
+            ->whereNotNull('published_on')->with('company:id,name,slug')->orderByDesc('published_on')->orderByDesc('id')->limit(12)
+            ->get(['id', 'company_id', 'agency', 'entity_name', 'published_on', 'action', 'rating_long', 'rating_short', 'outlook', 'previous_rating_long', 'source_url']));
     }
 
     private function snapshot(): array

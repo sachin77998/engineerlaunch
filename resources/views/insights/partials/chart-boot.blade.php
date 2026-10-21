@@ -18,9 +18,18 @@
         const options = cfg.options || {};
         // Year axes: plain integers (2009, not 2,009).
         if (cfg.yearAxis) { const axis = (options.scales ||= {})[cfg.yearAxis] ||= {}; axis.ticks = {...(axis.ticks || {}), callback: v => String(Math.round(v))}; delete cfg.yearAxis; }
+        // Named ticks (e.g. rating scores 1–20 shown as D … AAA), also used in tooltips.
+        let tipLabel = label;
+        if (cfg.tickLabels) {
+            const {axis: name, labels: names} = cfg.tickLabels;
+            const axis = (options.scales ||= {})[name] ||= {};
+            axis.ticks = {...(axis.ticks || {}), stepSize: 1, autoSkip: false, callback: v => names[v] ?? ''};
+            tipLabel = ctx => `${ctx.dataset.label}: ${names[ctx.raw] ?? '—'}`;
+            delete cfg.tickLabels;
+        }
         cfg.options = {
             responsive: true, maintainAspectRatio: false, interaction: {mode: 'index', intersect: false}, ...options,
-            plugins: {legend: {position: 'top', labels: {boxWidth: 12, usePointStyle: true}}, ...(options.plugins || {}), tooltip: {callbacks: {label}}},
+            plugins: {legend: {position: 'top', labels: {boxWidth: 12, usePointStyle: true}}, ...(options.plugins || {}), tooltip: {callbacks: {label: tipLabel}}},
         };
         new Chart(canvas, cfg);
     });

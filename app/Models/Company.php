@@ -142,6 +142,15 @@ class Company extends Model
     {
         return $this->hasMany(CompanyRelatedParty::class);
     }
+    // Rating actions from ICRA/CARE rationales, newest first, and the agencies' company records.
+    public function creditRatings(): HasMany
+    {
+        return $this->hasMany(CreditRating::class)->orderByDesc('published_on')->orderByDesc('id');
+    }
+    public function creditRatingSources(): HasMany
+    {
+        return $this->hasMany(CreditRatingSource::class);
+    }
     public function charges(): HasMany
     {
         return $this->hasMany(CompanyCharge::class)->orderByDesc('created_on');

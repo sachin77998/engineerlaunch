@@ -35,6 +35,9 @@ class AdminMaintenanceController extends Controller
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
         'trading' => ['Do Trading: mutual fund NAVs and returns (AMFI), NSE holidays and margins, allot orders', 'trading:sync', []],
         'nse-listed' => ['Import every NSE-listed company: CIN, audited results since FY 2016-17, shareholding, share price (queued, several hours)', 'insights:import-nse', []],
+        'credit-ratings' => ['Credit ratings: latest ICRA rationales and CARE company lookups (queued; also runs three times a day)', 'insights:ratings', []],
+        'credit-history' => ['Credit ratings: read 1,000 older ICRA rationales for rating history (queued, about an hour)', 'insights:ratings', ['--icra' => true, '--limit' => 1, '--backfill' => 1000]],
+        'similar' => ['Rebuild similar-company recommendations (machine-learning model, nightly)', 'insights:similar', []],
         'mca-register' => ['Import the MCA company register, all states (data.gov.in, ~40 lakh companies; needs DATAGOV_API_KEY; runs for several hours)', 'insights:import-mca', []],
         'status' => ['Show migration status', 'migrate:status', []],
         'https' => ['Enable HTTPS (only after the SSL certificate is active)', 'security:https', ['--enable' => true]],
@@ -57,6 +60,10 @@ class AdminMaintenanceController extends Controller
             'Re-sort unclassified companies into sectors' => ['companies:reclassify', []],
             'Rebuild Companies by Sector cards' => ['sectors:warm', []],
             'Listed companies: NSE results, shareholding and prices (companies not synced this week)' => ['insights:import-nse', []],
+        ]],
+        'insights' => ['Company insights', [
+            'Credit ratings: new ICRA rationales and CARE company lookups' => ['insights:ratings', []],
+            'Similar-company recommendations' => ['insights:similar', []],
         ]],
         'news' => ['Latest in Tech', [
             'Fetch news sources' => ['news:fetch', []],

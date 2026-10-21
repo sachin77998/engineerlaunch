@@ -134,6 +134,23 @@
                 <a class="db-btn alt" href="{{ route('contact') }}?subject=Premium%20plan">Talk to us</a>
             </div>
         @endunless
+        @if(($home['recommended'] ?? collect())->isNotEmpty())
+            <div class="db-card db-recent"><h2>Recommended for you</h2>
+                @foreach($home['recommended'] as $r)
+                    <a href="{{ route('insights.show', $r->slug) }}">@if($r->logo_url)<img src="{{ $r->logo_url }}" alt="" loading="lazy">@else<span class="db-logo txt">{{ mb_substr($r->name, 0, 1) }}</span>@endif
+                        <span>{{ $r->name }}<small>{{ $r->industry }}</small></span></a>
+                @endforeach
+            </div>
+        @endif
+        @if(($home['ratings'] ?? collect())->isNotEmpty())
+            <div class="db-card db-recent"><h2>Latest credit rating actions</h2>
+                @foreach($home['ratings'] as $r)
+                    <a href="{{ $r->company ? route('insights.show', $r->company->slug) : $r->source_url }}" @unless($r->company) target="_blank" rel="noopener" @endunless>
+                        <span class="db-logo txt" style="font-size:10px">{{ $r->agency }}</span>
+                        <span>{{ $r->entity_name }}<small><b class="{{ $r->action === 'upgraded' ? 'up' : (in_array($r->action, ['downgraded', 'non-cooperating']) ? 'down' : '') }}">{{ ucfirst((string) $r->action) }}</b> · {{ collect([$r->rating_long, $r->rating_short])->filter()->implode(' / ') ?: '—' }}{{ $r->outlook ? ' (' . $r->outlook . ')' : '' }} · {{ $r->published_on->format('d M') }}</small></span></a>
+                @endforeach
+            </div>
+        @endif
         @if($home['recent']->isNotEmpty())
             <div class="db-card db-recent"><h2>Recently viewed</h2>
                 @foreach($home['recent'] as $r)

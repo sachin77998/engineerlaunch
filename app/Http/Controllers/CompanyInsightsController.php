@@ -227,7 +227,13 @@ class CompanyInsightsController extends Controller
             // Queued: data.gov.in can take minutes to answer, and the page must not wait for it.
             try { \App\Jobs\FillRegistryFromMca::dispatch($knownCin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
-        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials']);
+        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials', 'creditRatings', 'creditRatingSources']);
+        // Credit ratings stay fresh: a CARE lookup is queued when this company was not checked in the last 30 days.
+        $care = $company->creditRatingSources->firstWhere('agency', 'CARE');
+        if ((!$care || !$care->checked_at || $care->checked_at->lt(now()->subDays(30))) && cache()->add('insights:ratings-check:' . $company->id, 1, now()->addHours(6))) {
+            try { \App\Jobs\RefreshCompanyCreditRatings::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
+        }
+        \App\Services\Insights\CompanySimilarity::recordView($company->id, auth()->id() ? 'u' . auth()->id() : 's' . substr(hash('sha256', (string) $request->session()->getId()), 0, 40));
         $cin = $company->registryDetail?->cin ?? $company->registry_cin;
         $standalone = $company->financialStatements->where('is_consolidated', false);
         $consolidated = $company->financialStatements->where('is_consolidated', true);
@@ -245,6 +251,8 @@ class CompanyInsightsController extends Controller
         return view('insights.show', [
             'areas' => rescue(fn () => $profile->operationalAreas($company), [], false),
             'competitors' => rescue(fn () => $profile->competitors($company), collect(), false),
+            'credit' => rescue(fn () => app(\App\Services\Insights\CreditProfile::class)->build($company), null),
+            'similar' => rescue(fn () => app(\App\Services\Insights\CompanySimilarity::class)->for($company), collect()),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
