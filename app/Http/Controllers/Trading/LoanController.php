@@ -11,7 +11,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Loan book: create loans, view and export their amortisation schedules. */
 class LoanController extends Controller
 {
     public function __construct(private LoanAmortization $engine, private TradingAudit $audit) {}
@@ -21,27 +20,22 @@ class LoanController extends Controller
         $loans = Loan::where('user_id', $request->user()->id)->latest('id')->paginate(20);
         return view('trading.loans.index', ['loans' => $loans, 'frequencies' => LoanAmortization::FREQUENCIES, 'dayCounts' => LoanAmortization::DAY_COUNTS]);
     }
-
-    /** Preview without saving (JSON). */
     public function preview(Request $request)
     {
         $result = $this->engine->schedule($this->validated($request));
         return response()->json(['data' => $result]);
     }
-
     public function store(Request $request)
     {
         $loan = $this->engine->save($this->validated($request), $request->user()->id);
         $this->audit->log('loan.created', $loan, ['principal' => $loan->principal, 'frequency' => $loan->payment_frequency]);
         return redirect()->route('trading.loans.show', $loan)->with('success', 'Loan ' . $loan->loan_no . ' created with ' . $loan->installments . ' instalments.');
     }
-
     public function show(Request $request, Loan $loan)
     {
         abort_unless($loan->user_id === $request->user()->id || $request->user()->isOwner(), 404);
         return view('trading.loans.show', ['loan' => $loan->load('schedule'), 'frequencies' => LoanAmortization::FREQUENCIES, 'dayCounts' => LoanAmortization::DAY_COUNTS]);
     }
-
     public function destroy(Request $request, Loan $loan)
     {
         abort_unless($loan->user_id === $request->user()->id, 404);
@@ -49,7 +43,6 @@ class LoanController extends Controller
         $loan->delete();
         return redirect()->route('trading.loans')->with('success', 'Loan deleted.');
     }
-
     public function export(Request $request, Loan $loan, string $format, OrderExporter $exporter)
     {
         abort_unless($loan->user_id === $request->user()->id || $request->user()->isOwner(), 404);
@@ -65,15 +58,8 @@ class LoanController extends Controller
             'total_payment' => $r->total_payment, 'closing_balance' => $r->closing_balance, 'is_moratorium' => $r->is_moratorium ? 'Yes' : ''])->all();
         return response()->download($exporter->xlsx($rows, $loan->loan_no, $columns), $loan->loan_no . '-schedule.xlsx')->deleteFileAfterSend();
     }
-
     private function validated(Request $request): array
     {
-        return $request->validate([
-            'borrower_name' => 'required|string|max:120', 'account_number' => 'nullable|string|max:40', 'loan_type' => 'nullable|string|max:30',
-            'principal' => 'required|numeric|min:1|max:100000000000', 'interest_rate' => 'required|numeric|min:0|max:60',
-            'issue_date' => 'required|date', 'first_due_date' => 'nullable|date|after:issue_date', 'maturity_date' => 'required|date|after:issue_date',
-            'payment_frequency' => ['required', Rule::in(array_keys(LoanAmortization::FREQUENCIES))], 'day_count' => ['required', Rule::in(array_keys(LoanAmortization::DAY_COUNTS))],
-            'moratorium_months' => 'nullable|integer|min:0|max:120', 'moratorium_type' => ['nullable', Rule::in(['principal_only', 'principal_and_interest'])],
-        ]);
+        return $request->validate(['borrower_name' => 'required|string|max:120', 'account_number' => 'nullable|string|max:40', 'loan_type' => 'nullable|string|max:30','principal' => 'required|numeric|min:1|max:100000000000', 'interest_rate' => 'required|numeric|min:0|max:60','issue_date' => 'required|date', 'first_due_date' => 'nullable|date|after:issue_date', 'maturity_date' => 'required|date|after:issue_date','payment_frequency' => ['required', Rule::in(array_keys(LoanAmortization::FREQUENCIES))], 'day_count' => ['required', Rule::in(array_keys(LoanAmortization::DAY_COUNTS))],'moratorium_months' => 'nullable|integer|min:0|max:120', 'moratorium_type' => ['nullable', Rule::in(['principal_only', 'principal_and_interest'])],]);
     }
 }

@@ -11,7 +11,6 @@ use Illuminate\Support\Str;
 class PasswordResetController extends Controller
 {
     public function requestForm() { return view('auth.forgot-password'); }
-
     public function email(Request $request)
     {
         $data = $request->validate(['email'=>'required|email|max:190']);
@@ -31,7 +30,6 @@ class PasswordResetController extends Controller
     {
         return view('auth.reset-password', ['token'=>$token, 'email'=>$request->query('email','')]);
     }
-
     public function update(Request $request)
     {
         $data = $request->validate(['token'=>'required|string','email'=>'required|email','password'=>'required|string|min:8|max:255|confirmed']);

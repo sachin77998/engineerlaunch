@@ -20,31 +20,12 @@ class VendorComparisonController extends Controller
     }
     private function rules(): array
     {
-        return [
-            'company_id' => 'required|integer|exists:companies,id',
-            'reference' => 'required|string|max:100',
-            'kind' => 'required|in:customer_payment,vendor_refund,supplier_delivery',
-            'material' => 'required|string|max:100',
-            'issued_on' => 'required|date_format:Y-m-d|before_or_equal:today',
-            'due_on' => 'required|date_format:Y-m-d|after_or_equal:issued_on',
-            'completed_on' => 'nullable|date_format:Y-m-d|after_or_equal:issued_on|before_or_equal:today',
-            'amount' => 'required|numeric|min:0.01|max:99999999999999999.99',
-            'currency' => 'required|regex:/^[A-Z]{3}$/',
-            'quality' => 'nullable|in:accepted,rejected',
-            'evidence' => 'required|string|max:500'
-        ];
+        return ['company_id' => 'required|integer|exists:companies,id','reference' => 'required|string|max:100','kind' => 'required|in:customer_payment,vendor_refund,supplier_delivery','material' => 'required|string|max:100','issued_on' => 'required|date_format:Y-m-d|before_or_equal:today','due_on' => 'required|date_format:Y-m-d|after_or_equal:issued_on','completed_on' => 'nullable|date_format:Y-m-d|after_or_equal:issued_on|before_or_equal:today','amount' => 'required|numeric|min:0.01|max:99999999999999999.99','currency' => 'required|regex:/^[A-Z]{3}$/','quality' => 'nullable|in:accepted,rejected','evidence' => 'required|string|max:500'];
     }
     public function index(Request $r, VendorPerformance $performance)
     {
         $this->authorizeOwner($r);
-        $data = $r->validate([
-            'q' => 'nullable|string|max:100',
-            'companies' => 'nullable|array|max:10',
-            'companies.*' => 'integer|distinct|exists:companies,id',
-            'kind' => 'nullable|in:customer_payment,vendor_refund,supplier_delivery',
-            'material' => 'nullable|string|max:100',
-            'currency' => 'nullable|regex:/^[A-Z]{3}$/'
-        ]);
+        $data = $r->validate(['q' => 'nullable|string|max:100','companies' => 'nullable|array|max:10','companies.*' => 'integer|distinct|exists:companies,id','kind' => 'nullable|in:customer_payment,vendor_refund,supplier_delivery','material' => 'nullable|string|max:100','currency' => 'nullable|regex:/^[A-Z]{3}$/']);
         $kind = $data['kind'] ?? 'vendor_refund';
         $material = $data['material'] ?? '';
         $currency = $data['currency'] ?? 'INR';

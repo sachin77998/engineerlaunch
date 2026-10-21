@@ -6,20 +6,15 @@ use App\Models\PremiumOrder;
 use App\Services\PremiumPlans;
 use Illuminate\Http\Request;
 
-/** Premium plans: plan cards with the fee breakdown, checkout (Razorpay when configured) and the owner's order list. */
+
 class PremiumController extends Controller
 {
     public function __construct(private PremiumPlans $premium) {}
-
     public function index(Request $request)
     {
         $user = $request->user();
-        return view('premium.index', [
-            'plans' => $this->premium->plans(), 'features' => config('premium.features'), 'gateway' => $this->premium->gatewayReady(),
-            'user' => $user, 'orders' => $user ? PremiumOrder::where('user_id', $user->id)->latest('id')->limit(10)->get() : collect(),
-        ]);
+        return view('premium.index', ['plans' => $this->premium->plans(), 'features' => config('premium.features'), 'gateway' => $this->premium->gatewayReady(),'user' => $user, 'orders' => $user ? PremiumOrder::where('user_id', $user->id)->latest('id')->limit(10)->get() : collect(),]);
     }
-
     public function checkout(Request $request)
     {
         $data = $request->validate(['plan' => 'required|in:' . implode(',', array_keys(config('premium.plans')))]);
@@ -30,14 +25,12 @@ class PremiumController extends Controller
         }
         return redirect()->route('premium.pay', $order->order_no);
     }
-
     public function pay(Request $request, string $orderNo)
     {
         $order = PremiumOrder::where('order_no', $orderNo)->where('user_id', $request->user()->id)->firstOrFail();
         return view('premium.pay', ['order' => $order, 'plan' => $this->premium->plans()[$order->plan] ?? null, 'gateway' => $order->gateway === 'razorpay' && $this->premium->gatewayReady(),
             'keyId' => config('premium.razorpay.key_id')]);
     }
-
     public function verify(Request $request, string $orderNo)
     {
         $order = PremiumOrder::where('order_no', $orderNo)->where('user_id', $request->user()->id)->firstOrFail();
@@ -48,8 +41,6 @@ class PremiumController extends Controller
         }
         return redirect()->route('premium.index')->with('success', 'Payment received. Premium is active until ' . $order->fresh()->premium_until->format('d M Y') . '.');
     }
-
-    /** Owner: every order, with activation for payments received outside the gateway. */
     public function adminOrders(Request $request)
     {
         $orders = PremiumOrder::with('user:id,name,email')->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))->latest('id')->paginate(30)->withQueryString();

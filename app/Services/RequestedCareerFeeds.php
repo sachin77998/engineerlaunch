@@ -152,28 +152,20 @@ trait RequestedCareerFeeds
         $endpoint = 'https://'.strtolower($credentials[1]).'-dsn.algolia.net/1/indexes/'.$index[1].'/query';
         $jobs = []; $expected = null;
         for ($page=0; $page<200; $page++) {
-            $response = $this->httpClient->post($endpoint, [
-                'headers'=>['X-Algolia-Application-Id'=>$credentials[1], 'X-Algolia-API-Key'=>$credentials[2]],
-                'json'=>['query'=>'','hitsPerPage'=>100,'page'=>$page],
-            ]);
+            $response = $this->httpClient->post($endpoint, ['headers'=>['X-Algolia-Application-Id'=>$credentials[1], 'X-Algolia-API-Key'=>$credentials[2]],'json'=>['query'=>'','hitsPerPage'=>100,'page'=>$page],]);
             $payload = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             $expected ??= (int)($payload['nbHits'] ?? 0);
             foreach ($payload['hits'] ?? [] as $row) {
                 $url = (array)($row['redirect_url'] ?? []);
                 $url = $url[0] ?? '';
                 if (parse_url($url,PHP_URL_HOST) !== 'digitalcareers.infosys.com' || empty($row['title'])) continue;
-                $jobs[$url] = [
-                    'title'=>$row['title'], 'description'=>'', 'external_url'=>$url,
-                    'location'=>implode(', ',array_merge((array)($row['work_location'] ?? []),(array)($row['country'] ?? []))),
-                    'source_payload'=>['requisition_id'=>$row['reqid'] ?? [],'career_page_url'=>$company->careers_url],
-                ];
+                $jobs[$url] = ['title'=>$row['title'], 'description'=>'', 'external_url'=>$url,'location'=>implode(', ',array_merge((array)($row['work_location'] ?? []),(array)($row['country'] ?? []))),'source_payload'=>['requisition_id'=>$row['reqid'] ?? [],'career_page_url'=>$company->careers_url],];
             }
             if ($page+1 >= (int)($payload['nbPages'] ?? 1) || empty($payload['hits'])) break;
         }
         if (count($jobs) !== $expected) $this->completeFeed = false;
         return $this->withHtmlDescriptions($company, $jobs, '//*[contains(concat(" ",normalize-space(@class)," ")," description-page-right ")]');
     }
-
     protected function scrapeOracleRecruiting(Company $company): array
     {
         $endpoint = rtrim($company->jobs_feed_url, '/');
@@ -188,12 +180,7 @@ trait RequestedCareerFeeds
             foreach ($rows as $row) {
                 if (empty($row['Id']) || empty($row['Title'])) continue;
                 $jobUrl = rtrim($company->careers_url, '/').'/job/'.rawurlencode($row['Id']);
-                $jobs[$row['Id']] = [
-                    'title'=>$row['Title'], 'description'=>strip_tags($row['ShortDescriptionStr'] ?? ''),
-                    'external_url'=>$jobUrl, 'location'=>$row['PrimaryLocation'] ?? 'Not specified',
-                    'posted_at'=>$row['PostedDate'] ?? null, 'expires_at'=>$row['PostingEndDate'] ?? null,
-                    'source_payload'=>['requisition_id'=>$row['Id'],'career_page_url'=>$company->careers_url],
-                ];
+                $jobs[$row['Id']] = ['title'=>$row['Title'], 'description'=>strip_tags($row['ShortDescriptionStr'] ?? ''),'external_url'=>$jobUrl, 'location'=>$row['PrimaryLocation'] ?? 'Not specified','posted_at'=>$row['PostedDate'] ?? null, 'expires_at'=>$row['PostingEndDate'] ?? null,'source_payload'=>['requisition_id'=>$row['Id'],'career_page_url'=>$company->careers_url],];
             }
             if (!$rows || $offset+count($rows) >= $expected) break;
         }

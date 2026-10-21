@@ -33,11 +33,7 @@ class JobController extends Controller
 
     public function index(Request $request, \App\Services\JobGeography $geography): JsonResponse
     {
-        $validated = $request->validate([
-            'country' => ['nullable', 'string', 'max:100'],
-            'region' => ['nullable', 'string', 'max:100'],
-            'state' => ['nullable', 'string', 'max:100'],
-            'city' => ['nullable', 'string', 'max:150'],
+        $validated = $request->validate(['country' => ['nullable', 'string', 'max:100'],'region' => ['nullable', 'string', 'max:100'],'state' => ['nullable', 'string', 'max:100'],'city' => ['nullable', 'string', 'max:150'],
             'location' => ['nullable', 'string', 'max:150'],
             'company_id' => ['nullable', 'integer', 'exists:companies,id'],
             'job_type' => ['nullable', 'string', 'max:50'],
@@ -76,7 +72,6 @@ class JobController extends Controller
                 $experience->whereNull('experience_max')->orWhere('experience_max', '>=', $years);
             });
         }
-
         foreach (['posting_source', 'source', 'work_mode'] as $filter) {
             if ($request->filled($filter)) {
                 $query->where($filter, $request->get($filter));
@@ -126,7 +121,6 @@ class JobController extends Controller
 
         return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage(), 'from' => $jobs->firstItem(), 'to' => $jobs->lastItem()]] + ($syncing ? ['syncing' => $syncing] : []));
     }
-
     public function show($id): JsonResponse
     {
         $job = Job::active()->with($this->jobRelations())->find($id);
@@ -134,10 +128,8 @@ class JobController extends Controller
             return response()->json(['success' => false, 'message' => 'Job not found'], 404);
         }
         $job->incrementViews();
-
         return response()->json(['success' => true, 'data' => $job]);
     }
-
     public function byCompany($companyId, Request $request): JsonResponse
     {
         $query = Job::active()->where('company_id', $companyId)->with($this->jobRelations());
@@ -146,49 +138,28 @@ class JobController extends Controller
         }
         $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = $query->paginate($perPage);
-
-        return response()->json(['success' => true, 'data' => $jobs->items(),
-            'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage()], ]);
+        return response()->json(['success' => true, 'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage()], ]);
     }
-
     public function recentJobs(Request $request): JsonResponse
     {
         $days = $request->get('days', 7);
         $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = Job::active()->where('posted_at', '>=', now()->subDays($days))->with($this->jobRelations())->newest()->paginate($perPage);
-
         return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage()]]);
     }
-
     public function trending(Request $request): JsonResponse
     {
         $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = Job::active()->with($this->jobRelations())->orderBy('views', 'desc')->paginate($perPage);
-
         return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage()]]);
     }
-
     public function stats(): JsonResponse
     {
-        $data = Cache::remember(DiscoveryCache::key('jobs.stats'), DiscoveryCache::ttl(), fn () => [
-            'total_jobs' => Job::active()->count(),
-            'total_companies' => \App\Models\Company::active()->count(),
-            'hiring_companies' => \App\Models\Company::active()->whereHas('activeJobs')->count(),
-            'total_technologies' => Technology::count(),
-            'jobs_by_country' => Job::active()->groupBy('country')->selectRaw('country, count(*) as count')->get(),
-            'jobs_by_experience_level' => Job::active()->groupBy('experience_level')->selectRaw('experience_level, count(*) as count')->get(),
-            'jobs_by_job_type' => Job::active()->groupBy('job_type')->selectRaw('job_type, count(*) as count')->get(),
-        ]);
-
+        $data = Cache::remember(DiscoveryCache::key('jobs.stats'), DiscoveryCache::ttl(), fn () => ['total_jobs' => Job::active()->count(),'total_companies' => \App\Models\Company::active()->count(),'hiring_companies' => \App\Models\Company::active()->whereHas('activeJobs')->count(),'total_technologies' => Technology::count(),'jobs_by_country' => Job::active()->groupBy('country')->selectRaw('country, count(*) as count')->get(),'jobs_by_experience_level' => Job::active()->groupBy('experience_level')->selectRaw('experience_level, count(*) as count')->get(),'jobs_by_job_type' => Job::active()->groupBy('job_type')->selectRaw('job_type, count(*) as count')->get(),]);
         return response()->json(['success' => true, 'data' => $data]);
     }
-
     private function jobRelations(): array
     {
-        return [
-            'company' => fn ($query) => $query->withAvg('publishedReviews', 'rating')->withCount('publishedReviews'),
-            'categories',
-            'technologies',
-        ];
+        return ['company' => fn ($query) => $query->withAvg('publishedReviews', 'rating')->withCount('publishedReviews'),'categories','technologies',];
     }
 }
