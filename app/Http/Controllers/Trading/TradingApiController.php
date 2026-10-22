@@ -121,6 +121,8 @@ class TradingApiController extends Controller
             'sip' => ['monthly' => 'required|numeric|min:1|max:10000000', 'rate' => 'required|numeric|min:-50|max:100', 'years' => 'required|numeric|min:0.1|max:50', 'step_up' => 'nullable|numeric|min:0|max:100'],
             'emi' => ['principal' => 'required|numeric|min:1|max:10000000000', 'rate' => 'required|numeric|min:0|max:60', 'months' => 'required|integer|min:1|max:600'],
             'amortization' => ['principal' => 'required|numeric|min:1|max:10000000000', 'rate' => 'required|numeric|min:0|max:60', 'months' => 'required|integer|min:1|max:600', 'prepayment' => 'nullable|numeric|min:0', 'prepay_month' => 'nullable|integer|min:0|max:600'],
+            'fd' => ['amount' => 'required|numeric|min:1|max:1000000000', 'rate' => 'required|numeric|min:0|max:30', 'years' => 'required|numeric|min:0.1|max:30', 'compounding' => 'nullable|integer|in:1,2,4,12'],
+            'rd' => ['monthly' => 'required|numeric|min:1|max:10000000', 'rate' => 'required|numeric|min:0|max:30', 'years' => 'required|numeric|min:0.5|max:20'],
             'margin' => ['symbol' => 'nullable|string|max:30', 'price' => 'required|numeric|min:0.01|max:10000000', 'quantity' => 'required|integer|min:1|max:10000000', 'product' => ['required', Rule::in(['delivery', 'intraday'])], 'margin_pct' => 'nullable|numeric|min:1|max:100'],
         ][$type];
         $inputs = $request->validate($rules);

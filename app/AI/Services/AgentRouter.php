@@ -346,6 +346,7 @@ class AgentRouter
         }
 
         $patterns = [
+            'finance' => \App\AI\Agents\FinanceAgent::KEYWORDS,
             'job' => [
                 'job',
                 'jobs',
@@ -533,6 +534,9 @@ class AgentRouter
             case 'hr':
                 return app(HrAgent::class);
 
+            case 'finance':
+                return app(\App\AI\Agents\FinanceAgent::class);
+
             default:
                 return null;
         }
@@ -586,6 +590,12 @@ class AgentRouter
             case 'recruitment':
                 return 'hr';
 
+            case 'money':
+            case 'tax':
+            case 'invest':
+            case 'investment':
+                return 'finance';
+
             default:
                 return $agent !== ''
                     ? $agent
@@ -608,6 +618,7 @@ class AgentRouter
             'company',
             'news',
             'hr',
+            'finance',
         ];
     }
 

@@ -8,7 +8,7 @@ use Illuminate\Validation\ValidationException;
 /** Mutual fund return (lumpsum and SIP), EMI, loan amortisation schedule and equity margin calculators. */
 class Calculators
 {
-    public const TYPES = ['lumpsum', 'sip', 'emi', 'amortization', 'margin'];
+    public const TYPES = ['lumpsum', 'sip', 'emi', 'amortization', 'margin', 'fd', 'rd'];
 
     public function run(string $type, array $in): array
     {
@@ -17,6 +17,8 @@ class Calculators
             'sip' => $this->sip((float) $in['monthly'], (float) $in['rate'], (float) $in['years'], (float) ($in['step_up'] ?? 0)),
             'emi' => $this->emi((float) $in['principal'], (float) $in['rate'], (int) $in['months']),
             'amortization' => $this->amortization((float) $in['principal'], (float) $in['rate'], (int) $in['months'], (float) ($in['prepayment'] ?? 0), (int) ($in['prepay_month'] ?? 0)),
+            'fd' => $this->fd((float) $in['amount'], (float) $in['rate'], (float) $in['years'], (int) ($in['compounding'] ?? 4)),
+            'rd' => $this->rd((float) $in['monthly'], (float) $in['rate'], (float) $in['years']),
             'margin' => $this->margin($in['symbol'] ?? null, (float) $in['price'], (int) $in['quantity'], $in['product'] ?? 'delivery', isset($in['margin_pct']) ? (float) $in['margin_pct'] : null),
             default => throw ValidationException::withMessages(['type' => 'Unknown calculator.']),
         };
@@ -47,6 +49,33 @@ class Calculators
             }
         }
         return ['invested' => round($invested, 2), 'value' => round($value, 2), 'gain' => round($value - $invested, 2), 'months' => $months, 'yearly' => $yearly];
+    }
+
+    /** Fixed deposit compounded n times a year (banks compound quarterly); also the monthly interest of a payout FD. */
+    public function fd(float $amount, float $rate, float $years, int $n = 4): array
+    {
+        $n = in_array($n, [1, 2, 4, 12], true) ? $n : 4;
+        $value = $amount * pow(1 + $rate / 100 / $n, $n * $years);
+        $yearly = [];
+        for ($y = 1; $y <= (int) ceil($years); $y++) $yearly[] = ['year' => $y, 'invested' => round($amount, 2), 'value' => round($amount * pow(1 + $rate / 100 / $n, $n * min($y, $years)), 2)];
+        return ['invested' => round($amount, 2), 'value' => round($value, 2), 'gain' => round($value - $amount, 2), 'monthly_payout' => round($amount * $rate / 100 / 12, 2),
+            'effective_rate' => round((pow(1 + $rate / 100 / $n, $n) - 1) * 100, 2), 'yearly' => $yearly];
+    }
+
+    /** Recurring deposit: each monthly instalment compounds quarterly until maturity (Indian bank method). */
+    public function rd(float $monthly, float $rate, float $years): array
+    {
+        $months = (int) round($years * 12);
+        $valueAt = function (int $upto) use ($monthly, $rate) {
+            $v = 0;
+            for ($k = 1; $k <= $upto; $k++) $v += $monthly * pow(1 + $rate / 400, ($upto - $k + 1) / 3);
+            return $v;
+        };
+        $yearly = [];
+        for ($m = 12; $m < $months; $m += 12) $yearly[] = ['year' => $m / 12, 'invested' => round($monthly * $m, 2), 'value' => round($valueAt($m), 2)];
+        $value = $valueAt($months);
+        $yearly[] = ['year' => (int) ceil($months / 12), 'invested' => round($monthly * $months, 2), 'value' => round($value, 2)];
+        return ['invested' => round($monthly * $months, 2), 'value' => round($value, 2), 'gain' => round($value - $monthly * $months, 2), 'months' => $months, 'yearly' => $yearly];
     }
 
     public function emi(float $principal, float $rate, int $months): array

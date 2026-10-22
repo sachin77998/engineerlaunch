@@ -7,4 +7,4 @@ document.addEventListener('click',async event=>{const option=event.target.closes
 </script>
 @endif
 @endauth
-@stack('scripts')</body></html>
+@include('partials.assistant-widget')@stack('scripts')</body></html>

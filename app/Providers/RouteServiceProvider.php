@@ -55,6 +55,12 @@ class RouteServiceProvider extends ServiceProvider
             RateLimiter::for($name, fn (Request $request) => Limit::perMinute($perMinute)->by($name . ':' . ($request->user()?->id ?: $request->ip())));
         }
 
+        // Site-wide chat assistant: each message may call the AI provider, so keep a per-visitor cap.
+        RateLimiter::for('assistant', fn (Request $request) => [
+            Limit::perMinute(12)->by('assistant:m:' . ($request->user()?->id ?: $request->ip())),
+            Limit::perDay(200)->by('assistant:d:' . ($request->user()?->id ?: $request->ip())),
+        ]);
+
         RateLimiter::for('discovery', function (Request $request) {
             return [
                 Limit::perMinute(60)->by('discovery:'.$request->ip()),

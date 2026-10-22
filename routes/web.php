@@ -167,6 +167,15 @@ Route::get('/calculators', [\App\Http\Controllers\CalculatorController::class, '
 Route::get('/calculators/{slug}', [\App\Http\Controllers\CalculatorController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('calculators.show');
 // Insurance advisor (health, term, car, bike): cover, estimated premium and fee structure, insurers ranked by public figures.
 Route::get('/insurance/{product?}', [\App\Http\Controllers\InsuranceController::class, 'index'])->where('product', 'health|term|car|bike')->name('insurance.index');
+// Money planner (free): retirement, tax saving, retirement income & insurance, fund picks with ML timing signals.
+Route::prefix('money')->name('money.')->controller(\App\Http\Controllers\MoneyController::class)->group(function(){
+    Route::get('/','index')->name('index');
+    Route::post('/profile','save')->name('save');
+    Route::get('/tax','tax')->name('tax');
+    Route::get('/income','income')->name('income');
+    Route::get('/funds','funds')->name('funds');
+});
+Route::post('/assistant/chat',[\App\Http\Controllers\AssistantChatController::class,'chat'])->middleware('throttle:assistant')->name('assistant.chat');
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/insurers', [\App\Http\Controllers\InsuranceController::class, 'adminIndex'])->name('admin.insurers');
     Route::patch('/admin/insurers/{insurer}', [\App\Http\Controllers\InsuranceController::class, 'adminUpdate'])->name('admin.insurers.update');
