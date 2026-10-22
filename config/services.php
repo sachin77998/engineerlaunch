@@ -95,6 +95,11 @@ return [
             'gstin' => env('SUREPASS_GSTIN_PATH', 'corporate/gstin'),
             'din' => env('SUREPASS_DIN_PATH', 'corporate/din'),
             'search' => env('SUREPASS_SEARCH_PATH'),
+            // Candidate verification (hiring suite).
+            'pan' => env('SUREPASS_PAN_PATH', 'pan/pan'),
+            'aadhaar_otp' => env('SUREPASS_AADHAAR_OTP_PATH', 'aadhaar-v2/generate-otp'),
+            'aadhaar_submit' => env('SUREPASS_AADHAAR_SUBMIT_PATH', 'aadhaar-v2/submit-otp'),
+            'uan' => env('SUREPASS_UAN_PATH', 'income/employment-history-uan'),
         ],
     ],
     'rapidapi' => [

@@ -18,10 +18,12 @@ class EmployerController extends Controller
     public function dashboard(Request $r)
     {
         $profile = $r->user()->employerProfile()->with('company')->first();
-        $base = $r->user()->postedJobs();
-        $mine = fn() => JobApplication::whereHas('job', fn($q) => $q->where('employer_id', $r->user()->id));
-        $stats = ['active' => (clone $base)->where('status', 'published')->count(), 'applications' => $mine()->count(), 'new' => $mine()->where('status', 'applied')->count(), 'shortlisted' => $mine()->where('status', 'shortlisted')->count(), 'interviews' => $mine()->where('status', 'interview_scheduled')->count(), 'closed' => (clone $base)->where('status', 'closed')->count()];
-        $jobs = $base->withCount(['applications', 'applications as shortlisted_count' => fn($q) => $q->where('status', 'shortlisted')])->latest()->paginate(50);
+        // The dashboard covers the whole hiring team's jobs, not only the ones this user posted.
+        $team = app(\App\Services\Hiring\Team::class)->userIds($r->user());
+        $base = Job::query()->whereIn('employer_id', $team);
+        $mine = fn() => JobApplication::whereHas('job', fn($q) => $q->whereIn('employer_id', $team));
+        $stats = ['active' => (clone $base)->where('status', 'published')->count(), 'applications' => $mine()->count(), 'new' => $mine()->where('status', 'applied')->count(), 'shortlisted' => $mine()->where('stage', 'shortlisted')->count(), 'interviews' => $mine()->where('stage', 'interview')->count(), 'closed' => (clone $base)->where('status', 'closed')->count()];
+        $jobs = $base->withCount(['applications', 'applications as shortlisted_count' => fn($q) => $q->where('stage', 'shortlisted')])->latest()->paginate(50);
         $recentApplicants = $mine()->with(['candidate', 'job'])->latest('applied_at')->take(6)->get();
         return view('employer.dashboard-v2', compact('profile', 'jobs', 'stats', 'recentApplicants'));
     }
@@ -105,7 +107,8 @@ class EmployerController extends Controller
         $this->own($r, $application->job);
         $d = $r->validate(['status' => 'required|in:applied,viewed_by_recruiter,in_progress,rejected,withdrawn,joined']);
         $from = $application->status;
-        $application->update($d);
+        // The simple list keeps the recruiter pipeline stage in step with the status chosen there.
+        $application->update($d + ['stage' => ['rejected' => 'rejected', 'joined' => 'hired', 'withdrawn' => 'withdrawn', 'in_progress' => 'screening'][$d['status']] ?? 'new', 'stage_changed_at' => now()]);
         DB::table('application_status_history')->insert(['job_application_id' => $application->id, 'changed_by' => $r->user()->id, 'from_status' => $from, 'to_status' => $d['status'], 'created_at' => now()]);
         $application->loadMissing('candidate.candidateProfile');
         $this->recordRecruiterAction($r, $application, 'status_update');
@@ -123,7 +126,9 @@ class EmployerController extends Controller
     }
     private function own(Request $r, Job $j)
     {
-        abort_unless($r->user()->role === 'admin' || $j->employer_id === $r->user()->id, 403);
+        $team = app(\App\Services\Hiring\Team::class);
+        abort_unless($r->user()->role === 'admin' || in_array((int) $j->employer_id, $team->userIds($r->user()), true), 403);
+        $team->authorize($r->user(), 'edit');
     }
     private function save(Job $j, StoreEmployerJobRequest $r): Job
     {

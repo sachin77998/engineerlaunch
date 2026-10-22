@@ -207,6 +207,55 @@ Route::post('/profile/auto-apply',[CandidateAutoApplyController::class,'update']
 Route::middleware(['auth','throttle:30,1'])->prefix('profile')->group(function(){Route::get('/setup',[CandidateAssistantController::class,'setup'])->name('candidate.setup');Route::get('/assistant',[CandidateAssistantController::class,'show'])->name('candidate.assistant');Route::post('/assistant/answer',[CandidateAssistantController::class,'answer'])->name('candidate.assistant.answer');Route::post('/assistant/back',[CandidateAssistantController::class,'back'])->name('candidate.assistant.back');Route::post('/assistant/complete',[CandidateAssistantController::class,'complete'])->name('candidate.assistant.complete');Route::post('/assistant/reset',[CandidateAssistantController::class,'reset'])->name('candidate.assistant.reset');});
 Route::middleware('auth')->prefix('profile/lookups')->group(function(){Route::get('/states',[ProfileLookupController::class,'states'])->name('profile.lookups.states');Route::get('/cities',[ProfileLookupController::class,'cities'])->name('profile.lookups.cities');Route::get('/companies',[ProfileLookupController::class,'companies'])->name('profile.lookups.companies');Route::get('/institutions',[ProfileLookupController::class,'institutions'])->name('profile.lookups.institutions');});
 Route::prefix('employer')->middleware(['auth','employer'])->name('employer.')->group(function(){Route::get('/',[EmployerController::class,'dashboard'])->name('dashboard');Route::post('/company',[EmployerController::class,'company'])->name('company.store');Route::get('/jobs/create',[EmployerController::class,'create'])->name('jobs.create');Route::get('/assistant/{flow}',[\App\Http\Controllers\EmployerAssistantController::class,'show'])->whereIn('flow',['company','job'])->name('assistant');Route::post('/assistant/{flow}/answer',[\App\Http\Controllers\EmployerAssistantController::class,'answer'])->whereIn('flow',['company','job'])->name('assistant.answer');Route::post('/assistant/{flow}/back',[\App\Http\Controllers\EmployerAssistantController::class,'back'])->whereIn('flow',['company','job'])->name('assistant.back');Route::post('/assistant/{flow}/reset',[\App\Http\Controllers\EmployerAssistantController::class,'reset'])->whereIn('flow',['company','job'])->name('assistant.reset');Route::post('/assistant/{flow}/complete',[\App\Http\Controllers\EmployerAssistantController::class,'complete'])->whereIn('flow',['company','job'])->name('assistant.complete');Route::post('/jobs',[EmployerController::class,'store'])->name('jobs.store');Route::get('/jobs/{job}/edit',[EmployerController::class,'edit'])->name('jobs.edit');Route::put('/jobs/{job}',[EmployerController::class,'update'])->name('jobs.update');Route::patch('/jobs/{job}/status/{status}',[EmployerController::class,'status'])->name('jobs.status');Route::delete('/jobs/{job}',[EmployerController::class,'destroy'])->name('jobs.destroy');Route::post('/jobs/{job}/duplicate',[EmployerController::class,'duplicate'])->name('jobs.duplicate');Route::get('/jobs/{job}/applicants',[EmployerController::class,'applicants'])->name('jobs.applicants');Route::patch('/applications/{application}/status',[EmployerController::class,'applicationStatus'])->name('applications.status');});
+// Hiring suite: permanent talent database, pipelines with auto-screening, interviews, verification and hiring analytics.
+Route::prefix('employer')->middleware(['auth','employer'])->name('employer.hiring.')->controller(\App\Http\Controllers\HiringSuiteController::class)->group(function(){
+    Route::get('/talent','talent')->name('talent');
+    Route::get('/talent/export','export')->name('export');
+    Route::post('/talent/searches','saveSearch')->name('searches.store');
+    Route::delete('/talent/searches/{search}','deleteSearch')->name('searches.destroy');
+    Route::post('/applications/bulk','bulk')->name('bulk');
+    Route::get('/jobs/{job}/pipeline','pipeline')->name('pipeline');
+    Route::post('/jobs/{job}/screening','saveRules')->name('rules');
+    Route::get('/candidates/{application}','candidate')->name('candidate');
+    Route::patch('/candidates/{application}/stage','stage')->name('stage');
+    Route::patch('/candidates/{application}','updateCandidate')->name('update');
+    Route::post('/candidates/{application}/notes','note')->name('note');
+    Route::post('/candidates/{application}/interviews','schedule')->name('schedule');
+    Route::get('/candidates/{application}/resume','resume')->name('resume');
+    Route::post('/candidates/{application}/verify/pan','verifyPan')->name('verify.pan');
+    Route::post('/candidates/{application}/verify/aadhaar','aadhaarStart')->name('verify.aadhaar');
+    Route::post('/verifications/{verification}/otp','aadhaarFinish')->name('verify.otp');
+    Route::patch('/interviews/{interview}','feedback')->name('feedback');
+    Route::get('/interviews','interviews')->name('interviews');
+    Route::get('/analytics','analytics')->name('analytics');
+    Route::post('/analytics/costs','saveCosts')->name('costs');
+});
+Route::prefix('employer')->middleware(['auth','employer'])->name('employer.hiring.')->group(function(){
+    Route::controller(\App\Http\Controllers\HiringTeamController::class)->group(function(){
+        Route::get('/team','index')->name('team');
+        Route::post('/team','invite')->name('team.invite');
+        Route::post('/team/leave','leave')->name('team.leave');
+        Route::post('/team/{member}/resend','resend')->name('team.resend');
+        Route::patch('/team/{member}','update')->name('team.update');
+        Route::delete('/team/{member}','remove')->name('team.remove');
+    });
+    Route::controller(\App\Http\Controllers\HiringCommsController::class)->group(function(){
+        Route::post('/candidates/{application}/email','email')->name('email');
+        Route::post('/email-templates','saveTemplate')->name('templates.store');
+        Route::delete('/email-templates/{template}','deleteTemplate')->name('templates.destroy');
+        Route::post('/candidates/{application}/offers','storeOffer')->name('offers.store');
+        Route::post('/offers/{offer}/send','sendOffer')->name('offers.send');
+        Route::post('/offers/{offer}/withdraw','withdrawOffer')->name('offers.withdraw');
+        Route::get('/offers/{offer}/pdf','offerPdf')->name('offers.pdf');
+        Route::post('/candidates/{application}/verify/uan','verifyUan')->name('verify.uan');
+    });
+});
+// Public links sent by email: team invites and candidate offer responses (token-protected).
+Route::get('/hiring/invite/{token}',[\App\Http\Controllers\HiringTeamController::class,'show'])->where('token','[A-Za-z0-9]{48}')->name('hiring.invite.show');
+Route::post('/hiring/invite/{token}',[\App\Http\Controllers\HiringTeamController::class,'register'])->where('token','[A-Za-z0-9]{48}')->middleware('guest')->name('hiring.invite.register');
+Route::get('/offer/{token}',[\App\Http\Controllers\HiringCommsController::class,'showPublic'])->where('token','[A-Za-z0-9]{48}')->name('hiring.offer.show');
+Route::get('/offer/{token}/pdf',[\App\Http\Controllers\HiringCommsController::class,'pdfPublic'])->where('token','[A-Za-z0-9]{48}')->name('hiring.offer.pdf');
+Route::post('/offer/{token}',[\App\Http\Controllers\HiringCommsController::class,'respondPublic'])->where('token','[A-Za-z0-9]{48}')->name('hiring.offer.respond');
 Route::get('/admin',[AdminController::class,'index'])->middleware(['auth','admin'])->name('admin.dashboard');
 Route::get('/admin/analytics',OwnerAnalyticsDashboardController::class)->middleware(['auth','admin'])->name('admin.analytics');
 Route::get('/admin/news',[AdminNewsController::class,'index'])->middleware(['auth','admin'])->name('admin.news');

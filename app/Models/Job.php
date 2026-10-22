@@ -134,6 +134,10 @@ class Job extends Model
     {
         return $this->hasMany(JobScreeningQuestion::class)->orderBy('sort_order');
     }
+    public function screeningRule(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(HiringScreeningRule::class);
+    }
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class, 'job_skills')->withPivot('importance');

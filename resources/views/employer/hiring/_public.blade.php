@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>@yield('title') · {{ config('app.name') }}</title>
+<style>:root{--navy:#10213e;--blue:#2563eb;--muted:#667085;--line:#cfe0f7}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f8fbff,#eaf3ff);color:var(--navy);font:15px Inter,system-ui,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.box{width:min(560px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 30px rgba(37,99,235,.1);padding:28px}h1{margin:0 0 6px;font-size:23px}.muted{color:var(--muted)}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 4px}input,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font:inherit}
+.btn{display:inline-flex;justify-content:center;padding:12px 18px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:750;cursor:pointer;font:inherit;font-weight:700;text-decoration:none;color:inherit}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.danger{color:#b42318;border-color:#f4c7c3}
+.err{background:#fff1f0;color:#b42318;padding:10px 12px;border-radius:8px;margin:10px 0}.ok{background:#ecfdf3;color:#087443;padding:12px;border-radius:8px;margin:12px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0}td{padding:8px 0;border-bottom:1px solid #eef2f7}td:first-child{color:var(--muted);width:45%}</style></head>
+<body><div class="box">@foreach($errors->all() as $e)<div class="err">{{ $e }}</div>@endforeach @yield('content')</div></body></html>

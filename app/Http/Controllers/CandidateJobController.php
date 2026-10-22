@@ -32,7 +32,10 @@ class CandidateJobController extends Controller
             $application = $job->applications()->where('user_id', $r->user()->id)->first();
             if ($application && $application->status !== 'withdrawn') throw \Illuminate\Validation\ValidationException::withMessages(['application' => 'You have already applied for this job.']);
             $from = $application?->status;
-            if ($application) $application->update(['status' => 'applied', 'cover_letter' => $data['cover_letter'] ?? $application->cover_letter, 'applied_at' => now()]);
+            if ($application) {
+                $application->update(['status' => 'applied', 'stage' => 'new', 'rejection_reason' => null, 'cover_letter' => $data['cover_letter'] ?? $application->cover_letter, 'applied_at' => now()]);
+                rescue(fn () => app(\App\Services\Hiring\ApplicationScreening::class)->screen($application), null);
+            }
             else $application = $job->applications()->create(['user_id' => $r->user()->id, 'status' => 'applied', 'cover_letter' => $data['cover_letter'] ?? null, 'applied_at' => now()]);
             DB::table('application_status_history')->insert(['job_application_id' => $application->id, 'changed_by' => $r->user()->id, 'from_status' => $from, 'to_status' => 'applied', 'note' => 'Application submitted by candidate.', 'created_at' => now()]);
             foreach (($data['answers'] ?? []) as $question => $answer) DB::table('application_answers')->updateOrInsert(['job_application_id' => $application->id, 'question_id' => $question], ['answer' => $answer]);
@@ -48,7 +51,7 @@ class CandidateJobController extends Controller
         abort_unless(in_array($application->status, ['applied', 'viewed_by_recruiter', 'in_progress'], true), 422, 'This application can no longer be withdrawn.');
         DB::transaction(function () use ($r, $application) {
             $from = $application->status;
-            $application->update(['status' => 'withdrawn']);
+            $application->update(['status' => 'withdrawn', 'stage' => 'withdrawn', 'stage_changed_at' => now()]);
             DB::table('application_status_history')->insert(['job_application_id' => $application->id, 'changed_by' => $r->user()->id, 'from_status' => $from, 'to_status' => 'withdrawn', 'note' => 'Application withdrawn by candidate.', 'created_at' => now()]);
         });
         return back()->with('success', 'Application withdrawn.');

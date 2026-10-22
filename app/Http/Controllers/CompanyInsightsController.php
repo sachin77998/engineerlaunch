@@ -227,10 +227,16 @@ class CompanyInsightsController extends Controller
             // Queued: data.gov.in can take minutes to answer, and the page must not wait for it.
             try { \App\Jobs\FillRegistryFromMca::dispatch($knownCin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
-        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials', 'creditRatings', 'creditRatingSources']);
+        $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials']);
+        // Credit tables arrive with a later migration; until it runs the page renders without the ratings modules.
+        $ratingsReady = rescue(function () use ($company) { $company->load(['creditRatings', 'creditRatingSources']); return true; }, false);
+        if (!$ratingsReady) {
+            $company->setRelation('creditRatings', collect());
+            $company->setRelation('creditRatingSources', collect());
+        }
         // Credit ratings stay fresh: a CARE lookup is queued when this company was not checked in the last 30 days.
         $care = $company->creditRatingSources->firstWhere('agency', 'CARE');
-        if ((!$care || !$care->checked_at || $care->checked_at->lt(now()->subDays(30))) && cache()->add('insights:ratings-check:' . $company->id, 1, now()->addHours(6))) {
+        if ($ratingsReady && (!$care || !$care->checked_at || $care->checked_at->lt(now()->subDays(30))) && cache()->add('insights:ratings-check:' . $company->id, 1, now()->addHours(6))) {
             try { \App\Jobs\RefreshCompanyCreditRatings::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
         \App\Services\Insights\CompanySimilarity::recordView($company->id, auth()->id() ? 'u' . auth()->id() : 's' . substr(hash('sha256', (string) $request->session()->getId()), 0, 40));
