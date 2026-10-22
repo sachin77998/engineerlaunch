@@ -34,6 +34,8 @@
 .mp-opt .tax{text-align:right}.mp-opt .tax b{display:block;font-size:18px}.mp-opt .tax small{color:var(--mp-green);font-weight:750}
 .mp-sec{display:inline-block;background:#eef4ff;color:#1d4ed8;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:750;margin-left:6px}
 .mp-disc{color:var(--mp-muted);font-size:12px;margin:18px 0 0}
+.mp .dt-logo{flex:0 0 auto;width:38px;height:38px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font:800 12.5px Inter,system-ui,sans-serif;box-shadow:0 2px 6px rgba(16,24,40,.12)}
+.mp .dt-logo.has-img{background:#fff;box-shadow:inset 0 0 0 1px #e6ebf3;padding:5px;overflow:hidden}.mp .dt-logo.has-img img{width:100%;height:100%;object-fit:contain}
 @media(max-width:960px){.mp-grid,.mp-two{grid-template-columns:1fr}.mp-row3{grid-template-columns:1fr 1fr}}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mp{--mp-ink:#e6edf8;--mp-muted:#9aa8bd;--mp-line:#22324f;--mp-card:#0f1b31;--mp-soft:#13223d}:root:not([data-theme="light"]) .mp-in,:root:not([data-theme="light"]) .mp-f input,:root:not([data-theme="light"]) .mp-f select,:root:not([data-theme="light"]) .mp-row3 input,:root:not([data-theme="light"]) .mp-row3 select{background:#13223d;border-color:#2b3d5f}:root:not([data-theme="light"]) .mp-f label{color:#cbd5e1}}
 </style>

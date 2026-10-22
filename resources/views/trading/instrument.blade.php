@@ -8,7 +8,7 @@
         <div style="display:grid;gap:18px;min-width:0">
             <section class="dt-card" data-token="{{ $instrument->kite_token }}">
                 <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-                    @include('trading.partials.logo', ['name' => $instrument->name ?: $instrument->symbol, 'size' => 'lg'])
+                    @include('trading.partials.logo', ['domain' => $instrument->logo_domain, 'name' => $instrument->name ?: $instrument->symbol, 'size' => 'lg'])
                     <div style="flex:1">
                         <div class="dt-ltp">₹<span data-ltp>{{ $instrument->last_price !== null ? number_format($instrument->last_price, 2) : '—' }}</span></div>
                         <div>

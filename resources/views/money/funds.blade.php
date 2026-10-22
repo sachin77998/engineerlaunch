@@ -26,7 +26,7 @@
         <div class="mp-opt" style="grid-template-columns:200px 1fr"><div><h3>{{ $s['category'] }}</h3><p>{{ $s['bucket'] }} · {{ round($s['weight']) }}%</p><p style="font-size:18px;font-weight:800;color:var(--mp-ink);margin-top:4px">₹{{ $F::inr($s['monthly']) }}<small style="font-size:12px;color:var(--mp-muted)">/month</small></p></div>
             <div>@forelse($s['funds'] as $f)
                 <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid #eef2f7">
-                    <span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc])<span><a href="{{ route('trading.fund', $f->scheme_code) }}"><b>{{ $f->name }}</b></a><br><small style="color:var(--mp-muted)">1Y {{ $f->return_1y !== null ? round($f->return_1y, 1) . '%' : '—' }} · 3Y {{ $f->return_3y !== null ? round($f->return_3y, 1) . '%' : '—' }}{{ $f->score !== null ? ' · model ' . $f->score . '/100' : '' }}</small></span></span>
+                    <span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc, 'amc' => true])<span><a href="{{ route('trading.fund', $f->scheme_code) }}"><b>{{ $f->name }}</b></a><br><small style="color:var(--mp-muted)">1Y {{ $f->return_1y !== null ? round($f->return_1y, 1) . '%' : '—' }} · 3Y {{ $f->return_3y !== null ? round($f->return_3y, 1) . '%' : '—' }}{{ $f->score !== null ? ' · model ' . $f->score . '/100' : '' }}</small></span></span>
                     <span class="mp-pill {{ $f->signal ?? 'pending' }}">{{ $S[$f->signal ?? 'pending'] }}</span>
                 </div>
             @empty<p>No funds found in this category.</p>@endforelse</div></div>
@@ -48,7 +48,7 @@
         @foreach(['buy', 'hold', 'book_profit', 'exit', 'watch'] as $k)<a href="{{ route('money.funds', array_merge(request()->except('signal'), ['signal' => $k])) }}" class="{{ $signal === $k ? 'on' : '' }}">{{ $S[$k] }} ({{ $counts[$k] ?? 0 }})</a>@endforeach
     </div>
     <div class="mp-scroll"><table class="mp-table"><thead><tr><th>Fund</th><th>Category</th><th class="num">1Y</th><th class="num">3Y</th><th class="num">Model</th><th>Signal</th><th>Why</th></tr></thead><tbody>
-    @forelse($signals as $f)<tr><td><span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc])<a href="{{ route('trading.fund', $f->scheme_code) }}"><b>{{ $f->name }}</b></a></span></td><td style="font-size:13px">{{ app(\App\Services\Money\FundModel::class)->group($f->category) }}</td>
+    @forelse($signals as $f)<tr><td><span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc, 'amc' => true])<a href="{{ route('trading.fund', $f->scheme_code) }}"><b>{{ $f->name }}</b></a></span></td><td style="font-size:13px">{{ app(\App\Services\Money\FundModel::class)->group($f->category) }}</td>
         <td class="num">{{ $f->return_1y !== null ? round($f->return_1y, 1) . '%' : '—' }}</td><td class="num">{{ $f->return_3y !== null ? round($f->return_3y, 1) . '%' : '—' }}</td><td class="num"><b>{{ $f->score }}</b></td>
         <td><span class="mp-pill {{ $f->signal }}">{{ $S[$f->signal] ?? $f->signal }}</span></td><td style="font-size:12.5px;color:var(--mp-muted)">{{ implode(' · ', (array) json_decode($f->reasons ?? '[]', true)) }}</td></tr>
     @empty<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mp-muted)">Signals appear after the nightly model run.</td></tr>@endforelse

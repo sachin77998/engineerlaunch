@@ -105,7 +105,7 @@
                 <tbody>
                 @forelse($funds as $f)
                     <tr>
-                        <td><a class="dt-name" href="{{ route('trading.fund', $f) }}">@include('trading.partials.logo', ['name' => $f->amc, 'color' => $f->fundHouse?->color])<span><b>{{ $f->displayName() }}</b><small>{{ $f->fundHouse?->short_name ?? $f->amc }} · {{ $f->risk_level }} risk</small></span></a></td>
+                        <td><a class="dt-name" href="{{ route('trading.fund', $f) }}">@include('trading.partials.logo', ['name' => $f->amc, 'color' => $f->fundHouse?->color, 'amc' => true])<span><b>{{ $f->displayName() }}</b><small>{{ $f->fundHouse?->short_name ?? $f->amc }} · {{ $f->risk_level }} risk</small></span></a></td>
                         <td>{{ $f->asset_class }} {{ $f->sub_category }}</td>
                         @foreach(['return_1y', 'return_3y', 'return_5y'] as $r)<td class="num">@if($f->{$r} !== null)<span class="{{ $f->{$r} >= 0 ? 'up' : 'down' }}">{{ $f->{$r} >= 0 ? '+' : '' }}{{ number_format($f->{$r}, 2) }}%</span>@else<span class="dt-muted">—</span>@endif</td>@endforeach
                         <td class="num">@include('trading.partials.stars', ['rating' => $f->rating])</td>

@@ -80,6 +80,8 @@ class Company extends Model
     {
         if (filled($value)) return $value;
         if (! filled($this->website)) return null;
+        // A logo stored by logos:sync is served locally; otherwise fall back to the live favicon service.
+        if ($local = \App\Services\Branding\Logos::url(\App\Services\Branding\Logos::domain($this->website))) return $local;
 
         return 'https://www.google.com/s2/favicons?domain_url=' . rawurlencode($this->website) . '&sz=128';
     }

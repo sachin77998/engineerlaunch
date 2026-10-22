@@ -87,6 +87,8 @@ return [
             'gstin' => env('SANDBOX_GSTIN_PATH', '/gst/compliance/public/gstin/search'),
         ],
     ],
+    // Optional company-logo source (logo.dev publishable key); without it logos come from each site and favicon services.
+    'logo_dev' => ['token' => env('LOGO_DEV_TOKEN')],
     'surepass' => [
         'base_url' => env('SUREPASS_BASE_URL', 'https://kyc-api.surepass.io/api/v1'),
         'token' => env('SUREPASS_TOKEN'),

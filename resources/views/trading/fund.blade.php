@@ -13,7 +13,7 @@
         <div style="display:grid;gap:18px;min-width:0">
             <section class="dt-card">
                 <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-                    @include('trading.partials.logo', ['name' => $scheme->amc, 'color' => $house?->color, 'size' => 'lg'])
+                    @include('trading.partials.logo', ['name' => $scheme->amc, 'color' => $house?->color, 'size' => 'lg', 'amc' => true])
                     <div style="flex:1;min-width:220px">
                         <div class="dt-chips">
                             <a class="dt-chip" href="{{ $scheme->categoryRow ? route('trading.category', $scheme->categoryRow->slug) : route('trading.funds') }}">{{ $scheme->asset_class }} · {{ $scheme->sub_category }}</a>
@@ -53,7 +53,7 @@
                         <div class="dt-cards">
                             @foreach($recommended[$key] as $f)
                                 <a class="dt-fcard" href="{{ route('trading.fund', $f) }}">
-                                    <span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc])<small class="dt-muted">{{ $f->sub_category ?? $f->category }}</small></span>
+                                    <span style="display:flex;gap:10px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc, 'amc' => true])<small class="dt-muted">{{ $f->sub_category ?? $f->category }}</small></span>
                                     <b>{{ $f->prettyName() }}</b>
                                     <span class="row"><span class="ret {{ ($f->return_3y ?? 0) >= 0 ? 'up' : 'down' }}">{{ $f->return_3y !== null ? number_format($f->return_3y, 2) . '%' : '—' }}</span><span class="dt-muted">3Y</span></span>
                                 </a>

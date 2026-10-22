@@ -58,7 +58,7 @@
                 <tbody>
                 @forelse($instruments as $i)
                     <tr data-token="{{ $i->kite_token }}">
-                        <td><a class="dt-name" href="{{ route('trading.instrument', [$i->exchange, $i->symbol]) }}">@include('trading.partials.logo', ['name' => $i->name ?: $i->symbol])<span><b>{{ $i->symbol }}</b><small>{{ \Illuminate\Support\Str::limit($i->name, 44) }} · {{ $i->exchange }}</small></span></a></td>
+                        <td><a class="dt-name" href="{{ route('trading.instrument', [$i->exchange, $i->symbol]) }}">@include('trading.partials.logo', ['domain' => $i->logo_domain, 'name' => $i->name ?: $i->symbol])<span><b>{{ $i->symbol }}</b><small>{{ \Illuminate\Support\Str::limit($i->name, 44) }} · {{ $i->exchange }}</small></span></a></td>
                         @if($type === 'ETF')<td><small>{{ $i->underlying }}</small></td>@endif
                         <td class="num">@if($i->last_price !== null)₹<span data-ltp>{{ number_format($i->last_price, 2) }}</span>@else<span data-ltp class="dt-muted">—</span>@endif</td>
                         <td class="num"><span data-chg class="{{ ($i->change_pct ?? 0) >= 0 ? 'up' : 'down' }}">{{ $i->change_pct !== null ? (($i->change_pct >= 0 ? '+' : '') . number_format($i->change_pct, 2) . '%') : '—' }}</span></td>

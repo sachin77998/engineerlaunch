@@ -27,7 +27,7 @@
         <div class="dt-cards">
             @foreach($popular as $f)
                 <a class="dt-fcard" href="{{ route('trading.fund', $f) }}">
-                    <span style="display:flex;gap:12px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc, 'color' => $f->fundHouse?->color])<small class="dt-muted">{{ $f->sub_category }}</small></span>
+                    <span style="display:flex;gap:12px;align-items:center">@include('trading.partials.logo', ['name' => $f->amc, 'color' => $f->fundHouse?->color, 'amc' => true])<small class="dt-muted">{{ $f->sub_category }}</small></span>
                     <b>{{ $f->displayName() }}</b>
                     <span class="row"><span class="ret {{ ($f->return_3y ?? 0) >= 0 ? 'up' : 'down' }}">{{ $f->return_3y !== null ? number_format($f->return_3y, 2) . '%' : '—' }}</span><span class="dt-muted">3Y returns</span></span>
                 </a>
@@ -40,7 +40,7 @@
         <div class="dt-sec-head"><h2>Fund houses</h2><a href="{{ route('trading.funds') }}">Browse all →</a></div>
         <div class="dt-amcs">
             @foreach($amcs as $a)
-                <a class="dt-amc" href="{{ route('trading.amc', $a) }}">@include('trading.partials.logo', ['name' => $a->short_name, 'color' => $a->color])<span><b>{{ $a->short_name }}</b><small>{{ number_format($a->scheme_count) }} schemes</small></span></a>
+                <a class="dt-amc" href="{{ route('trading.amc', $a) }}">@include('trading.partials.logo', ['name' => $a->short_name, 'color' => $a->color, 'domain' => \App\Services\Branding\Logos::domain($a->website) ?? \App\Services\Branding\Logos::amcDomain($a->name)])<span><b>{{ $a->short_name }}</b><small>{{ number_format($a->scheme_count) }} schemes</small></span></a>
             @endforeach
         </div>
     </section>

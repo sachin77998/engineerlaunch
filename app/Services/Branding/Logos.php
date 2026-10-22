@@ -47,17 +47,33 @@ class Logos
         return isset($map[$domain]) ? asset('storage/' . $map[$domain]) : null;
     }
 
-    /** Downloads the logo for a domain; returns true when a usable image (32px or larger) was stored. */
-    public function fetch(string $domain): bool
+    /**
+     * Downloads the logo for a domain; returns true when a usable image was stored. Tries the site's own
+     * large icons first (apple-touch-icon / sized icons in its HTML), then the Google and DuckDuckGo favicon
+     * services. Raster images under 32px are rejected — a blurry 16px favicon looks worse than the initials badge.
+     */
+    public function fetch(string $domain, ?string $name = null): bool
     {
-        $sources = ['https://www.google.com/s2/favicons?domain=' . rawurlencode($domain) . '&sz=128', 'https://icons.duckduckgo.com/ip3/' . rawurlencode($domain) . '.ico'];
-        foreach ($sources as $src) {
+        // logo.dev (optional, LOGO_DEV_TOKEN in .env) has high-resolution logos for most listed companies.
+        $token = config('services.logo_dev.token');
+        $sources = array_merge($token ? ['https://img.logo.dev/' . rawurlencode($domain) . '?token=' . rawurlencode($token) . '&size=128&format=png'] : [],
+            $name ? $this->wikiLogo($name, $domain) : [], $this->siteIcons($domain), ['https://www.google.com/s2/favicons?domain=' . rawurlencode($domain) . '&sz=128', 'https://icons.duckduckgo.com/ip3/' . rawurlencode($domain) . '.ico']);
+        foreach (array_slice(array_unique($sources), 0, 7) as $src) {
             try {
-                $r = Http::timeout(10)->withHeaders(['User-Agent' => 'Mozilla/5.0 (logo fetch)'])->get($src);
-                if (!$r->successful() || strlen($r->body()) < 200) continue;
-                $info = @getimagesizefromstring($r->body());
-                if (!$info || $info[0] < 32) continue;
-                $ext = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/vnd.microsoft.icon' => 'ico', 'image/x-icon' => 'ico'][$info['mime']] ?? 'png';
+                $r = Http::timeout(10)->withHeaders(['User-Agent' => 'Mozilla/5.0 (compatible; logo fetch)'])->get($src);
+                if (!$r->successful() || strlen($r->body()) < 150 || strlen($r->body()) > 600000) continue;
+                $body = $r->body();
+                // SVGs are served from our own domain, so reject anything that could run script.
+                if (str_contains(substr($body, 0, 500), '<svg')) {
+                    if (preg_match('/<script|javascript:|<foreignObject|<iframe|<!ENTITY|<embed|<object|\bon[a-z]+\s*=/i', $body)) continue;
+                    $ext = 'svg';
+                } else {
+                    $info = @getimagesizefromstring($body);
+                    $width = $info ? max($info[0], str_starts_with($body, "\0\0\1\0") ? $this->icoLargest($body) : 0) : 0;
+                    if ($width < 32) continue;
+                    $ext = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp', 'image/vnd.microsoft.icon' => 'ico', 'image/x-icon' => 'ico'][$info['mime']] ?? null;
+                    if (!$ext) continue;
+                }
                 $path = 'logos/' . preg_replace('/[^a-z0-9.-]/', '', $domain) . '.' . $ext;
                 Storage::disk('public')->put($path, $r->body());
                 DB::table('brand_logos')->updateOrInsert(['domain' => $domain], ['path' => $path, 'status' => 'ok', 'checked_at' => now()]);
@@ -68,5 +84,79 @@ class Logos
         }
         DB::table('brand_logos')->updateOrInsert(['domain' => $domain], ['path' => null, 'status' => 'missing', 'checked_at' => now()]);
         return false;
+    }
+
+    /** Large icons a site declares in its homepage HTML, biggest first, plus the conventional apple-touch-icon path. */
+    private function siteIcons(string $domain): array
+    {
+        $found = [];
+        try {
+            $get = fn ($url) => Http::timeout(8)->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36', 'Accept' => 'text/html'])->get($url);
+            try { $r = $get('https://' . $domain); } catch (Throwable) { $r = null; }
+            if ((!$r || !$r->successful()) && !str_starts_with($domain, 'www.')) $r = $get('https://www.' . $domain);
+            $base = (string) ($r->effectiveUri() ?? 'https://' . $domain);
+            if ($r->successful() && preg_match_all('/<link\b[^>]*>/i', substr($r->body(), 0, 200000), $tags)) {
+                foreach ($tags[0] as $tag) {
+                    if (!preg_match('/rel=["\']?([^"\'>]+)/i', $tag, $rel) || !preg_match('/(apple-touch-icon|icon)/i', $rel[1])) continue;
+                    if (!preg_match('/href=["\']?([^"\'\s>]+)/i', $tag, $href)) continue;
+                    $size = preg_match('/sizes=["\']?(\d+)/i', $tag, $s) ? (int) $s[1] : (str_contains(strtolower($rel[1]), 'apple') ? 180 : (str_ends_with(strtolower($href[1]), '.svg') ? 150 : 16));
+                    if ($size >= 32) $found[$this->absolute(html_entity_decode($href[1]), $base)] = $size;
+                }
+            }
+        } catch (Throwable) {
+        }
+        arsort($found);
+        return array_merge(array_keys($found), ['https://' . $domain . '/apple-touch-icon.png']);
+    }
+
+    /**
+     * Logo from Wikidata (P154) or the Wikipedia infobox image, only for the entity whose official website (P856)
+     * is this domain, so a namesake company never lends its logo.
+     */
+    private function wikiLogo(string $name, string $domain): array
+    {
+        $ua = ['User-Agent' => config('app.name') . ' logo sync (' . config('app.url') . ')'];
+        try {
+            $name = trim(preg_replace('/\b(limited|ltd|pvt|private|mutual fund)\b\.?/i', '', $name));
+            $ids = collect(Http::timeout(8)->withHeaders($ua)->get('https://www.wikidata.org/w/api.php', ['action' => 'wbsearchentities', 'search' => $name, 'language' => 'en', 'type' => 'item', 'limit' => 5, 'format' => 'json'])->json('search') ?? [])->pluck('id')->filter()->all();
+            if (!$ids) return [];
+            $entities = Http::timeout(8)->withHeaders($ua)->get('https://www.wikidata.org/w/api.php', ['action' => 'wbgetentities', 'ids' => implode('|', $ids), 'props' => 'claims|sitelinks', 'format' => 'json'])->json('entities') ?? [];
+            foreach ($ids as $id) {
+                $e = $entities[$id] ?? null;
+                $sites = collect($e['claims']['P856'] ?? [])->map(fn ($c) => self::domain($c['mainsnak']['datavalue']['value'] ?? null))->filter();
+                if (!$sites->contains(fn ($s) => $s === $domain || str_ends_with($s, '.' . $domain) || str_ends_with($domain, '.' . $s))) continue;
+                $out = [];
+                if ($file = $e['claims']['P154'][0]['mainsnak']['datavalue']['value'] ?? null) $out[] = 'https://commons.wikimedia.org/wiki/Special:FilePath/' . rawurlencode(str_replace(' ', '_', $file)) . '?width=200';
+                if ($title = $e['sitelinks']['enwiki']['title'] ?? null) {
+                    $page = collect(Http::timeout(8)->withHeaders($ua)->get('https://en.wikipedia.org/w/api.php', ['action' => 'query', 'prop' => 'pageimages', 'piprop' => 'thumbnail|name', 'pithumbsize' => 200, 'titles' => $title, 'format' => 'json', 'formatversion' => 2])->json('query.pages') ?? [])->first();
+                    // Lead images are often office photos; only take ones named as a logo.
+                    if ($page && stripos($page['pageimage'] ?? '', 'logo') !== false && !empty($page['thumbnail']['source'])) $out[] = $page['thumbnail']['source'];
+                }
+                return $out;
+            }
+        } catch (Throwable) {
+        }
+        return [];
+    }
+
+    // Largest image width inside a .ico file (directory entries: 1 byte width, 0 means 256).
+    private function icoLargest(string $ico): int
+    {
+        $count = unpack('v', substr($ico, 4, 2))[1] ?? 0;
+        $max = 0;
+        for ($i = 0; $i < min($count, 20); $i++) {
+            $w = ord($ico[6 + $i * 16] ?? "\0");
+            $max = max($max, $w === 0 ? 256 : $w);
+        }
+        return $max;
+    }
+
+    private function absolute(string $href, string $base): string
+    {
+        if (str_starts_with($href, '//')) return 'https:' . $href;
+        if (preg_match('#^https?://#i', $href)) return $href;
+        $p = parse_url($base);
+        $root = ($p['scheme'] ?? 'https') . '://' . ($p['host'] ?? '');
+        return $root . (str_starts_with($href, '/') ? $href : '/' . ltrim($href, './'));
     }
 }

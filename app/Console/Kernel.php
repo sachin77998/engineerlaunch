@@ -44,6 +44,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('insights:ratings --icra --limit=1 --backfill=300')->dailyAt('03:15')->timezone('Asia/Kolkata')->withoutOverlapping(180);
         // Similar-company recommender (content, financial profile and viewed-together signals).
         $schedule->command('insights:similar')->dailyAt('04:30')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        $schedule->command('logos:sync --limit=600')->dailyAt('03:45')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         // Fund model: NAV history in daily batches, rescored every weekday after NAVs publish, retrained weekly.
         $schedule->command('money:funds --fetch=250 --score')->weekdays()->at('23:15')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         $schedule->command('money:funds --fetch=0 --train --score')->weeklyOn(6, '05:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);

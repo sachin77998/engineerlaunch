@@ -157,14 +157,14 @@
     @endif
 
     @if($premium || $isOwner)
-        @include('insights.partials.vendor-assessment')
+        @includeSafe('insights.partials.vendor-assessment')
     @else
         <section class="ci-card" id="vendor-checks"><h2>Vendor checks &amp; payment capacity</h2><p>Sign in with access to company financials to review vendor evidence.</p></section>
     @endif
 
     @if($credit)
-        @include('insights.partials.credit-ratings')
-        @include('insights.partials.rated-debt')
+        @includeSafe('insights.partials.credit-ratings')
+        @includeSafe('insights.partials.rated-debt')
     @endif
 
     @if($health && $premium)
@@ -305,7 +305,7 @@
 
     @include('insights.partials.profile-competitors')
     @if($similar->isNotEmpty())
-        @include('insights.partials.similar-companies', ['items' => $similar])
+        @includeSafe('insights.partials.similar-companies', ['items' => $similar])
     @endif
 
     @if($premium)
