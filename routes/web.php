@@ -119,6 +119,7 @@ Route::prefix('trading')->name('trading.')->group(function () {
     });
 });
 Route::get('/company-insights/cin/{cin}', [\App\Http\Controllers\CompanyInsightsController::class, 'byCin'])->where('cin', '[A-Za-z0-9]{21}')->name('insights.cin');
+Route::get('/company-insights/{company:slug}/report.{format}', [\App\Http\Controllers\CompanyInsightsController::class, 'report'])->whereIn('format', ['pdf', 'xlsx'])->middleware(['auth', 'throttle:reports'])->name('insights.report');
 Route::get('/company-insights/{company:slug}', [\App\Http\Controllers\CompanyInsightsController::class, 'show'])->name('insights.show');
 Route::post('/company-insights/{company:slug}/feedback', [\App\Http\Controllers\CompanyInsightsController::class, 'feedback'])->middleware('throttle:30,1')->name('insights.feedback');
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -267,6 +268,9 @@ Route::get('/offer/{token}/pdf',[\App\Http\Controllers\HiringCommsController::cl
 Route::post('/offer/{token}',[\App\Http\Controllers\HiringCommsController::class,'respondPublic'])->where('token','[A-Za-z0-9]{48}')->name('hiring.offer.respond');
 Route::get('/admin',[AdminController::class,'index'])->middleware(['auth','admin'])->name('admin.dashboard');
 Route::get('/admin/analytics',OwnerAnalyticsDashboardController::class)->middleware(['auth','admin'])->name('admin.analytics');
+Route::get('/admin/visitors',[\App\Http\Controllers\AdminVisitorsController::class,'index'])->middleware(['auth','admin'])->name('admin.visitors');
+Route::get('/admin/visitors/export',[\App\Http\Controllers\AdminVisitorsController::class,'export'])->middleware(['auth','admin','throttle:reports'])->name('admin.visitors.export');
+Route::view('/privacy','privacy')->name('privacy');
 Route::get('/admin/news',[AdminNewsController::class,'index'])->middleware(['auth','admin'])->name('admin.news');
 Route::post('/admin/news/sources',[AdminNewsController::class,'source'])->middleware(['auth','admin','throttle:10,1'])->name('admin.news.sources');
 Route::patch('/admin/news/{article}',[AdminNewsController::class,'moderate'])->middleware(['auth','admin'])->name('admin.news.moderate');

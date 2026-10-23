@@ -13,7 +13,7 @@ class SyncCreditRatings extends Command
 {
     protected $signature = 'insights:ratings {--icra : Only ICRA daily rationales} {--care : Only CARE company lookups} {--limit=250 : Newest ICRA ids to check}
         {--backfill=0 : Older ICRA ids to read below the oldest stored} {--care-limit=120 : Companies looked up at CARE per run}
-        {--company=* : Only these company ids (CARE lookup)} {--relink : Only link stored rationales to companies} {--reparse : Re-read stored rationales with the current parser} {--status : Show counts only}';
+        {--company=* : Only these company ids (CARE lookup)} {--relink : Only link stored rationales to companies} {--reparse : Re-read stored rationales with the current parser} {--missing : With --reparse: only reports without funding events} {--batch=0 : With --reparse: at most this many reports} {--status : Show counts only}';
     protected $description = 'Fetch credit-rating rationales (ICRA daily releases, CARE company lookups) and store ratings, rated debt and agency financials';
 
     public function handle(CreditRatingSync $sync): int
@@ -26,7 +26,7 @@ class SyncCreditRatings extends Command
             return self::SUCCESS;
         }
         if ($this->option('relink')) { $this->info('Linked ' . $sync->relink() . ' rationales.'); return self::SUCCESS; }
-        if ($this->option('reparse')) { $sync->reparse(($c = $this->option('company')) ? (int) $c[0] : null, $log); return self::SUCCESS; }
+        if ($this->option('reparse')) { $sync->reparse(($c = $this->option('company')) ? (int) $c[0] : null, $log, (int) $this->option('batch'), (bool) $this->option('missing')); return self::SUCCESS; }
 
         $only = $this->option('icra') ? 'icra' : ($this->option('care') || $this->option('company') ? 'care' : null);
         if ($only !== 'care') $sync->syncIcra((int) $this->option('limit'), (int) $this->option('backfill'), $log);

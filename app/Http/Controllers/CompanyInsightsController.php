@@ -259,6 +259,7 @@ class CompanyInsightsController extends Controller
             'competitors' => rescue(fn () => $profile->competitors($company), collect(), false),
             'credit' => rescue(fn () => app(\App\Services\Insights\CreditProfile::class)->build($company), null),
             'similar' => rescue(fn () => app(\App\Services\Insights\CompanySimilarity::class)->for($company), collect()),
+            'funding' => rescue(fn () => app(\App\Services\Insights\FundingLifecycle::class)->build($company, $premium), null),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),
@@ -273,6 +274,15 @@ class CompanyInsightsController extends Controller
             'register' => $cin ? \Illuminate\Support\Facades\DB::table('mca_companies')->where('cin', $cin)->first() : null,
             'providerStatus' => auth()->user()?->isOwner() ? app(\App\Services\Insights\DataProviders::class)->status() : [],
         ]);
+    }
+
+    /** Downloadable report (PDF or Excel). Premium sections are included only for premium members and owners. */
+    public function report(Request $request, Company $company, string $format, \App\Services\Insights\CompanyReport $report)
+    {
+        $full = (bool) $request->user()?->hasActivePremium();
+        $name = \Illuminate\Support\Str::slug($company->name) . '-insights-' . now()->format('Y-m-d');
+        if ($format === 'pdf') return $report->pdf($company, $full)->download($name . '.pdf');
+        return response()->download($report->xlsx($company, $full), $name . '.xlsx', ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])->deleteFileAfterSend();
     }
 
     /** Owner: upload an AOC-4 / MGT-7 (text is extracted in the browser with pdf.js, or a .txt file is sent). */

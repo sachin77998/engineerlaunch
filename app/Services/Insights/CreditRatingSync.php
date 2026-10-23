@@ -129,11 +129,13 @@ class CreditRatingSync
     }
 
     /** Re-reads stored rationales from their source PDFs (after parser improvements). */
-    public function reparse(?int $companyId = null, ?callable $log = null): int
+    public function reparse(?int $companyId = null, ?callable $log = null, int $batch = 0, bool $missingOnly = false): int
     {
         $count = 0;
+        // Batched mode reads only reports parsed before funding events existed, newest first, a few hundred per night.
         CreditRating::whereIn('parse_status', ['parsed', 'unreadable'])->when($companyId, fn ($q) => $q->where('company_id', $companyId))
-            ->orderBy('id')->chunkById(100, function ($rows) use (&$count) {
+            ->when($missingOnly, fn ($q) => $q->where('parse_status', 'parsed')->whereNull('funding_events'))
+            ->orderByDesc('published_on')->orderBy('id')->limit($batch > 0 ? $batch : PHP_INT_MAX)->get()->chunk(100)->each(function ($rows) use (&$count) {
                 foreach ($rows as $r) {
                     $url = $r->agency === 'ICRA' ? self::ICRA . '/Rating/GetRationalReportFilePdf?Id=' . $r->source_key : $r->source_url;
                     if (!$url || !($response = $this->get($url, 90))) continue;
@@ -174,7 +176,8 @@ class CreditRatingSync
                 'liquidity' => $data['liquidity'], 'withdrawn' => $data['withdrawn'], 'non_cooperating' => $data['non_cooperating'],
                 'instruments' => $data['instruments'], 'debt_instruments' => $data['debt_instruments'], 'financials' => $data['financials'],
                 'strengths' => $data['strengths'], 'challenges' => $data['challenges'], 'sensitivities' => $data['sensitivities'],
-                'about' => $data['about'], 'parse_status' => 'parsed',
+                'about' => $data['about'], 'rationale' => $data['rationale'] ?? null, 'liquidity_text' => $data['liquidity_text'] ?? null,
+                'funding_events' => $data['funding_events'] ?? null, 'parse_status' => 'parsed',
             ]);
             if ($company) $this->fillFinancials($company, $rating);
             return 'parsed';

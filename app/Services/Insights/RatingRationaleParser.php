@@ -74,6 +74,10 @@ class RatingRationaleParser
                 ?: $this->lineDrivers($lines, '/^(Key weaknesses|Key rating weaknesses|Credit challenges)$/i', '/^(Liquidity|Environment|Applicable criteria|Analytical approach|Rating sensitivities|Assumptions|ESG)/i'),
             'sensitivities' => $this->sensitivities($flat),
             'about' => $this->about($flat),
+            // Rationale and liquidity text, and the funding events they describe (infusions, repayments, tie-ups, capex).
+            'rationale' => ($x = app(FundingEventExtractor::class))->rationale($text),
+            'liquidity_text' => $x->liquidity($text),
+            'funding_events' => $x->extract($text),
         ];
     }
 

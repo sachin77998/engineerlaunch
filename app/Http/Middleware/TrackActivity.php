@@ -29,6 +29,8 @@ class TrackActivity
         try {
             DB::table('activity_logs')->insert([
                 'user_id'=>$request->user()?->id, 'session_id'=>$request->session()->getId(),
+                // Same key as daily_visitors, so the admin visitor log can show a guest's approximate state.
+                'visitor_key'=>hash_hmac('sha256', $visitorId, config('app.key')),
                 'method'=>'GET', 'path'=>'/'.ltrim($request->path(), '/'), 'action'=>'page_view',
                 'ip_hash'=>hash_hmac('sha256', $ip, config('app.key')),
                 'user_agent'=>substr((string)$request->userAgent(), 0, 500), 'created_at'=>now(),

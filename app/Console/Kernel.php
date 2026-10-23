@@ -44,6 +44,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('insights:ratings --icra --limit=1 --backfill=300')->dailyAt('03:15')->timezone('Asia/Kolkata')->withoutOverlapping(180);
         // Similar-company recommender (content, financial profile and viewed-together signals).
         $schedule->command('insights:similar')->dailyAt('04:30')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        // Funding events for rating reports read before the extractor existed, then the credit outlook model retrains.
+        $schedule->command('insights:ratings --reparse --missing --batch=200')->dailyAt('01:30')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        $schedule->command('insights:credit-model')->weeklyOn(0, '05:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
         $schedule->command('logos:sync --limit=600')->dailyAt('03:45')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         // Fund model: NAV history in daily batches, rescored every weekday after NAVs publish, retrained weekly.
         $schedule->command('money:funds --fetch=250 --score')->weekdays()->at('23:15')->timezone('Asia/Kolkata')->withoutOverlapping(120);

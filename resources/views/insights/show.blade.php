@@ -166,6 +166,9 @@
         @includeSafe('insights.partials.credit-ratings')
         @includeSafe('insights.partials.rated-debt')
     @endif
+    @if(!empty($funding))
+        @includeSafe('insights.partials.funding-lifecycle')
+    @endif
 
     @if($health && $premium)
         <section class="ci-card" id="health">
