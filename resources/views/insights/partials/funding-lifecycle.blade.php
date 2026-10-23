@@ -17,11 +17,9 @@
         ['type' => 'line', 'label' => 'EBITDA', 'data' => $debt->pluck('ebitda')->all(), 'borderColor' => '#16a34a', 'backgroundColor' => '#16a34a', 'unit' => ' Cr', 'tension' => .3]]],
         'options' => ['scales' => ['x' => ['stacked' => true], 'y' => ['stacked' => true, 'title' => ['display' => true, 'text' => '₹ crore']]]]] : null;
 @endphp
-<section class="ci-card" id="funding-lifecycle" style="grid-column:1/-1;min-width:0">
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
-        <h2 style="margin:0">Borrowing &amp; funding lifecycle</h2>
-        <span style="display:flex;gap:8px"><a class="ci-btn" href="{{ route('insights.report', [$company, 'pdf']) }}">⬇ PDF report</a><a class="ci-btn" href="{{ route('insights.report', [$company, 'xlsx']) }}">⬇ Excel</a></span>
-    </div>
+<section class="ci-card" id="funding-lifecycle" data-nav="Funding lifecycle" style="grid-column:1/-1;min-width:0">
+    <h2>Borrowing &amp; funding lifecycle</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="ci-btn" href="{{ route('insights.report', [$company, 'pdf']) }}">⬇ PDF report</a><a class="ci-btn" href="{{ route('insights.report', [$company, 'xlsx']) }}">⬇ Excel</a></div>
 
     <div class="ci-facts" style="margin-top:14px">
         <div style="grid-column:span 2"><span>Can it borrow more?</span><b class="{{ $verdictClass }}" style="font-size:18px">{{ $cap['verdict'] }}</b>

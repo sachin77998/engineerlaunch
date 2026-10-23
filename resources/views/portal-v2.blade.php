@@ -223,7 +223,7 @@ input,select
     .company-grid
     {
         display:grid;
-        grid-template-columns:repeat(6,1fr);
+        grid-template-columns:repeat(6,minmax(0,1fr));
         gap:12px
     }
     .company-card
@@ -260,11 +260,14 @@ input,select
     }
     .company-name
     {
+        display:block;
         font-size:12px;
-        font-weight:700
+        font-weight:700;
+        overflow-wrap:anywhere
     }
     .company-jobs
     {
+        display:block;
         margin-top:4px;
         color:#8994a8;
         font-size:11px
@@ -525,7 +528,7 @@ input,select
     {
         .company-grid
         {
-            grid-template-columns:repeat(3,1fr)
+            grid-template-columns:repeat(3,minmax(0,1fr))
         }
         .jobs-layout
         {
@@ -568,7 +571,7 @@ input,select
         }
         .company-grid
         {
-            grid-template-columns:repeat(2,1fr)
+            grid-template-columns:repeat(2,minmax(0,1fr))
         }
         .job-toolbar,
         .section-header,

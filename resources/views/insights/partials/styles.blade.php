@@ -24,7 +24,8 @@
 .up{color:#087443}.down{color:#b42318}
 .ci-table-wrap{overflow-x:auto;border:1px solid #e8edf5;border-radius:10px}
 .ci-table{width:100%;border-collapse:collapse;font-size:13.5px}.ci-table th,.ci-table td{padding:8px 11px;border-bottom:1px solid #eef2f7;text-align:right;white-space:nowrap}
-.ci-table th:first-child,.ci-table td:first-child{text-align:left;position:sticky;left:0;background:#fff}.ci-table thead th{background:#0b2545;color:#fff}.ci-table thead th:first-child{background:#0b2545}
+.ci-table th:first-child,.ci-table td:first-child{text-align:left;position:sticky;left:0;background:#fff}
+.ci-table.ci-kv td{text-align:left;white-space:normal}.ci-table.ci-kv td:first-child{width:34%;font-weight:600;position:static}.ci-table thead th{background:#0b2545;color:#fff}.ci-table thead th:first-child{background:#0b2545}
 .ci-table tr.ci-sub td{font-weight:700;background:#f7f9fc}.ci-table tr.ci-sub td:first-child{background:#f7f9fc}
 .ci-bars{display:flex;align-items:flex-end;gap:10px;height:170px;padding:10px 4px 0;border-bottom:1px solid #dfe6f1;overflow-x:auto}
 .ci-bar{flex:1 0 54px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-size:11.5px;color:#5b6b82}
@@ -44,6 +45,8 @@
 @media(min-width:1000px){
   .ci-main.ci-layout{display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:22px;align-items:start}
   .ci-main.ci-layout>*{grid-column:2;min-width:0}
+  /* Sections styled full-width for other grids must stay in the content column beside the side menu. */
+  .ci-main.ci-layout>section[style*="grid-column"],.ci-main.ci-layout>div[style*="grid-column"]{grid-column:2!important}
   .ci-main.ci-layout>.ci-tabs{grid-column:1;grid-row:1 / span 60;position:sticky;top:12px;flex-direction:column;flex-wrap:nowrap;gap:2px;padding:10px;background:#fff;border:1px solid #dfe6f1;border-radius:14px}
   .ci-main.ci-layout>.ci-tabs a{border:0;border-radius:8px;padding:9px 12px;background:transparent}
   .ci-main.ci-layout>.ci-tabs a:hover{background:#fff6dc}

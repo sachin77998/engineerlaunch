@@ -11,11 +11,9 @@
     $pillarNames = ['business' => 'Business risk', 'financial' => 'Financial risk', 'liquidity' => 'Liquidity', 'management' => 'Management & governance'];
     $p = $a['policy'];
 @endphp
-<section class="ci-card" id="care-assessment" style="grid-column:1/-1;min-width:0">
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
-        <h2 style="margin:0">Credit assessment · {{ $a['sector'] }}</h2>
-        <span class="ci-muted" style="font-size:12.5px">{{ $a['criteria'] }} · {{ ucfirst($a['basis']) }} accounts{{ $a['year'] ? ' · FY ' . $a['year'] : '' }}</span>
-    </div>
+<section class="ci-card" id="care-assessment" data-nav="Credit assessment" style="grid-column:1/-1;min-width:0">
+    <h2>Credit assessment · {{ $a['sector'] }}</h2>
+    <p class="ci-muted" style="font-size:12.5px;margin:0">{{ $a['criteria'] }} · {{ ucfirst($a['basis']) }} accounts{{ $a['year'] ? ' · FY ' . $a['year'] : '' }}</p>
 
     <div class="ci-facts" style="margin-top:14px">
         <div><span>Indicative long-term</span><b style="font-size:20px">{{ $a['indicative'] ?? '—' }}</b>@if($a['standalone'] && $a['standalone'] !== $a['indicative'])<small style="display:block">Standalone {{ $a['standalone'] }}</small>@endif</div>
@@ -67,7 +65,7 @@
     @endif
 
     <h3>Rating status</h3>
-    <div style="overflow-x:auto"><table class="ci-table"><tbody>
+    <div style="overflow-x:auto"><table class="ci-table ci-kv"><tbody>
         <tr><td>Default</td><td>{{ $p['default']['in_default'] ? 'In default (CARE D)' : ($p['default']['last_default'] ? 'Last default ' . $p['default']['last_default']->format('d M Y') . ($p['default']['cured_on'] ? ', cured ' . $p['default']['cured_on']->format('d M Y') . ' (' . $p['default']['days_since_cure'] . ' days; investment grade needs 365)' : '') : 'No default on record') }}</td></tr>
         <tr><td>Issuer cooperation</td><td>{{ $p['inc']['active'] ? 'Not cooperating since ' . $p['inc']['since']->format('d M Y') . ' (' . $p['inc']['months'] . ' months)' . ($p['inc']['months'] >= 6 ? ' – investment grade cannot be retained' : '') : 'Cooperating' }}</td></tr>
         <tr><td>Credit enhancement</td><td>{{ $p['credit_enhanced'] ? $p['credit_enhanced']['rating'] . ' · ' . $p['credit_enhanced']['type'] . ' (' . $p['credit_enhanced']['agency'] . ', ' . $p['credit_enhanced']['date']->format('M Y') . ')' : 'None – standalone rating' }}</td></tr>

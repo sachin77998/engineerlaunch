@@ -15,5 +15,8 @@
 .sl-logo{position:relative;display:inline-grid;place-items:center;flex:none;width:40px;height:40px;border-radius:10px;overflow:hidden;background:hsl(var(--hue) 55% 92%);color:hsl(var(--hue) 55% 30%);font-size:13px;font-weight:800;border:1px solid #e2e8f2}
 .sl-logo.sm{width:28px;height:28px;border-radius:8px;font-size:10px}.sl-logo.lg{width:64px;height:64px;border-radius:16px;font-size:20px}
 .sl-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:3px;box-sizing:border-box}
+.cat-card{min-width:0}.cat-body h2{overflow-wrap:anywhere}.cat-logos{flex-wrap:wrap}
+@media (max-width:900px){.cat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.cat-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 @endonce
