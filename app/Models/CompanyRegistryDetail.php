@@ -10,7 +10,7 @@ class CompanyRegistryDetail extends Model
 {
     protected $table = 'company_registry_details';
     protected $guarded = ['id'];
-    protected $casts = ['gstins' => 'array', 'incorporation_date' => 'date', 'last_agm_date' => 'date', 'last_balance_sheet_date' => 'date'];
+    protected $casts = ['gstins' => 'array', 'incorporation_date' => 'date', 'last_agm_date' => 'date', 'last_balance_sheet_date' => 'date', 'enriched_at' => 'datetime'];
 
     public function company(): BelongsTo
     {

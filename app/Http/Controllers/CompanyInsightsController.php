@@ -216,7 +216,7 @@ class CompanyInsightsController extends Controller
     {
         $vendorInputs = $request->validate(['vendor_revenue_change'=>'nullable|numeric|between:-100,100']);
         // Registry details and public figures are refreshed in the background, at most once a month.
-        $enrichedAt = $company->registryDetail?->enriched_at;
+        $enrichedAt = rescue(fn () => ($v = $company->registryDetail?->enriched_at) ? \Illuminate\Support\Carbon::parse($v) : null, null, false);
         if (!$enrichedAt || $enrichedAt->lt(now()->subDays(30))) {
             try { \App\Jobs\EnrichCompanyInsights::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
