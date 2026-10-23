@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\CreditRating;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * A company's borrowing and funding lifecycle from three sources:
@@ -150,6 +151,30 @@ class FundingLifecycle
         return ['verdict' => $verdict, 'score' => $score, 'why' => $why, 'outlook' => $outlook, 'room_crore' => $room, 'debt_cap_multiple' => $cap, 'interest_coverage' => $icr,
             'utilisation' => $util, 'unallocated' => $unallocated, 'rated_total' => $latest?->total_rated_crore, 'mix' => $mix, 'open_charges' => round($openCharges->sum(fn ($c) => $this->crore($c->amount) ?? 0), 2),
             'model' => $this->model->model() ? array_intersect_key($this->model->model(), array_flip(['pairs', 'test_auc', 'test_accuracy', 'trained_at'])) : null];
+    }
+
+    /** Builds the full lifecycle and stores the timeline (company_funding_events) and capacity (company_borrowing_capacity). */
+    public function persist(Company $company): ?array
+    {
+        $f = $this->build($company, true);
+        $now = now();
+        DB::transaction(function () use ($company, $f, $now) {
+            DB::table('company_funding_events')->where('company_id', $company->id)->delete();
+            if (!$f) { DB::table('company_borrowing_capacity')->where('company_id', $company->id)->delete(); return; }
+            $rows = $f['timeline']->map(fn ($e) => ['company_id' => $company->id, 'event_date' => $e['date']->toDateString(), 'kind' => $e['kind'], 'title' => mb_substr($e['title'], 0, 500),
+                'amount_crore' => $e['amount'] !== null ? round((float) $e['amount'], 2) : null, 'instrument' => $e['instrument'] ?? null, 'counterparty' => isset($e['from']) ? mb_substr((string) $e['from'], 0, 250) : ($e['lender'] ?? null),
+                'evidence' => $e['evidence'] ?? null, 'source' => $e['source'] ?? null, 'url' => $e['url'] ?? null, 'created_at' => $now, 'updated_at' => $now])->all();
+            foreach (array_chunk($rows, 300) as $chunk) DB::table('company_funding_events')->insert($chunk);
+            $c = $f['capacity'];
+            $stories = collect($f['stories'])->map(fn ($s) => ['steps' => collect($s['steps'])->map(fn ($st) => ['date' => $st['date']->toDateString(), 'text' => $st['text']])->all()] + $s)->all();
+            DB::table('company_borrowing_capacity')->updateOrInsert(['company_id' => $company->id], [
+                'verdict' => $c['verdict'], 'score' => $c['score'], 'probability' => $c['outlook']['probability'] ?? null, 'room_crore' => $c['room_crore'], 'debt_cap_multiple' => $c['debt_cap_multiple'],
+                'interest_coverage' => $c['interest_coverage'], 'utilisation' => $c['utilisation'], 'unallocated_crore' => $c['unallocated'] ?: null, 'rated_total_crore' => $c['rated_total'],
+                'open_charges_crore' => $c['open_charges'], 'why' => json_encode($c['why'], JSON_UNESCAPED_UNICODE), 'stories' => json_encode($stories, JSON_UNESCAPED_UNICODE),
+                'facility_mix' => json_encode($c['mix']), 'computed_at' => $now, 'created_at' => $now, 'updated_at' => $now,
+            ]);
+        });
+        return $f;
     }
 
     /** Rated limits by facility group for one rating report (₹ crore). */

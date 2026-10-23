@@ -66,6 +66,9 @@ run insights:import-us
 run market:data metal-history
 run db:seed --class=InsurerSeeder --force
 run sectors:file-listed
+# Credit methodology tables and the first stored assessments (the nightly job keeps them current).
+run insights:assess --seed-methodology
+run insights:assess --limit=500
 run optimize:clear
 
 echo "" >> "$LOG"

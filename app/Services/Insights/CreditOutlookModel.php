@@ -4,6 +4,7 @@ namespace App\Services\Insights;
 
 use App\Models\CreditRating;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -51,12 +52,27 @@ class CreditOutlookModel
             $model['test_accuracy'] = round(count(array_filter(array_keys($p), fn ($i) => ($p[$i] >= 0.5 ? 1 : 0) === $y[$i])) / count($p) * 100, 1);
             $model['test_pairs'] = count($test);
         }
-        Storage::disk('local')->put(self::PATH, json_encode($model, JSON_PRETTY_PRINT));
+        // Each run is stored; the newest becomes the active model.
+        DB::transaction(function () use ($model) {
+            DB::table('credit_model_runs')->where('model', 'credit_outlook')->update(['is_active' => false]);
+            DB::table('credit_model_runs')->insert(['model' => 'credit_outlook', 'pairs' => $model['pairs'], 'test_pairs' => $model['test_pairs'] ?? null, 'test_auc' => $model['test_auc'] ?? null,
+                'test_accuracy' => $model['test_accuracy'] ?? null, 'positive_rate' => $model['positive_rate'], 'weights' => json_encode($model['weights']), 'mean' => json_encode($model['mean']),
+                'std' => json_encode($model['std']), 'is_active' => true, 'trained_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
+        });
+        $this->cached = null;
         return ['ok' => true] + $model;
     }
 
+    private ?array $cached = null;
+
+    /** Active run from credit_model_runs; the older JSON file is read only if no run is stored yet. */
     public function model(): ?array
     {
+        if ($this->cached) return $this->cached;
+        $run = rescue(fn () => DB::table('credit_model_runs')->where('model', 'credit_outlook')->where('is_active', true)->latest('trained_at')->first(), null, false);
+        if ($run) return $this->cached = ['weights' => json_decode($run->weights, true), 'mean' => json_decode($run->mean, true), 'std' => json_decode($run->std, true), 'pairs' => $run->pairs,
+            'test_auc' => $run->test_auc !== null ? (float) $run->test_auc : null, 'test_accuracy' => $run->test_accuracy !== null ? (float) $run->test_accuracy : null, 'test_pairs' => $run->test_pairs,
+            'positive_rate' => (float) $run->positive_rate, 'trained_at' => $run->trained_at];
         return Storage::disk('local')->exists(self::PATH) ? json_decode(Storage::disk('local')->get(self::PATH), true) : null;
     }
 

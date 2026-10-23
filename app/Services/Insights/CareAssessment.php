@@ -6,7 +6,6 @@ use App\Models\Company;
 use App\Models\CreditRating;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,16 +21,16 @@ use Illuminate\Support\Facades\DB;
  */
 class CareAssessment
 {
-    private const ORDER = ['bank', 'financial', 'investment_holding', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'diamond', 'manmade_yarn', 'cotton_textile', 'non_ferrous', 'commercial_vehicles', 'auto_components', 'services'];
     private const LIQUIDITY = ['Superior', 'Strong', 'Adequate', 'Stretched', 'Poor'];
 
-    public function __construct(private CreditOutlookModel $outlook) {}
+    public function __construct(private CreditOutlookModel $outlook, private Methodology $m) {}
 
     public function build(Company $company, bool $full = true): ?array
     {
         $company->loadMissing(['registryDetail']);
         $sectorKey = $this->sector($company);
-        $sector = config("care_methodology.sectors.$sectorKey");
+        $sector = $this->m->sector($sectorKey);
+        $financialSector = !empty($sector['financial_ratios']);
         $ratings = $this->ratings($company);
         $statements = $this->statements($company);
         if ($statements->isEmpty() && $ratings->isEmpty()) return null;
@@ -41,22 +40,23 @@ class CareAssessment
         if ($years->isEmpty()) $years = $statements->sortBy('financial_year')->groupBy('financial_year')->map->first()->values();
         $funding = $ratings->flatMap(fn ($r) => collect((array) $r->funding_events)->map(fn ($e) => $e + ['date' => $r->published_on]));
 
-        $ratios = $years->isNotEmpty() ? $this->ratios($years, $funding, in_array($sectorKey, ['financial', 'bank'], true)) : [];
+        $ratios = $years->isNotEmpty() ? $this->ratios($years, $funding, $financialSector) : [];
         $ratios['promoter_holding'] = $this->promoterHolding($company);
         $ratios['rpt_revenue'] = $this->relatedPartyShare($company, $years->last());
         $info = $this->information($company, $years, $ratings, $funding);
 
-        $keys = array_values(array_diff($sector['ratios'] ?? config('care_methodology.sectors.manufacturing.ratios'), $sector['skip'] ?? []));
+        $keys = array_values(array_diff($sector['ratios'] ?? $this->m->sector('manufacturing')['ratios'] ?? [], $sector['skip'] ?? []));
         $peers = $full ? $this->peerMedians($sectorKey) : [];
         $rows = [];
         foreach ($keys as $k) {
-            $def = config("care_methodology.ratios.$k");
+            $def = $this->m->ratio($k);
+            if (!$def) continue;
             $band = $sector['override'][$k] ?? $def['band'];
             $v = $ratios[$k] ?? null;
             $rows[$k] = ['key' => $k, 'label' => $def['label'], 'value' => $v, 'band' => $band, 'dir' => $def['dir'], 'pillar' => $def['pillar'],
                 'score' => $v === null ? null : $this->bandScore($v, $band, $def['dir']), 'peer' => $peers[$k] ?? null];
         }
-        $weights = $sector['weights'] ?? config('care_methodology.default_weights');
+        $weights = $sector['weights'] ?? $this->m->setting('default_weights', ['business' => 30, 'financial' => 35, 'liquidity' => 20, 'management' => 15]);
         $pillars = [];
         foreach ($weights as $p => $w) {
             $scored = collect($rows)->where('pillar', $p)->whereNotNull('score');
@@ -64,7 +64,7 @@ class CareAssessment
         }
         $usable = collect($pillars)->filter(fn ($p) => $p['score'] !== null && $p['weight'] > 0);
         // An indicative band needs audited figures: no financial pillar, no band.
-        $score = $full && ($pillars['financial']['count'] ?? 0) >= (in_array($sectorKey, ['financial', 'bank'], true) ? 1 : 2) && $usable->sum('weight') > 0 ? round($usable->sum(fn ($p) => $p['score'] * $p['weight']) / $usable->sum('weight'), 1) : null;
+        $score = $full && ($pillars['financial']['count'] ?? 0) >= ($financialSector ? 1 : 2) && $usable->sum('weight') > 0 ? round($usable->sum(fn ($p) => $p['score'] * $p['weight']) / $usable->sum('weight'), 1) : null;
 
         $liquidity = $this->liquidity($ratios, $funding, $ratings->last());
         $latest = $ratings->where('withdrawn', false)->last();
@@ -95,8 +95,9 @@ class CareAssessment
         // Stated industry first, then the company name; registry NIC codes are often stale, so they only decide generic industries.
         foreach (['industry', 'name', 'nic'] as $by) {
             if ($by === 'nic' && ($nic === '' || ($industry !== '' && !preg_match('/^other|^manufacturing$|^industrial/i', $industry)))) break;
-            foreach (self::ORDER as $key) {
-                $m = config("care_methodology.sectors.$key.match", []);
+            foreach ($this->m->sectors() as $key => $def) {
+                if ($key === 'manufacturing') continue;
+                $m = $def['match'] ?? [];
                 if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key;
                 if ($by === 'name' && !empty($m['name']) && preg_match($m['name'], $name)) return $key;
                 if ($by === 'nic' && collect($m['nic'] ?? [])->contains(fn ($p) => str_starts_with($nic, $p))) return $key;
@@ -186,7 +187,9 @@ class CareAssessment
 
     private function band(float $score): string
     {
-        foreach (config('care_methodology.bands') as $min => $rating) if ($score >= $min) return $rating;
+        $bands = $this->m->setting('score_bands', []);
+        krsort($bands, SORT_NUMERIC);
+        foreach ($bands as $min => $rating) if ($score >= (float) $min) return $rating;
         return 'C';
     }
 
@@ -202,23 +205,24 @@ class CareAssessment
     private function overlays(string $rating, Company $company, Collection $ratings, Collection $funding, array $info): array
     {
         $adj = [];
+        $o = $this->m->setting('overlays', []) + ['gov_notch_51' => 1, 'gov_notch_75' => 2, 'group_support_notch' => 1, 'group_support_years' => 3, 'inc_cap_months' => 6, 'inc_cap' => 'BB+', 'cure_non_ig_days' => 90, 'cure_ig_days' => 365, 'post_default_cap' => 'BB+'];
         $gov = $this->governmentHolding($company);
-        if ($gov !== null && $gov >= 51) { $to = $this->shift($rating, $gov >= 75 ? 2 : 1); if ($to !== $rating) $adj[] = ['from' => $rating, 'to' => $to, 'why' => 'Government holds ' . round($gov, 1) . '% (notching for government linkage)']; $rating = $to; }
-        $support = $funding->filter(fn ($e) => ($e['type'] ?? '') === 'inflow' && preg_match('/promoter|parent|group|holding|limited|ltd/i', (string) ($e['from'] ?? '')) && Carbon::parse($e['date'])->gt(now()->subYears(3)));
-        if ($support->isNotEmpty()) { $to = $this->shift($rating, 1); if ($to !== $rating) $adj[] = ['from' => $rating, 'to' => $to, 'why' => 'Demonstrated funding support from ' . $support->first()['from'] . ' (₹' . round($support->sum('amount_crore')) . ' cr)']; $rating = $to; }
+        if ($gov !== null && $gov >= 51) { $to = $this->shift($rating, (int) ($gov >= 75 ? $o['gov_notch_75'] : $o['gov_notch_51'])); if ($to !== $rating) $adj[] = ['from' => $rating, 'to' => $to, 'why' => 'Government holds ' . round($gov, 1) . '% (notching for government linkage)']; $rating = $to; }
+        $support = $funding->filter(fn ($e) => ($e['type'] ?? '') === 'inflow' && preg_match('/promoter|parent|group|holding|limited|ltd/i', (string) ($e['from'] ?? '')) && Carbon::parse($e['date'])->gt(now()->subYears((int) $o['group_support_years'])));
+        if ($support->isNotEmpty()) { $to = $this->shift($rating, (int) $o['group_support_notch']); if ($to !== $rating) $adj[] = ['from' => $rating, 'to' => $to, 'why' => 'Demonstrated funding support from ' . $support->first()['from'] . ' (₹' . round($support->sum('amount_crore')) . ' cr)']; $rating = $to; }
         $policy = $this->policy($ratings);
         if ($policy['default']['in_default']) { $adj[] = ['from' => $rating, 'to' => 'D', 'why' => 'Latest agency rating is in default']; return ['D', $adj]; }
         if ($policy['default']['days_since_cure'] !== null) {
-            $cap = $policy['default']['days_since_cure'] < 90 ? 'C' : ($policy['default']['days_since_cure'] < 365 ? 'BB+' : null);
-            if ($cap && $this->shift($rating, 0, $cap) !== $rating) { $adj[] = ['from' => $rating, 'to' => $cap, 'why' => 'Curing period: ' . $policy['default']['days_since_cure'] . ' days since default was cured (90 days for non-investment grade, 365 for investment grade)']; $rating = $cap; }
+            $cap = $policy['default']['days_since_cure'] < $o['cure_non_ig_days'] ? 'C' : ($policy['default']['days_since_cure'] < $o['cure_ig_days'] ? $o['post_default_cap'] : null);
+            if ($cap && $this->shift($rating, 0, $cap) !== $rating) { $adj[] = ['from' => $rating, 'to' => $cap, 'why' => 'Curing period: ' . $policy['default']['days_since_cure'] . ' days since default was cured (' . $o['cure_non_ig_days'] . ' days for non-investment grade, ' . $o['cure_ig_days'] . ' for investment grade)']; $rating = $cap; }
         }
-        if ($policy['inc']['months'] !== null && $policy['inc']['months'] >= 6 && $this->shift($rating, 0, 'BB+') !== $rating) { $adj[] = ['from' => $rating, 'to' => 'BB+', 'why' => 'Issuer not cooperating for ' . $policy['inc']['months'] . ' months (investment grade not retained beyond 6 months)']; $rating = 'BB+'; }
+        if ($policy['inc']['months'] !== null && $policy['inc']['months'] >= $o['inc_cap_months'] && $this->shift($rating, 0, $o['inc_cap']) !== $rating) { $adj[] = ['from' => $rating, 'to' => $o['inc_cap'], 'why' => 'Issuer not cooperating for ' . $policy['inc']['months'] . ' months (investment grade not retained beyond ' . $o['inc_cap_months'] . ' months)']; $rating = $o['inc_cap']; }
         return [$rating, $adj];
     }
 
     private function shortTerm(string $long, string $liquidity): string
     {
-        $map = config('care_methodology.short_term')[$long] ?? ['A4', 'A4'];
+        $map = $this->m->setting('short_term_map', [])[$long] ?? ['A4', 'A4'];
         return $map[in_array($liquidity, ['Superior', 'Strong'], true) ? 1 : 0];
     }
 
@@ -377,20 +381,94 @@ class CareAssessment
         }, null, false);
     }
 
-    /** Median of each ratio across companies mapped to the same sector (cached daily). */
+    /** Sector medians stored by insights:assess (sector_ratio_medians). */
     private function peerMedians(string $sectorKey): array
     {
-        return Cache::remember("care-peers:$sectorKey", now()->addDay(), function () use ($sectorKey) {
-            $ids = DB::table('company_financial_statements')->distinct()->pluck('company_id');
-            $values = [];
-            Company::whereIn('id', $ids)->with('registryDetail')->get(['id', 'name', 'industry'])->filter(fn ($c) => $this->sector($c) === $sectorKey)->take(400)
-                ->each(function ($c) use (&$values, $sectorKey) {
-                    $years = $this->statements($c)->sortBy('financial_year')->groupBy('financial_year')->map(fn ($g) => $g->firstWhere('is_consolidated', false) ?? $g->first())->values();
-                    if ($years->isEmpty()) return;
-                    foreach ($this->ratios($years, collect(), in_array($sectorKey, ['financial', 'bank'], true)) as $k => $v) if ($v !== null) $values[$k][] = $v;
-                });
-            return collect($values)->filter(fn ($v) => count($v) >= 5)->map(function ($v) { sort($v); $n = count($v); return round($n % 2 ? $v[intdiv($n, 2)] : ($v[$n / 2 - 1] + $v[$n / 2]) / 2, 2); })->all();
+        return rescue(fn () => DB::table('sector_ratio_medians')->where('sector_key', $sectorKey)->pluck('median', 'ratio_key')->map(fn ($v) => round((float) $v, 2))->all(), [], false);
+    }
+
+    /** Recomputes the median of every ratio per sector from company_ratio_values (latest year per company). */
+    public function computeMedians(): int
+    {
+        $latest = DB::table('company_ratio_values')->select('company_id', DB::raw('MAX(financial_year) fy'))->groupBy('company_id');
+        $rows = DB::table('company_ratio_values as v')->joinSub($latest, 'l', fn ($j) => $j->on('l.company_id', '=', 'v.company_id')->on('l.fy', '=', 'v.financial_year'))
+            ->join('company_credit_assessments as a', 'a.company_id', '=', 'v.company_id')->whereNotNull('v.value')
+            ->get(['a.sector_key', 'v.ratio_key', 'v.value']);
+        $now = now(); $n = 0;
+        DB::table('sector_ratio_medians')->delete();
+        foreach ($rows->groupBy(fn ($r) => $r->sector_key . '|' . $r->ratio_key) as $key => $g) {
+            if ($g->count() < 5) continue;
+            [$sector, $ratio] = explode('|', $key);
+            $v = $g->pluck('value')->map(fn ($x) => (float) $x)->sort()->values();
+            $c = $v->count();
+            DB::table('sector_ratio_medians')->insert(['sector_key' => $sector, 'ratio_key' => $ratio, 'median' => $c % 2 ? $v[intdiv($c, 2)] : ($v[$c / 2 - 1] + $v[$c / 2]) / 2,
+                'sample' => $c, 'computed_at' => $now, 'created_at' => $now, 'updated_at' => $now]);
+            $n++;
+        }
+        return $n;
+    }
+
+    /** Builds the assessment and stores it, with every year's ratio values. */
+    public function persist(Company $company): ?array
+    {
+        $a = $this->build($company, true);
+        $now = now();
+        if (!$a) { DB::table('company_credit_assessments')->where('company_id', $company->id)->delete(); return null; }
+        $years = $this->statements($company)->where('is_consolidated', $a['basis'] === 'consolidated')->sortBy('financial_year')->values();
+        $financial = !empty($this->m->sector($a['sector_key'])['financial_ratios']);
+        $values = [];
+        for ($i = 0; $i < $years->count(); $i++) {
+            foreach ($this->ratios($years->slice(0, $i + 1)->values(), collect(), $financial) as $k => $v)
+                $values[] = ['company_id' => $company->id, 'financial_year' => $years[$i]->financial_year, 'basis' => $a['basis'], 'ratio_key' => $k, 'value' => $v, 'created_at' => $now, 'updated_at' => $now];
+        }
+        DB::transaction(function () use ($company, $a, $values, $now) {
+            DB::table('company_ratio_values')->where('company_id', $company->id)->delete();
+            foreach (array_chunk($values, 500) as $chunk) DB::table('company_ratio_values')->insert($chunk);
+            $j = fn ($v) => $v === null ? null : json_encode($v, JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+            DB::table('company_credit_assessments')->updateOrInsert(['company_id' => $company->id], [
+                'sector_key' => $a['sector_key'], 'basis' => $a['basis'], 'financial_year' => $a['year'], 'score' => $a['score'], 'standalone' => $a['standalone'],
+                'indicative' => $a['indicative'], 'short_term' => $a['short_term'], 'liquidity' => $a['liquidity']['level'],
+                'direction' => $a['outlook']['watch'] ? 'Rating watch – ' . $a['outlook']['watch']['type'] : $a['outlook']['direction'],
+                'agency_rating' => $a['agency']['rating'] ?? null, 'agency_gap' => $a['agency']['gap'] ?? null, 'information_score' => $a['information']['score'],
+                'pillars' => $j($a['pillars']), 'rows' => $j(array_values($a['rows'])), 'checks' => $j($a['checks']), 'adjustments' => $j($a['adjustments']),
+                'policy' => $j($a['policy']), 'outlook' => $j($a['outlook']), 'information' => $j($a['information']), 'liquidity_detail' => $j($a['liquidity']), 'agency' => $j($a['agency']),
+                'computed_at' => $now, 'updated_at' => $now, 'created_at' => $now,
+            ]);
         });
+        return $a;
+    }
+
+    /** Stored assessment shaped for the page; recomputed when missing or older than the stale_days setting. */
+    public function stored(Company $company, bool $full): ?array
+    {
+        $row = DB::table('company_credit_assessments')->where('company_id', $company->id)->first();
+        $stale = (int) ($this->m->setting('overlays', [])['stale_days'] ?? 7);
+        if (!$row || !$row->computed_at || Carbon::parse($row->computed_at)->lt(now()->subDays($stale))) {
+            if (!$this->persist($company)) return null;
+            $row = DB::table('company_credit_assessments')->where('company_id', $company->id)->first();
+        }
+        $d = fn ($v) => json_decode((string) $v, true);
+        // Dates come back from JSON as strings; restore them for the views.
+        $dates = function (?array $a, array $paths) {
+            foreach ($paths as $p) if (($v = data_get($a, $p)) && is_string($v)) data_set($a, $p, Carbon::parse($v));
+            return $a;
+        };
+        $policy = $dates($d($row->policy), ['default.last_default', 'default.cured_on', 'inc.since', 'credit_enhanced.date', 'provisional.date', 'provisional.expires', 'withdrawal.date']);
+        $agency = $dates($d($row->agency), ['date']);
+        $outlook = $dates($d($row->outlook), ['watch.date']);
+        $sector = $this->m->sector($row->sector_key);
+        $peers = $full ? $this->peerMedians($row->sector_key) : [];
+        $rows = collect($d($row->rows) ?? [])->map(fn ($r) => ['peer' => $peers[$r['key']] ?? null] + $r)->keyBy('key')->all();
+        return [
+            'sector_key' => $row->sector_key, 'sector' => $sector['name'] ?? $row->sector_key, 'criteria' => $sector['criteria'] ?? null, 'notes' => $sector['notes'] ?? [],
+            'basis' => $row->basis, 'full' => $full, 'year' => $row->financial_year, 'computed_at' => Carbon::parse($row->computed_at),
+            'rows' => $full ? $rows : [], 'pillars' => $full ? ($d($row->pillars) ?? []) : [], 'score' => $full && $row->score !== null ? (float) $row->score : null,
+            'standalone' => $full ? $row->standalone : null, 'indicative' => $full ? $row->indicative : null, 'adjustments' => $full ? ($d($row->adjustments) ?? []) : [],
+            'short_term' => $full ? $row->short_term : null, 'liquidity' => $d($row->liquidity_detail) ?? ['level' => $row->liquidity, 'agency' => null, 'why' => []],
+            'checks' => $full ? ($d($row->checks) ?? []) : [], 'agency' => $agency, 'policy' => $policy ?? [],
+            'outlook' => $outlook ?? ['direction' => $row->direction, 'agency' => null, 'probability' => null, 'watch' => null],
+            'information' => $d($row->information) ?? ['score' => 0, 'missing' => []],
+        ];
     }
 
     private function statements(Company $company): Collection

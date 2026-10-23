@@ -268,6 +268,14 @@ Route::get('/offer/{token}/pdf',[\App\Http\Controllers\HiringCommsController::cl
 Route::post('/offer/{token}',[\App\Http\Controllers\HiringCommsController::class,'respondPublic'])->where('token','[A-Za-z0-9]{48}')->name('hiring.offer.respond');
 Route::get('/admin',[AdminController::class,'index'])->middleware(['auth','admin'])->name('admin.dashboard');
 Route::get('/admin/analytics',OwnerAnalyticsDashboardController::class)->middleware(['auth','admin'])->name('admin.analytics');
+Route::middleware(['auth','admin'])->prefix('admin/methodology')->name('admin.methodology.')->controller(\App\Http\Controllers\AdminMethodologyController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/ratios', 'ratios')->name('ratios');
+    Route::post('/settings', 'settings')->name('settings');
+    Route::post('/sectors/{id}', 'sector')->whereNumber('id')->name('sector');
+    Route::post('/recompute', 'recompute')->name('recompute');
+    Route::post('/reset', 'reset')->name('reset');
+});
 Route::get('/admin/visitors',[\App\Http\Controllers\AdminVisitorsController::class,'index'])->middleware(['auth','admin'])->name('admin.visitors');
 Route::get('/admin/visitors/export',[\App\Http\Controllers\AdminVisitorsController::class,'export'])->middleware(['auth','admin','throttle:reports'])->name('admin.visitors.export');
 Route::view('/privacy','privacy')->name('privacy');

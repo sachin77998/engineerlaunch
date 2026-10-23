@@ -22,7 +22,7 @@ class CompanyReport
             'years' => $years,
             'credit' => rescue(fn () => $this->credit->build($company), null, false),
             'funding' => rescue(fn () => $this->lifecycle->build($company, $full), null, false),
-            'assessment' => rescue(fn () => $this->assessment->build($company, $full), null, false),
+            'assessment' => rescue(fn () => $this->assessment->stored($company, $full), null, false),
             'directors' => $company->officers->take(25),
         ];
     }

@@ -47,6 +47,8 @@ class Kernel extends ConsoleKernel
         // Funding events for rating reports read before the extractor existed, then the credit outlook model retrains.
         $schedule->command('insights:ratings --reparse --missing --batch=200')->dailyAt('01:30')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         $schedule->command('insights:credit-model')->weeklyOn(0, '05:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
+        // Stored credit assessments, ratio values, funding events, borrowing capacity and sector medians (stale ones first).
+        $schedule->command('insights:assess --limit=1500')->dailyAt('02:30')->timezone('Asia/Kolkata')->withoutOverlapping(180);
         $schedule->command('logos:sync --limit=600')->dailyAt('03:45')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         // Fund model: NAV history in daily batches, rescored every weekday after NAVs publish, retrained weekly.
         $schedule->command('money:funds --fetch=250 --score')->weekdays()->at('23:15')->timezone('Asia/Kolkata')->withoutOverlapping(120);
