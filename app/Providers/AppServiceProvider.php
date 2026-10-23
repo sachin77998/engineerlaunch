@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrapFive();
+        // Money planner rules live in the money_* tables (edited at /admin/money-rules); rebuild config('money') from them.
+        \App\Services\Money\MoneyRules::apply();
         // @includeSafe('view', [...]): an optional page section that is logged and skipped if it fails, instead of a 500 for the whole page.
         \Illuminate\Support\Facades\Blade::directive('includeSafe', fn ($expression) => "<?php try { echo \$__env->make({$expression}, \\Illuminate\\Support\\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); } catch (\\Throwable \$__e) { report(\$__e); } ?>");
         \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, string $token) {
