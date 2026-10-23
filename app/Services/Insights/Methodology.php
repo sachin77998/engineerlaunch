@@ -48,30 +48,50 @@ class Methodology
         });
     }
 
-    /** Copies config/care_methodology.php into the tables (only runs when they are empty, or with --reset). */
-    public function seed(bool $reset = false): void
+    /** Sectors are matched in this order (specific before generic); unknown keys go last. */
+    private const MATCH_ORDER = ['bank', 'hfc', 'broking', 'insurance', 'reit', 'nbfc', 'financial', 'investment_holding', 'power_distribution', 'wind_power', 'solar_power',
+        'thermal_power', 'airport', 'port', 'shipping', 'road_annuity', 'toll_road', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'diamond',
+        'manmade_yarn', 'cotton_textile', 'non_ferrous', 'commercial_vehicles', 'auto_components', 'services', 'manufacturing'];
+    private const FINANCIAL = ['bank', 'financial', 'nbfc', 'hfc', 'broking', 'insurance'];
+
+    /**
+     * Copies config/care_methodology.php into the tables. Without --reset it adds new ratios, sectors and settings and refreshes
+     * rows the owner has never edited (updated_at still equals created_at); rows changed at /admin/methodology are left alone.
+     * Returns the number of rows written.
+     */
+    public function seed(bool $reset = false): int
     {
         $cfg = config('care_methodology');
         $now = now();
-        DB::transaction(function () use ($cfg, $now, $reset) {
+        $n = 0;
+        DB::transaction(function () use ($cfg, $now, $reset, &$n) {
             if ($reset) foreach (['credit_methodology_ratios', 'credit_methodology_sectors', 'credit_methodology_settings'] as $t) DB::table($t)->delete();
+            $put = function (string $table, array $key, array $values) use ($now, &$n) {
+                $row = DB::table($table)->where($key)->first();
+                if ($row && (string) $row->updated_at !== (string) $row->created_at) return;   // edited by the owner
+                if ($row && collect($values)->every(fn ($v, $k) => (string) (is_bool($v) ? (int) $v : $v) === (string) $row->$k)) return;   // unchanged
+                DB::table($table)->updateOrInsert($key, $values + ['created_at' => $row->created_at ?? $now, 'updated_at' => $row->created_at ?? $now]);
+                $n++;
+            };
             $i = 0;
-            foreach ($cfg['ratios'] as $key => $r) DB::table('credit_methodology_ratios')->updateOrInsert(['key' => $key], ['label' => $r['label'], 'direction' => $r['dir'], 'band' => json_encode($r['band']), 'pillar' => $r['pillar'], 'sort_order' => $i++, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now]);
-            $order = ['bank', 'financial', 'investment_holding', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'diamond', 'manmade_yarn', 'cotton_textile', 'non_ferrous', 'commercial_vehicles', 'auto_components', 'services', 'manufacturing'];
-            foreach ($cfg['sectors'] as $key => $s) DB::table('credit_methodology_sectors')->updateOrInsert(['key' => $key], [
+            foreach ($cfg['ratios'] as $key => $r) $put('credit_methodology_ratios', ['key' => $key], ['label' => $r['label'], 'direction' => $r['dir'], 'band' => json_encode($r['band']), 'pillar' => $r['pillar'], 'sort_order' => $i++, 'is_active' => true]);
+            foreach ($cfg['sectors'] as $key => $s) $put('credit_methodology_sectors', ['key' => $key], [
                 'name' => $s['name'], 'criteria' => $s['criteria'] ?? null, 'match_industry' => $s['match']['industry'] ?? null, 'match_name' => $s['match']['name'] ?? null,
                 'nic_prefixes' => isset($s['match']['nic']) ? json_encode($s['match']['nic']) : null, 'ratios' => isset($s['ratios']) ? json_encode($s['ratios']) : null,
                 'skip' => isset($s['skip']) ? json_encode($s['skip']) : null, 'overrides' => isset($s['override']) ? json_encode($s['override']) : null,
                 'weights' => isset($s['weights']) ? json_encode($s['weights']) : null, 'checks' => isset($s['checks']) ? json_encode($s['checks']) : null,
-                'notes' => isset($s['notes']) ? json_encode($s['notes'], JSON_UNESCAPED_UNICODE) : null, 'financial_ratios' => in_array($key, ['bank', 'financial'], true),
-                'match_order' => (($p = array_search($key, $order, true)) === false ? 99 : $p) * 10, 'is_active' => true, 'created_at' => $now, 'updated_at' => $now,
+                'notes' => isset($s['notes']) ? json_encode($s['notes'], JSON_UNESCAPED_UNICODE) : null, 'financial_ratios' => in_array($key, self::FINANCIAL, true),
+                'match_order' => (($p = array_search($key, self::MATCH_ORDER, true)) === false ? 99 : $p) * 10, 'is_active' => true,
             ]);
-            foreach (['score_bands' => $cfg['bands'], 'short_term_map' => $cfg['short_term'], 'default_weights' => $cfg['default_weights'],
+            $settings = ['score_bands' => $cfg['bands'], 'short_term_map' => $cfg['short_term'], 'default_weights' => $cfg['default_weights'],
                 'overlays' => ['gov_notch_51' => 1, 'gov_notch_75' => 2, 'group_support_notch' => 1, 'group_support_years' => 3, 'inc_cap_months' => 6, 'inc_cap' => 'BB+',
-                    'cure_non_ig_days' => 90, 'cure_ig_days' => 365, 'post_default_cap' => 'BB+', 'stale_days' => 7]] as $k => $v)
-                DB::table('credit_methodology_settings')->updateOrInsert(['key' => $k], ['value' => json_encode($v), 'created_at' => $now, 'updated_at' => $now]);
+                    'cure_non_ig_days' => 90, 'cure_ig_days' => 365, 'post_default_cap' => 'BB+', 'stale_days' => 7],
+                'regulatory_minimums' => $cfg['regulatory_minimums'], 'instrument_notching' => $cfg['instrument_notching'],
+                'ccb_table' => $cfg['ccb_table'], 'insurance_hybrid_haircut' => $cfg['insurance_hybrid_haircut']];
+            foreach ($settings as $k => $v) $put('credit_methodology_settings', ['key' => $k], ['value' => json_encode($v)]);
         });
         $this->flush();
+        return $n;
     }
 
     private function fromConfig(): array

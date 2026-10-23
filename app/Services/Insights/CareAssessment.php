@@ -43,6 +43,11 @@ class CareAssessment
         $ratios = $years->isNotEmpty() ? $this->ratios($years, $funding, $financialSector) : [];
         $ratios['promoter_holding'] = $this->promoterHolding($company);
         $ratios['rpt_revenue'] = $this->relatedPartyShare($company, $years->last());
+        // Sector figures the statements do not carry (CRAR, NPAs, solvency, PLF, AT&C loss, occupancy …) from the agency reports.
+        $kpi = $this->kpis($ratings, $years);
+        foreach ($kpi['values'] as $k => $v) {
+            if (($ratios[$k] ?? null) === null) $ratios[$k] = $v; else unset($kpi['source'][$k]);
+        }
         $info = $this->information($company, $years, $ratings, $funding);
 
         $keys = array_values(array_diff($sector['ratios'] ?? $this->m->sector('manufacturing')['ratios'] ?? [], $sector['skip'] ?? []));
@@ -54,7 +59,7 @@ class CareAssessment
             $band = $sector['override'][$k] ?? $def['band'];
             $v = $ratios[$k] ?? null;
             $rows[$k] = ['key' => $k, 'label' => $def['label'], 'value' => $v, 'band' => $band, 'dir' => $def['dir'], 'pillar' => $def['pillar'],
-                'score' => $v === null ? null : $this->bandScore($v, $band, $def['dir']), 'peer' => $peers[$k] ?? null];
+                'score' => $v === null ? null : $this->bandScore($v, $band, $def['dir']), 'peer' => $peers[$k] ?? null, 'source' => $kpi['source'][$k] ?? null];
         }
         $weights = $sector['weights'] ?? $this->m->setting('default_weights', ['business' => 30, 'financial' => 35, 'liquidity' => 20, 'management' => 15]);
         $pillars = [];
@@ -70,14 +75,15 @@ class CareAssessment
         $latest = $ratings->where('withdrawn', false)->last();
         $standalone = $score !== null ? $this->band($score) : null;
         [$final, $adjustments] = $standalone ? $this->overlays($standalone, $company, $ratings, $funding, $info) : [null, []];
-        $checks = $this->checks($sector['checks'] ?? [], $years, $ratios, $funding, $company);
+        $checks = $this->checks($sector['checks'] ?? [], $years, $ratios, $funding, $company, $sectorKey, $kpi, $ratings);
+        $instruments = $this->instruments($sectorKey, $ratings, $final);
         return [
             'sector_key' => $sectorKey, 'sector' => $sector['name'], 'criteria' => $sector['criteria'], 'notes' => $sector['notes'] ?? [],
             'basis' => $basis, 'full' => $full, 'year' => $years->last()?->financial_year,
             'rows' => $full ? $rows : [], 'pillars' => $full ? $pillars : [], 'score' => $score,
             'standalone' => $standalone, 'indicative' => $final, 'adjustments' => $adjustments,
             'short_term' => $final ? $this->shortTerm($final, (string) $liquidity['level']) : null,
-            'liquidity' => $liquidity, 'checks' => $full ? $checks : [],
+            'liquidity' => $liquidity, 'checks' => $full ? $checks : [], 'instruments' => $instruments,
             'agency' => $latest ? ['agency' => $latest->agency, 'rating' => $latest->rating_long, 'score' => $latest->score, 'date' => $latest->published_on,
                 'gap' => $final && $latest->score ? RatingRationaleParser::score($final) - $latest->score : null] : null,
             'policy' => $this->policy($ratings),
@@ -91,19 +97,29 @@ class CareAssessment
         $industry = (string) $company->industry;
         $name = (string) $company->name;
         $nic = (string) ($company->registryDetail?->nic_code ?? '');
-        if (preg_match('/\bbank\b/i', $name) && !preg_match('/finance|investment/i', $name)) return 'bank';
+        if (preg_match('/\bbank\b/i', $name) && (!preg_match('/finance|investment/i', $name) || preg_match('/small finance bank/i', $name))) return 'bank';
         // Stated industry first, then the company name; registry NIC codes are often stale, so they only decide generic industries.
         foreach (['industry', 'name', 'nic'] as $by) {
             if ($by === 'nic' && ($nic === '' || ($industry !== '' && !preg_match('/^other|^manufacturing$|^industrial/i', $industry)))) break;
             foreach ($this->m->sectors() as $key => $def) {
                 if ($key === 'manufacturing') continue;
                 $m = $def['match'] ?? [];
-                if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key;
+                if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key === 'financial' ? $this->financialSubsector($name) : $key;
                 if ($by === 'name' && !empty($m['name']) && preg_match($m['name'], $name)) return $key;
                 if ($by === 'nic' && collect($m['nic'] ?? [])->contains(fn ($p) => str_starts_with($nic, $p))) return $key;
             }
         }
         return 'manufacturing';
+    }
+
+    /** A generic "financial services" industry: the name decides between HFC, broker, insurer and NBFC (Financial Ratios profile otherwise). */
+    private function financialSubsector(string $name): string
+    {
+        foreach (['hfc', 'broking', 'insurance', 'nbfc'] as $key) {
+            $re = $this->m->sectors()[$key]['match']['name'] ?? null;
+            if ($re && preg_match($re, $name)) return $key;
+        }
+        return 'financial';
     }
 
     /** Consolidated when the company reports subsidiaries and consolidated accounts exist (consolidation criteria). */
@@ -164,6 +180,9 @@ class CareAssessment
             'nwc_ca' => $this->pct($div($t->current_assets !== null && $t->current_liabilities !== null ? (float) $t->current_assets - (float) $t->current_liabilities : null, $t->current_assets)),
         ];
         $r['wc_cycle'] = $r['collection_days'] !== null && $r['inventory_days'] !== null ? round($r['collection_days'] + $r['inventory_days'] - (float) $r['creditor_days'], 0) : null;
+        $r['pbit_margin'] = $this->pct($div($pbit, $toi));
+        // REIT leverage test: borrowings net of cash against total (asset) value; SEBI caps it at 49%.
+        $r['net_debt_assets'] = $debt !== null && $t->total_assets > 0 ? round(($debt - (float) $t->cash_and_bank) / (float) $t->total_assets * 100, 2) : null;
         if ($financialSector) {
             $r['rota'] = $this->pct($div($t->profit_after_tax, $avg('total_assets')));
             $r['fin_gearing'] = $r['gearing'];
@@ -171,6 +190,12 @@ class CareAssessment
             $opex = $t->employee_cost !== null || $t->other_expenses !== null ? (float) $t->employee_cost + (float) $t->other_expenses : null;
             $r['cost_to_income'] = $this->pct($div($opex, $income !== null && $interest !== null ? $income - $interest : null));
             $r['cost_of_borrowing'] = ($cb = $this->pct($div($interest, $p ? ($debt + (float) ($p->total_debt ?? ((float) $p->long_term_borrowings + (float) $p->short_term_borrowings))) / 2 : $debt))) !== null && $cb <= 20 ? $cb : null;
+            // NBFC / HFC: operating expenses to average assets; spread = yield on average assets − cost of borrowing.
+            $r['opex_assets'] = $this->pct($div($opex, $avg('total_assets')));
+            $yield = $this->pct($div($income, $avg('total_assets')));
+            $r['interest_spread'] = $yield !== null && $r['cost_of_borrowing'] !== null ? round($yield - $r['cost_of_borrowing'], 2) : null;
+            // Non-life insurers: operating leverage = net premium written / net worth (operating income as the premium figure).
+            $r['premium_net_worth'] = $this->x($div($toi, $tnw));
         }
         return $r;
     }
@@ -315,12 +340,60 @@ class CareAssessment
     }
 
     /** Sector-specific checks named in the methodology papers. */
-    private function checks(array $keys, Collection $years, array $r, Collection $funding, Company $company): array
+    private function checks(array $keys, Collection $years, array $r, Collection $funding, Company $company, string $sectorKey = 'manufacturing', array $kpi = [], ?Collection $ratings = null): array
     {
         $out = [];
         $last = $years->last();
+        $min = $this->m->setting('regulatory_minimums', []) + (config('care_methodology.regulatory_minimums') ?? []);
+        $pp = fn ($v) => rtrim(rtrim(number_format((float) $v, 2), '0'), '.');
         foreach ($keys as $k) {
             $res = match ($k) {
+                // Capital adequacy against the RBI floor for the entity type (Banks: 11.5% incl. CCB; SFB 15%; RRB 9%; NBFC / HFC 15%).
+                'capital_cushion' => ($car = $r['crar'] ?? null) !== null ? (function () use ($car, $min, $sectorKey, $company, $pp) {
+                    $name = (string) $company->name;
+                    [$floor, $who] = match (true) {
+                        $sectorKey === 'bank' && (bool) preg_match('/small finance bank/i', $name) => [$min['sfb_car'] ?? 15, 'small finance bank'],
+                        $sectorKey === 'bank' && (bool) preg_match('/gramin|regional rural/i', $name) => [$min['rrb_car'] ?? 9, 'regional rural bank'],
+                        $sectorKey === 'bank' => [$min['bank_car'] ?? 11.5, 'bank, incl. conservation buffer'],
+                        $sectorKey === 'hfc' => [$min['hfc_car'] ?? 15, 'HFC'],
+                        default => [$min['nbfc_car'] ?? 15, 'NBFC'],
+                    };
+                    $cushion = $car - $floor;
+                    return ['Capital cushion over regulatory minimum', 'CRAR ' . $pp($car) . '% vs ' . $pp($floor) . '% (' . $who . '): ' . ($cushion >= 0 ? '+' : '') . $pp($cushion) . ' pp', $cushion < 2 ? 'risk' : ($cushion < 5 ? 'watch' : 'ok')];
+                })() : null,
+                // Basel III capital conservation buffer: CET I below 8% restricts dividends and AT I coupons; below 6.125% triggers AT I write-down.
+                'ccb_restriction' => ($cet = $r['cet1'] ?? null) !== null ? (function () use ($cet, $pp) {
+                    $retain = 0;
+                    foreach ((array) $this->m->setting('ccb_table', config('care_methodology.ccb_table')) as [$lo, $hi, $pct]) if ($cet >= $lo && $cet < $hi) $retain = $pct;
+                    if ($cet < 5.5) return ['Capital conservation buffer', 'CET I ' . $pp($cet) . '% is below the 5.5% minimum', 'risk'];
+                    if ($retain == 0) return ['Capital conservation buffer', 'CET I ' . $pp($cet) . '%: no restriction on distributions or AT I coupons', 'ok'];
+                    return ['Capital conservation buffer', 'CET I ' . $pp($cet) . '%: ' . $pp($retain) . '% of earnings must be retained' . ($cet < 6.125 ? '; below the 6.125% AT I write-down trigger' : ''), $retain >= 60 ? 'risk' : 'watch'];
+                })() : null,
+                // Fast loan-book growth leaves the book unseasoned; asset quality is then read on a lagged basis.
+                'rapid_growth' => ($g = $kpi['aum_growth'] ?? ($r['growth_toi'] ?? null)) !== null
+                    ? ['Loan book growth and seasoning', (($kpi['aum_growth'] ?? null) !== null ? 'Managed assets' : 'Income') . ' up ' . $pp($g) . '%' . (($r['lagged_gnpa'] ?? null) !== null ? '; lagged GNPA ' . $pp($r['lagged_gnpa']) . '%' : ''), $g > 50 ? 'risk' : ($g > 30 ? 'watch' : 'ok')] : null,
+                // Securitised / co-lent / assigned pools are treated as on-book: leverage and asset quality on AUM.
+                'off_book' => ($sh = $kpi['off_book'] ?? null) !== null
+                    ? ['Off-balance-sheet book', $pp($sh) . '% of managed assets is off balance sheet; assessed on AUM', $sh > 25 ? 'risk' : ($sh > 10 ? 'watch' : 'ok')]
+                    : (($ratings ?? collect())->contains(fn ($x) => collect((array) $x->instruments)->merge((array) $x->debt_instruments)->contains(fn ($i) => preg_match('/securitis|ptc|pass[- ]?through|direct assignment/i', ($i['instrument'] ?? '') . ' ' . ($i['type'] ?? ''))))
+                        ? ['Off-balance-sheet book', 'Securitisation (PTC) ratings on record; pools counted in AUM', 'watch'] : null),
+                'solvency_cushion' => ($sv = $r['solvency_ratio'] ?? null) !== null
+                    ? ['Solvency over IRDAI minimum', $pp($sv) . '× vs ' . $pp($min['insurer_solvency'] ?? 1.5) . '× required', $sv - ($min['insurer_solvency'] ?? 1.5) < 0.2 ? 'risk' : ($sv - ($min['insurer_solvency'] ?? 1.5) < 0.5 ? 'watch' : 'ok')] : null,
+                'reit_leverage' => ($lv = $r['net_debt_assets'] ?? null) !== null
+                    ? ['Borrowings net of cash / asset value', $pp($lv) . '% (SEBI cap ' . $pp($min['reit_net_debt_cap'] ?? 49) . '%, rating mandatory above ' . $pp($min['reit_rating_trigger'] ?? 25) . '%)',
+                        $lv >= ($min['reit_net_debt_cap'] ?? 49) ? 'risk' : ($lv >= ($min['reit_rating_trigger'] ?? 25) ? 'watch' : 'ok')] : null,
+                // Broking earnings follow market volumes: dispersion of yearly revenue growth.
+                'market_dependence' => ($gs = $years->take(-5)->values()->sliding(2)->map(fn ($w) => ($w = $w->values()) && $w[0]->revenue > 0 && $w[1]->revenue !== null ? ($w[1]->revenue / $w[0]->revenue - 1) * 100 : null)->filter(fn ($v) => $v !== null)->values())->count() >= 2
+                    ? (function () use ($gs, $pp) {
+                        $mean = $gs->avg(); $sd = sqrt($gs->map(fn ($v) => ($v - $mean) ** 2)->avg());
+                        return ['Capital-market dependence', 'Revenue growth ' . $pp($gs->min()) . '% to ' . $pp($gs->max()) . '% (σ ' . $pp($sd) . ' pp)', $sd > 25 ? 'risk' : ($sd > 12 ? 'watch' : 'ok')];
+                    })() : null,
+                'offtaker_receivables' => ($cd = $r['collection_days'] ?? null) !== null
+                    ? ['Off-taker payment record', 'Receivables ' . round($cd) . ' days of revenue', $cd > 120 ? 'risk' : ($cd > 75 ? 'watch' : 'ok')] : null,
+                'payables_to_gencos' => ($pd = $r['creditor_days'] ?? null) !== null
+                    ? ['Dues to power generators', 'Payables ' . round($pd) . ' days of cost', $pd > 150 ? 'risk' : ($pd > 90 ? 'watch' : 'ok')] : null,
+                'refinancing' => $last && ($td = (float) ($last->total_debt ?: (float) $last->long_term_borrowings + (float) $last->short_term_borrowings)) > 0 && $last->short_term_borrowings !== null
+                    ? ['Refinancing exposure', 'Short-term debt ' . round($last->short_term_borrowings / $td * 100) . '% of borrowings', $last->short_term_borrowings / $td > 0.5 ? 'risk' : ($last->short_term_borrowings / $td > 0.3 ? 'watch' : 'ok')] : null,
                 'capex_vs_networth' => ($cx = $funding->where('type', 'capex')->sortByDesc('date')->first()) && $last && $last->net_worth > 0
                     ? ['Project size vs net worth', round($cx['amount_crore'] * 1e7 / $last->net_worth * 100) . '% of net worth' . (!empty($cx['funding_mix']) ? ', debt:equity ' . $cx['funding_mix'] : ''), $cx['amount_crore'] * 1e7 / $last->net_worth > 0.5 ? 'risk' : 'ok'] : null,
                 'commodity_margin_volatility' => ($r['margin_stability'] ?? null) !== null ? ['Margin volatility (raw material / price risk)', $r['margin_stability'] . ' pp swing over 3 years', $r['margin_stability'] > 5 ? 'risk' : 'ok'] : null,
@@ -344,6 +417,157 @@ class CareAssessment
             if ($res) $out[] = ['label' => $res[0], 'value' => $res[1], 'status' => $res[2]];
         }
         return $out;
+    }
+
+    /** Brief-financials row labels for sector figures (checked in this order, so Tier I / CET I win over CRAR). */
+    private const KPI_LABELS = [
+        'tier1' => '/tier[- ]?(?:i|1)\b(?!i)/i', 'cet1' => '/\bcet[- ]?(?:i|1)\b|common equity/i', 'crar' => '/crar|capital adequacy|capital to risk|^car\b|total car/i',
+        'net_npa' => '/net (?:npa|stage|non[- ]performing)|\bnnpa\b|\bns-?3\b/i', 'gross_npa' => '/gross (?:npa|stage|non[- ]performing)|\bgnpa\b|\bgs-?3\b/i',
+        'casa' => '/\bcasa\b/i', 'lcr' => '/liquidity coverage|\blcr\b/i', 'collection_efficiency' => '/collection efficiency/i', 'solvency_ratio' => '/solvency/i',
+        'combined_ratio' => '/combined ratio/i', 'claims_ratio' => '/claims? ratio|loss ratio|incurred claims/i', 'plf' => '/\bplf\b|plant load|\bcuf\b|capacity utili[sz]ation factor/i',
+        'availability' => '/\bpaf\b|plant availability|availability factor/i', 'atc_loss' => '/at\s?&\s?c/i', 'occupancy' => '/occupancy/i', 'wale' => '/\bwale\b|weighted average lease/i',
+        'avg_dscr' => '/\bdscr\b|debt service coverage/i', 'fleet_age' => '/fleet age|average age of (?:the )?fleet/i',
+        'rota' => '/return on (?:average )?(?:total |managed )?assets|\broa\b|\brota\b|\broma\b/i', 'fin_gearing' => '/managed gearing|overall gearing/i',
+    ];
+    /** The same figures as worded in the rationale text: keyword, unit. */
+    private const KPI_TEXT = [
+        'tier1' => ['tier[- ]?(?:I|1)\b(?!I)(?: capital| CRAR| CAR)?', '%'], 'cet1' => ['(?:CET[- ]?(?:I|1)|common equity tier[- ]?(?:I|1))', '%'],
+        'crar' => ['(?:capital adequacy(?: ratio)?|\bCRAR\b|(?-i:\bCAR\b))', '%'], 'net_npa' => ['(?:net NPA|NNPA|net stage[- ]?(?:3|III))', '%'],
+        'gross_npa' => ['(?:gross NPA|GNPA|gross stage[- ]?(?:3|III)|GS-?3)', '%'], 'casa' => ['CASA(?: ratio| deposits| share)?', '%'], 'lcr' => ['(?:liquidity coverage ratio|\bLCR\b)', '%'],
+        'collection_efficiency' => ['collection efficiency', '%'], 'solvency_ratio' => ['solvency (?:ratio|margin)', 'x'], 'combined_ratio' => ['combined ratio', '%'],
+        'claims_ratio' => ['(?:claims ratio|loss ratio)', '%'], 'plf' => ['(?:\bPLF\b|plant load factor|\bCUF\b|capacity utili[sz]ation factor)', '%'],
+        'availability' => ['(?:\bPAF\b|plant availability)', '%'], 'atc_loss' => ['AT\s?&\s?C loss(?:es)?', '%'], 'occupancy' => ['occupancy(?: level| rate)?', '%'],
+        'wale' => ['(?:\bWALE\b|weighted average lease expiry)', 'years'], 'avg_dscr' => ['(?:average|cumulative|minimum) DSCR', 'x'], 'fleet_age' => ['average (?:fleet )?age', 'years'],
+    ];
+    private const KPI_RANGE = ['%' => [0, 100], 'x' => [0.3, 10], 'years' => [0, 40]];
+
+    /**
+     * Sector figures from the latest agency reports: the brief-financials table first, then the rationale text
+     * ("GNPA improved from 3.2% to 2.1%" takes the later figure). Also derives lagged GNPA, managed-asset growth and the
+     * off-balance-sheet share of managed assets (NBFC / HFC criteria).
+     */
+    private function kpis(Collection $ratings, Collection $years): array
+    {
+        $values = []; $source = []; $assets = null;
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $fin = is_array($r->financials) ? $r->financials : (json_decode((string) $r->financials, true) ?: []);
+            $periods = $fin['periods'] ?? [];
+            foreach ($fin['rows'] ?? [] as $row) {
+                $label = (string) ($row['label'] ?? '');
+                $pick = null;
+                foreach (array_reverse(array_keys($row['values'] ?? []), true) as $i) {
+                    if (($row['values'][$i] ?? null) === null) continue;
+                    if ($pick === null || (empty($periods[$i]['partial']) && !empty($periods[$pick]['partial']))) $pick = $i;
+                    if (empty($periods[$i]['partial'])) break;
+                }
+                if ($pick === null) continue;
+                if ($assets === null && ($row['metric'] ?? '') === 'total_assets') $assets = ['values' => $row['values'], 'periods' => $periods];
+                foreach (self::KPI_LABELS as $k => $re) {
+                    if (!preg_match($re, $label)) continue;
+                    if (!isset($values[$k])) {
+                        $v = (float) $row['values'][$pick];
+                        if ($k === 'solvency_ratio' && $v > 10) $v /= 100;
+                        $values[$k] = round($v, 2);
+                        $source[$k] = $r->agency . ' report, ' . ($periods[$pick]['label'] ?? $r->published_on->format('M Y'));
+                    }
+                    break;
+                }
+            }
+            $flat = fn ($v) => is_array($v) ? implode(' ', \Illuminate\Support\Arr::flatten($v)) : (string) $v;
+            $text = implode(' ', array_filter(array_map($flat, [$r->rationale, $r->liquidity_text, $r->strengths, $r->challenges])));
+            if ($text === '') continue;
+            foreach (self::KPI_TEXT as $k => [$kw, $unit]) {
+                if (isset($values[$k]) || !preg_match('/' . $kw . '((?:[^.;]|\.(?=\d)){0,90})/i', $text, $m)) continue;
+                $num = $unit === '%' ? '(\d{1,3}(?:\.\d+)?)\s?%' : ($unit === 'x' ? '(\d{1,2}(?:\.\d+)?)\s?(?:x|times)' : '(\d{1,2}(?:\.\d+)?)\s?years?');
+                $v = preg_match('/from\s+[^\d]{0,12}\d+(?:\.\d+)?\s?(?:%|x|times|years?)?.{0,40}?\bto\s+[^\d]{0,12}' . $num . '/i', $m[1], $t) ? (float) $t[1]
+                    : (preg_match('/' . $num . '/i', $m[1], $t) ? (float) $t[1] : null);
+                if ($v === null || $v < self::KPI_RANGE[$unit][0] || $v > ($k === 'lcr' ? 500 : self::KPI_RANGE[$unit][1])) continue;
+                $values[$k] = round($v, 2);
+                $source[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
+            }
+        }
+        // Managed-asset growth and lagged GNPA (GNPA × current assets ÷ assets a year earlier), from the report or the statements.
+        $series = collect($assets['values'] ?? [])->filter(fn ($v, $i) => $v !== null && empty($assets['periods'][$i]['partial']))->values();
+        if ($series->count() < 2) $series = $years->take(-2)->pluck('total_assets')->filter()->map(fn ($v) => $v / 1e7)->values();
+        $growth = $series->count() >= 2 && $series[$series->count() - 2] > 0 ? round(($series->last() / $series[$series->count() - 2] - 1) * 100, 2) : null;
+        if (isset($values['gross_npa']) && $growth !== null) {
+            $values['lagged_gnpa'] = round($values['gross_npa'] * (1 + $growth / 100), 2);
+            $source['lagged_gnpa'] = 'Calculated: GNPA × managed assets ÷ prior-year assets';
+        }
+        $managed = collect($assets['values'] ?? [])->filter(fn ($v, $i) => $v !== null && empty($assets['periods'][$i]['partial']))->last();
+        $book = $years->last()?->total_assets;
+        $offBook = $managed && $book && $managed > $book / 1e7 ? round(($managed - $book / 1e7) / $managed * 100, 1) : null;
+        return ['values' => $values, 'source' => $source, 'aum_growth' => $growth, 'off_book' => $offBook];
+    }
+
+    /**
+     * Instrument ratings against the issuer's senior rating, per the instrument criteria:
+     * Basel III (Tier II at or one notch below senior; AT I one to three notches below Tier II; FD one notch above Tier II),
+     * NBFC / HFC (subordinated debt = senior, perpetual debt at least one notch below), insurer hybrid capital (notched down,
+     * with the solvency haircut by years to maturity), PP-MLD (issuer rating with the PP-MLD prefix) and PTC / SO (pool-specific).
+     */
+    private function instruments(string $sectorKey, Collection $ratings, ?string $indicative): array
+    {
+        $scale = RatingRationaleParser::LONG_SCALE;
+        $clean = fn ($v) => preg_match('/\b(AAA|AA|A|BBB|BB|B|C|D)([+-])?(?![A-Z])/', (string) $v, $m) ? $m[1] . ($m[2] ?? '') : null;
+        $latest = $ratings->where('withdrawn', false)->sortByDesc('published_on');
+        $anchor = $clean($latest->first()?->rating_long) ?? $indicative;
+        $o = $this->m->setting('instrument_notching', []) + (config('care_methodology.instrument_notching') ?? []);
+        $haircut = (array) $this->m->setting('insurance_hybrid_haircut', config('care_methodology.insurance_hybrid_haircut'));
+        krsort($haircut, SORT_NUMERIC);
+        $idx = fn ($r) => array_search($r, $scale, true);
+        $atLeast = fn ($r, $floor) => $r && $idx($r) !== false && $idx($floor) !== false && $idx($r) <= $idx($floor);
+        $up = fn ($r, $n) => $scale[max(0, $idx($r) - $n)];
+        $bankLike = $sectorKey === 'bank';
+        $lenders = in_array($sectorKey, ['nbfc', 'hfc', 'financial', 'broking'], true);
+        $insurer = $sectorKey === 'insurance';
+        $rows = []; $seen = [];
+        foreach ($latest->filter(fn ($r) => $r->published_on->gt(now()->subMonths(24))) as $r) {
+            foreach (collect((array) $r->instruments)->merge((array) $r->debt_instruments) as $i) {
+                if (!empty($i['withdrawn'])) continue;
+                $text = trim(($i['instrument'] ?? '') . ' ' . ($i['type'] ?? ''));
+                $class = match (true) {
+                    (bool) preg_match('/additional tier[- ]?(?:i|1)\b(?!i)|\bat[- ]?1\b|\bat ?i bonds?/i', $text) => 'at1',
+                    (bool) preg_match('/tier[- ]?(?:ii|2)\b/i', $text) => 'tier2',
+                    (bool) preg_match('/market[- ]linked|\bmld\b|principal protected/i', $text) => 'mld',
+                    (bool) preg_match('/securitis|\bptc|pass[- ]?through|direct assignment/i', $text) => 'ptc',
+                    (bool) preg_match('/fixed deposit|\bfd\b|deposit programme/i', $text) => 'fd',
+                    (bool) preg_match('/infrastructure bond/i', $text) => 'infra',
+                    (bool) preg_match('/perpetual/i', $text) => 'perpetual',
+                    (bool) preg_match('/subordinat|preference share/i', $text) => 'sub',
+                    default => null,
+                };
+                if (!$class || isset($seen[$class . $text])) continue;
+                $seen[$class . $text] = true;
+                $actual = $clean($i['rating'] ?? null);
+                $tier2 = $anchor ? $this->shift($anchor, -(int) ($atLeast($anchor, $o['tier2_strong_from']) ? $o['tier2_strong'] : $o['tier2_weak'])) : null;
+                [$label, $expected, $basis] = match ($class) {
+                    'tier2' => ['Basel III Tier II', $tier2, 'senior − ' . ($atLeast($anchor, $o['tier2_strong_from']) ? $o['tier2_strong'] : $o['tier2_weak'])],
+                    'at1' => (function () use ($tier2, $anchor, $o, $atLeast) {
+                        $n = $atLeast($anchor, $o['at1_top_from']) ? $o['at1_top'] : ($atLeast($anchor, $o['at1_mid_from']) ? $o['at1_mid'] : $o['at1_low']);
+                        return ['Basel III Additional Tier I', $tier2 ? $this->shift($tier2, -(int) $n) : null, 'Tier II − ' . $n];
+                    })(),
+                    'fd' => ['Fixed deposits', $tier2 && $anchor ? ($idx($up($tier2, (int) $o['fd_over_tier2'])) < $idx($anchor) ? $anchor : $up($tier2, (int) $o['fd_over_tier2'])) : null, 'Tier II + ' . $o['fd_over_tier2']],
+                    'infra' => ['Infrastructure bonds', $anchor, 'senior'],
+                    'perpetual' => $lenders || $bankLike ? ['Perpetual debt', $anchor ? $this->shift($anchor, -(int) $o['nbfc_perpetual']) : null, 'senior − ' . $o['nbfc_perpetual']] : ['Perpetual debt', $anchor ? $this->shift($anchor, -1) : null, 'senior − 1'],
+                    'sub' => $insurer ? ['Hybrid capital (sub debt / preference)', $anchor ? $this->shift($anchor, -(int) $o['insurance_hybrid']) : null, 'issuer − ' . $o['insurance_hybrid']]
+                        : ['Subordinated debt', $anchor ? $this->shift($anchor, -(int) $o['nbfc_sub_debt']) : null, 'senior − ' . $o['nbfc_sub_debt']],
+                    'mld' => ['Principal-protected MLD', $anchor ? 'PP-MLD ' . $anchor : null, 'issuer rating, PP-MLD prefix'],
+                    'ptc' => ['Securitisation (PTC)', null, 'pool cash flows and credit enhancement (SO)'],
+                };
+                $note = null;
+                if ($insurer && $class === 'sub' && !empty($i['maturity_on'])) {
+                    $yrs = max(0, now()->floatDiffInYears(Carbon::parse($i['maturity_on']), false));
+                    $pct = 0; foreach ($haircut as $y => $p) if ($yrs >= (float) $y) { $pct = $p; break; }
+                    $note = round($yrs, 1) . ' yrs to maturity: ' . $pct . '% counts toward solvency';
+                }
+                $exp = $expected ? preg_replace('/^PP-MLD /', '', $expected) : null;
+                $rows[] = ['instrument' => mb_substr($i['instrument'] ?? $i['type'] ?? '', 0, 80), 'class' => $label, 'agency' => $r->agency, 'actual' => $actual,
+                    'expected' => $expected, 'basis' => $basis, 'note' => $note, 'amount' => $i['amount_crore'] ?? $i['current'] ?? null,
+                    'gap' => $actual && $exp && $idx($actual) !== false && $idx($exp) !== false ? $idx($actual) - $idx($exp) : null];
+            }
+        }
+        return $rows;
     }
 
     private function trend(Collection $years, callable $f): ?array
@@ -421,6 +645,10 @@ class CareAssessment
             foreach ($this->ratios($years->slice(0, $i + 1)->values(), collect(), $financial) as $k => $v)
                 $values[] = ['company_id' => $company->id, 'financial_year' => $years[$i]->financial_year, 'basis' => $a['basis'], 'ratio_key' => $k, 'value' => $v, 'created_at' => $now, 'updated_at' => $now];
         }
+        // Figures taken from the agency reports belong to the latest year.
+        if ($years->isNotEmpty()) foreach ($a['rows'] as $row) if (!empty($row['source']) && $row['value'] !== null)
+            $values[] = ['company_id' => $company->id, 'financial_year' => $years->last()->financial_year, 'basis' => $a['basis'], 'ratio_key' => $row['key'], 'value' => $row['value'], 'created_at' => $now, 'updated_at' => $now];
+        $values = collect($values)->keyBy(fn ($v) => $v['financial_year'] . '|' . $v['ratio_key'])->values()->all();
         DB::transaction(function () use ($company, $a, $values, $now) {
             DB::table('company_ratio_values')->where('company_id', $company->id)->delete();
             foreach (array_chunk($values, 500) as $chunk) DB::table('company_ratio_values')->insert($chunk);
@@ -430,7 +658,7 @@ class CareAssessment
                 'indicative' => $a['indicative'], 'short_term' => $a['short_term'], 'liquidity' => $a['liquidity']['level'],
                 'direction' => $a['outlook']['watch'] ? 'Rating watch – ' . $a['outlook']['watch']['type'] : $a['outlook']['direction'],
                 'agency_rating' => $a['agency']['rating'] ?? null, 'agency_gap' => $a['agency']['gap'] ?? null, 'information_score' => $a['information']['score'],
-                'pillars' => $j($a['pillars']), 'rows' => $j(array_values($a['rows'])), 'checks' => $j($a['checks']), 'adjustments' => $j($a['adjustments']),
+                'pillars' => $j($a['pillars']), 'rows' => $j(array_values($a['rows'])), 'checks' => $j($a['checks']), 'instruments' => $j($a['instruments']), 'adjustments' => $j($a['adjustments']),
                 'policy' => $j($a['policy']), 'outlook' => $j($a['outlook']), 'information' => $j($a['information']), 'liquidity_detail' => $j($a['liquidity']), 'agency' => $j($a['agency']),
                 'computed_at' => $now, 'updated_at' => $now, 'created_at' => $now,
             ]);
@@ -465,7 +693,7 @@ class CareAssessment
             'rows' => $full ? $rows : [], 'pillars' => $full ? ($d($row->pillars) ?? []) : [], 'score' => $full && $row->score !== null ? (float) $row->score : null,
             'standalone' => $full ? $row->standalone : null, 'indicative' => $full ? $row->indicative : null, 'adjustments' => $full ? ($d($row->adjustments) ?? []) : [],
             'short_term' => $full ? $row->short_term : null, 'liquidity' => $d($row->liquidity_detail) ?? ['level' => $row->liquidity, 'agency' => null, 'why' => []],
-            'checks' => $full ? ($d($row->checks) ?? []) : [], 'agency' => $agency, 'policy' => $policy ?? [],
+            'checks' => $full ? ($d($row->checks) ?? []) : [], 'instruments' => $d($row->instruments ?? null) ?? [], 'agency' => $agency, 'policy' => $policy ?? [],
             'outlook' => $outlook ?? ['direction' => $row->direction, 'agency' => null, 'probability' => null, 'watch' => null],
             'information' => $d($row->information) ?? ['score' => 0, 'missing' => []],
         ];

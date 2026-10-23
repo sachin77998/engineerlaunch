@@ -319,7 +319,7 @@ class RatingRationaleParser
                 $values = array_slice($v[1], -$n);
                 $label = trim(preg_replace('/\s+(-?\(?[\d,]+(?:\.\d+)?\)?%?|NA|N\.A\.|-)(\s+(-?\(?[\d,]+(?:\.\d+)?\)?%?|NA|N\.A\.|-))*\s*$/', '', $row));
                 if ($label === '' || mb_strlen($label) > 90 || preg_match('/^\d|^(NA|N\.A\.|-)$/i', $label) || !preg_match('/[A-Za-z]{2}/', $label)) continue;
-                $rows[] = ['label' => $label, 'metric' => $this->metric($label), 'unit' => str_contains($values[0] ?? '', '%') || preg_match('/%|\/OI|margin|NPA|CRAR|Stage/i', $label) ? '%' : (preg_match('/times|gearing|coverage|\/OPBDIT|\/TNW|net worth/i', $label) ? 'x' : 'crore'),
+                $rows[] = ['label' => $label, 'metric' => $this->metric($label), 'unit' => str_contains($values[0] ?? '', '%') || preg_match('/%|\/OI|margin|NPA|CRAR|Stage|CASA|PLF|CUF|AT&C|occupancy|ratio \(%/i', $label) ? '%' : (preg_match('/times|gearing|coverage|\/OPBDIT|\/TNW|net worth/i', $label) ? 'x' : 'crore'),
                     'values' => array_map(fn ($x) => $this->number($x), array_pad($values, $n, null))];
             }
             if ($rows) return ['periods' => $periods, 'rows' => $rows];
@@ -362,7 +362,13 @@ class RatingRationaleParser
             (bool) preg_match('/overall gearing|^gearing|managed gearing/', $l) => 'gearing',
             (bool) preg_match('/total outside liabilities/', $l) => 'tol_tnw',
             (bool) preg_match('/managed assets|total assets|assets under management|aum/', $l) => 'total_assets',
+            (bool) preg_match('/net (npa|stage)|\bnnpa\b/', $l) => 'net_npa',
             (bool) preg_match('/gross (npa|stage)/', $l) => 'gross_npa',
+            (bool) preg_match('/tier[- ]?(i|1)\b(?!i)|\bcet[- ]?(i|1)\b/', $l) => 'tier1',
+            (bool) preg_match('/solvency/', $l) => 'solvency_ratio',
+            (bool) preg_match('/combined ratio|claims? ratio|loss ratio/', $l) => 'underwriting',
+            (bool) preg_match('/\bplf\b|plant load|\bcuf\b|availability/', $l) => 'plant',
+            (bool) preg_match('/at ?& ?c|occupancy|\bwale\b|\bdscr\b|casa|liquidity coverage|collection efficiency/', $l) => 'sector_kpi',
             (bool) preg_match('/crar|capital adequacy|capital to risk/', $l) => 'crar',
             (bool) preg_match('/return on (average )?(managed )?assets|roma|roa/', $l) => 'roa',
             default => null,

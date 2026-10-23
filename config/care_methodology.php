@@ -3,7 +3,9 @@
 // Sector profiles for the credit assessment on company pages, built from CareEdge rating methodologies
 // (manufacturing, services, financial ratios for non-financial and financial sectors, and the sector papers:
 // non-ferrous metals, mobile service providers, manmade yarn, cotton textile, hotels, hospitals, fertilisers,
-// education, cut & polished diamonds, commercial vehicles, cement, auto components, investment holding companies).
+// education, cut & polished diamonds, commercial vehicles, cement, auto components, investment holding companies,
+// broking firms, NBFCs, HFCs, banks and Basel III hybrids, non-life insurance, REITs, wind / solar / thermal power,
+// power distribution, toll and annuity roads, airports, ports and shipping).
 //
 // Each ratio band is [excellent, good, adequate, weak]; values past "weak" score lowest. `dir` says whether higher
 // or lower is better. Thresholds are indicative calibration points, not published agency cut-offs.
@@ -39,6 +41,31 @@ return [
         'fin_gearing' => ['label' => 'Gearing (total debt / TNW, x)', 'dir' => 'down', 'band' => [3, 5, 7, 9], 'pillar' => 'financial'],
         'cost_to_income' => ['label' => 'Cost to income (%)', 'dir' => 'down', 'band' => [35, 45, 55, 70], 'pillar' => 'business'],
         'cost_of_borrowing' => ['label' => 'Cost of borrowing (%)', 'dir' => 'down', 'band' => [7.5, 9, 11, 13], 'pillar' => 'financial'],
+        'opex_assets' => ['label' => 'Operating expenses / average assets (%)', 'dir' => 'down', 'band' => [2, 3.5, 5, 7], 'pillar' => 'business'],
+        'interest_spread' => ['label' => 'Interest spread (yield − cost of funds, pp)', 'dir' => 'up', 'band' => [6, 4.5, 3, 1.5], 'pillar' => 'business'],
+        'pbit_margin' => ['label' => 'PBIT margin (%)', 'dir' => 'up', 'band' => [35, 25, 15, 6], 'pillar' => 'business'],
+        'premium_net_worth' => ['label' => 'Operating leverage (premium / net worth, x)', 'dir' => 'down', 'band' => [1.5, 2.5, 3.5, 4.5], 'pillar' => 'financial'],
+        'net_debt_assets' => ['label' => 'Net debt / total assets (%)', 'dir' => 'down', 'band' => [15, 25, 35, 49], 'pillar' => 'financial'],
+        // Sector figures from the agency's rating report (brief financials table, then rationale text)
+        'crar' => ['label' => 'Capital adequacy, CRAR (%)', 'dir' => 'up', 'band' => [22, 18, 16, 15], 'pillar' => 'financial'],
+        'tier1' => ['label' => 'Tier I capital (%)', 'dir' => 'up', 'band' => [15, 13, 11, 9.5], 'pillar' => 'financial'],
+        'cet1' => ['label' => 'CET I ratio (%)', 'dir' => 'up', 'band' => [13, 11, 9.5, 8], 'pillar' => 'financial'],
+        'gross_npa' => ['label' => 'Gross NPA / GS3 (%)', 'dir' => 'down', 'band' => [1.5, 3, 5, 8], 'pillar' => 'business'],
+        'net_npa' => ['label' => 'Net NPA / NS3 (%)', 'dir' => 'down', 'band' => [0.5, 1, 2, 3.5], 'pillar' => 'business'],
+        'lagged_gnpa' => ['label' => 'Lagged gross NPA (1-yr, %)', 'dir' => 'down', 'band' => [1.5, 3, 5, 8], 'pillar' => 'business'],
+        'casa' => ['label' => 'CASA share of deposits (%)', 'dir' => 'up', 'band' => [45, 38, 30, 20], 'pillar' => 'liquidity'],
+        'lcr' => ['label' => 'Liquidity coverage ratio (%)', 'dir' => 'up', 'band' => [140, 120, 110, 100], 'pillar' => 'liquidity'],
+        'collection_efficiency' => ['label' => 'Collection efficiency (%)', 'dir' => 'up', 'band' => [99, 97, 95, 92], 'pillar' => 'liquidity'],
+        'solvency_ratio' => ['label' => 'Solvency ratio (x)', 'dir' => 'up', 'band' => [2.2, 1.9, 1.7, 1.5], 'pillar' => 'financial'],
+        'combined_ratio' => ['label' => 'Combined ratio (%)', 'dir' => 'down', 'band' => [98, 103, 108, 115], 'pillar' => 'business'],
+        'claims_ratio' => ['label' => 'Loss (claims) ratio (%)', 'dir' => 'down', 'band' => [65, 75, 85, 95], 'pillar' => 'business'],
+        'plf' => ['label' => 'Plant load / capacity utilisation factor (%)', 'dir' => 'up', 'band' => [80, 70, 60, 50], 'pillar' => 'business'],
+        'availability' => ['label' => 'Plant availability (%)', 'dir' => 'up', 'band' => [95, 90, 85, 80], 'pillar' => 'business'],
+        'atc_loss' => ['label' => 'AT&C loss (%)', 'dir' => 'down', 'band' => [10, 15, 20, 25], 'pillar' => 'business'],
+        'occupancy' => ['label' => 'Occupancy (%)', 'dir' => 'up', 'band' => [92, 85, 75, 65], 'pillar' => 'business'],
+        'wale' => ['label' => 'Weighted average lease expiry (years)', 'dir' => 'up', 'band' => [7, 5, 3.5, 2], 'pillar' => 'business'],
+        'avg_dscr' => ['label' => 'Average DSCR per agency (x)', 'dir' => 'up', 'band' => [1.6, 1.35, 1.2, 1.05], 'pillar' => 'financial'],
+        'fleet_age' => ['label' => 'Average fleet age (years)', 'dir' => 'down', 'band' => [8, 12, 16, 20], 'pillar' => 'business'],
         // Governance
         'promoter_holding' => ['label' => 'Promoter holding (%)', 'dir' => 'up', 'band' => [60, 45, 30, 15], 'pillar' => 'management'],
         'rpt_revenue' => ['label' => 'Related-party transactions / revenue (%)', 'dir' => 'down', 'band' => [5, 15, 30, 50], 'pillar' => 'management'],
@@ -146,12 +173,12 @@ return [
             'checks' => ['receivable_stretch', 'group_support'],
         ],
         'bank' => [
-            'name' => 'Banks', 'criteria' => 'Financial Ratios – Financial Sector (Feb 2025)',
+            'name' => 'Banks', 'criteria' => 'Rating Methodology – Banks (Mar 2025)',
             'match' => ['industry' => '/^banks?$|^banking$/i', 'name' => '/\bbank\b/i', 'nic' => ['6419']],
-            'ratios' => ['toi_crore', 'growth_toi', 'pat_margin', 'rota', 'ronw', 'fin_gearing', 'cost_to_income', 'cost_of_borrowing', 'promoter_holding'],
-            'override' => ['toi_crore' => [50000, 10000, 2000, 500], 'fin_gearing' => [10, 13, 16, 20], 'rota' => [1.3, 1, 0.7, 0.3], 'cost_of_borrowing' => [5, 6, 7, 8.5]],
-            'weights' => ['business' => 40, 'financial' => 40, 'liquidity' => 0, 'management' => 20],
-            'checks' => [],
+            'ratios' => ['toi_crore', 'growth_toi', 'pat_margin', 'rota', 'ronw', 'crar', 'tier1', 'cet1', 'gross_npa', 'net_npa', 'fin_gearing', 'cost_to_income', 'cost_of_borrowing', 'interest_spread', 'casa', 'lcr', 'promoter_holding'],
+            'override' => ['toi_crore' => [50000, 10000, 2000, 500], 'fin_gearing' => [10, 13, 16, 20], 'rota' => [1.3, 1, 0.7, 0.3], 'cost_of_borrowing' => [5, 6, 7, 8.5], 'crar' => [17, 15, 13, 11.5], 'tier1' => [14, 12, 10.5, 9.5], 'cet1' => [12, 10.5, 9, 8], 'interest_spread' => [3.5, 3, 2.5, 1.5], 'cost_to_income' => [40, 47, 55, 65]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 10, 'management' => 15],
+            'checks' => ['capital_cushion', 'ccb_restriction'],
         ],
         'financial' => [
             'name' => 'Banks, NBFCs & HFCs', 'criteria' => 'Financial Ratios – Financial Sector (Feb 2025)',
@@ -160,6 +187,117 @@ return [
             'override' => ['toi_crore' => [10000, 2000, 500, 100]],
             'weights' => ['business' => 40, 'financial' => 40, 'liquidity' => 0, 'management' => 20],
             'checks' => ['group_support'],
+        ],
+        'broking' => [
+            'name' => 'Broking firms', 'criteria' => 'Criteria for Rating of Broking Firms (Dec 2025)',
+            'match' => ['industry' => '/broking|stock ?brok/i', 'name' => '/broking|stock ?brok|share and stock|capital markets|angel one|5paisa|motilal oswal|geojit|sharekhan|iifl securities|zerodha|nuvama|(?<!financial )securities (?:ltd|limited|pvt|private)/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbit_margin', 'pat_margin', 'cost_to_income', 'ronw', 'rota', 'fin_gearing', 'cost_of_borrowing', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['fin_gearing' => [0.5, 1, 2, 3], 'cost_to_income' => [45, 55, 65, 75], 'ronw' => [20, 15, 10, 5], 'rota' => [6, 4, 2.5, 1]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['market_dependence', 'group_support'],
+        ],
+        'nbfc' => [
+            'name' => 'Non-banking finance companies', 'criteria' => 'Rating Methodology – Non-Banking Finance Companies (Feb 2025)',
+            'match' => ['industry' => '/nbfc|non[- ]banking|lending|consumer finance|microfinance|gold loan|vehicle finance/i', 'name' => '/financ|fincorp|fin ?serv|leasing|microfin|credit (?:ltd|limited|pvt|private)|capital (?:ltd|limited|pvt|private)|muthoot|manappuram|shriram/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'crar', 'gross_npa', 'net_npa', 'lagged_gnpa', 'rota', 'ronw', 'fin_gearing', 'cost_to_income', 'cost_of_borrowing', 'opex_assets', 'interest_spread', 'collection_efficiency', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['fin_gearing' => [3, 4.5, 6, 7.5], 'crar' => [25, 20, 17, 15]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 10, 'management' => 15],
+            'checks' => ['capital_cushion', 'rapid_growth', 'off_book', 'group_support'],
+        ],
+        'hfc' => [
+            'name' => 'Housing finance companies', 'criteria' => 'Rating Methodology – Housing Finance Companies (Mar 2025)',
+            'match' => ['industry' => '/housing finance/i', 'name' => '/housing financ|home financ|home loans|aavas|aptus|home first|can fin|repco home|india shelter|aadhar housing/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'crar', 'gross_npa', 'net_npa', 'lagged_gnpa', 'rota', 'ronw', 'fin_gearing', 'cost_to_income', 'cost_of_borrowing', 'opex_assets', 'interest_spread', 'collection_efficiency', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['fin_gearing' => [5, 7, 9, 11], 'gross_npa' => [1, 2, 3.5, 5], 'lagged_gnpa' => [1, 2, 3.5, 5], 'crar' => [22, 18, 16, 15], 'interest_spread' => [4, 3, 2.25, 1.5]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 10, 'management' => 15],
+            'checks' => ['capital_cushion', 'rapid_growth', 'off_book', 'group_support'],
+        ],
+        'insurance' => [
+            'name' => 'Non-life insurance', 'criteria' => 'Rating Methodology & Financial Ratios – Non-Life Insurance Sector (Mar 2025)',
+            'match' => ['industry' => '/general insurance|non-life|health insurance|reinsurance/i', 'name' => '/general insurance|lombard|ergo|new india assurance|star health|reinsurance|go digit|niva bupa|care health|oriental insurance|united india insurance|national insurance/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'solvency_ratio', 'combined_ratio', 'claims_ratio', 'premium_net_worth', 'ronw', 'rota', 'pat_margin', 'promoter_holding'],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 10, 'management' => 15],
+            'checks' => ['solvency_cushion', 'group_support'],
+        ],
+        'reit' => [
+            'name' => 'Real estate investment trusts', 'criteria' => 'Rating Methodology – Real Estate Investment Trusts (Jan 2025)',
+            'match' => ['industry' => '/\breit\b|real estate investment trust/i', 'name' => '/\breit\b|real estate investment trust|embassy office parks|mindspace business parks|brookfield india real estate|nexus select trust|knowledge realty/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'net_debt_assets', 'debt_pbildt', 'icr', 'avg_dscr', 'occupancy', 'wale', 'cash_st_debt'],
+            'override' => ['pbildt_margin' => [80, 70, 60, 50], 'debt_pbildt' => [3, 4.5, 6, 7.5]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['reit_leverage', 'refinancing'],
+        ],
+        'power_distribution' => [
+            'name' => 'Power distribution', 'criteria' => 'Rating Methodology – Power Distribution Companies (Mar 2025)',
+            'match' => ['industry' => '/power distribution|electricity distribution/i', 'name' => '/discom|power distribution|electricity distribution|vidyut vitran|bijli|distribution company|\bcesc\b/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'atc_loss', 'collection_days', 'creditor_days', 'gearing', 'debt_pbildt', 'icr', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['collection_days' => [30, 60, 100, 150], 'creditor_days' => [45, 90, 150, 240], 'pbildt_margin' => [15, 10, 6, 2]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 20, 'management' => 10],
+            'checks' => ['payables_to_gencos', 'receivable_stretch'],
+        ],
+        'wind_power' => [
+            'name' => 'Wind power', 'criteria' => 'Rating Methodology – Wind Power Projects (Dec 2024)',
+            'match' => ['industry' => '/wind power|wind energy/i', 'name' => '/^(?!.*(turbine|suzlon|inox wind)).*\b(wind ?(?:power|energy|farms?|parks?)|windfarms?)\b/i'],
+            'ratios' => ['toi_crore', 'pbildt_margin', 'debt_pbildt', 'gearing', 'icr', 'dscr', 'avg_dscr', 'plf', 'availability', 'collection_days', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['plf' => [32, 27, 22, 18], 'pbildt_margin' => [85, 78, 70, 60], 'debt_pbildt' => [5, 6.5, 8, 9.5], 'gearing' => [2, 3, 4, 5], 'collection_days' => [45, 75, 120, 180]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['offtaker_receivables', 'refinancing', 'group_support'],
+        ],
+        'solar_power' => [
+            'name' => 'Solar power', 'criteria' => 'Rating Methodology – Solar Power Projects (Dec 2024)',
+            'match' => ['industry' => '/solar power|renewable/i', 'name' => '/^(?!.*(module|cells?\b|glass|pump|inverter|equipment|industries|technolog)).*(solar (?:power|energy|parks?|holdings)|\bacme solar|\brenew\b|green energy|renewables?\b)/i'],
+            'ratios' => ['toi_crore', 'pbildt_margin', 'debt_pbildt', 'gearing', 'icr', 'dscr', 'avg_dscr', 'plf', 'availability', 'collection_days', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['plf' => [24, 21, 18, 15], 'pbildt_margin' => [88, 80, 72, 62], 'debt_pbildt' => [5, 6.5, 8, 9.5], 'gearing' => [2, 3, 4, 5], 'collection_days' => [45, 75, 120, 180]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['offtaker_receivables', 'refinancing', 'group_support'],
+        ],
+        'thermal_power' => [
+            'name' => 'Thermal power', 'criteria' => 'Rating Methodology – Thermal Power Producers (Dec 2024)',
+            'match' => ['industry' => '/thermal|power generation/i', 'name' => '/thermal|adani power|\bntpc\b|jsw energy|power generation|\bgencos?\b|coal power|torrent power|tata power|nlc india/i'],
+            'ratios' => ['toi_crore', 'pbildt_margin', 'debt_pbildt', 'gearing', 'icr', 'dscr', 'avg_dscr', 'plf', 'availability', 'collection_days', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['collection_days' => [45, 75, 120, 180], 'debt_pbildt' => [3, 4.5, 6, 7.5], 'gearing' => [1, 1.8, 2.5, 3.5], 'pbildt_margin' => [30, 22, 15, 8]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['offtaker_receivables', 'refinancing', 'group_support'],
+        ],
+        'airport' => [
+            'name' => 'Airports', 'criteria' => 'Rating Methodology – Airport Companies (Mar 2025)',
+            'match' => ['industry' => '/airport/i', 'name' => '/airport/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'debt_pbildt', 'gearing', 'icr', 'dscr', 'avg_dscr', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['pbildt_margin' => [55, 45, 35, 25], 'debt_pbildt' => [3.5, 5, 6.5, 8]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['refinancing', 'forex_exposure', 'capex_vs_networth'],
+        ],
+        'port' => [
+            'name' => 'Ports & port services', 'criteria' => 'Rating Methodology – Port & Port Services (Mar 2025)',
+            'match' => ['industry' => '/\bports?\b|port services|marine terminal/i', 'name' => '/\bports?\b|terminals? (?:ltd|limited|pvt|private)|harbour|marine services/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'roce', 'debt_pbildt', 'gearing', 'icr', 'dscr', 'collection_days', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['pbildt_margin' => [55, 45, 35, 25], 'debt_pbildt' => [2.5, 3.5, 5, 6.5]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['refinancing', 'forex_exposure', 'receivable_stretch'],
+        ],
+        'shipping' => [
+            'name' => 'Shipping', 'criteria' => 'Rating Methodology: Shipping Companies (Sep 2026)',
+            'match' => ['industry' => '/shipping/i', 'name' => '/shipping|maritime|tankers?\b|great eastern|seamec|offshore (?:ltd|limited)/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'gearing', 'debt_pbildt', 'icr', 'fleet_age', 'fixed_asset_turnover', 'cash_st_debt', 'promoter_holding'],
+            'override' => ['pbildt_margin' => [35, 25, 18, 10], 'margin_stability' => [5, 10, 15, 25], 'fixed_asset_turnover' => [0.8, 0.5, 0.35, 0.2]],
+            'weights' => ['business' => 40, 'financial' => 35, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['commodity_margin_volatility', 'capex_vs_networth', 'forex_exposure'],
+        ],
+        'road_annuity' => [
+            'name' => 'Road assets – annuity', 'criteria' => 'Rating Methodology – Road Assets-Annuity (Mar 2025)',
+            'match' => ['name' => '/annuity|\bham\b/i'],
+            'ratios' => ['toi_crore', 'pbildt_margin', 'debt_pbildt', 'dscr', 'avg_dscr', 'icr', 'collection_days', 'cash_st_debt'],
+            'override' => ['pbildt_margin' => [85, 75, 65, 55], 'debt_pbildt' => [5, 6.5, 8, 9.5], 'collection_days' => [30, 60, 100, 150]],
+            'weights' => ['business' => 30, 'financial' => 45, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['offtaker_receivables', 'refinancing', 'group_support'],
+        ],
+        'toll_road' => [
+            'name' => 'Toll roads', 'criteria' => 'Rating Methodology – Toll Road Projects (Mar 2025)',
+            'match' => ['industry' => '/toll|roads? & highways|highway/i', 'name' => '/\btoll|tollway|expressway|highways? (?:ltd|limited|pvt|private)|road (?:projects?|infra)/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'debt_pbildt', 'dscr', 'avg_dscr', 'icr', 'cash_st_debt'],
+            'override' => ['pbildt_margin' => [80, 70, 60, 50], 'debt_pbildt' => [4, 5.5, 7, 8.5]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['refinancing', 'group_support'],
         ],
         'investment_holding' => [
             'name' => 'Investment holding company', 'criteria' => 'CARE Ratings’ Criteria on Rating of Investment Holding Companies’ Debt (Mar 2025)',
@@ -170,6 +308,26 @@ return [
             'checks' => ['group_support'],
         ],
     ],
+
+    // Regulatory floors used by the checks (Banks, NBFC, HFC, non-life insurance and REIT criteria).
+    'regulatory_minimums' => [
+        'bank_car' => 11.5, 'bank_tier1' => 9.5, 'bank_cet1' => 8, 'sfb_car' => 15, 'sfb_tier1' => 7.5, 'rrb_car' => 9,
+        'bank_leverage' => 3.5, 'dsib_leverage' => 4, 'sfb_leverage' => 4.5, 'lcr' => 100, 'nsfr' => 100,
+        'nbfc_car' => 15, 'hfc_car' => 15, 'insurer_solvency' => 1.5, 'reit_net_debt_cap' => 49, 'reit_rating_trigger' => 25,
+    ],
+
+    // Instrument notching against the issuer's senior rating (Basel III hybrids, NBFC/HFC perpetuals, insurer hybrid capital).
+    'instrument_notching' => [
+        'tier2_strong_from' => 'AA-', 'tier2_strong' => 0, 'tier2_weak' => 1,
+        'at1_top_from' => 'AA+', 'at1_top' => 1, 'at1_mid_from' => 'A-', 'at1_mid' => 2, 'at1_low' => 3,
+        'fd_over_tier2' => 1, 'nbfc_sub_debt' => 0, 'nbfc_perpetual' => 1, 'insurance_hybrid' => 1,
+    ],
+
+    // Basel III capital conservation buffer: CET I range (%) → minimum share of earnings to be conserved.
+    'ccb_table' => [[5.5, 6.125, 100], [6.125, 6.75, 80], [6.75, 7.375, 60], [7.375, 8, 40], [8, 100, 0]],
+
+    // Insurer hybrid capital counted in available solvency margin by years to maturity → % included.
+    'insurance_hybrid_haircut' => [5 => 100, 4 => 80, 3 => 60, 2 => 40, 1 => 20, 0 => 0],
 
     // Indicative score → long-term rating band (CARE scale).
     'bands' => [92 => 'AAA', 86 => 'AA+', 81 => 'AA', 76 => 'AA-', 71 => 'A+', 66 => 'A', 61 => 'A-', 56 => 'BBB+', 51 => 'BBB', 46 => 'BBB-', 41 => 'BB+', 36 => 'BB', 31 => 'BB-', 26 => 'B+', 21 => 'B', 16 => 'B-', 0 => 'C'],

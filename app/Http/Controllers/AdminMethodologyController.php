@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 // short-term mapping and overlay rules. Saving marks stored assessments stale so the nightly run recomputes them.
 class AdminMethodologyController extends Controller
 {
-    public const CHECKS = ['capex_vs_networth', 'negative_cfo_proxy', 'group_support', 'commodity_margin_volatility', 'forex_exposure', 'inventory_build', 'receivable_stretch', 'seasonality', 'keyman', 'related_party_heavy', 'ice_obsolescence'];
+    public const CHECKS = ['capex_vs_networth', 'negative_cfo_proxy', 'group_support', 'commodity_margin_volatility', 'forex_exposure', 'inventory_build', 'receivable_stretch', 'seasonality', 'keyman', 'related_party_heavy', 'ice_obsolescence',
+        'capital_cushion', 'ccb_restriction', 'rapid_growth', 'off_book', 'solvency_cushion', 'reit_leverage', 'market_dependence', 'offtaker_receivables', 'payables_to_gencos', 'refinancing'];
     private const PILLARS = ['business', 'financial', 'liquidity', 'management'];
 
     public function index(Methodology $m)
@@ -77,12 +78,38 @@ class AdminMethodologyController extends Controller
         $bands = collect($data['bands'])->filter(fn ($b) => $b['min'] !== null && $b['min'] !== '')->mapWithKeys(fn ($b) => [(string) (float) $b['min'] => $b['rating']])->sortKeysDesc()->all();
         if (abs(array_sum($data['default_weights']) - 100) > 0.01) return back()->withErrors(['Default pillar weights must add up to 100.'])->withInput();
         $overlays = collect($data['overlays'])->map(fn ($v, $k) => in_array($k, ['inc_cap', 'post_default_cap'], true) ? (in_array($v, $scale, true) ? $v : 'BB+') : (float) $v)->all();
-        $put = fn ($k, $v) => DB::table('credit_methodology_settings')->updateOrInsert(['key' => $k], ['value' => json_encode($v), 'updated_at' => now(), 'created_at' => now()]);
+        $put = fn ($k, $v) => self::putSetting($k, $v);
         $put('score_bands', $bands);
         $put('short_term_map', collect($data['short'])->map(fn ($s) => [$s['usual'], $s['superior']])->all());
         $put('overlays', $overlays);
         $put('default_weights', array_map('floatval', $data['default_weights']));
         return $this->saved($m, 'Rating bands and rules saved.');
+    }
+
+    /** Regulatory floors, instrument notching, capital conservation buffer and insurer hybrid haircut. */
+    public function limits(Request $r, Methodology $m)
+    {
+        $scale = RatingRationaleParser::LONG_SCALE;
+        $data = $r->validate(['regmin' => 'required|array', 'regmin.*' => 'required|numeric|min:0|max:500', 'notch' => 'required|array', 'notch.*' => 'required',
+            'ccb' => 'required|array', 'ccb.*.min' => 'nullable|numeric', 'ccb.*.max' => 'nullable|numeric', 'ccb.*.retain' => 'nullable|numeric|min:0|max:100',
+            'haircut' => 'required|array', 'haircut.*' => 'required|numeric|min:0|max:100']);
+        $notch = collect($data['notch'])->map(fn ($v, $k) => str_ends_with($k, '_from') ? (in_array($v, $scale, true) ? $v : 'AA-') : (int) $v)->all();
+        $ccb = collect($data['ccb'])->filter(fn ($b) => is_numeric($b['min'] ?? null) && is_numeric($b['max'] ?? null) && is_numeric($b['retain'] ?? null))
+            ->map(fn ($b) => [(float) $b['min'], (float) $b['max'], (float) $b['retain']])->sortBy(0)->values()->all();
+        $haircut = collect($data['haircut'])->mapWithKeys(fn ($v, $k) => [(int) $k => (float) $v])->sortKeysDesc()->all();
+        self::putSetting('regulatory_minimums', array_map('floatval', $data['regmin']));
+        self::putSetting('instrument_notching', $notch);
+        self::putSetting('ccb_table', $ccb);
+        self::putSetting('insurance_hybrid_haircut', $haircut);
+        return $this->saved($m, 'Regulatory limits and instrument notching saved.');
+    }
+
+    /** Owner edits keep the original created_at, so the seeder can tell them apart from untouched defaults. */
+    private static function putSetting(string $key, $value): void
+    {
+        $exists = DB::table('credit_methodology_settings')->where('key', $key)->exists();
+        $exists ? DB::table('credit_methodology_settings')->where('key', $key)->update(['value' => json_encode($value), 'updated_at' => now()->addSecond()])
+            : DB::table('credit_methodology_settings')->insert(['key' => $key, 'value' => json_encode($value), 'created_at' => now()->subSecond(), 'updated_at' => now()]);
     }
 
     /** Recomputes a batch now (the nightly job finishes the rest). */

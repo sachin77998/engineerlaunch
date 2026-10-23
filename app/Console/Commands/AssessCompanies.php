@@ -19,7 +19,13 @@ class AssessCompanies extends Command
 
     public function handle(CareAssessment $assessment, FundingLifecycle $lifecycle, Methodology $methodology): int
     {
-        if ($this->option('seed-methodology')) { $methodology->seed((bool) $this->option('reset')); $this->info('Methodology tables seeded.'); return self::SUCCESS; }
+        if ($this->option('seed-methodology')) {
+            $n = $methodology->seed((bool) $this->option('reset'));
+            // New or refreshed methodology rows: stored assessments are recomputed on view or by the nightly run.
+            if ($n) DB::table('company_credit_assessments')->update(['computed_at' => null]);
+            $this->info("Methodology tables seeded ($n rows written).");
+            return self::SUCCESS;
+        }
         if ($this->option('medians')) { $this->info('Sector medians stored: ' . $assessment->computeMedians()); return self::SUCCESS; }
 
         $ids = $this->option('company');

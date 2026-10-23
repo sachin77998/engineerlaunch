@@ -56,6 +56,41 @@ details.mt-card>summary{cursor:pointer;font-weight:700;font-size:15px;list-style
         <div style="margin-top:12px"><button class="mt-btn">Save rules</button></div>
     </form>
 
+    @php
+        $regmin = ($settings['regulatory_minimums'] ?? []) + config('care_methodology.regulatory_minimums');
+        $notch = ($settings['instrument_notching'] ?? []) + config('care_methodology.instrument_notching');
+        $ccb = $settings['ccb_table'] ?? config('care_methodology.ccb_table');
+        $haircut = ($settings['insurance_hybrid_haircut'] ?? null) ?: config('care_methodology.insurance_hybrid_haircut');
+        $regLabels = ['bank_car' => 'Bank CAR incl. buffer (%)', 'bank_tier1' => 'Bank Tier I incl. buffer (%)', 'bank_cet1' => 'Bank CET I incl. buffer (%)', 'sfb_car' => 'Small finance bank CAR (%)',
+            'sfb_tier1' => 'Small finance bank Tier I (%)', 'rrb_car' => 'Regional rural bank CAR (%)', 'bank_leverage' => 'Bank leverage ratio (%)', 'dsib_leverage' => 'D-SIB leverage ratio (%)',
+            'sfb_leverage' => 'SFB leverage ratio (%)', 'lcr' => 'LCR (%)', 'nsfr' => 'NSFR (%)', 'nbfc_car' => 'NBFC CAR (%)', 'hfc_car' => 'HFC CAR (%)', 'insurer_solvency' => 'Insurer solvency (x)',
+            'reit_net_debt_cap' => 'REIT net debt cap (% of assets)', 'reit_rating_trigger' => 'REIT rating trigger (% of assets)'];
+        $notchLabels = ['tier2_strong_from' => 'Tier II at senior from', 'tier2_strong' => 'Tier II notches (strong banks)', 'tier2_weak' => 'Tier II notches (others)',
+            'at1_top_from' => 'AT I top band from', 'at1_top' => 'AT I below Tier II (top band)', 'at1_mid_from' => 'AT I middle band from', 'at1_mid' => 'AT I below Tier II (middle band)',
+            'at1_low' => 'AT I below Tier II (others)', 'fd_over_tier2' => 'FD above Tier II', 'nbfc_sub_debt' => 'NBFC / HFC sub debt below senior', 'nbfc_perpetual' => 'NBFC / HFC perpetual below senior',
+            'insurance_hybrid' => 'Insurer hybrid capital below issuer'];
+    @endphp
+    <form method="post" action="{{ route('admin.methodology.limits') }}" class="mt-card">@csrf
+        <h2>Regulatory limits and instrument notching</h2>
+        <div class="mt-grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start">
+            <div><table class="mt-t"><tbody>
+                @foreach($regLabels as $k => $l)<tr><td>{{ $l }}</td><td style="width:110px"><input class="n" type="number" step="any" name="regmin[{{ $k }}]" value="{{ $regmin[$k] ?? '' }}"></td></tr>@endforeach
+            </tbody></table></div>
+            <div><table class="mt-t"><tbody>
+                @foreach($notchLabels as $k => $l)<tr><td>{{ $l }}</td><td style="width:110px">@if(str_ends_with($k, '_from'))<select name="notch[{{ $k }}]">@foreach($scale as $s)<option @selected(($notch[$k] ?? '') === $s)>{{ $s }}</option>@endforeach</select>@else<input class="n" type="number" step="1" min="0" max="6" name="notch[{{ $k }}]" value="{{ $notch[$k] ?? 0 }}">@endif</td></tr>@endforeach
+            </tbody></table></div>
+            <div>
+                <table class="mt-t"><thead><tr><th>CET I from (%)</th><th>to (%)</th><th>Earnings retained (%)</th></tr></thead><tbody>
+                    @foreach(array_merge($ccb, [[null, null, null]]) as $i => $b)<tr>@foreach(['min', 'max', 'retain'] as $j => $f)<td><input class="n" type="number" step="any" name="ccb[{{ $i }}][{{ $f }}]" value="{{ $b[$j] }}"></td>@endforeach</tr>@endforeach
+                </tbody></table>
+                <table class="mt-t" style="margin-top:12px"><thead><tr><th>Insurer hybrid: years to maturity ≥</th><th>Counted in solvency (%)</th></tr></thead><tbody>
+                    @foreach($haircut as $y => $p)<tr><td>{{ $y }}</td><td><input class="n" type="number" step="any" min="0" max="100" name="haircut[{{ $y }}]" value="{{ $p }}"></td></tr>@endforeach
+                </tbody></table>
+            </div>
+        </div>
+        <div style="margin-top:12px"><button class="mt-btn">Save limits</button></div>
+    </form>
+
     <form method="post" action="{{ route('admin.methodology.ratios') }}" class="mt-card mt-scroll">@csrf
         <h2>Ratios and default bands</h2>
         <table class="mt-t"><thead><tr><th>Key</th><th>Label</th><th>Better</th><th>Pillar</th><th>Excellent</th><th>Good</th><th>Adequate</th><th>Weak</th><th>On</th></tr></thead><tbody>

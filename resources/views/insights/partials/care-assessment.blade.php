@@ -45,7 +45,7 @@
         <h3>Ratios ({{ $a['sector'] }} bands)</h3>
         <div style="overflow-x:auto"><table class="ci-table"><thead><tr><th>Ratio</th><th style="text-align:right">Company</th><th style="text-align:right">Sector median</th><th>Band</th><th></th></tr></thead><tbody>
         @foreach($a['rows'] as $r)
-            <tr><td>{{ $r['label'] }}</td><td style="text-align:right"><b>{{ $fmt($r) }}</b></td><td style="text-align:right" class="ci-muted">{{ $r['peer'] !== null ? $fmt(['value' => $r['peer']] + $r) : '—' }}</td>
+            <tr><td>{{ $r['label'] }}@if(!empty($r['source']))<small class="ci-muted" style="display:block;font-size:11.5px">{{ $r['source'] }}</small>@endif</td><td style="text-align:right"><b>{{ $fmt($r) }}</b></td><td style="text-align:right" class="ci-muted">{{ $r['peer'] !== null ? $fmt(['value' => $r['peer']] + $r) : '—' }}</td>
                 <td class="ci-muted" style="font-size:12.5px;white-space:nowrap">{{ $bandText($r) }}</td><td><span title="{{ $r['score'] ?? 'n/a' }}/5" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ $dot($r['score']) }}"></span></td></tr>
         @endforeach
         </tbody></table></div>
@@ -62,6 +62,18 @@
                     <b style="font-size:13.5px">{{ $c['label'] }}</b><div class="ci-muted" style="font-size:12.5px">{{ $c['value'] }}</div></div>
             @endforeach
         </div>
+    @endif
+
+    @if(!empty($a['instruments']))
+        <h3>Instrument ratings</h3>
+        <div style="overflow-x:auto"><table class="ci-table"><thead><tr><th>Instrument</th><th>Type</th><th style="text-align:right">Rated</th><th style="text-align:right">Per criteria</th><th>Basis</th></tr></thead><tbody>
+        @foreach($a['instruments'] as $in)
+            <tr><td style="white-space:normal;min-width:180px">{{ $in['instrument'] }}@if($in['note'])<small class="ci-muted" style="display:block;font-size:11.5px">{{ $in['note'] }}</small>@endif</td>
+                <td>{{ $in['class'] }}</td><td style="text-align:right"><b>{{ $in['actual'] ?? '—' }}</b> <span class="ci-muted" style="font-size:12px">{{ $in['agency'] }}</span></td>
+                <td style="text-align:right">{{ $in['expected'] ?? 'Pool-specific' }}@if($in['gap'])<small style="display:block;font-size:11.5px;color:{{ $in['gap'] > 0 ? '#b42318' : '#067647' }}">{{ abs($in['gap']) }} notch{{ abs($in['gap']) > 1 ? 'es' : '' }} {{ $in['gap'] > 0 ? 'lower' : 'higher' }} than criteria</small>@endif</td>
+                <td class="ci-muted" style="font-size:12.5px">{{ $in['basis'] }}</td></tr>
+        @endforeach
+        </tbody></table></div>
     @endif
 
     <h3>Rating status</h3>
