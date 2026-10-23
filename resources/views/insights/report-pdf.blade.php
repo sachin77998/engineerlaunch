@@ -33,6 +33,16 @@ table.t{width:100%;border-collapse:collapse;margin:4px 0}table.t th{background:#
     <p class="muted">Audited financials, lenders and bank charges are included for Premium members.</p>
 @endif
 
+@if($assessment)
+    @php $a = $assessment; @endphp
+    <h2>Credit assessment – {{ $a['sector'] }}</h2>
+    <div class="muted">{{ $a['criteria'] }} · {{ ucfirst($a['basis']) }} accounts{{ $a['year'] ? ' · FY ' . $a['year'] : '' }}</div>
+    <table class="facts"><tr><td><span class="muted">Indicative long-term</span><b>{{ $a['indicative'] ?? '—' }}</b></td><td><span class="muted">Indicative short-term</span><b>{{ $a['short_term'] ?? '—' }}</b></td><td><span class="muted">Liquidity</span><b>{{ $a['liquidity']['level'] ?? '—' }}</b></td><td><span class="muted">Direction</span><b>{{ $a['outlook']['watch'] ? 'Rating watch' : $a['outlook']['direction'] }}</b></td></tr></table>
+    @if($a['adjustments'])<ul style="margin:4px 0;padding-left:14px">@foreach($a['adjustments'] as $x)<li>{{ $x['from'] }} → {{ $x['to'] }}: {{ $x['why'] }}</li>@endforeach</ul>@endif
+    @if($a['rows'])<table class="t"><thead><tr><th>Ratio</th><th class="num">Company</th><th class="num">Sector median</th><th class="num">Score</th></tr></thead><tbody>@foreach($a['rows'] as $r)<tr><td>{{ $r['label'] }}</td><td class="num">{{ $r['value'] ?? '—' }}</td><td class="num">{{ $r['peer'] ?? '—' }}</td><td class="num">{{ $r['score'] ?? '—' }}/5</td></tr>@endforeach</tbody></table>@endif
+    @if($a['checks'])<table class="t"><tbody>@foreach($a['checks'] as $x)<tr><td>{{ $x['label'] }}</td><td>{{ $x['value'] }}</td><td>{{ ucfirst($x['status']) }}</td></tr>@endforeach</tbody></table>@endif
+@endif
+
 @if($funding)
     @php $c = $funding['capacity']; @endphp
     <h2>Borrowing capacity</h2>

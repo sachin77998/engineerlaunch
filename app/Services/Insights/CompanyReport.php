@@ -10,7 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 // funding lifecycle, lenders and borrowing capacity. Premium-only sections are left out for other viewers.
 class CompanyReport
 {
-    public function __construct(private FundingLifecycle $lifecycle, private CreditProfile $credit) {}
+    public function __construct(private FundingLifecycle $lifecycle, private CreditProfile $credit, private CareAssessment $assessment) {}
 
     public function data(Company $company, bool $full): array
     {
@@ -22,6 +22,7 @@ class CompanyReport
             'years' => $years,
             'credit' => rescue(fn () => $this->credit->build($company), null, false),
             'funding' => rescue(fn () => $this->lifecycle->build($company, $full), null, false),
+            'assessment' => rescue(fn () => $this->assessment->build($company, $full), null, false),
             'directors' => $company->officers->take(25),
         ];
     }
@@ -53,6 +54,16 @@ class CompanyReport
             $latest = $d['credit']['history']->first(fn ($x) => !empty($x->instruments));
             if ($latest) $sheets['Rated facilities'] = [['Facility', 'Type', 'Previous (₹ cr)', 'Current (₹ cr)', 'Rating', 'Action'],
                 collect($latest->instruments)->map(fn ($i) => [$i['instrument'] ?? '', $i['type'] ?? '', $i['previous'] ?? null, $i['current'] ?? null, trim(($i['rating'] ?? '') . ' ' . ($i['outlook'] ?? '')), $i['action'] ?? ''])->all()];
+        }
+        if ($a = $d['assessment']) {
+            $sheets['Credit assessment'] = [['Measure', 'Value', 'Sector median', 'Band (good / weak)', 'Score (1-5)'], array_merge(
+                [['Sector methodology', $a['sector'] . ' – ' . $a['criteria'], null, null, null], ['Accounts basis', $a['basis'], null, null, null],
+                 ['Indicative long-term', $a['indicative'], null, null, null], ['Indicative short-term', $a['short_term'], null, null, null], ['Score / 100', $a['score'], null, null, null],
+                 ['Liquidity', $a['liquidity']['level'], null, null, null], ['Direction', $a['outlook']['watch'] ? 'Rating watch' : $a['outlook']['direction'], null, null, null]],
+                array_map(fn ($x) => ['Adjustment ' . $x['from'] . ' → ' . $x['to'], $x['why'], null, null, null], $a['adjustments']),
+                array_map(fn ($r) => [$r['label'], $r['value'], $r['peer'], $r['band'][1] . ' / ' . $r['band'][3], $r['score']], array_values($a['rows'])),
+                array_map(fn ($x) => ['Check: ' . $x['label'], $x['value'], null, null, $x['status']], $a['checks'])
+            )];
         }
         if ($f = $d['funding']) {
             $sheets['Funding timeline'] = [['Date', 'Event', 'Amount (₹ cr)', 'Source', 'Evidence'],

@@ -259,6 +259,7 @@ class CompanyInsightsController extends Controller
             'competitors' => rescue(fn () => $profile->competitors($company), collect(), false),
             'credit' => rescue(fn () => app(\App\Services\Insights\CreditProfile::class)->build($company), null),
             'similar' => rescue(fn () => app(\App\Services\Insights\CompanySimilarity::class)->for($company), collect()),
+            'careAssessment' => rescue(fn () => app(\App\Services\Insights\CareAssessment::class)->build($company, $premium), null),
             'funding' => rescue(fn () => app(\App\Services\Insights\FundingLifecycle::class)->build($company, $premium), null),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
