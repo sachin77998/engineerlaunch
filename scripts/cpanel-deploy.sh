@@ -69,6 +69,8 @@ run sectors:file-listed
 # Credit methodology tables and the first stored assessments (the nightly job keeps them current).
 run insights:assess --seed-methodology
 run insights:assess --limit=500
+# AMC monthly portfolios and fund credit quality (also refreshed on the 12th and 20th of each month).
+run mf:portfolios
 run optimize:clear
 
 echo "" >> "$LOG"

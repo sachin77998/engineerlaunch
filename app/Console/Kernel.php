@@ -48,6 +48,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('insights:ratings --reparse --missing --batch=200')->dailyAt('01:30')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         $schedule->command('insights:credit-model')->weeklyOn(0, '05:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
         // Stored credit assessments, ratio values, funding events, borrowing capacity and sector medians (stale ones first).
+        // AMC monthly portfolios are published by the 10th: fetch them and recompute fund credit quality.
+        $schedule->command('mf:portfolios')->monthlyOn(12, '04:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        $schedule->command('mf:portfolios')->monthlyOn(20, '04:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         $schedule->command('insights:assess --limit=1500')->dailyAt('02:30')->timezone('Asia/Kolkata')->withoutOverlapping(180);
         $schedule->command('logos:sync --limit=600')->dailyAt('03:45')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         // Fund model: NAV history in daily batches, rescored every weekday after NAVs publish, retrained weekly.

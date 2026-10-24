@@ -101,6 +101,15 @@ class AdminMethodologyController extends Controller
         self::putSetting('instrument_notching', $notch);
         self::putSetting('ccb_table', $ccb);
         self::putSetting('insurance_hybrid_haircut', $haircut);
+        // Fund credit quality: default rates, short-term equivalents and rules; stored fund scores are recomputed.
+        if ($r->has('fund_pd')) {
+            $f = $r->validate(['fund_pd' => 'array', 'fund_pd.*' => 'numeric|min:0|max:100', 'fund_short' => 'array', 'fund_short.*' => 'in:' . implode(',', $scale), 'fund_rules' => 'array']);
+            self::putSetting('fund_pd_annual', array_map('floatval', $f['fund_pd']));
+            self::putSetting('fund_short_equivalent', $f['fund_short'] ?? []);
+            self::putSetting('fund_rules', collect($f['fund_rules'] ?? [])->map(fn ($v, $k) => $k === 'unrated_as' ? (in_array($v, $scale, true) ? $v : 'BBB-') : (float) $v)->all());
+            $m->flush();
+            \Illuminate\Support\Facades\Artisan::call('mf:portfolios', ['--rescore' => true]);
+        }
         return $this->saved($m, 'Regulatory limits and instrument notching saved.');
     }
 

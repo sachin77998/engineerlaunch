@@ -30,6 +30,7 @@
             </section>
 
             @include('trading.partials.fund-insights')
+            @if($creditQuality)@includeSafe('trading.partials.fund-credit-quality')@endif
 
             <section class="dt-card">
                 <h2>Fund details</h2>

@@ -88,6 +88,26 @@ details.mt-card>summary{cursor:pointer;font-weight:700;font-size:15px;list-style
                 </tbody></table>
             </div>
         </div>
+        @php
+            $fpd = ($settings['fund_pd_annual'] ?? []) + config('fund_portfolios.fund_pd_annual');
+            $fse = ($settings['fund_short_equivalent'] ?? []) + config('fund_portfolios.fund_short_equivalent');
+            $frules = ($settings['fund_rules'] ?? []) + config('fund_portfolios.fund_rules');
+        @endphp
+        <h2 style="margin-top:18px">Fund credit quality</h2>
+        <div class="mt-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start">
+            <div><table class="mt-t"><thead><tr><th>Rating</th><th>Annual default rate (%)</th></tr></thead><tbody>
+                @foreach($fpd as $r => $v)<tr><td>{{ $r }}</td><td><input class="n" type="number" step="any" min="0" max="100" name="fund_pd[{{ $r }}]" value="{{ $v }}"></td></tr>@endforeach
+            </tbody></table></div>
+            <div><table class="mt-t"><thead><tr><th>Short-term</th><th>Scored as</th></tr></thead><tbody>
+                @foreach($fse as $s => $l)<tr><td>{{ $s }}</td><td><select name="fund_short[{{ $s }}]">@foreach($scale as $x)<option @selected($x === $l)>{{ $x }}</option>@endforeach</select></td></tr>@endforeach
+            </tbody></table></div>
+            <div><table class="mt-t"><tbody>
+                @foreach(['limit_aaa' => 'Single-issuer limit, AAA (% of NAV)', 'limit_aa' => 'Single-issuer limit, AA (%)', 'limit_a_below' => 'Single-issuer limit, A and below (%)', 'excess_notch' => 'Notches on exposure above the limit',
+                    'watch_notch' => 'Notches for watch / negative', 'min_debt_share' => 'Minimum debt share to rate (%)', 'short_term_max_years' => 'Short-term band: maximum maturity (years)', 'lookback_months' => 'Months considered for upgrades'] as $k => $l)
+                    <tr><td>{{ $l }}</td><td style="width:100px"><input class="n" type="number" step="any" min="0" name="fund_rules[{{ $k }}]" value="{{ $frules[$k] }}"></td></tr>@endforeach
+                <tr><td>Unrated paper scored as</td><td><select name="fund_rules[unrated_as]">@foreach($scale as $x)<option @selected($x === $frules['unrated_as'])>{{ $x }}</option>@endforeach</select></td></tr>
+            </tbody></table></div>
+        </div>
         <div style="margin-top:12px"><button class="mt-btn">Save limits</button></div>
     </form>
 

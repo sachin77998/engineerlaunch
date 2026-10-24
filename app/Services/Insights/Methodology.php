@@ -87,7 +87,9 @@ class Methodology
                 'overlays' => ['gov_notch_51' => 1, 'gov_notch_75' => 2, 'group_support_notch' => 1, 'group_support_years' => 3, 'inc_cap_months' => 6, 'inc_cap' => 'BB+',
                     'cure_non_ig_days' => 90, 'cure_ig_days' => 365, 'post_default_cap' => 'BB+', 'stale_days' => 7],
                 'regulatory_minimums' => $cfg['regulatory_minimums'], 'instrument_notching' => $cfg['instrument_notching'],
-                'ccb_table' => $cfg['ccb_table'], 'insurance_hybrid_haircut' => $cfg['insurance_hybrid_haircut']];
+                'ccb_table' => $cfg['ccb_table'], 'insurance_hybrid_haircut' => $cfg['insurance_hybrid_haircut'],
+                'fund_pd_annual' => config('fund_portfolios.fund_pd_annual'), 'fund_short_equivalent' => config('fund_portfolios.fund_short_equivalent'),
+                'fund_rules' => config('fund_portfolios.fund_rules')];
             foreach ($settings as $k => $v) $put('credit_methodology_settings', ['key' => $k], ['value' => json_encode($v)]);
         });
         $this->flush();

@@ -97,6 +97,7 @@ class TradingController extends Controller
                 return $out;
             }),
             'ratios' => rescue(fn () => app(\App\Services\Trading\FundHistory::class)->ratios(app(\App\Services\Trading\FundHistory::class)->points((int) $scheme->scheme_code)), [], false),
+            'creditQuality' => \App\Services\Funds\FundCreditQuality::forScheme((string) $scheme->name),
             'marketClosed' => $calendar->closedReason($now), 'navDate' => $calendar->applicableNavDate($scheme), 'sampleFees' => $fees->quote('buy', 10000),
         ]);
     }
