@@ -4,9 +4,9 @@
     $isEmployer = $user && !$isOwner && ($user->role_code === 0 || $user->role === 'employer');
     // Each menu: label => [routes that mark it active, [[route, text, params, fragment], ...]]
     $menus = [
-        'Industries Jobs by Sector' => [['sectors.*', 'career-explorer', 'industrial.*'], [
+        'Industries Jobs by Sector' => [['sectors.*', 'career-explorer', 'industrial.*', 'approvals.*'], [
             // Two entries; each page carries tabs to its merged partner (sector hubs, career paths).
-            ['sectors.index', 'Companies & Industrial Parks'], ['industrial.index', 'Industrial Area & Career Jobs'],
+            ['sectors.index', 'Companies & Industrial Parks'], ['industrial.index', 'Industrial Area & Career Jobs'], ['approvals.index', 'State Approvals & Policies'],
         ]],
         'Company Jobs' => [['home', 'jobs.*', 'opportunities.*', 'companies.*'], [
             ['home', 'Find Jobs (All + HR Posted)', [], 'jobs'], ['companies.index', 'All Companies'],
@@ -120,7 +120,7 @@
             <div class="header-sub-links">
           @auth
             @if($isOwner)
-              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
+              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.approvals.index') }}">State approvals</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
             @elseif($isEmployer)
               <a href="{{ route('employer.dashboard') }}">HR Dashboard</a><a href="{{ route('employer.assistant', 'job') }}">Post a Job (Assistant)</a><a href="{{ route('employer.assistant', 'company') }}">Company Profile (Assistant)</a><a href="{{ route('employer.jobs.create') }}">Detailed Job Form</a>
             @else

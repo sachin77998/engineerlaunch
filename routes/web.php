@@ -321,6 +321,21 @@ Route::prefix('admin/industrial-areas')->middleware(['auth', 'admin'])->name('ad
     Route::put('/{type}/{record}', [\App\Http\Controllers\AdminIndustrialAreaController::class, 'save'])->whereNumber('record')->name('update');
 });
 
+// State single-window approvals: licences, NOCs and connections with their document checklists, policies and acts.
+Route::prefix('state-approvals')->name('approvals.')->controller(\App\Http\Controllers\StateApprovalController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{stateSlug}', 'state')->name('state');
+    Route::get('/{stateSlug}/{externalId}', 'service')->where('externalId', '[0-9]+-[0-9]+')->name('service');
+});
+Route::middleware(['auth', 'admin'])->prefix('admin/state-approvals')->name('admin.approvals.')->controller(\App\Http\Controllers\AdminStateApprovalController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::put('/sources/{state}', 'saveSource')->whereNumber('state')->name('source');
+    Route::post('/sources/{state}/fetch', 'fetch')->whereNumber('state')->name('fetch');
+    Route::get('/states/{state}/services', 'services')->whereNumber('state')->name('services');
+    Route::get('/services/{service}', 'edit')->whereNumber('service')->name('edit');
+    Route::put('/services/{service}', 'update')->whereNumber('service')->name('update');
+});
+
 Route::get("/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"index"])->name("career-explorer");
 Route::get("/api/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"api"])->middleware("throttle:30,1")->name("career-explorer.api");
 

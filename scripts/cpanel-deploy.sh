@@ -71,6 +71,8 @@ run insights:assess --seed-methodology
 run insights:assess --limit=500
 # AMC monthly portfolios and fund credit quality (also refreshed on the 12th and 20th of each month).
 run mf:portfolios
+# State approvals, document checklists and policies (also refreshed on the 8th of each month).
+run approvals:fetch
 run optimize:clear
 
 echo "" >> "$LOG"
