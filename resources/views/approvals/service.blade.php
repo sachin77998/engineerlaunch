@@ -14,12 +14,14 @@
 <div class="sa-wrap">
     <p class="sa-crumbs"><a href="{{ route('approvals.index') }}">State approvals</a> / <a href="{{ route('approvals.state', $state->slug) }}">{{ $state->name }}</a> / {{ $service->department }}</p>
     <h1>{{ $service->name }}</h1>
+    @if($service->description)<p class="sa-sub" style="font-size:15px;max-width:900px;line-height:1.6;margin:-4px 0 6px">{{ \Illuminate\Support\Str::limit($service->description, 600) }}</p>@endif
 
     <section class="sa-card sa-kv">
         <div><span>Department</span>{{ $service->department ?: '—' }}</div>
         @if($service->service_type)<div><span>Type</span>{{ $service->service_type }}</div>@endif
         @if($j($service->stages))<div><span>Stage</span>{{ implode(', ', $j($service->stages)) }}</div>@endif
         @if($service->timeline)<div><span>Time limit</span>{{ $service->timeline }}</div>@endif
+        @if($service->fee)<div><span>Fee</span>{{ $service->fee }}</div>@endif
         <div><span>Applied</span>{{ $service->integration ?: '—' }}</div>
         @foreach(['Unit size' => 'unit_sizes', 'Business location' => 'locations', 'Risk / pollution category' => 'risk_categories', 'Investor type' => 'investor_types'] as $label => $col)
             @if($j($service->$col))<div><span>{{ $label }}</span>{{ implode(', ', $j($service->$col)) }}</div>@endif

@@ -56,8 +56,8 @@ class Kernel extends ConsoleKernel
         // Fund model: NAV history in daily batches, rescored every weekday after NAVs publish, retrained weekly.
         $schedule->command('money:funds --fetch=250 --score')->weekdays()->at('23:15')->timezone('Asia/Kolkata')->withoutOverlapping(120);
         $schedule->command('money:funds --fetch=0 --train --score')->weeklyOn(6, '05:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
-        // State single-window services, document checklists, policies and acts (checklist PDFs re-parsed only when changed).
-        $schedule->command('approvals:fetch')->monthlyOn(8, '01:00')->timezone('Asia/Kolkata')->withoutOverlapping(180);
+        // State approvals from state portals and NSWS (all states, ~2 hours), checklists re-parsed only when changed.
+        $schedule->command('approvals:fetch')->monthlyOn(8, '01:00')->timezone('Asia/Kolkata')->withoutOverlapping(480);
         // Re-reads the register monthly for new incorporations and status changes.
         $schedule->command('insights:import-mca')->monthlyOn(5, '00:30')->withoutOverlapping(60);
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);

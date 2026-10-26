@@ -103,7 +103,14 @@ class ChecklistParser
             $condition = ucfirst(trim($m[1], ' .'));
             $text = trim(str_replace($m[0], ' ', $text));
         }
-        if (!$condition && preg_match(self::CONDITION, $text, $m) && strlen($text) - strlen($m[0]) > 3) {
+        // A trailing ", if the venture is new" / "in case of existing unit" is the condition; the document name stays in front.
+        if (!$condition && preg_match('~(?:,\s*|\s+)((?:if|only if|in case of|in the case of|where|wherever)\s+[a-z][^,()]{2,80})$~i', $text, $m)
+            && str_contains(trim(substr($text, 0, -strlen($m[0]))), ' ') && !preg_match('~^(if|where)\s+(applicable|any|required)\b~i', $m[1])) {
+            $condition = ucfirst(trim($m[1], ' .'));
+            $text = trim(substr($text, 0, -strlen($m[0])), ' ,');
+        }
+        // The condition is split off only when a real name remains ("Documents if any court case…" stays whole).
+        if (!$condition && preg_match(self::CONDITION, $text, $m) && str_contains(trim(substr($text, 0, -strlen($m[0]))), ' ')) {
             $condition = ucfirst(trim($m[1], ' ,.'));
             $text = trim(substr($text, 0, -strlen($m[0])), ' ,');
         }

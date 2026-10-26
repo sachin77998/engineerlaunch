@@ -17,6 +17,7 @@ class StateApprovalImporter
         'silpasathi_wb' => Drivers\SilpasathiWestBengal::class,
         'meghalaya' => Drivers\InvestMeghalaya::class,
         'policy_pages' => Drivers\PolicyPages::class,
+        'nsws' => Drivers\NswsState::class,
     ];
 
     public function __construct(private PdfText $pdf, private ChecklistParser $parser) {}
@@ -26,13 +27,21 @@ class StateApprovalImporter
     {
         $n = 0;
         $states = DB::table('industrial_states')->pluck('id', 'code');
-        foreach (config('state_approvals.sources') as $code => [$name, $url, $driver, $urls]) {
+        $sources = config('state_approvals.sources');
+        [$nationalName, $nationalUrl] = config('state_approvals.national');
+        foreach ($states as $code => $id) {
+            $sources[$code] ??= [$nationalName, $nationalUrl, config('state_approvals.default_driver'), []];
+        }
+        foreach ($sources as $code => [$name, $url, $driver, $urls]) {
             $stateId = $states[$code] ?? null;
             if (!$stateId) continue;
             $existing = DB::table('state_approval_sources')->where('state_id', $stateId)->first();
             if ($existing) {
-                // A reader added in a later release fills a link-only row; addresses the owner already set are kept.
-                if (!$existing->driver && $driver) {
+                // A reader added in a later release extends the row when it only uses readers the release set
+                // (e.g. policy_pages -> nsws,policy_pages); a reader the owner chose and addresses they set are kept.
+                $had = array_filter(explode(',', (string) $existing->driver));
+                $want = array_filter(explode(',', (string) $driver));
+                if ($want && $had !== $want && !array_diff($had, $want)) {
                     DB::table('state_approval_sources')->where('id', $existing->id)->update(['driver' => $driver, 'services_url' => $existing->services_url ?: ($urls['services_url'] ?? null),
                         'policies_url' => $existing->policies_url ?: ($urls['policies_url'] ?? null), 'acts_url' => $existing->acts_url ?: ($urls['acts_url'] ?? null), 'updated_at' => now()]);
                     $n++;
@@ -52,13 +61,14 @@ class StateApprovalImporter
     {
         $log ??= fn () => null;
         $out = ['services' => 0, 'documents' => 0, 'checklists' => 0, 'policies' => 0, 'status' => ''];
-        $class = self::DRIVERS[$source->driver] ?? null;
-        if (!$class) {
+        // "nsws,policy_pages" runs several readers for one state.
+        $classes = array_values(array_filter(array_map(fn ($k) => self::DRIVERS[trim($k)] ?? null, explode(',', (string) $source->driver))));
+        if (!$classes) {
             $out['status'] = 'No reader for this portal yet; visitors are linked to it';
             DB::table('state_approval_sources')->where('id', $source->id)->update(['last_status' => $out['status'], 'last_fetched_at' => now()]);
             return $out;
         }
-        $driver = new $class($source);
+        $driver = count($classes) > 1 ? new Drivers\Composite($source, $classes) : new $classes[0]($source);
         $gap = (int) config('state_approvals.request_gap_ms', 250) * 1000;
         try {
             $services = $driver->services();
@@ -66,13 +76,14 @@ class StateApprovalImporter
             $seen = [];
             foreach ($limit ? array_slice($services, 0, $limit) : $services as $s) {
                 $seen[] = $s['external_id'];
-                $row = collect($s)->only(['department', 'name', 'service_type', 'integration', 'checklist_url', 'form_url', 'fee_url', 'sop_url', 'timeline_url', 'inspection_url', 'timeline', 'apply_url'])
-                    ->map(fn ($v, $k) => is_string($v) ? mb_substr($v, 0, $k === 'name' ? 600 : ($k === 'department' || $k === 'timeline' ? 255 : 500)) : $v)->all();
-                if (array_key_exists('procedure', $s)) $row['procedure'] = $s['procedure'] ? mb_substr($s['procedure'], 0, 20000) : null;
+                $row = collect($s)->only(['department', 'name', 'service_type', 'integration', 'checklist_url', 'form_url', 'fee_url', 'sop_url', 'timeline_url', 'inspection_url', 'timeline', 'fee', 'apply_url'])
+                    ->map(fn ($v, $k) => is_string($v) ? mb_substr($v, 0, $k === 'name' ? 600 : (in_array($k, ['department', 'timeline', 'fee', 'service_type'], true) ? 255 : 500)) : $v)->all();
+                foreach (['procedure', 'description'] as $k) if (array_key_exists($k, $s)) $row[$k] = $s[$k] ? mb_substr($s[$k], 0, 20000) : null;
                 foreach (['stages', 'risk_categories', 'unit_sizes', 'locations', 'investor_types'] as $k) $row[$k] = json_encode($s[$k]);
                 $existing = DB::table('state_approval_services')->where('state_id', $source->state_id)->where('external_id', $s['external_id'])->first();
                 if ($existing) {
-                    DB::table('state_approval_services')->where('id', $existing->id)->update($row + ['fetched_at' => now(), 'updated_at' => now()]);
+                    // A service back on the portal is shown again, unless the owner edited (and possibly hid) it.
+                    DB::table('state_approval_services')->where('id', $existing->id)->update($row + ($existing->locked ? [] : ['is_active' => true]) + ['fetched_at' => now(), 'updated_at' => now()]);
                     $id = $existing->id;
                 } else {
                     $id = DB::table('state_approval_services')->insertGetId($row + ['state_id' => $source->state_id, 'external_id' => $s['external_id'], 'is_active' => true, 'fetched_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
@@ -135,7 +146,8 @@ class StateApprovalImporter
                 $out['policies']++;
             }
             $count = DB::table('state_approval_services')->where('state_id', $source->state_id)->where('is_active', true)->count();
-            $out['status'] = "{$out['services']} services read, {$out['checklists']} checklist(s) parsed, {$out['policies']} policy / act files";
+            $out['status'] = "{$out['services']} services read, {$out['checklists']} checklist(s) parsed, {$out['policies']} policy / act files"
+                . ($driver instanceof Drivers\Composite && $driver->errors ? '; not read: ' . implode('; ', $driver->errors) : '');
             DB::table('state_approval_sources')->where('id', $source->id)->update(['services_count' => $count, 'last_status' => mb_substr($out['status'], 0, 400), 'last_fetched_at' => now(), 'updated_at' => now()]);
         } catch (Throwable $e) {
             $out['status'] = 'Error: ' . mb_substr($e->getMessage(), 0, 300);

@@ -23,7 +23,11 @@ class AdminStateApprovalController extends Controller
     public function saveSource(Request $request, int $state)
     {
         DB::table('industrial_states')->where('id', $state)->exists() || abort(404);
-        $data = $request->validate(['portal_name' => 'nullable|string|max:255', 'portal_url' => 'nullable|url|max:500', 'driver' => ['nullable', Rule::in(array_keys(StateApprovalImporter::DRIVERS))],
+        $data = $request->validate(['portal_name' => 'nullable|string|max:255', 'portal_url' => 'nullable|url|max:500',
+            'driver' => ['nullable', 'string', 'max:40', function ($attr, $value, $fail) {
+                $bad = array_diff(array_map('trim', explode(',', $value)), array_keys(StateApprovalImporter::DRIVERS));
+                if ($bad) $fail('Unknown reader: ' . implode(', ', $bad) . '. Use: ' . implode(', ', array_keys(StateApprovalImporter::DRIVERS)) . '.');
+            }],
             'services_url' => 'nullable|url|max:500', 'policies_url' => 'nullable|url|max:500', 'acts_url' => 'nullable|url|max:500', 'is_active' => 'nullable|boolean']);
         $data['is_active'] = (bool) ($data['is_active'] ?? false);
         DB::table('state_approval_sources')->updateOrInsert(['state_id' => $state], $data + ['updated_at' => now(), 'created_at' => now()]);

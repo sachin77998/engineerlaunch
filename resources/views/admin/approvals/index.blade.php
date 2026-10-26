@@ -1,6 +1,7 @@
 @extends('admin.approvals.layout')
 @section('manager')
 <h1>State approvals</h1>
+<datalist id="sa-drivers">@foreach($drivers as $d)<option value="{{ $d }}">@endforeach<option value="nsws,policy_pages"></datalist>
 @foreach($rows as $r)
     <details class="im-panel" @if($r->services_count) open @endif>
         <summary><b>{{ $r->name }}</b> — {{ $r->portal_name ?: 'No portal set' }} · {{ number_format((int) $r->services_count) }} services @if($r->last_fetched_at)<span class="im-note">· {{ \Carbon\Carbon::parse($r->last_fetched_at)->format('d M Y H:i') }}: {{ $r->last_status }}</span>@endif</summary>
@@ -8,7 +9,7 @@
             <div class="im-grid">
                 <div><label>Portal name</label><input class="field" name="portal_name" value="{{ $r->portal_name }}" maxlength="255"></div>
                 <div><label>Portal URL</label><input class="field" name="portal_url" type="url" value="{{ $r->portal_url }}" maxlength="500"></div>
-                <div><label>Reader</label><select class="field" name="driver"><option value="">None (link only)</option>@foreach($drivers as $d)<option value="{{ $d }}" @selected($r->driver === $d)>{{ $d }}</option>@endforeach</select></div>
+                <div><label>Readers (comma-separated)</label><input class="field" name="driver" value="{{ $r->driver }}" maxlength="40" list="sa-drivers" placeholder="empty = link only"></div>
                 <div><label>Service list URL</label><input class="field" name="services_url" type="url" value="{{ $r->services_url }}" maxlength="500"></div>
                 <div><label>Policies URL</label><input class="field" name="policies_url" type="url" value="{{ $r->policies_url }}" maxlength="500"></div>
                 <div><label>Acts / rules URL</label><input class="field" name="acts_url" type="url" value="{{ $r->acts_url }}" maxlength="500"></div>

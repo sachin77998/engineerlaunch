@@ -12,7 +12,7 @@
     <h1>{{ $state->name }}</h1>
     <div class="sa-links">
         @if($source?->portal_url)<a href="{{ $source->portal_url }}" target="_blank" rel="noopener nofollow">{{ $source->portal_name ?: 'State single-window portal' }}</a>@endif
-        <a href="{{ $national[1] }}" target="_blank" rel="noopener nofollow">{{ $national[0] }}</a>
+        @if(rtrim((string) $source?->portal_url, '/') !== rtrim($national[1], '/'))<a href="{{ $national[1] }}" target="_blank" rel="noopener nofollow">{{ $national[0] }}</a>@endif
     </div>
 
     <nav class="sa-tabs">
