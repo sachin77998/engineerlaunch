@@ -18,7 +18,7 @@
     .sa-list li:first-child{border-top:0}.sa-list a.sa-name{font-weight:650;color:#10213e;text-decoration:none}.sa-list a.sa-name:hover{color:#1d4ed8;text-decoration:underline}
     .sa-sub{color:#526176;font-size:13px;margin-top:3px}.sa-right{flex:none;text-align:right;font-size:12.5px;color:#526176;white-space:nowrap}
     .sa-table{overflow-x:auto}.sa-table table{width:100%;border-collapse:collapse;font-size:14px}.sa-table th,.sa-table td{text-align:left;padding:9px 10px;border-top:1px solid #e5ecf5;vertical-align:top}
-    .sa-table th{font-size:12px;color:#526176;border-top:0;white-space:nowrap}
+    .sa-table th{font-size:12px;color:#526176;border-top:0;white-space:nowrap}.sa-table td:first-child{white-space:nowrap}
     .sa-req{font-weight:700;white-space:nowrap}.sa-req.y{color:#15803d}.sa-req.n{color:#64748b}.sa-req.c{color:#b45309}
     .sa-links{display:flex;flex-wrap:wrap;gap:8px}.sa-links a{border:1px solid #c7d6ea;border-radius:8px;padding:7px 12px;text-decoration:none;color:#173f80;font-size:13.5px;background:#f8fbff}
     .sa-kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;font-size:14px}.sa-kv span{display:block;font-size:12px;color:#526176}

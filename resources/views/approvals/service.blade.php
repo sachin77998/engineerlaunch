@@ -17,17 +17,25 @@
 
     <section class="sa-card sa-kv">
         <div><span>Department</span>{{ $service->department ?: '—' }}</div>
-        <div><span>Type</span>{{ $service->service_type ?: '—' }}</div>
-        <div><span>Stage</span>{{ implode(', ', $j($service->stages)) ?: '—' }}</div>
+        @if($service->service_type)<div><span>Type</span>{{ $service->service_type }}</div>@endif
+        @if($j($service->stages))<div><span>Stage</span>{{ implode(', ', $j($service->stages)) }}</div>@endif
+        @if($service->timeline)<div><span>Time limit</span>{{ $service->timeline }}</div>@endif
         <div><span>Applied</span>{{ $service->integration ?: '—' }}</div>
         @foreach(['Unit size' => 'unit_sizes', 'Business location' => 'locations', 'Risk / pollution category' => 'risk_categories', 'Investor type' => 'investor_types'] as $label => $col)
             @if($j($service->$col))<div><span>{{ $label }}</span>{{ implode(', ', $j($service->$col)) }}</div>@endif
         @endforeach
     </section>
 
-    @if($links)
+    @php($apply = $service->apply_url ?: $source?->portal_url)
+    @if($links || $apply)
         <div class="sa-links">@foreach($links as $label => $url)<a href="{{ $url }}" target="_blank" rel="noopener nofollow">{{ $label }}</a>@endforeach
-            @if($source?->portal_url)<a href="{{ $source->portal_url }}" target="_blank" rel="noopener nofollow">Apply on {{ $source->portal_name }}</a>@endif</div>
+            @if($apply)<a href="{{ $apply }}" target="_blank" rel="noopener nofollow">Apply on {{ $source?->portal_name ?: 'the state portal' }}</a>@endif</div>
+    @endif
+
+    @if($service->procedure)
+        <details class="sa-card"><summary style="font-weight:700;cursor:pointer">How to apply</summary>
+            <ol style="margin:12px 0 0;padding-left:20px;line-height:1.7">@foreach(preg_split('~\R~u', $service->procedure) as $step)@php($step = trim(preg_replace('~^\s*\d+[.)]\s*~', '', $step)))@if($step !== '')<li>{{ $step }}</li>@endif @endforeach</ol>
+        </details>
     @endif
 
     @if($items->isNotEmpty())

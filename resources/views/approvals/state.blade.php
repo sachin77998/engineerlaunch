@@ -45,7 +45,7 @@
             </div>
         </form>
 
-        @if($stageCounts->isNotEmpty())
+        @if($stageCounts->keys()->diff(['Other'])->isNotEmpty())
             <div>@foreach($stageCounts as $stage => $n)<a class="sa-pill {{ ($f['stage'] ?? '') === $stage ? 'on' : '' }}" href="{{ route('approvals.state', [$state->slug] + array_filter(array_merge($f, ['stage' => ($f['stage'] ?? '') === $stage ? null : $stage, 'tab' => null]))) }}">{{ $stage }} · {{ $n }}</a>@endforeach</div>
         @endif
 
@@ -61,7 +61,7 @@
                     @foreach($services as $s)
                         @php($c = $docCounts[$s->id] ?? null)
                         <li><div><a class="sa-name" href="{{ route('approvals.service', [$state->slug, $s->external_id]) }}">{{ $s->name }}</a>
-                                <div class="sa-sub">{{ $s->department }}@if($s->service_type) · {{ $s->service_type }}@endif</div>
+                                <div class="sa-sub">{{ $s->department }}@if($s->service_type) · {{ $s->service_type }}@endif @if($s->timeline) · {{ $s->timeline }}@endif</div>
                                 <div>@foreach(json_decode((string) $s->stages, true) ?: [] as $st)<span class="sa-pill grey">{{ $st }}</span>@endforeach</div></div>
                             <div class="sa-right">@if($c && ($c->checklist || $c->portal)){{ max((int) $c->checklist, (int) $c->portal) }} documents @elseif($s->checklist_url)<a href="{{ $s->checklist_url }}" target="_blank" rel="noopener nofollow">Checklist PDF</a>@endif</div></li>
                     @endforeach

@@ -95,16 +95,21 @@ class ChecklistParser
     private function item(string $text, bool $allMandatory, ?array $prev = null, ?string $section = null): array
     {
         $text = trim(preg_replace('~\s+~u', ' ', $text));
-        $mandatory = false;
+        $mandatory = false; $optional = false; $condition = null;
         if (preg_match('~\s*\((M|Mandatory)\)~i', $text)) { $mandatory = true; $text = trim(preg_replace('~\s*\((M|Mandatory)\)~i', '', $text)); }
-        $condition = null;
-        if (preg_match(self::CONDITION, $text, $m) && strlen($text) - strlen($m[0]) > 3) {
+        if (preg_match('~\s*\(\s*(Optional|Non[- ]?mandatory)\s*\)~i', $text)) { $optional = true; $text = trim(preg_replace('~\s*\(\s*(Optional|Non[- ]?mandatory)\s*\)~i', '', $text)); }
+        // "(Where applicable)" / "(if any)" anywhere in the line is the item's condition.
+        if (preg_match('~\s*\(\s*((?:where|if|as|wherever)\s+(?:applicable|any|required)[^)]*)\)\.?~i', $text, $m)) {
+            $condition = ucfirst(trim($m[1], ' .'));
+            $text = trim(str_replace($m[0], ' ', $text));
+        }
+        if (!$condition && preg_match(self::CONDITION, $text, $m) && strlen($text) - strlen($m[0]) > 3) {
             $condition = ucfirst(trim($m[1], ' ,.'));
             $text = trim(substr($text, 0, -strlen($m[0])), ' ,');
         }
         $condition ??= $section;
         $kind = $prev['kind'] ?? 'document';
-        $required = $kind === 'option' ? false : ($mandatory || $allMandatory ? true : ($condition && $condition !== $section ? false : null));
+        $required = $kind === 'option' || $optional ? false : ($mandatory || $allMandatory ? true : ($condition && $condition !== $section ? false : null));
         return ['kind' => $kind, 'name' => $text, 'condition' => $condition, 'group_label' => $prev['group_label'] ?? null, 'is_required' => $required];
     }
 

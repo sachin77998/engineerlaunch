@@ -325,7 +325,7 @@ Route::prefix('admin/industrial-areas')->middleware(['auth', 'admin'])->name('ad
 Route::prefix('state-approvals')->name('approvals.')->controller(\App\Http\Controllers\StateApprovalController::class)->group(function () {
     Route::get('/', 'index')->name('index');
     Route::get('/{stateSlug}', 'state')->name('state');
-    Route::get('/{stateSlug}/{externalId}', 'service')->where('externalId', '[0-9]+-[0-9]+')->name('service');
+    Route::get('/{stateSlug}/{externalId}', 'service')->where('externalId', '[A-Za-z0-9]+-[A-Za-z0-9]+')->name('service');
 });
 Route::middleware(['auth', 'admin'])->prefix('admin/state-approvals')->name('admin.approvals.')->controller(\App\Http\Controllers\AdminStateApprovalController::class)->group(function () {
     Route::get('/', 'index')->name('index');
