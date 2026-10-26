@@ -280,6 +280,7 @@ Route::middleware(['auth','admin'])->prefix('admin/methodology')->name('admin.me
     Route::post('/settings', 'settings')->name('settings');
     Route::post('/limits', 'limits')->name('limits');
     Route::post('/sectors/{id}', 'sector')->whereNumber('id')->name('sector');
+    Route::post('/agency/{id}', 'agency')->whereNumber('id')->name('agency');
     Route::post('/recompute', 'recompute')->name('recompute');
     Route::post('/reset', 'reset')->name('reset');
 });

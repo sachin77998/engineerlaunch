@@ -161,5 +161,30 @@ details.mt-card>summary{cursor:pointer;font-weight:700;font-size:15px;list-style
             </form>
         </details>
     @endforeach
+
+    @if($agencyCriteria->isNotEmpty())
+        <h2 style="font-size:17px;margin:20px 0 10px">Other agencies' sector criteria</h2>
+        @foreach($agencyCriteria as $c)
+            @php $fs = json_decode($c->factors, true) ?? []; @endphp
+            <details class="mt-card">
+                <summary>{{ $c->agency }} · {{ $c->name }} <span style="color:var(--muted);font-weight:500;font-size:13px">· applies to sector {{ $c->sector_key }}{{ $c->is_active ? '' : ' · off' }}</span></summary>
+                <p style="color:var(--muted);font-size:13px;margin:8px 0">{{ $c->criteria }}</p>
+                <form method="post" action="{{ route('admin.methodology.agency', $c->id) }}">@csrf
+                    <table class="mt-t"><thead><tr><th>Factor</th><th>Strong</th><th>Comfortable</th><th>Adequate</th><th>Moderate (Weak beyond)</th></tr></thead><tbody>
+                        @foreach($fs as $f)
+                            <tr><td style="min-width:240px">{{ $f['label'] }}<div style="color:var(--muted);font-size:12px">{{ ucfirst($f['group']) }}{{ isset($f['dir']) ? ' · ' . ($f['dir'] === 'up' ? 'higher is better' : 'lower is better') : ' · qualitative' }}</div></td>
+                                @if(isset($f['band']))
+                                    @for($i = 0; $i < 4; $i++)<td><input class="n" type="number" step="any" name="band[{{ $f['key'] }}][{{ $i }}]" value="{{ old("band.{$f['key']}.$i", $f['band'][$i]) }}"></td>@endfor
+                                @else
+                                    <td colspan="4" style="color:var(--muted);font-size:12.5px">Strongest: {{ $f['strongest'] ?? '—' }}<br>Weakest: {{ $f['weakest'] ?? '—' }}</td>
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody></table>
+                    <div style="margin-top:12px;display:flex;gap:14px;align-items:center"><label><input type="checkbox" name="is_active" value="1" @checked($c->is_active)> Show this grid on company pages</label><button class="mt-btn">Save {{ $c->agency }} {{ $c->name }}</button></div>
+                </form>
+            </details>
+        @endforeach
+    @endif
 </div>
 @endsection

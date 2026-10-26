@@ -21,6 +21,8 @@ class AssessCompanies extends Command
     {
         if ($this->option('seed-methodology')) {
             $n = $methodology->seed((bool) $this->option('reset'));
+            // Other agencies' sector criteria (config/icra_methodology.php).
+            $n += app(\App\Services\Insights\AgencyCriteria::class)->seed((bool) $this->option('reset'));
             // New or refreshed methodology rows: stored assessments are recomputed on view or by the nightly run.
             if ($n) DB::table('company_credit_assessments')->update(['computed_at' => null]);
             $this->info("Methodology tables seeded ($n rows written).");

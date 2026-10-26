@@ -64,6 +64,39 @@
         </div>
     @endif
 
+    @foreach($a['agency_criteria'] ?? [] as $g)
+        @php
+            $grades = \App\Services\Insights\AgencyCriteria::GRADES;
+            $gColor = [5 => '#16a34a', 4 => '#65a30d', 3 => '#eab308', 2 => '#f97316', 1 => '#dc2626'];
+            $gv = fn ($f) => $f['value'] === null ? '—' : ($f['unit'] === '%' ? number_format($f['value'], 1) . '%' : ($f['unit'] === 'x' ? number_format($f['value'], 2) . '×' : ($f['unit'] === '₹ cr' ? '₹' . number_format($f['value'], 0) . ' cr' : $f['value'])));
+            $groupNames = ['industry' => 'Industry risk', 'business' => 'Business risk', 'financial' => 'Financial risk'];
+        @endphp
+        <h3>{{ $g['agency'] }} factor grid · {{ $g['name'] }}</h3>
+        <p class="ci-muted" style="font-size:12.5px;margin:0 0 8px">{{ $g['criteria'] }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+            @foreach($g['groups'] as $gk => $gs)
+                <span style="border:1px solid #e3e9f2;border-radius:999px;padding:4px 12px;font-size:13px">{{ $groupNames[$gk] }}: <b style="color:{{ $gs['grade'] ? $gColor[$gs['grade']] : '#64748b' }}">{{ $gs['grade'] ? $grades[$gs['grade']] : 'Not graded' }}</b> <span class="ci-muted">({{ $gs['graded'] }} of {{ $gs['of'] }} factors)</span></span>
+            @endforeach
+        </div>
+        <div style="overflow-x:auto"><table class="ci-table"><thead><tr><th>Factor</th><th style="text-align:right">Company</th>@foreach($grades as $gi => $gname)<th style="text-align:center;font-size:11.5px">{{ $gname }}</th>@endforeach</tr></thead><tbody>
+        @foreach($g['factors'] as $f)
+            <tr><td style="white-space:normal;min-width:220px">{{ $f['label'] }}<small class="ci-muted" style="display:block;font-size:11.5px">{{ $groupNames[$f['group']] }}{{ $f['sub'] ? ' · ' . $f['sub'] : '' }}{{ $f['source'] ? ' · ' . $f['source'] : '' }}</small></td>
+                <td style="text-align:right;white-space:nowrap"><b>{{ $f['qualitative'] ? 'Analyst view' : $gv($f) }}</b>@if($f['grade'])<small style="display:block;font-size:11.5px;color:{{ $gColor[$f['grade']] }}">{{ $grades[$f['grade']] }}</small>@endif</td>
+                @foreach($grades as $gi => $gname)
+                    <td style="text-align:center" title="{{ $gi === 5 ? 'Strongest: ' . $f['strongest'] : ($gi === 1 ? 'Weakest: ' . $f['weakest'] : '') }}">@if($f['grade'] === $gi)<span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:{{ $gColor[$gi] }}"></span>@elseif($f['band'] && $gi >= 2)<span class="ci-muted" style="font-size:11px">{{ $f['dir'] === 'up' ? '≥' : '≤' }}{{ rtrim(rtrim(number_format($f['band'][5 - $gi], 2), '0'), '.') }}</span>@endif</td>
+                @endforeach
+            </tr>
+        @endforeach
+        </tbody></table></div>
+        <div style="overflow-x:auto;margin-top:8px"><table class="ci-table"><thead><tr><th>Do these factors enhance or hinder the credit profile?</th><th>Effect</th></tr></thead><tbody>
+            @foreach($g['adjustments'] as $x)
+                <tr><td style="white-space:normal">{{ $x['label'] }}@if($x['why'])<small class="ci-muted" style="display:block;font-size:11.5px">{{ $x['why'] }}</small>@endif</td>
+                    <td style="white-space:nowrap;color:{{ $x['effect'] === 'Enhance' ? '#16a34a' : ($x['effect'] === 'Hinder' ? '#dc2626' : '#475569') }}"><b>{{ $x['effect'] ?? 'Analyst view' }}</b></td></tr>
+            @endforeach
+        </tbody></table></div>
+        <p class="ci-muted" style="font-size:12px;margin-top:6px">Company figures placed on {{ $g['agency'] }}'s published factor scale; {{ $g['agency'] }} ratings are decided by its rating committee, so this is not an {{ $g['agency'] }} rating.</p>
+    @endforeach
+
     @if(!empty($a['instruments']))
         <h3>Instrument ratings</h3>
         <div style="overflow-x:auto"><table class="ci-table"><thead><tr><th>Instrument</th><th>Type</th><th style="text-align:right">Rated</th><th style="text-align:right">Per criteria</th><th>Basis</th></tr></thead><tbody>

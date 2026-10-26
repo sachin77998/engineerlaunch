@@ -23,7 +23,7 @@ class CareAssessment
 {
     private const LIQUIDITY = ['Superior', 'Strong', 'Adequate', 'Stretched', 'Poor'];
 
-    public function __construct(private CreditOutlookModel $outlook, private Methodology $m) {}
+    public function __construct(private CreditOutlookModel $outlook, private Methodology $m, private AgencyCriteria $criteria) {}
 
     public function build(Company $company, bool $full = true): ?array
     {
@@ -77,7 +77,13 @@ class CareAssessment
         [$final, $adjustments] = $standalone ? $this->overlays($standalone, $company, $ratings, $funding, $info) : [null, []];
         $checks = $this->checks($sector['checks'] ?? [], $years, $ratios, $funding, $company, $sectorKey, $kpi, $ratings);
         $instruments = $this->instruments($sectorKey, $ratings, $final);
+        $agencyCriteria = [];
+        if ($full && ($defs = $this->criteria->forSector($sectorKey))) {
+            [$metrics, $sources] = $this->criteriaMetrics($ratios, $kpi, $years, $ratings, $liquidity, $adjustments);
+            foreach ($defs as $c) $agencyCriteria[] = $this->criteria->evaluate($c, $metrics, $sources);
+        }
         return [
+            'agency_criteria' => $agencyCriteria,
             'sector_key' => $sectorKey, 'sector' => $sector['name'], 'criteria' => $sector['criteria'], 'notes' => $sector['notes'] ?? [],
             'basis' => $basis, 'full' => $full, 'year' => $years->last()?->financial_year,
             'rows' => $full ? $rows : [], 'pillars' => $full ? $pillars : [], 'score' => $score,
@@ -198,6 +204,51 @@ class CareAssessment
             $r['premium_net_worth'] = $this->x($div($toi, $tnw));
         }
         return $r;
+    }
+
+    /**
+     * Figures for other agencies' factor grids: the ratios above, RoCE volatility over up to five years (standard
+     * deviation / mean), and concentration shares stated in the rating rationales (largest customer, export split,
+     * aftermarket share, largest vehicle segment).
+     */
+    private function criteriaMetrics(array $ratios, array $kpi, Collection $years, Collection $ratings, array $liquidity, array $adjustments): array
+    {
+        $m = $ratios + $kpi['values'];
+        $sources = $kpi['source'];
+        $roce = $years->take(-5)->map(function ($y) {
+            $debt = $y->total_debt ?? ((float) $y->long_term_borrowings + (float) $y->short_term_borrowings);
+            $ce = (float) $y->net_worth + (float) $debt;
+            $pbit = $y->ebitda !== null ? (float) $y->ebitda - (float) $y->depreciation + (float) $y->other_income : null;
+            return $ce > 0 && $pbit !== null ? $pbit / $ce * 100 : null;
+        // Above 100% means the year's balance sheet is incomplete (e.g. net worth filed as share capital only), not real returns.
+        })->filter(fn ($v) => $v !== null && abs($v) <= 100)->values();
+        if ($roce->count() >= 3 && $roce->avg() > 0) {
+            $mean = $roce->avg();
+            $m['roce_volatility'] = round(sqrt($roce->map(fn ($v) => ($v - $mean) ** 2)->sum() / $roce->count()) / $mean * 100, 1);
+            $sources['roce_volatility'] = 'Calculated: RoCE over ' . $roce->count() . ' years (standard deviation ÷ mean)';
+        }
+        $flat = fn ($v) => is_array($v) ? implode(' ', \Illuminate\Support\Arr::flatten($v)) : (string) $v;
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            if ($text === '') continue;
+            $src = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
+            $share = '[^.;%]{0,60}?(\d{1,3}(?:\.\d+)?)\s?%';
+            if (!isset($m['largest_customer_share']) && preg_match('~(?:single largest|largest|principal|top|biggest) (?:customer|client|OEM)(?!s)\b' . $share . '~i', $text, $x) && $x[1] <= 100) { $m['largest_customer_share'] = (float) $x[1]; $sources['largest_customer_share'] = $src; }
+            if (!isset($m['largest_region_share']) && preg_match('~exports?(?: revenues?| sales| markets?)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x) && $x[1] <= 100) {
+                $m['largest_region_share'] = max((float) $x[1], 100 - (float) $x[1]); $sources['largest_region_share'] = $src . ' (domestic vs export split)';
+            }
+            if (!isset($m['aftermarket_share']) && preg_match('~(?:aftermarket|after-market|replacement)(?: segment| market| sales| business)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x) && $x[1] <= 100) { $m['aftermarket_share'] = (float) $x[1]; $sources['aftermarket_share'] = $src; }
+            // Several segments may be named; the largest share is the concentration figure.
+            if (!isset($m['largest_segment_share']) && preg_match_all('~(?:passenger vehicles?|\bPVs?\b|commercial vehicles?|\bM&HCVs?\b|\bCVs?\b|two[- ]wheelers?|\b2Ws?\b|tractors?|three[- ]wheelers?)(?: segment| OEMs?)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x)) {
+                $v = collect($x[1])->map(fn ($s) => (float) $s)->filter(fn ($s) => $s <= 100)->max();
+                if ($v !== null) { $m['largest_segment_share'] = $v; $sources['largest_segment_share'] = $src; }
+            }
+        }
+        $m['liquidity'] = $liquidity['level'] ?? null;
+        $support = collect($adjustments)->first(fn ($a) => str_contains($a['why'], 'funding support'));
+        $m['parent_support'] = (bool) $support;
+        $m['parent_support_why'] = $support['why'] ?? null;
+        return [$m, $sources];
     }
 
     private function pct(?float $v): ?float { return $v === null ? null : round($v * 100, 2); }
@@ -660,6 +711,7 @@ class CareAssessment
                 'agency_rating' => $a['agency']['rating'] ?? null, 'agency_gap' => $a['agency']['gap'] ?? null, 'information_score' => $a['information']['score'],
                 'pillars' => $j($a['pillars']), 'rows' => $j(array_values($a['rows'])), 'checks' => $j($a['checks']), 'instruments' => $j($a['instruments']), 'adjustments' => $j($a['adjustments']),
                 'policy' => $j($a['policy']), 'outlook' => $j($a['outlook']), 'information' => $j($a['information']), 'liquidity_detail' => $j($a['liquidity']), 'agency' => $j($a['agency']),
+                'agency_criteria' => $j($a['agency_criteria']),
                 'computed_at' => $now, 'updated_at' => $now, 'created_at' => $now,
             ]);
         });
@@ -696,6 +748,7 @@ class CareAssessment
             'checks' => $full ? ($d($row->checks) ?? []) : [], 'instruments' => $d($row->instruments ?? null) ?? [], 'agency' => $agency, 'policy' => $policy ?? [],
             'outlook' => $outlook ?? ['direction' => $row->direction, 'agency' => null, 'probability' => null, 'watch' => null],
             'information' => $d($row->information) ?? ['score' => 0, 'missing' => []],
+            'agency_criteria' => $full ? ($d($row->agency_criteria ?? null) ?? []) : [],
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Insights\AgencyCriteria;
 use App\Services\Insights\Methodology;
 use App\Services\Insights\RatingRationaleParser;
 use Illuminate\Http\Request;
@@ -16,10 +17,12 @@ class AdminMethodologyController extends Controller
         'capital_cushion', 'ccb_restriction', 'rapid_growth', 'off_book', 'solvency_cushion', 'reit_leverage', 'market_dependence', 'offtaker_receivables', 'payables_to_gencos', 'refinancing'];
     private const PILLARS = ['business', 'financial', 'liquidity', 'management'];
 
-    public function index(Methodology $m)
+    public function index(Methodology $m, AgencyCriteria $criteria)
     {
         $m->sectors();   // seeds the tables on first visit
+        $criteria->all();
         return view('admin.methodology', [
+            'agencyCriteria' => \Illuminate\Support\Facades\Schema::hasTable('credit_agency_criteria') ? DB::table('credit_agency_criteria')->orderBy('agency')->orderBy('name')->get() : collect(),
             'ratios' => DB::table('credit_methodology_ratios')->orderBy('sort_order')->get(),
             'sectors' => DB::table('credit_methodology_sectors')->orderBy('match_order')->get(),
             'settings' => DB::table('credit_methodology_settings')->pluck('value', 'key')->map(fn ($v) => json_decode($v, true)),
@@ -111,6 +114,27 @@ class AdminMethodologyController extends Controller
             \Illuminate\Support\Facades\Artisan::call('mf:portfolios', ['--rescore' => true]);
         }
         return $this->saved($m, 'Regulatory limits and instrument notching saved.');
+    }
+
+    /** Another agency's sector criteria: the five-step cut points of each graded factor and whether the grid is shown. */
+    public function agency(Request $r, int $id, Methodology $m, AgencyCriteria $criteria)
+    {
+        $row = DB::table('credit_agency_criteria')->where('id', $id)->first() ?? abort(404);
+        $data = $r->validate(['band' => 'nullable|array', 'band.*' => 'array|size:4', 'band.*.*' => 'required|numeric']);
+        $factors = json_decode($row->factors, true);
+        foreach ($factors as &$f) {
+            if (!isset($f['band'], $data['band'][$f['key']])) continue;
+            $band = array_map('floatval', array_values($data['band'][$f['key']]));
+            $sorted = $band; ($f['dir'] ?? 'up') === 'up' ? rsort($sorted) : sort($sorted);
+            if ($sorted !== $band) return back()->withErrors(["Cut points for '{$f['label']}' must run from Strong to Weak (" . (($f['dir'] ?? 'up') === 'up' ? 'highest first' : 'lowest first') . ').'])->withInput();
+            $f['band'] = $band;
+            $f['strongest_value'] = $band[0];
+            $f['weakest_value'] = $band[3];
+        }
+        unset($f);
+        DB::table('credit_agency_criteria')->where('id', $id)->update(['factors' => json_encode($factors, JSON_UNESCAPED_UNICODE), 'is_active' => $r->boolean('is_active'), 'updated_at' => now()->addSecond()]);
+        $criteria->flush();
+        return $this->saved($m, "{$row->agency} {$row->name} criteria saved.");
     }
 
     /** Owner edits keep the original created_at, so the seeder can tell them apart from untouched defaults. */
