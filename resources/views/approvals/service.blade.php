@@ -75,7 +75,30 @@
         </section>
     @endif
 
-    @if($items->isEmpty() && $notes->isEmpty() && $portalDocs->isEmpty())
+    @php($mDocs = $manual->where('kind', 'document'))
+    @php($mNotes = $manual->where('kind', 'note'))
+    @php($mSteps = $manual->where('kind', 'step')->values())
+    @if($mDocs->isNotEmpty())
+        <section class="sa-card"><h2>Documents to upload (department's user manual)</h2>
+            <div class="sa-table"><table>
+                <thead><tr><th>#</th><th>Document</th><th>Required</th></tr></thead>
+                <tbody>@foreach($mDocs->values() as $i => $d)
+                    <tr><td>{{ $i + 1 }}</td><td>{{ $d->name }}@if($d->condition)<div class="sa-sub">{{ $d->condition }}</div>@endif</td>
+                        <td><span class="sa-req {{ $d->is_required ? 'y' : ($d->condition ? 'c' : '') }}">{{ $d->is_required ? 'Mandatory' : ($d->condition ? 'If applicable' : 'Optional') }}</span></td></tr>
+                @endforeach</tbody>
+            </table></div>
+            @if($service->sop_url)<p class="sa-sub" style="margin:10px 0 0">Source: <a href="{{ $service->sop_url }}" target="_blank" rel="noopener nofollow">department user manual</a></p>@endif
+        </section>
+    @endif
+    @if($mNotes->isNotEmpty())
+        <section class="sa-card"><h2>Before you apply</h2><ul style="margin:0;padding-left:18px;line-height:1.7">@foreach($mNotes as $nt)<li>{{ $nt->name }}</li>@endforeach</ul></section>
+    @endif
+    @if($mSteps->isNotEmpty())
+        <section class="sa-card"><h2>How the application moves</h2>
+            <ol style="margin:0;padding-left:20px;line-height:1.7">@foreach($mSteps as $st)<li><strong>{{ $st->group_label }}</strong> — {{ $st->name }}</li>@endforeach</ol></section>
+    @endif
+
+    @if($items->isEmpty() && $notes->isEmpty() && $portalDocs->isEmpty() && $manual->isEmpty())
         <section class="sa-card">The department has not published a document list for this approval.@if($service->checklist_url) <a href="{{ $service->checklist_url }}" target="_blank" rel="noopener nofollow">Open the checklist PDF</a>.@endif</section>
     @endif
 

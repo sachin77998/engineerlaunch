@@ -31,6 +31,8 @@ class FetchStateApprovals extends Command
             $this->line('  → ' . $r['status']);
         }
         if ($sources->isEmpty()) $this->warn('No active state portal with a reader matched.');
+        // Documents and steps from department manuals are kept up to date with the config after every fetch.
+        $this->info('Manual-sourced services refreshed: ' . app(\App\Services\Approvals\ManualApprovals::class)->apply());
         return self::SUCCESS;
     }
 }

@@ -52,7 +52,7 @@ class StateApprovalController extends Controller
         $stageCounts = (clone $query)->get(['stages'])->flatMap(fn ($r) => json_decode((string) $r->stages, true) ?: ['Other'])->countBy()->sortDesc();
         $services = $query->orderBy('department')->orderBy('name')->paginate(40)->withQueryString();
         $docCounts = DB::table('state_approval_documents')->whereIn('service_id', $services->pluck('id'))->whereIn('kind', ['document', 'option', 'noc'])
-            ->groupBy('service_id')->selectRaw('service_id, SUM(source = \'checklist\') as checklist, SUM(source = \'portal\') as portal')->get()->keyBy('service_id');
+            ->groupBy('service_id')->selectRaw('service_id, SUM(source = \'checklist\') as checklist, SUM(source = \'portal\') as portal, SUM(source = \'manual\') as manual')->get()->keyBy('service_id');
 
         $policies = DB::table('state_policies')->where('state_id', $state->id)->where('is_active', true)->orderBy('kind')->orderBy('title')->get()
             ->groupBy(fn ($p) => $p->kind . '|' . $p->title)->map(fn ($g) => (object) ['kind' => $g[0]->kind, 'title' => $g[0]->title, 'department' => $g[0]->department, 'links' => $g])->groupBy('kind');
@@ -69,6 +69,6 @@ class StateApprovalController extends Controller
         $related = DB::table('state_approval_services')->where('state_id', $state->id)->where('is_active', true)->where('department', $service->department)
             ->where('id', '!=', $service->id)->orderBy('name')->limit(12)->get(['external_id', 'name']);
 
-        return view('approvals.service', ['state' => $state, 'service' => $service, 'checklist' => $docs['checklist'] ?? collect(), 'portalDocs' => $docs['portal'] ?? collect(), 'source' => $source, 'related' => $related]);
+        return view('approvals.service', ['state' => $state, 'service' => $service, 'checklist' => $docs['checklist'] ?? collect(), 'portalDocs' => $docs['portal'] ?? collect(), 'manual' => $docs['manual'] ?? collect(), 'source' => $source, 'related' => $related]);
     }
 }
