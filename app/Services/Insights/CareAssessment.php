@@ -78,7 +78,7 @@ class CareAssessment
         $checks = $this->checks($sector['checks'] ?? [], $years, $ratios, $funding, $company, $sectorKey, $kpi, $ratings);
         $instruments = $this->instruments($sectorKey, $ratings, $final);
         $agencyCriteria = [];
-        if ($full && ($defs = $this->criteria->forSector($sectorKey))) {
+        if ($full && ($defs = $this->criteria->forSector($sectorKey, trim($company->industry . ' ' . $company->name)))) {
             [$metrics, $sources] = $this->criteriaMetrics($ratios, $kpi, $years, $ratings, $liquidity, $adjustments);
             foreach ($defs as $c) $agencyCriteria[] = $this->criteria->evaluate($c, $metrics, $sources);
         }
@@ -256,6 +256,24 @@ class CareAssessment
             if (!isset($m['largest_state_share']) && preg_match_all('~(?:' . $states . ')(?:[^.;%]{0,35}?)(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,40}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x)) {
                 $v = collect($x[1])->map(fn ($s) => (float) $s)->filter(fn ($s) => $s <= 100)->max();
                 if ($v !== null) { $m['largest_state_share'] = $v; $sources['largest_state_share'] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
+            }
+        }
+        // IT services: top-5 client share, repeat business, attrition, and the largest vertical and geography (largest named share).
+        $said = '(?:[^.;%]{0,35}?)(?:accounted for|contributed|constituted|formed|comprised|stood at|was at)[^.;%]{0,40}?(\d{1,3}(?:\.\d+)?)\s?%';
+        $it = [
+            'top5_client_share' => '~top[- ](?:5|five) (?:clients?|customers?|accounts?)' . $said . '~i',
+            'repeat_revenue_share' => '~(?:repeat (?:business|revenues?|clients?|orders?)|existing clients)' . $said . '~i',
+            'attrition' => '~attrition(?: rate| levels?)?[^.;%]{0,40}?(\d{1,2}(?:\.\d+)?)\s?%~i',
+            'largest_vertical_share' => '~(?:\bBFSI\b|banking,? financial services|financial services|healthcare|life sciences|retail|telecom(?:munications)?|hi-tech|technology vertical|manufacturing vertical|energy (?:and|&) utilities|travel|insurance vertical)(?: vertical| segment| clients| industry)?\b' . $said . '~i',
+            'largest_geography_share' => '~(?:North America|the Americas|\bUSA?\b|\bU\.S\.|United States|Europe|\bUK\b|United Kingdom|Rest of (?:the )?World|Asia[- ]Pacific|\bAPAC\b|\bEMEA\b|Middle East|India|domestic (?:market|clients|revenues?))(?: region| market| geography)?\b' . $said . '~',
+        ];
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            foreach ($it as $k => $re) {
+                if (isset($m[$k]) || !preg_match_all($re, $text, $x)) continue;
+                $vals = collect($x[1])->map(fn ($s) => (float) $s)->filter(fn ($s) => $s > 0 && $s <= 100);
+                $v = in_array($k, ['largest_vertical_share', 'largest_geography_share']) ? $vals->max() : $vals->first();
+                if ($v !== null) { $m[$k] = $v; $sources[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
             }
         }
         $m['liquidity'] = $liquidity['level'] ?? null;

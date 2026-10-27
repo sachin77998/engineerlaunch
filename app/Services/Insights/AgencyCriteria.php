@@ -20,7 +20,7 @@ class AgencyCriteria
     {
         return ($group === 'liquidity' ? self::LIQUIDITY_GRADES : self::GRADES)[$grade];
     }
-    private const CACHE = 'agency-criteria:v1';
+    private const CACHE = 'agency-criteria:v2';
 
     /** Five-step cut points [strongest, c1, c2, weakest]; the middle two are spaced evenly (linear or on a ratio scale). */
     public static function band(float $strongest, float $weakest, string $spacing = 'linear'): array
@@ -47,7 +47,7 @@ class AgencyCriteria
         foreach (config('icra_methodology', []) as $key => $c) {
             $factors = array_map(fn ($f) => isset($f['strongest_value'], $f['weakest_value'])
                 ? $f + ['band' => self::band((float) $f['strongest_value'], (float) $f['weakest_value'], $f['spacing'] ?? 'linear')] : $f, $c['factors']);
-            $values = ['agency' => $c['agency'], 'sector_key' => $c['sector_key'], 'name' => $c['name'], 'criteria' => $c['criteria'], 'published_on' => $c['published_on'] ?? null,
+            $values = ['agency' => $c['agency'], 'sector_key' => $c['sector_key'], 'applies_if' => $c['applies_if'] ?? null, 'name' => $c['name'], 'criteria' => $c['criteria'], 'published_on' => $c['published_on'] ?? null,
                 'factors' => json_encode($factors, JSON_UNESCAPED_UNICODE), 'adjustments' => json_encode($c['adjustments'] ?? [], JSON_UNESCAPED_UNICODE),
                 'notes' => json_encode($c['notes'] ?? [], JSON_UNESCAPED_UNICODE), 'is_active' => true];
             $row = DB::table('credit_agency_criteria')->where('key', $key)->first();
@@ -72,16 +72,18 @@ class AgencyCriteria
         return Cache::rememberForever(self::CACHE, function () {
             if (!DB::table('credit_agency_criteria')->exists()) $this->seed();
             return DB::table('credit_agency_criteria')->where('is_active', true)->orderBy('agency')->orderBy('name')->get()->map(fn ($r) => [
-                'id' => $r->id, 'key' => $r->key, 'agency' => $r->agency, 'sector_key' => $r->sector_key, 'name' => $r->name, 'criteria' => $r->criteria,
+                'id' => $r->id, 'key' => $r->key, 'agency' => $r->agency, 'sector_key' => $r->sector_key, 'applies_if' => $r->applies_if ?? null, 'name' => $r->name, 'criteria' => $r->criteria,
                 'published_on' => $r->published_on, 'factors' => json_decode($r->factors, true) ?: [], 'adjustments' => json_decode((string) $r->adjustments, true) ?: [],
                 'notes' => json_decode((string) $r->notes, true) ?: [],
             ])->all();
         });
     }
 
-    public function forSector(string $sectorKey): array
+    /** @param string $about the company's industry and name, matched against a narrower paper's applies_if pattern */
+    public function forSector(string $sectorKey, string $about = ''): array
     {
-        return array_values(array_filter($this->all(), fn ($c) => $c['sector_key'] === $sectorKey));
+        return array_values(array_filter($this->all(), fn ($c) => $c['sector_key'] === $sectorKey
+            && (empty($c['applies_if']) || @preg_match($c['applies_if'], $about) === 1)));
     }
 
     /**
