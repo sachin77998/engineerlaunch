@@ -267,7 +267,7 @@ class NseData
         $base = Str::limit(Str::slug($listed->name), 200, '') ?: Str::slug($listed->symbol);
         $slug = $base;
         for ($n = 2; Company::where('slug', $slug)->exists(); $n++) $slug = $base . '-' . $n;
-        $company = Company::create(['name' => $listed->name, 'slug' => $slug, 'country' => 'India', 'industry' => $sector, 'sector' => $subsector, 'is_active' => true, 'sync_enabled' => false]);
+        $company = Company::create(['name' => Company::tidyName($listed->name), 'slug' => $slug, 'country' => 'India', 'industry' => $sector, 'sector' => $subsector, 'is_active' => true, 'sync_enabled' => false]);
         app(\App\Services\SectorCatalogImporter::class)->attach($company, $sector, $subsector);
         return $company;
     }

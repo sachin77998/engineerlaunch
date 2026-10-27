@@ -55,6 +55,24 @@ class Company extends Model
         'brands' => 'array',
     ];
 
+    /** Registry capitals ("BIRLASOFT LIMITED") as a display name ("Birlasoft Limited"); brand spellings such as "ABBYY" are kept. */
+    public static function tidyName(string $name): string
+    {
+        $name = trim(preg_replace('/\s+/', ' ', $name));
+        if (preg_match('/\p{Ll}/u', $name) || !preg_match('/ (?:LIMITED|LTD\.?|PVT\.?|PRIVATE|LLP|LLC|INC\.?|GMBH|CORPORATION|COMPANY|CO\.)$/u', $name)) return $name;
+        return preg_replace_callback('/[\p{L}\p{N}][\p{L}\p{N}\'.]*/u', function ($m) {
+            $w = $m[0];
+            return match (true) {
+                in_array($w, ['LTD', 'LTD.', 'PVT', 'PVT.'], true) => ucfirst(strtolower($w)),
+                in_array($w, ['LLP', 'LLC', 'PLC'], true) => $w,
+                $w === 'GMBH' => 'GmbH',
+                // Short tokens without a vowel are initials ("TVS", "HCL"); keep them in capitals.
+                mb_strlen($w) <= 4 && !preg_match('/[AEIOU]/', $w) => $w,
+                default => mb_convert_case(mb_strtolower($w), MB_CASE_TITLE),
+            };
+        }, $name);
+    }
+
     /** Name without legal suffixes and punctuation, so registry, catalog and feed spellings match. */
     public static function nameKey(?string $name): string
     {
