@@ -141,9 +141,9 @@ Route::prefix('company-experiences')->name('company.experiences.')->group(functi
 
 Route::middleware('guest')->group(function () {
     Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'requestForm'])->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
+    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'email'])->middleware('throttle:password-email')->name('password.email');
     Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'resetForm'])->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
+    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->middleware('throttle:password-update')->name('password.update');
 });
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
@@ -202,14 +202,14 @@ Route::get('/recommendations/jobs', [\App\Http\Controllers\RecommendationControl
 Route::post('/assistant/jobs', [\App\Http\Controllers\JobAssistantController::class, 'recommend'])->name('assistant.jobs');
 
 Route::post('/practice/run', [PracticeController::class, 'run'])->middleware(['auth', 'throttle:20,1'])->name('practice.run');
-Route::middleware('guest')->group(function(){Route::get('/register',[AuthController::class,'registerForm'])->name('register');Route::post('/register',[AuthController::class,'register'])->name('register.store')->middleware('throttle:5,1');Route::get('/login',[AuthController::class,'loginForm'])->name('login');Route::post('/login',[AuthController::class,'login'])->name('login.store')->middleware('throttle:10,1');Route::get('/verify-otp',[AuthController::class,'otpForm'])->name('otp.form');Route::post('/verify-otp',[AuthController::class,'verify'])->name('otp.verify')->middleware('throttle:6,1');Route::post('/verify-otp/resend',[AuthController::class,'resendOtp'])->name('otp.resend')->middleware('throttle:3,1');});
+Route::middleware('guest')->group(function(){Route::get('/register',[AuthController::class,'registerForm'])->name('register');Route::post('/register',[AuthController::class,'register'])->name('register.store')->middleware('throttle:signup');Route::get('/login',[AuthController::class,'loginForm'])->name('login');Route::post('/login',[AuthController::class,'login'])->name('login.store')->middleware('throttle:login');Route::get('/verify-otp',[AuthController::class,'otpForm'])->name('otp.form');Route::post('/verify-otp',[AuthController::class,'verify'])->name('otp.verify')->middleware('throttle:otp-verify');Route::post('/verify-otp/resend',[AuthController::class,'resendOtp'])->name('otp.resend')->middleware('throttle:otp-resend');});
 Route::get('/employers/register',[EmployerRegistrationController::class,'create'])->middleware('guest')->name('employer.register');
-Route::post('/employers/register',[EmployerRegistrationController::class,'store'])->middleware(['guest','throttle:5,1'])->name('employer.register.store');
-Route::post('/employers/phone-otp',[EmployerRegistrationController::class,'sendPhoneOtp'])->middleware(['guest','throttle:4,1'])->name('employer.phone.send');
-Route::post('/employers/phone-otp/verify',[EmployerRegistrationController::class,'verifyPhoneOtp'])->middleware(['guest','throttle:8,1'])->name('employer.phone.verify');
+Route::post('/employers/register',[EmployerRegistrationController::class,'store'])->middleware(['guest','throttle:signup'])->name('employer.register.store');
+Route::post('/employers/phone-otp',[EmployerRegistrationController::class,'sendPhoneOtp'])->middleware(['guest','throttle:otp-resend'])->name('employer.phone.send');
+Route::post('/employers/phone-otp/verify',[EmployerRegistrationController::class,'verifyPhoneOtp'])->middleware(['guest','throttle:otp-verify'])->name('employer.phone.verify');
 Route::view('/students/login','auth.student-login')->middleware('guest')->name('student.login');
 Route::get('/students/register',[AuthController::class,'registerForm'])->middleware('guest')->name('student.register');
-Route::post('/students/register',[AuthController::class,'register'])->middleware(['guest','throttle:5,1'])->name('student.register.store');
+Route::post('/students/register',[AuthController::class,'register'])->middleware(['guest','throttle:signup'])->name('student.register.store');
 Route::get('/employers/login',[AuthController::class,'employerLoginForm'])->middleware('guest')->name('employer.login');
 Route::get('/owner/login',[AuthController::class,'ownerLoginForm'])->middleware('guest')->name('owner.login');
 Route::middleware('auth')->group(function(){Route::get('/dashboard',[CandidateProfileController::class,'dashboard'])->name('dashboard');Route::put('/profile',[CandidateProfileController::class,'update'])->name('candidate.profile.update');Route::patch('/profile/guidance',[CandidateProfileController::class,'updateGuidance'])->name('candidate.profile.guidance');Route::post('/profile/resume',[CandidateProfileController::class,'uploadResume'])->name('candidate.resume.upload');Route::post('/logout',[AuthController::class,'logout'])->name('logout');});

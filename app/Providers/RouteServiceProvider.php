@@ -57,6 +57,15 @@ class RouteServiceProvider extends ServiceProvider
 
         // Company report downloads build a PDF / workbook per request.
         RateLimiter::for('reports', fn (Request $request) => Limit::perMinute(10)->by('reports:' . ($request->user()?->id ?: $request->ip())));
+        // Sign-in steps each have their own counter (unnamed throttle:N,1 limits share one per-IP counter across routes, so a
+        // normal sign-up — register, a mistyped code, resend — tripped the 3/min resend limit). Keyed per address and email.
+        $who = fn (Request $request) => $request->ip() . '|' . mb_strtolower((string) ($request->input('email') ?? session('pending_registration.email') ?? ''));
+        RateLimiter::for('login', fn (Request $request) => [Limit::perMinute(10)->by('login:' . $who($request)), Limit::perMinute(40)->by('login-ip:' . $request->ip())]);
+        RateLimiter::for('signup', fn (Request $request) => [Limit::perMinute(6)->by('signup:' . $request->ip()), Limit::perHour(30)->by('signup-h:' . $request->ip())]);
+        RateLimiter::for('otp-verify', fn (Request $request) => Limit::perMinute(12)->by('otp-verify:' . $who($request)));
+        RateLimiter::for('otp-resend', fn (Request $request) => [Limit::perMinute(3)->by('otp-resend:' . $who($request)), Limit::perHour(10)->by('otp-resend-h:' . $who($request))]);
+        RateLimiter::for('password-email', fn (Request $request) => [Limit::perMinute(5)->by('pw-email:' . $who($request)), Limit::perHour(20)->by('pw-email-ip:' . $request->ip())]);
+        RateLimiter::for('password-update', fn (Request $request) => Limit::perMinute(10)->by('pw-update:' . $who($request)));
         // New hires uploading joining documents: per link and address, so one person cannot flood storage.
         RateLimiter::for('onboarding-upload', fn (Request $request) => Limit::perMinute(20)->by('onboarding-upload:' . $request->route('token') . ':' . $request->ip()));
 

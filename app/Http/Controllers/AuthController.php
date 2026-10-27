@@ -68,7 +68,17 @@ class AuthController extends Controller
         $pending = session('pending_registration');
         abort_unless($pending, 403);
         $otp = DB::table('email_otps')->where('email', $pending['email'])->whereNull('used_at')->where('expires_at', '>', now())->latest()->first();
-        if (!$otp || !Hash::check($r->code, $otp->code_hash)) return back()->withErrors(['code' => 'The code is invalid or expired.']);
+        // Five wrong guesses end the code: a 6-digit code cannot be guessed by retrying from many addresses.
+        $guessKey = 'otp-guesses:' . mb_strtolower($pending['email']);
+        if (!$otp || !Hash::check($r->code, $otp->code_hash)) {
+            if ($otp && \Illuminate\Support\Facades\RateLimiter::hit($guessKey, 600) >= 5) {
+                DB::table('email_otps')->where('id', $otp->id)->delete();
+                \Illuminate\Support\Facades\RateLimiter::clear($guessKey);
+                return back()->withErrors(['code' => 'Too many wrong codes. Use "send a new code" below to get a fresh one.']);
+            }
+            return back()->withErrors(['code' => 'The code is invalid or expired.']);
+        }
+        \Illuminate\Support\Facades\RateLimiter::clear($guessKey);
         DB::table('email_otps')->where('id', $otp->id)->update(['used_at' => now()]);
         $pending['role'] = $pending['role'] ?? 'student';
         $pending['role_code'] = $pending['role'] === 'employer' ? 0 : 1;
