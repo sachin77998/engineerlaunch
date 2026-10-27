@@ -36,7 +36,7 @@ class AiChatController extends Controller
                     return response()->json(['success' => false,'message' => 'AI conversation not found.','agent' => $validated['agent'] ?? null,'data' => [],'sources' => [],'metadata' => [],], 404);
                 }
                 $conversationUserId = $conversation['user_id'] ?? null;
-                if ($userId !== null && $conversationUserId !== null && (int) $conversationUserId !== (int) $userId) {
+                if ($conversationUserId !== null && (int) $conversationUserId !== (int) $userId) {
                     return response()->json(['success' => false,'message' => 'You are not allowed to use this conversation.','agent' => $validated['agent'] ?? null,'data' => [],'sources' => [],'metadata' => [],], 403);
                 }
             }

@@ -34,7 +34,7 @@ class AiConversationController extends Controller
         try {
             $conversation = $this->conversationService->get($conversationId);
             if ($conversation === null) {return response()->json(['success' => false,'message' => 'AI conversation not found.',], 404);}
-            if (Auth::check() && isset($conversation['user_id']) && $conversation['user_id'] !== null && (int) $conversation['user_id'] !==(int) Auth::id()) {
+            if (!empty($conversation['user_id']) && (int) $conversation['user_id'] !== (int) Auth::id()) {
                 return response()->json(['success' => false,'message' => 'You are not allowed to access this conversation.',], 403);
             }
             return response()->json(['success' => true,'conversation' => $conversation,]);
@@ -50,7 +50,7 @@ class AiConversationController extends Controller
             if ($conversation === null) {
                 return response()->json(['success' => false,'message' => 'AI conversation not found.',], 404);
             }
-            if (Auth::check() && isset($conversation['user_id']) && $conversation['user_id'] !== null && (int) $conversation['user_id'] !== (int) Auth::id()) {
+            if (!empty($conversation['user_id']) && (int) $conversation['user_id'] !== (int) Auth::id()) {
                 return response()->json(['success' => false,'message' => 'You are not allowed to access this conversation.',], 403);
             }
             $limit = isset($validated['limit'])? (int) $validated['limit']: null;
@@ -82,8 +82,7 @@ class AiConversationController extends Controller
             if ($conversation === null) {
                 return response()->json(['success' => false,'message' => 'AI conversation not found.',], 404);
             }
-            if (Auth::check() && isset($conversation['user_id']) &&
-                $conversation['user_id'] !== null && (int) $conversation['user_id'] !==(int) Auth::id()) {
+            if (!empty($conversation['user_id']) && (int) $conversation['user_id'] !== (int) Auth::id()) {
                 return response()->json(['success' => false,'message' => 'You are not allowed to modify this conversation.',], 403);
             }
             $closed =$this->conversationService->close($conversationId);
