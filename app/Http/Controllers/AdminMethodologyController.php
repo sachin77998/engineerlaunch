@@ -110,6 +110,15 @@ class AdminMethodologyController extends Controller
             self::putSetting('fund_pd_annual', array_map('floatval', $f['fund_pd']));
             self::putSetting('fund_short_equivalent', $f['fund_short'] ?? []);
             self::putSetting('fund_rules', collect($f['fund_rules'] ?? [])->map(fn ($v, $k) => $k === 'unrated_as' ? (in_array($v, $scale, true) ? $v : 'BBB-') : (float) $v)->all());
+            if ($r->has('icra')) {
+                $i = $r->validate(['icra.category_maturity' => 'array', 'icra.category_maturity.*' => 'nullable|numeric|min:0|max:40', 'icra.short_lowest_long' => 'array', 'icra.short_lowest_long.*' => 'in:' . implode(',', $scale),
+                    'icra.unrated_as' => 'in:' . implode(',', $scale), 'icra.cdmdf_dislocation_rating' => 'in:' . implode(',', $scale), 'icra.cdmdf_dislocation' => 'boolean',
+                    'icra.invit_notch' => 'integer|min:0|max:6', 'icra.invit_years' => 'numeric|min:0|max:40', 'icra.cdmdf_a3_notch' => 'integer|min:0|max:6', 'icra.cdmdf_a3_years' => 'numeric|min:0|max:15',
+                    'icra.lookback_months' => 'integer|min:1|max:12', 'icra.upgrade_months' => 'integer|min:1|max:12', 'icra.sharp_breach_notches' => 'integer|min:1|max:10'])['icra'];
+                $i['category_maturity'] = collect($i['category_maturity'] ?? [])->filter(fn ($v) => $v !== null && $v !== '')->map(fn ($v) => (float) $v)->all();
+                $i['cdmdf_dislocation'] = (bool) ($i['cdmdf_dislocation'] ?? false);
+                self::putSetting('icra_fund', $i + config('fund_portfolios.icra'));
+            }
             $m->flush();
             \Illuminate\Support\Facades\Artisan::call('mf:portfolios', ['--rescore' => true]);
         }

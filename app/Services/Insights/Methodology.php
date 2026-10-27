@@ -89,7 +89,7 @@ class Methodology
                 'regulatory_minimums' => $cfg['regulatory_minimums'], 'instrument_notching' => $cfg['instrument_notching'],
                 'ccb_table' => $cfg['ccb_table'], 'insurance_hybrid_haircut' => $cfg['insurance_hybrid_haircut'],
                 'fund_pd_annual' => config('fund_portfolios.fund_pd_annual'), 'fund_short_equivalent' => config('fund_portfolios.fund_short_equivalent'),
-                'fund_rules' => config('fund_portfolios.fund_rules')];
+                'fund_rules' => config('fund_portfolios.fund_rules'), 'icra_fund' => config('fund_portfolios.icra')];
             foreach ($settings as $k => $v) $put('credit_methodology_settings', ['key' => $k], ['value' => json_encode($v)]);
         });
         $this->flush();

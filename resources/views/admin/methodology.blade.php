@@ -108,6 +108,25 @@ details.mt-card>summary{cursor:pointer;font-weight:700;font-size:15px;list-style
                 <tr><td>Unrated paper scored as</td><td><select name="fund_rules[unrated_as]">@foreach($scale as $x)<option @selected($x === $frules['unrated_as'])>{{ $x }}</option>@endforeach</select></td></tr>
             </tbody></table></div>
         </div>
+        @php $icf = ($settings['icra_fund'] ?? []) + config('fund_portfolios.icra'); @endphp
+        <h2 style="margin-top:18px">Fund credit quality · ICRA method</h2>
+        <div class="mt-grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start">
+            <div><table class="mt-t"><thead><tr><th>Category</th><th>Benchmark maturity (years; empty = category median WAM)</th></tr></thead><tbody>
+                @foreach(array_merge(\App\Services\Funds\IcraFundQuality::LINE_CATEGORIES, ['Short Duration Fund', 'Medium Duration Fund', 'Medium to Long Duration Fund', 'Long Duration Fund', 'Corporate Bond Fund', 'Credit Risk Fund', 'Banking and PSU Fund', 'Gilt Fund', 'Dynamic Bond', 'Floater Fund']) as $c)
+                    <tr><td>{{ $c }}</td><td><input class="n" type="number" step="any" min="0" max="40" name="icra[category_maturity][{{ $c }}]" value="{{ $icf['category_maturity'][$c] ?? '' }}"></td></tr>@endforeach
+            </tbody></table></div>
+            <div><table class="mt-t"><thead><tr><th>Short-term only</th><th>Lowest long-term (last resort)</th></tr></thead><tbody>
+                @foreach($icf['short_lowest_long'] as $s => $l)<tr><td>{{ $s }}</td><td><select name="icra[short_lowest_long][{{ $s }}]">@foreach($scale as $x)<option @selected($x === $l)>{{ $x }}</option>@endforeach</select></td></tr>@endforeach
+            </tbody></table></div>
+            <div><table class="mt-t"><tbody>
+                @foreach(['invit_notch' => 'InvIT units: notches below the InvIT rating', 'invit_years' => 'InvIT units: maturity taken (years)', 'cdmdf_a3_notch' => 'CDMDF A3 units: notches below A2 (dislocation)',
+                    'cdmdf_a3_years' => 'CDMDF A3 units: maturity (years)', 'lookback_months' => 'Month-ends needed for a first rating', 'upgrade_months' => 'Consecutive months needed for an upgrade', 'sharp_breach_notches' => 'Breach (notches) that skips the curing month'] as $k => $l)
+                    <tr><td>{{ $l }}</td><td style="width:100px"><input class="n" type="number" step="1" min="0" name="icra[{{ $k }}]" value="{{ $icf[$k] }}"></td></tr>@endforeach
+                <tr><td>Unrated paper: shadow rating</td><td><select name="icra[unrated_as]">@foreach($scale as $x)<option @selected($x === $icf['unrated_as'])>{{ $x }}</option>@endforeach</select></td></tr>
+                <tr><td>CDMDF A2 units in a dislocation</td><td><select name="icra[cdmdf_dislocation_rating]">@foreach($scale as $x)<option @selected($x === $icf['cdmdf_dislocation_rating'])>{{ $x }}</option>@endforeach</select></td></tr>
+                <tr><td><label><input type="hidden" name="icra[cdmdf_dislocation]" value="0"><input type="checkbox" name="icra[cdmdf_dislocation]" value="1" @checked($icf['cdmdf_dislocation'])> Market dislocation (CDMDF active)</label></td><td></td></tr>
+            </tbody></table></div>
+        </div>
         <div style="margin-top:12px"><button class="mt-btn">Save limits</button></div>
     </form>
 

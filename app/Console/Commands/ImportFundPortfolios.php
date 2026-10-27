@@ -21,6 +21,7 @@ class ImportFundPortfolios extends Command
             $n = 0;
             foreach ($files as $id) $n += $quality->scoreFile($id);
             $this->info("Re-scored $n scheme-months from {$files->count()} files.");
+            $this->icra(true);
             return self::SUCCESS;
         }
         $sources = DB::table('mf_portfolio_sources')->where('is_active', true)
@@ -31,6 +32,23 @@ class ImportFundPortfolios extends Command
             $this->line('  → ' . $r['status']);
         }
         $this->info('Schemes with credit quality: ' . DB::table('mf_credit_quality')->distinct()->count('scheme_key'));
+        $this->icra(false);
         return self::SUCCESS;
+    }
+
+    /** ICRA method, month by month (oldest first) so each month's history is in place; $all re-rates every month. */
+    private function icra(bool $all): void
+    {
+        $icra = app(\App\Services\Funds\IcraFundQuality::class);
+        $months = DB::table('mf_portfolio_holdings')->distinct()->orderBy('as_of')->pluck('as_of');
+        if (!$all) {
+            $done = DB::table('mf_icra_credit_quality')->distinct()->pluck('as_of')->map(fn ($d) => (string) $d)->all();
+            $months = $months->filter(fn ($d) => !in_array((string) $d, $done, true) || $d === $months->last());
+        } else {
+            DB::table('mf_icra_credit_quality')->delete();
+        }
+        $n = 0;
+        foreach ($months as $d) $n += $icra->scoreMonth((string) $d);
+        $this->info("ICRA method: $n scheme-months rated.");
     }
 }
