@@ -302,6 +302,31 @@ class CareAssessment
                 foreach ($by as $k => $hits) if (!isset($m[$k])) { $m[$k] = (float) $hits->max(fn ($h) => (float) $h[2]); $sources[$k] = $src; }
             }
         }
+        // InvITs: net debt to enterprise value (valuer's figure from the rationale; book assets otherwise), the largest asset's share of
+        // cash flows, and the structural features in ICRA's positive / neutral / negative table.
+        $found = ['positive' => [], 'neutral' => [], 'watch' => []];
+        $features = [
+            'positive' => ['trustee[- ](?:administered|controlled)[^.;]{0,40}waterfall|escrow[^.;]{0,40}waterfall' => 'trustee-administered cash flow waterfall', 'forward[- ]looking' => 'forward-looking restricted payment tests',
+                'step[- ]in rights?' => 'lender step-in rights', 'no put option' => 'no put option'],
+            'neutral' => ['\bDSRA\b|debt service reserve' => 'debt service reserve', '(?<!administered )cash flow waterfall' => 'cash flow waterfall', 'restricted payment' => 'restricted payment conditions',
+                'major maintenance reserve' => 'major maintenance reserve'],
+            'watch' => ['(?<!no )put option' => 'put option (refinance window decides)', 'acceleration' => 'debt acceleration triggers (cure period decides)', 'cross[- ]default' => 'cross-default clauses (cure period decides)'],
+        ];
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            $src = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
+            if (!isset($m['net_debt_ev']) && preg_match('~net (?:external )?debt[^.;%]{0,25}?(?:to|/) (?:the )?(?:enterprise value|\bEV\b|(?:value of )?(?:InvIT )?assets?(?: value)?)[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i', $text, $x)) {
+                $m['net_debt_ev'] = (float) $x[1]; $sources['net_debt_ev'] = $src;
+            }
+            if (!isset($m['largest_asset_share']) && preg_match('~(?:largest|single|one) (?:asset|SPV|project|road|transmission (?:asset|line))[^.;%]{0,60}?(\d{1,3}(?:\.\d+)?)\s?% of (?:the )?(?:consolidated )?(?:CFADS|cash flows?|revenues?|EBITDA|enterprise value)~i', $text, $x) && $x[1] <= 100) {
+                $m['largest_asset_share'] = (float) $x[1]; $sources['largest_asset_share'] = $src;
+            }
+            foreach ($features as $kind => $res) foreach ($res as $re => $label) if (preg_match('~' . $re . '~i', $text) && !in_array($label, $found[$kind])) $found[$kind][] = $label;
+        }
+        if (!isset($m['net_debt_ev']) && ($ratios['net_debt_assets'] ?? null) !== null) {
+            $m['net_debt_ev'] = $ratios['net_debt_assets']; $sources['net_debt_ev'] = "Calculated on book assets (SEBI and ICRA use the valuer's enterprise value)";
+        }
+        $m['structural'] = $found;
         $m['liquidity'] = $liquidity['level'] ?? null;
         $support = collect($adjustments)->first(fn ($a) => str_contains($a['why'], 'funding support'));
         $m['parent_support'] = (bool) $support;
@@ -491,6 +516,10 @@ class CareAssessment
                 'reit_leverage' => ($lv = $r['net_debt_assets'] ?? null) !== null
                     ? ['Borrowings net of cash / asset value', $pp($lv) . '% (SEBI cap ' . $pp($min['reit_net_debt_cap'] ?? 49) . '%, rating mandatory above ' . $pp($min['reit_rating_trigger'] ?? 25) . '%)',
                         $lv >= ($min['reit_net_debt_cap'] ?? 49) ? 'risk' : ($lv >= ($min['reit_rating_trigger'] ?? 25) ? 'watch' : 'ok')] : null,
+                // InvITs: 49% of asset value, up to 70% only with an AAA rating, six continuous distributions and unitholder approval.
+                'invit_leverage' => ($lv = $r['net_debt_assets'] ?? null) !== null
+                    ? ['Borrowings net of cash / asset value', $pp($lv) . '% of book assets (SEBI cap ' . $pp($min['invit_net_debt_cap'] ?? 49) . '%, or ' . $pp($min['invit_net_debt_cap_aaa'] ?? 70) . '% with AAA and six distributions; rating mandatory above ' . $pp($min['invit_rating_trigger'] ?? 25) . '%)',
+                        $lv >= ($min['invit_net_debt_cap_aaa'] ?? 70) ? 'risk' : ($lv >= ($min['invit_rating_trigger'] ?? 25) ? 'watch' : 'ok')] : null,
                 // Broking earnings follow market volumes: dispersion of yearly revenue growth.
                 'market_dependence' => ($gs = $years->take(-5)->values()->sliding(2)->map(fn ($w) => ($w = $w->values()) && $w[0]->revenue > 0 && $w[1]->revenue !== null ? ($w[1]->revenue / $w[0]->revenue - 1) * 100 : null)->filter(fn ($v) => $v !== null)->values())->count() >= 2
                     ? (function () use ($gs, $pp) {

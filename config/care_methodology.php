@@ -267,6 +267,16 @@ return [
             'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 10, 'management' => 15],
             'checks' => ['solvency_cushion', 'group_support'],
         ],
+        // Infrastructure investment trusts (SEBI InvIT Regulations). ICRA benchmarks InvIT coverage against the underlying asset
+        // class (toll / annuity roads, transmission, renewables); the bands here are the infrastructure-asset bands used by the REIT profile.
+        'invit' => [
+            'name' => 'Infrastructure investment trusts (InvITs)', 'criteria' => 'ICRA Rating Methodology – Infrastructure Investment Trusts (Aug 2025)',
+            'match' => ['industry' => '/\binvits?\b|infrastructure investment trust/i', 'name' => '/^(?!.*\binc\b)(?:.*(?:\binvits?\b|infrastructure investment trust|infra(?:structure)? ?trust|highways? (?:infra )?trust|india grid trust|indigrid|energy (?:infra|yield).*trust|renewable energy trust|supply chain infrastructure trust))/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'net_debt_assets', 'debt_pbildt', 'icr', 'avg_dscr', 'cash_st_debt'],
+            'override' => ['pbildt_margin' => [80, 70, 60, 50], 'debt_pbildt' => [3, 4.5, 6, 7.5]],
+            'weights' => ['business' => 35, 'financial' => 40, 'liquidity' => 15, 'management' => 10],
+            'checks' => ['invit_leverage', 'refinancing'],
+        ],
         'reit' => [
             'name' => 'Real estate investment trusts', 'criteria' => 'Rating Methodology – Real Estate Investment Trusts (Jan 2025)',
             'match' => ['industry' => '/\breit\b|real estate investment trust/i', 'name' => '/\breit\b|real estate investment trust|embassy office parks|mindspace business parks|brookfield india real estate|nexus select trust|knowledge realty/i'],
@@ -361,7 +371,7 @@ return [
     'regulatory_minimums' => [
         'bank_car' => 11.5, 'bank_tier1' => 9.5, 'bank_cet1' => 8, 'sfb_car' => 15, 'sfb_tier1' => 7.5, 'rrb_car' => 9,
         'bank_leverage' => 3.5, 'dsib_leverage' => 4, 'sfb_leverage' => 4.5, 'lcr' => 100, 'nsfr' => 100,
-        'nbfc_car' => 15, 'hfc_car' => 15, 'insurer_solvency' => 1.5, 'reit_net_debt_cap' => 49, 'reit_rating_trigger' => 25,
+        'nbfc_car' => 15, 'hfc_car' => 15, 'insurer_solvency' => 1.5, 'reit_net_debt_cap' => 49, 'reit_rating_trigger' => 25, 'invit_net_debt_cap' => 49, 'invit_net_debt_cap_aaa' => 70, 'invit_rating_trigger' => 25,
     ],
 
     // Instrument notching against the issuer's senior rating (Basel III hybrids, NBFC/HFC perpetuals, insurer hybrid capital).

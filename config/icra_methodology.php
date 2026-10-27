@@ -275,6 +275,52 @@ return [
             'Parent support applies only to intermediate holding companies; for the ultimate holding company of the sponsor group it is not applicable.',
         ],
     ],
+    // ICRA publishes no five-step levels for InvITs: coverage is benchmarked against each underlying asset class (sum of parts by
+    // share of CFADS), so measured factors are shown with their value and the regulatory limits, without a grade.
+    'icra_invit' => [
+        'agency' => 'ICRA', 'sector_key' => 'invit', 'name' => 'Infrastructure investment trusts (InvITs)',
+        'criteria' => 'ICRA Rating Methodology – Infrastructure Investment Trusts (InvITs) (August 2025)', 'published_on' => '2025-08-01',
+        'factors' => [
+            // Business risk — each SPV assessed under its asset-class methodology, then the portfolio.
+            ['key' => 'execution', 'group' => 'business', 'sub' => 'Individual assets', 'label' => 'Execution risk',
+                'strongest' => 'All assets operational', 'weakest' => 'Material under-construction assets (public InvITs may hold at most 10% of asset value under construction)'],
+            ['key' => 'revenue', 'group' => 'business', 'sub' => 'Individual assets', 'label' => 'Revenue risk (demand, price, availability)',
+                'strongest' => 'Availability or take-or-pay revenues (annuity roads, transmission) with cost-competitive assets', 'weakest' => 'Pay-and-use revenues (toll, airports, ports) with a short traffic record and competing modes'],
+            ['key' => 'operating', 'group' => 'business', 'sub' => 'Individual assets', 'label' => 'Operating risk (O&M, availability, PLF)',
+                'strongest' => 'Experienced O&M contractor with liquidated damages for under-performance; availability as contracted', 'weakest' => 'Weak O&M record; exposure to deductions, major maintenance or concession termination; PLF variability'],
+            ['key' => 'counterparty', 'group' => 'business', 'sub' => 'Individual assets', 'label' => 'Counterparty credit risk',
+                'strongest' => 'Strong, diversified counterparties paying on time', 'weakest' => 'Weak counterparties with stretched receivables'],
+            ['key' => 'regulatory', 'group' => 'business', 'sub' => 'Individual assets', 'label' => 'Regulatory risk',
+                'strongest' => 'Stable, well-established regulatory framework; full adherence to InvIT regulations', 'weakest' => 'Exposure to changes in leverage caps, distribution or investment norms, or asset-class regulation'],
+            ['key' => 'portfolio', 'group' => 'business', 'sub' => 'Portfolio diversity', 'label' => 'Largest asset, % of cash flows', 'metric' => 'largest_asset_share', 'unit' => '%',
+                'strongest' => 'Assets across geographies, asset classes and revenue models; no single asset dominating cash flows; low receivable concentration', 'weakest' => 'Cash flows concentrated in one asset, one asset class or one counterparty'],
+            // Financial risk — consolidated trust + SPV cash flows.
+            ['key' => 'cash_flow_stability', 'group' => 'financial', 'label' => 'Stability of cash flows',
+                'strongest' => 'Stabilised assets with two to three years of operations; revenues and O&M costs within budget', 'weakest' => 'Short operating record; fixed revenues against rising costs, or timing mismatches in cost recovery'],
+            ['key' => 'leverage', 'group' => 'financial', 'label' => 'Net debt / enterprise value (%)', 'metric' => 'net_debt_ev', 'unit' => '%',
+                'strongest' => 'Conservative against peers, with a wide cushion below the 49% SEBI cap', 'weakest' => 'Close to the cap (above 49% only with an AAA rating, six continuous distributions and unitholder approval; 70% ceiling)'],
+            ['key' => 'dscr', 'group' => 'financial', 'label' => 'Consolidated DSCR (x)', 'metric' => 'dscr', 'unit' => 'x',
+                'strongest' => 'Above the benchmark for the underlying asset classes, with unencumbered cash and undrawn lines', 'weakest' => 'Below the asset-class benchmark; payouts not aligned with SPV inflows'],
+            ['key' => 'maturity', 'group' => 'financial', 'label' => 'Debt maturity profile, refinancing and tail period',
+                'strongest' => 'Long-tenor, fully amortising debt with a long tail period (high PLCR)', 'weakest' => 'Bullet maturities needing refinancing with limited liquidity cover'],
+            ['key' => 'rate_forex', 'group' => 'financial', 'label' => 'Interest rate and forex risk',
+                'strongest' => 'Fixed or hedged rates; no unhedged foreign currency debt', 'weakest' => 'Floating-rate or unhedged foreign currency debt at the trust or SPVs'],
+        ],
+        'adjustments' => [
+            ['key' => 'structural', 'label' => 'Structural features and covenants (cash flow waterfall, DSRA, restricted payments, put options, acceleration)', 'metric' => 'structural'],
+            ['key' => 'liquidity', 'label' => 'Liquidity (unencumbered cash and undrawn lines at consolidated level)', 'metric' => 'liquidity'],
+            ['key' => 'sponsor', 'label' => "Sponsor's operational record and financial profile (usually involved in O&M)"],
+            ['key' => 'project_support', 'label' => 'Support to individual projects and event risk (termination payouts, insurance)'],
+            ['key' => 'management', 'label' => 'Investment manager, trustee and project manager; governance', 'metric' => 'rpt_revenue'],
+        ],
+        'notes' => [
+            'The rating addresses the consolidated external debt of the trust and its SPVs (and contingent liabilities); it does not rate the SPVs, the debt they owe the InvIT, or the units.',
+            'SEBI rules: 90% of net distributable cash flows distributed (at least half-yearly for public InvITs, yearly for private); net debt up to 49% of asset value (70% with conditions); at most 10% of asset value in under-construction projects (public InvITs); sponsor holds at least 15% of units for three years; a rating is mandatory once net debt exceeds 25% of asset value.',
+            'Coverage is compared with the benchmarks of the underlying asset class; mixed portfolios use a sum of parts weighted by each class\'s share of CFADS. Assets are read under ICRA\'s toll, annuity, HAM, thermal, solar and wind, transmission, port and airport methodologies.',
+            'Positive structural features: trustee-administered waterfall, backward and forward-looking restricted payment tests, immediate DSRA replenishment, no put or acceleration triggers, high-quality permitted investments, change-of-control limits, lender step-in rights.',
+            'Negative: no waterfall or lack of adherence, reserves with no replenishment, put option with an inadequate refinance window, cross-default or acceleration without a grace period, no limits on investments.',
+        ],
+    ],
     'icra_auto_components' => [
         'agency' => 'ICRA', 'sector_key' => 'auto_components', 'name' => 'Auto components',
         'criteria' => 'ICRA Rating Methodology – Auto Components (October 2024)', 'published_on' => '2024-10-01',

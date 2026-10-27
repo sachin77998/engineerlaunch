@@ -137,6 +137,11 @@ class AgencyCriteria
                 : ($sv >= 1.8 ? ['effect' => 'Support / Neutral', 'why' => "Solvency {$sv}x: sub-debt coupons and a call need no prior IRDAI approval (call threshold 1.80x)"]
                     : ($sv >= 1.5 ? ['effect' => 'Hinder', 'why' => "Solvency {$sv}x: above the 1.50x minimum, but a call would need prior IRDAI approval (below 1.80x)"]
                         : ['effect' => 'Hinder', 'why' => "Solvency {$sv}x is below the 1.50x minimum: coupon servicing needs prior IRDAI approval"])),
+            // InvITs: ICRA's structural-features table, from what the rationales mention (put options and acceleration need the terms).
+            'structural' => ($sf = $m['structural'] ?? null) === null || !array_filter($sf) ? ['effect' => null, 'why' => null]
+                : ['effect' => count($sf['positive']) >= 2 && !$sf['watch'] ? 'Enhance' : ($sf['positive'] || $sf['neutral'] ? 'Support / Neutral' : null),
+                    'why' => implode('; ', array_filter([$sf['positive'] ? 'Positive: ' . implode(', ', $sf['positive']) : null, $sf['neutral'] ? 'Neutral: ' . implode(', ', $sf['neutral']) : null,
+                        $sf['watch'] ? 'Check terms: ' . implode(', ', $sf['watch']) : null]))],
             'parent_support' => ($m['parent_support'] ?? null) ? ['effect' => 'Enhance', 'why' => $m['parent_support_why'] ?? 'Demonstrated funding support from the group'] : ['effect' => null, 'why' => null],
             default => ['effect' => null, 'why' => null],
         };
