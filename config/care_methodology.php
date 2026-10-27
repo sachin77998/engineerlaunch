@@ -349,7 +349,7 @@ return [
         ],
         'investment_holding' => [
             'name' => 'Investment holding company', 'criteria' => 'CARE Ratings’ Criteria on Rating of Investment Holding Companies’ Debt (Mar 2025)',
-            'match' => ['name' => '/investments? (?:ltd|limited|pvt|private)|holdings? (?:ltd|limited)|investment company|core investment/i', 'nic' => ['6420']],
+            'match' => ['name' => '/^(?!.*(?:financ|leasing|credit|manag|advis|securities|brok|capital|fund\b|fidelity|fisher|platform|upstart|stock holding|casting|\bgroup\b|\bplc\b|\binc\b|\bbank))(?=.*(?:\binvestments?\b|\bholdings?\b|core investment|finvest))/i', 'nic' => ['6420']],
             'ratios' => ['toi_crore', 'pat_margin', 'ronw', 'gearing', 'icr', 'cash_st_debt', 'promoter_holding'],
             'notes' => ['Assessed standalone; refinancing ability rests on investment values and promoter support.'],
             'weights' => ['business' => 25, 'financial' => 45, 'liquidity' => 15, 'management' => 15],

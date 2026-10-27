@@ -105,12 +105,15 @@ class CareAssessment
         $nic = (string) ($company->registryDetail?->nic_code ?? '');
         if (preg_match('/\bbank\b/i', $name) && (!preg_match('/finance|investment/i', $name) || preg_match('/small finance bank/i', $name))) return 'bank';
         // Stated industry first, then the company name; registry NIC codes are often stale, so they only decide generic industries.
+        $foreign = function () use ($company) { static $memo = []; return $memo[$company->id] ??= CompanyLookup::foreign($company); };
         foreach (['industry', 'name', 'nic'] as $by) {
             if ($by === 'nic' && ($nic === '' || ($industry !== '' && !preg_match('/^other|^manufacturing$|^industrial/i', $industry)))) break;
             foreach ($this->m->sectors() as $key => $def) {
                 if ($key === 'manufacturing') continue;
                 $m = $def['match'] ?? [];
-                if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key === 'financial' ? $this->financialSubsector($name) : $key;
+                if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key === 'financial' ? $this->financialSubsector($name, $foreign) : $key;
+                // "… Holdings Ltd" alone does not make an operating company (Acme Solar Holdings, Grab Holdings) an investment company.
+                if ($by === 'name' && $key === 'investment_holding' && (($industry !== '' && !preg_match('/^other|financ|invest|holding|diversified|conglomerate/i', $industry)) || $foreign())) continue;
                 if ($by === 'name' && !empty($m['name']) && preg_match($m['name'], $name)) return $key;
                 if ($by === 'nic' && collect($m['nic'] ?? [])->contains(fn ($p) => str_starts_with($nic, $p))) return $key;
             }
@@ -119,9 +122,11 @@ class CareAssessment
     }
 
     /** A generic "financial services" industry: the name decides between HFC, broker, insurer and NBFC (Financial Ratios profile otherwise). */
-    private function financialSubsector(string $name): string
+    private function financialSubsector(string $name, ?\Closure $foreign = null): string
     {
-        foreach (['hfc', 'broking', 'life_insurance', 'insurance', 'nbfc'] as $key) {
+        foreach (['hfc', 'broking', 'life_insurance', 'insurance', 'investment_holding', 'nbfc'] as $key) {
+            // ICRA / CARE holding-company criteria are for Indian investment companies; US-listed financials keep the financial profile.
+            if ($key === 'investment_holding' && $foreign && $foreign()) continue;
             $re = $this->m->sectors()[$key]['match']['name'] ?? null;
             if ($re && preg_match($re, $name)) return $key;
         }
@@ -275,6 +280,26 @@ class CareAssessment
                 $vals = collect($x[1])->map(fn ($s) => (float) $s)->filter(fn ($s) => $s > 0 && $s <= 100);
                 $v = in_array($k, ['largest_vertical_share', 'largest_geography_share']) ? $vals->max() : $vals->first();
                 if ($v !== null) { $m[$k] = $v; $sources[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
+            }
+        }
+        // Investment companies: debt against the market value of investments, liquidity cover in months, and the largest
+        // investee / sector share of the holding company's cash flows (dividends, income or portfolio value).
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            $src = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
+            if (!isset($m['debt_to_investment_value'])) {
+                if (preg_match('~(?:loan[- ]to[- ]value|\bLTV\b|debt[^.;]{0,40}?(?:to|/) (?:the )?market value of (?:its )?(?:unencumbered )?investments?)(?: ratio)?[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x) && $x[1] <= 100) {
+                    $m['debt_to_investment_value'] = (float) $x[1]; $sources['debt_to_investment_value'] = $src;
+                } elseif (preg_match('~market value of (?:its )?(?:unencumbered )?investments?[^.;]{0,60}?(\d{1,3}(?:\.\d+)?)\s?(?:times|x)\b[^.;]{0,30}?(?:debt|borrowings)~i', $text, $x) && $x[1] > 0) {
+                    $m['debt_to_investment_value'] = round(100 / (float) $x[1], 1); $sources['debt_to_investment_value'] = $src . ' (investments cover debt ' . $x[1] . 'x)';
+                }
+            }
+            if (!isset($m['liquidity_cover_months']) && preg_match('~(?:cover|sufficient to (?:meet|service)|adequate to (?:meet|service))[^.;]{0,80}?(\d{1,2}) months? of (?:its )?(?:debt servicing|debt obligations|debt repayments|interest)~i', $text, $x)) {
+                $m['liquidity_cover_months'] = (float) $x[1]; $sources['liquidity_cover_months'] = $src;
+            }
+            if ((!isset($m['largest_investee_share']) || !isset($m['largest_sector_cashflow_share'])) && preg_match_all('~([^.;]{0,60}?)(?:accounted for|contributed|constituted|formed)\s(?:about |around |nearly |over )?(\d{1,3}(?:\.\d+)?)\s?% of (?:its |the company\'s |total |the )?(?:dividend income|dividends|cash flows?|investment income|income|market value of (?:its )?investments|portfolio)~i', $text, $x, PREG_SET_ORDER)) {
+                $by = collect($x)->filter(fn ($h) => $h[2] <= 100)->groupBy(fn ($h) => preg_match('~sector|industry~i', $h[1]) ? 'largest_sector_cashflow_share' : 'largest_investee_share');
+                foreach ($by as $k => $hits) if (!isset($m[$k])) { $m[$k] = (float) $hits->max(fn ($h) => (float) $h[2]); $sources[$k] = $src; }
             }
         }
         $m['liquidity'] = $liquidity['level'] ?? null;

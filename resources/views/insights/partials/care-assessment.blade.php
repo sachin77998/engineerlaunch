@@ -69,7 +69,7 @@
             $grades = \App\Services\Insights\AgencyCriteria::GRADES;
             $gColor = [5 => '#16a34a', 4 => '#65a30d', 3 => '#eab308', 2 => '#f97316', 1 => '#dc2626'];
             $gv = fn ($f) => $f['value'] === null ? '—' : ($f['unit'] === '%' ? number_format($f['value'], 1) . '%' : ($f['unit'] === 'x' ? number_format($f['value'], 2) . '×' : ($f['unit'] === '₹ cr' ? '₹' . number_format($f['value'], 0) . ' cr' : rtrim(rtrim(number_format($f['value'], 1), '0'), '.') . ($f['unit'] ? ' ' . $f['unit'] : ''))));
-            $groupNames = ['industry' => 'Industry risk', 'business' => 'Business risk', 'financial' => 'Financial risk', 'liquidity' => 'Liquidity'];
+            $groupNames = ['industry' => 'Industry risk', 'business' => 'Business risk', 'financial' => 'Financial risk', 'liquidity' => 'Liquidity', 'other' => 'Other parameters'];
         @endphp
         <h3>{{ $g['agency'] }} factor grid · {{ $g['name'] }}</h3>
         <p class="ci-muted" style="font-size:12.5px;margin:0 0 8px">{{ $g['criteria'] }}</p>
