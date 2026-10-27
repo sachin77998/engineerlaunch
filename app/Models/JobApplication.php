@@ -16,6 +16,7 @@ class JobApplication extends Model
         // Every new application is scored and screened against the job's rules before a recruiter opens it.
         static::created(function (JobApplication $application) {
             rescue(fn () => app(\App\Services\Hiring\ApplicationScreening::class)->screen($application), null);
+            rescue(fn () => app(\App\Services\Hiring\Workflows::class)->fire('application.new', $application), null);
         });
     }
     public function candidate()

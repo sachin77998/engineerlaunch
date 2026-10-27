@@ -57,6 +57,8 @@ class RouteServiceProvider extends ServiceProvider
 
         // Company report downloads build a PDF / workbook per request.
         RateLimiter::for('reports', fn (Request $request) => Limit::perMinute(10)->by('reports:' . ($request->user()?->id ?: $request->ip())));
+        // New hires uploading joining documents: per link and address, so one person cannot flood storage.
+        RateLimiter::for('onboarding-upload', fn (Request $request) => Limit::perMinute(20)->by('onboarding-upload:' . $request->route('token') . ':' . $request->ip()));
 
         // Site-wide chat assistant: each message may call the AI provider, so keep a per-visitor cap.
         RateLimiter::for('assistant', fn (Request $request) => [

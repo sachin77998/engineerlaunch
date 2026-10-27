@@ -261,6 +261,29 @@ Route::prefix('employer')->middleware(['auth','employer'])->name('employer.hirin
         Route::post('/candidates/{application}/verify/uan','verifyUan')->name('verify.uan');
     });
 });
+// Hiring automation (workflows) and online onboarding.
+Route::prefix('employer')->middleware(['auth','employer'])->name('employer.hiring.')->group(function(){
+    Route::controller(\App\Http\Controllers\HiringWorkflowController::class)->group(function(){
+        Route::get('/workflows','index')->name('workflows');
+        Route::post('/workflows','store')->name('workflows.store');
+        Route::put('/workflows/{workflow}','update')->name('workflows.update');
+        Route::patch('/workflows/{workflow}/toggle','toggle')->name('workflows.toggle');
+        Route::delete('/workflows/{workflow}','destroy')->name('workflows.destroy');
+    });
+    Route::controller(\App\Http\Controllers\HiringOnboardingController::class)->group(function(){
+        Route::get('/onboarding','index')->name('onboarding');
+        Route::get('/onboarding/{onboarding}','show')->name('onboarding.show');
+        Route::post('/candidates/{application}/onboarding','start')->name('onboarding.start');
+        Route::post('/onboarding/{onboarding}/resend','resend')->name('onboarding.resend');
+        Route::post('/onboarding/{onboarding}/cancel','cancel')->name('onboarding.cancel');
+        Route::patch('/onboarding-items/{item}','review')->name('onboarding.review');
+        Route::get('/onboarding-items/{item}/file','file')->name('onboarding.file');
+        Route::post('/onboarding-templates','saveTemplate')->name('onboarding.templates.store');
+        Route::delete('/onboarding-templates/{template}','deleteTemplate')->name('onboarding.templates.destroy');
+    });
+});
+Route::get('/joining/{token}',[\App\Http\Controllers\HiringOnboardingController::class,'publicShow'])->where('token','[A-Za-z0-9]{48}')->name('hiring.onboarding.public');
+Route::post('/joining/{token}/items/{item}',[\App\Http\Controllers\HiringOnboardingController::class,'publicUpload'])->where('token','[A-Za-z0-9]{48}')->middleware('throttle:onboarding-upload')->name('hiring.onboarding.upload');
 // Public links sent by email: team invites and candidate offer responses (token-protected).
 Route::get('/hiring/invite/{token}',[\App\Http\Controllers\HiringTeamController::class,'show'])->where('token','[A-Za-z0-9]{48}')->name('hiring.invite.show');
 Route::post('/hiring/invite/{token}',[\App\Http\Controllers\HiringTeamController::class,'register'])->where('token','[A-Za-z0-9]{48}')->middleware('guest')->name('hiring.invite.register');

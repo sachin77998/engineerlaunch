@@ -120,6 +120,26 @@
     </section>
     @endif
 
+    @php($onb = \App\Models\HiringOnboarding::with('items')->where('job_application_id', $a->id)->where('status', '!=', 'cancelled')->first())
+    @if($onb || ($can('edit') && in_array($a->stage, ['offered', 'hired'], true)))
+    <section class="hs-card" id="onboarding">
+        <h2>Onboarding</h2>
+        @if($onb)
+            <div class="hs-row" style="justify-content:space-between">
+                <span>{{ \App\Models\HiringOnboarding::STATUSES[$onb->status] ?? $onb->status }} · {{ $onb->progress }}% done · {{ $onb->items->where('status', 'submitted')->count() }} to review</span>
+                <a class="hs-mini primary" href="{{ route('employer.hiring.onboarding.show', $onb) }}">Open checklist</a>
+            </div>
+        @else
+            <p class="muted" style="margin-top:-4px">Email the new hire a private link to upload joining documents; review them here and the candidate moves to Hired when everything is approved.</p>
+            <form method="post" action="{{ route('employer.hiring.onboarding.start', $a) }}" class="hs-row">@csrf
+                <select class="hs-in" name="template_id" style="width:auto"><option value="">Standard joining checklist</option>@foreach(\App\Models\HiringOnboardingTemplate::where('owner_id', app(\App\Services\Hiring\Team::class)->ownerId(auth()->user()))->orderBy('name')->get() as $t)<option value="{{ $t->id }}">{{ $t->name }}</option>@endforeach</select>
+                <label class="muted" style="font-size:12px">Joining by <input class="hs-in" type="date" name="due_on" min="{{ today()->toDateString() }}" style="width:auto"></label>
+                <button class="hs-mini primary">Start onboarding</button>
+            </form>
+        @endif
+    </section>
+    @endif
+
     @if($can('offer') || $a->offers->isNotEmpty())
     <section class="hs-card" id="offer">
         <h2>Offer letter</h2>

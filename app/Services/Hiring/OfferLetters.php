@@ -51,6 +51,7 @@ class OfferLetters
             $body = "{$a->candidate?->name} has " . $decision . " the offer for {$a->job?->title}." . ($note ? "\n\nTheir note: {$note}" : '') . "\n\nOpen the candidate: " . route('employer.hiring.candidate', $a);
             Mail::to($recruiter->email)->queue((new HiringMail('Offer ' . $decision . ': ' . $a->candidate?->name . ' — ' . $a->job?->title, $body))->onQueue('emails'));
         }
+        rescue(fn () => app(Workflows::class)->fire('offer.' . $decision, $a), null);
     }
 
     // INR uses lakh/crore grouping (12,50,000); other currencies use thousands.

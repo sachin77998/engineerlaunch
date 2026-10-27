@@ -14,6 +14,8 @@ class DomainServiceProvider extends ServiceProvider
     {
         // Share lookup caches within a request/job, then reset them for the next lifecycle.
         $this->app->scoped(GeographyCatalog::class);
+        // One workflow engine per request/job, so its re-entry guard sees nested triggers.
+        $this->app->scoped(\App\Services\Hiring\Workflows::class);
         $this->app->scoped(IndustrialCareerMatcher::class);
         $this->app->scoped(\App\Services\Hiring\Team::class);
         $this->app->bind(NewsFetcher::class, NewsFetcherService::class);
