@@ -78,7 +78,9 @@ class CareAssessment
         $checks = $this->checks($sector['checks'] ?? [], $years, $ratios, $funding, $company, $sectorKey, $kpi, $ratings);
         $instruments = $this->instruments($sectorKey, $ratings, $final);
         $agencyCriteria = [];
-        if ($full && ($defs = $this->criteria->forSector($sectorKey, trim($company->industry . ' ' . $company->name)))) {
+        // Narrower agency papers match on industry, name and (for India-only papers) "country: india|foreign".
+        $about = trim($company->industry . ' ' . $company->name) . ' | country: ' . (CompanyLookup::foreign($company) ? 'foreign' : 'india');
+        if ($full && ($defs = $this->criteria->forSector($sectorKey, $about))) {
             [$metrics, $sources] = $this->criteriaMetrics($ratios, $kpi, $years, $ratings, $liquidity, $adjustments);
             foreach ($defs as $c) $agencyCriteria[] = $this->criteria->evaluate($c, $metrics, $sources);
         }
@@ -106,6 +108,8 @@ class CareAssessment
         if (preg_match('/\bbank\b/i', $name) && (!preg_match('/finance|investment/i', $name) || preg_match('/small finance bank/i', $name))) return 'bank';
         // Stated industry first, then the company name; registry NIC codes are often stale, so they only decide generic industries.
         $foreign = function () use ($company) { static $memo = []; return $memo[$company->id] ??= CompanyLookup::foreign($company); };
+        // Sectors whose companies sit under a mixed industry label are matched on the name first.
+        foreach (['footwear'] as $key) if (($re = $this->m->sectors()[$key]['match']['name'] ?? null) && preg_match($re, $name)) return $key;
         foreach (['industry', 'name', 'nic'] as $by) {
             if ($by === 'nic' && ($nic === '' || ($industry !== '' && !preg_match('/^other|^manufacturing$|^industrial/i', $industry)))) break;
             foreach ($this->m->sectors() as $key => $def) {
@@ -113,6 +117,8 @@ class CareAssessment
                 $m = $def['match'] ?? [];
                 if ($by === 'industry' && !empty($m['industry']) && preg_match($m['industry'], $industry)) return $key === 'financial' ? $this->financialSubsector($name, $foreign) : $key;
                 // "… Holdings Ltd" alone does not make an operating company (Acme Solar Holdings, Grab Holdings) an investment company.
+                // "… Institute" is only an educational institution when the stated industry agrees (Serum Institute is a drug maker).
+                if ($by === 'name' && $key === 'education' && $industry !== '' && !preg_match('/^other|educat|training/i', $industry)) continue;
                 if ($by === 'name' && $key === 'investment_holding' && (($industry !== '' && !preg_match('/^other|financ|invest|holding|diversified|conglomerate/i', $industry)) || $foreign())) continue;
                 if ($by === 'name' && !empty($m['name']) && preg_match($m['name'], $name)) return $key;
                 if ($by === 'nic' && collect($m['nic'] ?? [])->contains(fn ($p) => str_starts_with($nic, $p))) return $key;
@@ -300,6 +306,44 @@ class CareAssessment
             if ((!isset($m['largest_investee_share']) || !isset($m['largest_sector_cashflow_share'])) && preg_match_all('~([^.;]{0,60}?)(?:accounted for|contributed|constituted|formed)\s(?:about |around |nearly |over )?(\d{1,3}(?:\.\d+)?)\s?% of (?:its |the company\'s |total |the )?(?:dividend income|dividends|cash flows?|investment income|income|market value of (?:its )?investments|portfolio)~i', $text, $x, PREG_SET_ORDER)) {
                 $by = collect($x)->filter(fn ($h) => $h[2] <= 100)->groupBy(fn ($h) => preg_match('~sector|industry~i', $h[1]) ? 'largest_sector_cashflow_share' : 'largest_investee_share');
                 foreach ($by as $k => $hits) if (!isset($m[$k])) { $m[$k] = (float) $hits->max(fn ($h) => (float) $h[2]); $sources[$k] = $src; }
+            }
+        }
+        // Higher education, general insurance and footwear figures stated in rating rationales: [patterns, first|max, transform].
+        $said = '[^.;%]{0,40}?(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?%';
+        $words = ['two' => 2, 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9, 'ten' => 10];
+        $num = fn ($s) => (float) ($words[strtolower($s)] ?? str_replace(',', '', $s));
+        $text_figures = [
+            // Indian digit grouping ("1,25,000") as well as "125,000" / "125000".
+            'students' => [['~(?:student (?:strength|base)|students enrolled|enrolled students|total enrolment)[^.;]{0,40}?(\d{1,3}(?:,\d{2})*,\d{3}|\d{1,3}(?:,\d{3})+|\d{4,6})~i', '~(\d{1,3}(?:,\d{2})*,\d{3}|\d{1,3}(?:,\d{3})+|\d{4,6})\s+students~i'], 'first', $num],
+            'largest_stream_share' => [['~(?:engineering|medical|MBBS|dental|nursing|pharmacy|management|MBA|law|arts|commerce|health ?sciences)(?: courses?| streams?| programmes?| colleges?| segment)?\b' . $said . ' of (?:the )?(?:total |overall )?(?:revenue|receipts|fee|income|operating income)~i'], 'max', null],
+            'states_count' => [['~(?:presence|campuses|institutes|institutions|colleges|universities|operations|markets|marketing|sells|sales|distribution|dealer network)[^.;]{0,40}?(?:across|in) (\d{1,2}|two|three|four|five|six|seven|eight|nine|ten) states~i'], 'first', $num],
+            'largest_institute_share' => [['~(?:flagship|largest|single) (?:institute|institution|university|college|campus)' . $said . '~i'], 'first', null],
+            'institute_age' => [['~track record of (?:over |more than |about |around |nearly )?(\d{1,3}) years~i', '~(?:established|set up|founded) in (19\d\d|20[0-2]\d)~i'], 'first',
+                fn ($s) => (float) $s > 1900 ? (float) (now()->year - (int) $s) : (float) $s],
+            'enrolment_ratio' => [['~(?:enrol(?:l)?ment (?:ratio|levels?)|seat (?:fill(?:ing)? |occupancy |utili[sz]ation )(?:rate|ratio|level)?)[^.;%]{0,40}?(\d{2,3}(?:\.\d+)?)\s?%~i', '~(\d{2,3}(?:\.\d+)?)\s?% of (?:its |the )?sanctioned (?:intake|seats?|capacity)~i'], 'first', null],
+            'gdpi_market_share' => [['~market share in (?:the )?(?:overall )?(?:GDPI|gross direct premium(?: income)?)[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i', '~market share[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%[^.;]{0,25}?(?:GDPI|gross direct premium|general insurance industry|non-life industry)~i'], 'first', null],
+            'retail_market_share' => [['~market share in (?:the )?retail (?:segments?|health(?: and motor)?|motor and (?:retail )?health)[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i'], 'first', null],
+            'diversified_channel_share' => [['~(?:agency|individual agents?)[^.;%]{0,40}?banca(?:ssurance)?[^.;%]{0,40}?direct' . $said . '~i'], 'first', null],
+            'top3_state_share' => [['~top (?:three|3) states' . $said . '~i'], 'first', null],
+            'motor_tp_share' => [['~(?:motor[- ](?:third[- ]party|TP)|third[- ]party (?:motor|liability))(?: segment| business| premium)?' . $said . '~i'], 'first', null],
+            'retention_ratio' => [['~retention (?:ratio|level)[^.;%]{0,40}?(\d{2,3}(?:\.\d+)?)\s?%~i'], 'first', null],
+            'gsec_share' => [['~(?:government|G-?Sec|sovereign)(?: and state government)? securities[^.;%]{0,50}?(?:accounted for|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?% of (?:the |its |total )*investment~i'], 'first', null],
+            'largest_product_share' => [['~(?:slippers?|sandals?|sports (?:shoes|footwear)|casual footwear|formal footwear|school shoes|flip[- ]flops|chappals?|(?:non[- ])?leather footwear|\bshoes)(?: segment| category| products?)?\b' . $said . '~i'], 'max', null],
+            'top2_region_share' => [['~top (?:two|2) (?:regions|countries|states|markets)' . $said . '~i'], 'first', null],
+            // Fertilisers: urea and P&K capacity (MMT; lakh tonnes / 10), urea capacity utilisation and energy use (Gcal per MT).
+            'urea_capacity' => [['~urea[^.;]{0,80}?capacity[^.;]{0,40}?(\d+(?:\.\d+)?\s?(?:MMT|million (?:metric )?tonnes|lakh (?:metric )?tonnes|LMT))~i'], 'first', $mmt = fn ($s) => (float) $s / (preg_match('~lakh|LMT~i', $s) ? 10 : 1)],
+            'pk_capacity' => [['~(?:DAP|NPK|complex fertili[sz]ers?|phosphatic|P&K|SSP)[^.;]{0,80}?capacity[^.;]{0,40}?(\d+(?:\.\d+)?\s?(?:MMT|million (?:metric )?tonnes|lakh (?:metric )?tonnes|LMT))~i'], 'first', $mmt],
+            'urea_utilisation' => [['~(?:capacity utili[sz]ation|utili[sz]ation of (?:the )?(?:re-?assessed capacity|RAC))[^.;%]{0,40}?(\d{2,3}(?:\.\d+)?)\s?%~i'], 'first', null],
+            'energy_gcal' => [['~energy (?:consumption|efficiency|norms?)[^.;]{0,40}?(\d(?:\.\d{1,2})?)\s?Gcal~i'], 'first', null],
+        ];
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            foreach ($text_figures as $k => [$res, $mode, $fn]) {
+                if (isset($m[$k])) continue;
+                $vals = collect($res)->flatMap(fn ($re) => preg_match_all($re, $text, $x) ? $x[1] : [])->map(fn ($s) => $fn ? $fn($s) : (float) $s)
+                    ->filter(fn ($v) => $v > 0 && (in_array($k, ['students', 'states_count', 'institute_age']) || $v <= ($k === 'urea_utilisation' ? 150 : 100)));
+                $v = $mode === 'max' ? $vals->max() : $vals->first();
+                if ($v !== null) { $m[$k] = $v; $sources[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
             }
         }
         // Hospitals: ARPOB (₹ per occupied bed-day), top-two specialities' share, and the payor mix (cash + insurance + international
@@ -660,7 +704,7 @@ class CareAssessment
                 $num = match ($unit) { '%' => '(\d{1,3}(?:\.\d+)?)\s?(%)', 'x' => '(\d{1,2}(?:\.\d+)?)\s?(x|times)', 'xp' => '(\d{1,3}(?:\.\d+)?)\s?(x|times|%)', 'stores' => '(\d{1,4})\s?(?:own(?:ed)?\s|retail\s|exclusive\s)?(stores|showrooms|outlets)', default => '(\d{1,2}(?:\.\d+)?)\s?(years?)' };
                 $v = preg_match('/from\s+[^\d]{0,12}\d+(?:\.\d+)?\s?(?:%|x|times|years?)?.{0,40}?\bto\s+[^\d]{0,12}' . $num . '/i', $m[1], $t) || preg_match('/' . $num . '/i', $m[1], $t)
                     ? (float) $t[1] / ($unit === 'xp' && $t[2] === '%' ? 100 : 1) : null;
-                if ($v === null || $v < self::KPI_RANGE[$unit][0] || $v > ($k === 'lcr' ? 500 : self::KPI_RANGE[$unit][1])) continue;
+                if ($v === null || $v < self::KPI_RANGE[$unit][0] || $v > match ($k) { 'lcr' => 500, 'combined_ratio' => 200, default => self::KPI_RANGE[$unit][1] }) continue;
                 $values[$k] = round($v, 2);
                 $source[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
             }

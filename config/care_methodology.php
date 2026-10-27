@@ -127,6 +127,18 @@ return [
             'override' => ['pbildt_margin' => [13, 10, 7, 4], 'wc_cycle' => [60, 90, 120, 160], 'inventory_days' => [35, 60, 90, 120]],
             'checks' => ['commodity_margin_volatility', 'inventory_build', 'forex_exposure'],
         ],
+        // Footwear makers and brands. Their stated industry is usually the mixed "Apparel, Textiles & Footwear", so the name is
+        // checked before industries. Bands span ICRA's indicative levels (Sep 2025): revenue ₹3,000 cr → ₹200 cr, RoCE 25% → 10%,
+        // TOL/TNW 0.9x → 3.0x, debt / OPBDITA 0.5x → 5.0x, interest cover 18x → 2x, DSCR 4x → 1.1x.
+        'footwear' => [
+            'name' => 'Footwear', 'criteria' => 'ICRA Rating Methodology – Footwear (Sep 2025)',
+            'match' => ['industry' => '/^footwear|leather footwear/i', 'name' => '/^(?!.*(?:\binc\b|\.com\b))(?=.*(?:footwear|\bshoes?\b|\bbata\b|relaxo|metro brands|campus activewear|khadim|mirza international|sreeleathers|lakhani|\bvkc\b|paragon (?:polymer|footcare)|action shoes|red ?tape))/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'gearing', 'tol_tnw', 'debt_pbildt', 'icr', 'dscr', 'current_ratio', 'inventory_days', 'collection_days', 'wc_cycle', 'cash_st_debt', 'promoter_holding', 'rpt_revenue'],
+            'override' => ['toi_crore' => [3000, 1216, 493, 200], 'roce' => [25, 20, 15, 10], 'tol_tnw' => [0.9, 1.34, 2.01, 3.0], 'debt_pbildt' => [0.5, 1.08, 2.32, 5],
+                'icr' => [18, 8.65, 4.16, 2], 'dscr' => [4, 2.6, 1.69, 1.1]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['inventory_build', 'commodity_margin_volatility', 'forex_exposure', 'group_support'],
+        ],
         'cotton_textile' => [
             'name' => 'Cotton textile', 'criteria' => 'Rating Methodology – Cotton Textile (Sep 2026)',
             'match' => ['industry' => '/textile|apparel|garment/i', 'name' => '/cotton|spinning|textile|spintex|weav|denim|apparel|garment|fabrics|mills/i', 'nic' => ['13', '14']],
