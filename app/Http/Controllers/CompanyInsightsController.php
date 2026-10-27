@@ -228,6 +228,13 @@ class CompanyInsightsController extends Controller
             try { \App\Jobs\FillRegistryFromMca::dispatch($knownCin)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
         }
         $company->load(['registryDetail', 'financialStatements', 'officers', 'filings', 'shareholdings', 'businessProducts', 'relatedParties', 'charges', 'auditors', 'usListings.financials']);
+        // US-listed: statements come from SEC EDGAR (no MCA filings exist); queued on first view, refreshed monthly.
+        if ($company->usListings->whereNotNull('cik')->isNotEmpty()) {
+            $sec = $company->financialStatements->filter(fn ($s) => str_starts_with((string) $s->source, 'SEC '));
+            if (($sec->isEmpty() || $sec->max('updated_at')?->lt(now()->subDays(30))) && cache()->add('insights:sec-statements:' . $company->id, 1, now()->addHours(6))) {
+                try { \App\Jobs\ImportSecStatements::dispatch($company->id)->onConnection('database')->onQueue('catalog'); } catch (\Throwable $e) { report($e); }
+            }
+        }
         // Credit tables arrive with a later migration; until it runs the page renders without the ratings modules.
         $ratingsReady = rescue(function () use ($company) { $company->load(['creditRatings', 'creditRatingSources']); return true; }, false);
         if (!$ratingsReady) {
@@ -260,6 +267,7 @@ class CompanyInsightsController extends Controller
             'credit' => rescue(fn () => app(\App\Services\Insights\CreditProfile::class)->build($company), null),
             'similar' => rescue(fn () => app(\App\Services\Insights\CompanySimilarity::class)->for($company), collect()),
             'careAssessment' => rescue(fn () => app(\App\Services\Insights\CareAssessment::class)->stored($company, $premium), null),
+            'nseListing' => rescue(fn () => \Illuminate\Support\Facades\DB::table('listed_companies')->where('company_id', $company->id)->first(['symbol', 'last_price']), null, false),
             'funding' => rescue(fn () => app(\App\Services\Insights\FundingLifecycle::class)->build($company, $premium), null),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,

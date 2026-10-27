@@ -67,6 +67,14 @@ class CompanyLookup
         $registry = CompanyRegistryDetail::firstOrNew(['company_id' => $company->id]);
         if (!$force && $registry->enriched_at && $registry->enriched_at->gt(now()->subDays(30))) return;
         $cin = $registry->cin ?? $company->registry_cin;
+        // A foreign company (US-listed, or registered outside India) is only matched to the Indian register by its CIN:
+        // a name search finds unrelated Indian firms ("Oracle" -> an "ORACLE …" company in Himatnagar).
+        if (!$cin && self::foreign($company)) {
+            $registry->enriched_at = now();
+            $registry->source = $registry->source ?: 'Not registered in India';
+            $registry->save();
+            return;
+        }
         try {
             foreach ($this->gleif($cin ? ['filter[entity.registeredAs]' => $cin] : ['filter[entity.legalName]' => mb_strtoupper($company->name), 'filter[entity.legalAddress.country]' => 'IN']) as $row) { $this->fill($company, $registry, $row); break; }
         } catch (Throwable $e) { report($e); }
@@ -83,6 +91,14 @@ class CompanyLookup
         $registry->source = $registry->source ?: 'Public registries';
         $registry->save();
         if ($company->isDirty()) $company->save();
+    }
+
+    /** Listed in the US (and not an Indian ADR issuer) or registered in another country. */
+    public static function foreign(Company $company): bool
+    {
+        $country = strtolower(trim((string) $company->country));
+        if ($country !== '' && !in_array($country, ['india', 'in', 'global'], true)) return true;
+        return \App\Models\UsListedCompany::where('company_id', $company->id)->where(fn ($q) => $q->whereNull('country')->orWhere('country', '!=', 'India'))->exists();
     }
 
     /** @return array<int, array> normalised rows */

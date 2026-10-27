@@ -186,6 +186,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // US stock market: screener of NYSE / Nasdaq stocks and price history per ticker.
 Route::get('/markets/us', [\App\Http\Controllers\UsMarketController::class, 'index'])->name('markets.us');
 Route::get('/markets/us/{ticker}/history', [\App\Http\Controllers\UsMarketController::class, 'history'])->where('ticker', '[A-Za-z0-9.\-]{1,16}')->middleware('throttle:60,1')->name('markets.us.history');
+Route::get('/markets/nse/{symbol}/history', [\App\Http\Controllers\UsMarketController::class, 'nseHistory'])->where('symbol', '[A-Za-z0-9&\-]{1,20}')->middleware('throttle:60,1')->name('markets.nse.history');
 // Premium plans: fee breakdown, checkout and Razorpay payment.
 Route::get('/premium', [\App\Http\Controllers\PremiumController::class, 'index'])->name('premium.index');
 Route::middleware('auth')->group(function () {

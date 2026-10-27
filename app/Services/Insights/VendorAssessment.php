@@ -10,18 +10,32 @@ class VendorAssessment
     {
         $filings = $company->filings;
         $checks = [];
-        foreach (['AOC-4'=>'Financial statements', 'MGT-7'=>'Annual return / ownership'] as $prefix=>$label) {
-            $matching = $filings->filter(fn($f)=>str_starts_with($f->form, $prefix));
-            $checks[] = ['name'=>$label, 'status'=>$matching->isEmpty()?'Missing':($matching->contains(fn($f)=>$f->status !== 'parsed')?'Review required':'Parsed; authenticity not verified'),
-                'detail'=>$matching->map(fn($f)=>$f->form.' '.($f->financial_year ?? 'year unknown').' ('.$f->status.')')->implode('; ') ?: 'Upload the company filing with its financial year and filing acknowledgement.'];
+        $sec = $company->usListings ?? collect();
+        $secFiler = $sec->whereNotNull('cik')->first();
+        $fetched = $company->financialStatements->sortBy('financial_year');
+        if ($secFiler) {
+            // US-listed: annual reports are filed with the SEC (10-K / 20-F); there is no AOC-4 or MGT-7.
+            $years = $fetched->filter(fn($s)=>str_starts_with((string)$s->source,'SEC '))->pluck('financial_year');
+            $checks[] = ['name'=>'Financial statements (SEC annual report)', 'status'=>$years->isEmpty() ? 'Being fetched' : 'Read from SEC EDGAR',
+                'detail'=>$years->isEmpty() ? 'Read automatically from SEC EDGAR (CIK '.$secFiler->cik.') within a few minutes.' : 'Consolidated accounts, FY '.$years->first().' to '.$years->last().', converted to rupees.'];
+            $checks[] = ['name'=>'Company registration', 'status'=>'SEC registrant', 'detail'=>($secFiler->exchange ?: 'US').': '.$sec->pluck('ticker')->implode(', ').'; not registered under the Companies Act.'];
+        } else {
+            foreach (['AOC-4'=>'Financial statements', 'MGT-7'=>'Annual return / ownership'] as $prefix=>$label) {
+                $matching = $filings->filter(fn($f)=>str_starts_with($f->form, $prefix));
+                $other = $prefix === 'AOC-4' ? $fetched->pluck('source')->filter()->unique()->implode(', ') : '';
+                $checks[] = ['name'=>$label, 'status'=>$matching->isEmpty() ? ($other !== '' ? 'Available' : 'Being fetched') : ($matching->contains(fn($f)=>$f->status !== 'parsed')?'Review required':'Parsed; authenticity not verified'),
+                    'detail'=>$matching->map(fn($f)=>$f->form.' '.($f->financial_year ?? 'year unknown').' ('.$f->status.')')->implode('; ')
+                        ?: ($other !== '' ? 'Figures for FY '.$fetched->pluck('financial_year')->unique()->implode(', ').' from '.$other.'.' : 'Read automatically from the MCA '.$prefix.' when a data provider returns it.')];
+            }
+            $checks[] = ['name'=>'Company registration', 'status'=>$company->registryDetail?->company_status ?? $company->registry_status ?? 'Unknown',
+                'detail'=>'Recorded registry status is not proof that all statutory obligations are satisfied.'];
         }
-        $checks[] = ['name'=>'Company registration', 'status'=>$company->registryDetail?->company_status ?? $company->registry_status ?? 'Unknown',
-            'detail'=>'Recorded registry status is not proof that all statutory obligations are satisfied.'];
         foreach (['GST filing and tax compliance','Default / overdue EMI history','Fraud, litigation and insolvency checks','Bank account and vendor identity verification','Agreed payment terms and invoice ageing'] as $label) {
             $checks[] = ['name'=>$label,'status'=>'Not verified','detail'=>'Requires dated supporting evidence; absence of a record is not a clean result.'];
         }
-        // A company obligor must not be assessed using its consolidated group figures.
+        // A company obligor must not be assessed using its consolidated group figures; SEC filers publish consolidated accounts only.
         $statements = $company->financialStatements->where('is_consolidated', false)->sortBy('financial_year')->values();
+        if ($statements->isEmpty() && $secFiler) $statements = $company->financialStatements->where('is_consolidated', true)->sortBy('financial_year')->values();
         $latest = $statements->last();
         $number = fn($v)=>$v !== null && is_numeric($v) ? (float)$v : null;
         $divide = fn($a,$b)=>$a !== null && $b !== null && $b > 0 ? round($a/$b,2) : null;
@@ -37,12 +51,12 @@ class VendorAssessment
             ['name'=>'DSCR','value'=>null,'formula'=>'Not calculated: cash available for debt service and scheduled principal + interest are required.'],
         ];
         $risks = [];
-        if (!$latest) $risks[] = 'No standalone financial statements available.';
+        if (!$latest) $risks[] = 'No financial statements available yet.';
         if ($latest && !$latest->period_end) $risks[] = 'Financial statement date is unknown.';
         if ($latest?->period_end && $latest->period_end->lt(now()->subMonths(18))) $risks[] = 'Financial statements are over 18 months old (review freshness threshold).';
         if ($latest?->period_end && $latest->period_end->isFuture()) $risks[] = 'Statement period is in the future; check the imported date.';
         if ($equity !== null && $equity <= 0) $risks[] = 'Non-positive net worth.';
-        if ($value('profit_after_tax') !== null && $value('profit_after_tax') < 0) $risks[] = 'Reported loss in the latest standalone period.';
+        if ($value('profit_after_tax') !== null && $value('profit_after_tax') < 0) $risks[] = 'Reported loss in the latest period.';
         if ($metrics[0]['value'] !== null && $metrics[0]['value'] < 1) $risks[] = 'Current liabilities exceed current assets.';
         if ($metrics[2]['value'] !== null && $metrics[2]['value'] < 1) $risks[] = 'Reported EBIT does not cover finance cost.';
         $previous = null;
@@ -59,7 +73,7 @@ class VendorAssessment
         $scenarioRevenue = $value('revenue') !== null && $value('revenue') > 0 ? $value('revenue') * (1 + $revenueChange / 100) : null;
         $scenarioEbit = $scenarioRevenue !== null && $ebit !== null ? $ebit + ($scenarioRevenue - $value('revenue')) : null;
         $scenario = ['change'=>$revenueChange,'revenue'=>$scenarioRevenue,'ebit'=>$scenarioEbit,'interest_cover'=>$divide($scenarioEbit,$value('finance_cost'))];
-        return ['scenario'=>$scenario,'checks'=>$checks,'metrics'=>$metrics,'risks'=>$risks,'trends'=>$trends,
+        return ['basis'=>$latest && $latest->is_consolidated ? 'Consolidated' : 'Standalone','scenario'=>$scenario,'checks'=>$checks,'metrics'=>$metrics,'risks'=>$risks,'trends'=>$trends,
             'year'=>$latest?->financial_year,'period_end'=>$latest?->period_end?->toDateString(),
             'decision'=>'Review required - payment ability not established',
             'reports'=>$filings->where('form','RATING REPORT')->sortByDesc(fn($f)=>$f->parsed_fields['report_date'] ?? ''),

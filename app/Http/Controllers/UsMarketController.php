@@ -25,24 +25,46 @@ class UsMarketController extends Controller
         });
         return view('markets.us', ['stocks' => $stocks, 'f' => $f, 'sort' => $sort, 'dir' => $dir, 'sorts' => self::SORTS, 'facets' => $facets, 'movers' => $movers]);
     }
-         public function history(string $ticker)
-         {
+
+    public function history(string $ticker, Request $request)
+    {
         $listing = UsListedCompany::where('ticker', strtoupper($ticker))->firstOrFail();
-        $data = Cache::remember('us-market:history:' . $listing->ticker, now()->addHours(6), function () use ($listing) {
-            try {
-                $json = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'])
-                    ->timeout(15)->get('https://query1.finance.yahoo.com/v8/finance/chart/' . rawurlencode($listing->ticker), ['range' => '5y', 'interval' => '1d'])->json('chart.result.0');
-            } catch (\Throwable $e) {
-                report($e);
-                return null;
-            }
-            $points = [];
-            foreach ($json['timestamp'] ?? [] as $i => $ts) {
-                $close = $json['indicators']['quote'][0]['close'][$i] ?? null;
-                if ($close) $points[] = [gmdate('Y-m-d', $ts), round((float) $close, 2)];
-            }
-            return $points ?: null;
-        });
-        return response()->json(['ticker' => $listing->ticker, 'points' => $data ?? []]);
+        return response()->json(['ticker' => $listing->ticker] + self::prices($listing->ticker, $request->boolean('intraday')));
+    }
+
+    /** NSE-listed company: the same chart from the ".NS" series (prices in rupees, India time). */
+    public function nseHistory(string $symbol, Request $request)
+    {
+        $symbol = DB::table('listed_companies')->where('symbol', strtoupper($symbol))->value('symbol') ?? abort(404);
+        return response()->json(['ticker' => $symbol] + self::prices($symbol . '.NS', $request->boolean('intraday')));
+    }
+
+    /**
+     * Daily closes for five years (cached 6 hours), or 5-minute prices for the last five sessions in the exchange's local
+     * time with the previous close (cached 5 minutes) for the 1D / 2D / 5D views.
+     */
+    private static function prices(string $yahoo, bool $intraday): array
+    {
+        $key = 'market-prices:' . ($intraday ? 'intraday:' : 'daily:') . $yahoo;
+        $data = Cache::get($key);
+        if ($data !== null) return $data;
+        try {
+            $json = Http::withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'])
+                ->timeout(15)->get('https://query1.finance.yahoo.com/v8/finance/chart/' . rawurlencode($yahoo), $intraday ? ['range' => '5d', 'interval' => '5m'] : ['range' => '5y', 'interval' => '1d'])->json('chart.result.0');
+        } catch (\Throwable $e) {
+            report($e);
+            $json = null;
+        }
+        $offset = $intraday ? (int) ($json['meta']['gmtoffset'] ?? 0) : 0;
+        $points = [];
+        foreach ($json['timestamp'] ?? [] as $i => $ts) {
+            $close = $json['indicators']['quote'][0]['close'][$i] ?? null;
+            if ($close) $points[] = [gmdate($intraday ? 'Y-m-d H:i' : 'Y-m-d', $ts + $offset), round((float) $close, 2)];
+        }
+        $prev = $json['meta']['chartPreviousClose'] ?? null;
+        $data = ['points' => $points, 'previous_close' => $prev ? round((float) $prev, 2) : null];
+        // An empty answer (source unreachable) is retried after a minute rather than kept for hours.
+        Cache::put($key, $data, $points ? ($intraday ? now()->addMinutes(5) : now()->addHours(6)) : now()->addMinute());
+        return $data;
     }
 }

@@ -6,7 +6,7 @@
     @foreach($vendorAssessment['checks'] as $check)<tr><td>{{ $check['name'] }}</td><td>{{ $check['status'] }}</td><td>{{ $check['detail'] }}</td></tr>@endforeach
     </tbody></table></div>
     <h3>Payment-capacity indicators</h3>
-    <p class="ci-muted">Standalone FY {{ $vendorAssessment['year'] ?? 'not available' }}; period ending {{ $vendorAssessment['period_end'] ?? 'unknown' }}. Missing inputs remain unknown.</p>
+    <p class="ci-muted">{{ $vendorAssessment['basis'] ?? 'Standalone' }} FY {{ $vendorAssessment['year'] ?? 'not available' }}; period ending {{ $vendorAssessment['period_end'] ?? 'unknown' }}. Missing inputs remain unknown.</p>
     <div class="ci-table-wrap"><table class="ci-table"><thead><tr><th>Indicator</th><th>Value</th><th>Calculation / limitation</th></tr></thead><tbody>
     @foreach($vendorAssessment['metrics'] as $metric)<tr><td>{{ $metric['name'] }}</td><td>{{ $metric['value'] === null ? 'Unknown' : number_format($metric['value'],2).'x' }}</td><td>{{ $metric['formula'] }}</td></tr>@endforeach
     </tbody></table></div>

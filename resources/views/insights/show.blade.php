@@ -103,6 +103,12 @@
     @if($company->usListings->isNotEmpty())
         @include('insights.partials.us-market')
     @endif
+    @if(!empty($nseListing))
+        <section class="ci-card" id="share-price" data-nav="Share price">
+            <h2>Share price · NSE: {{ $nseListing->symbol }}</h2>
+            @include('insights.partials.price-chart', ['pcId' => 'nse-price', 'pcTitle' => $nseListing->symbol . ' on NSE', 'pcUrl' => route('markets.nse.history', $nseListing->symbol), 'pcCur' => '₹', 'pcZone' => 'India time'])
+        </section>
+    @endif
     {{-- A US-listed company with no Indian (MCA) filings: the MCA overview would only say figures are being fetched. --}}
     @if($company->usListings->isNotEmpty() && $company->financialStatements->isEmpty())
     @elseif($premium)
