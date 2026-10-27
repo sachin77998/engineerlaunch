@@ -93,6 +93,19 @@ return [
             'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'lt_debt_equity', 'gearing', 'tol_tnw', 'debt_pbildt', 'debt_gca', 'icr', 'dscr', 'current_ratio', 'quick_ratio', 'cash_st_debt', 'wc_cycle', 'fixed_asset_turnover', 'promoter_holding', 'rpt_revenue'],
             'checks' => ['capex_vs_networth', 'negative_cfo_proxy', 'group_support'],
         ],
+        // Iron & steel (matched before non-ferrous: "Metaliks" / "Metalics" names are steel makers). Bands span ICRA's
+        // indicative strongest and weakest levels (Jun 2025): revenue ₹4,000 cr → ₹100 cr, TOL/TNW 0.9x → 3.0x, debt / OPBDITA 0.5x → 5.0x,
+        // interest cover 18x → 2x, DSCR 4x → 1.1x, RoCE 25% → 10%. The mixed "Steel, Metals & Pipes" industry is left to the name.
+        'steel' => [
+            'name' => 'Iron & steel', 'criteria' => 'ICRA Rating Methodology – Iron & Steel (Jun 2025)',
+            'match' => ['industry' => '/^steel$|^iron (?:&|and) steel|^(?:sponge|pig) iron|^ferro ?alloys?|(?<!non[- ])(?<!non)\bferrous/i',
+                'name' => '/^(?!.*(?:collectibles|ministry of))(?:.*(?:\bsteels?\b|\bispat\b|metaliks?\b|metalics\b|sponge iron|pig iron|(?-i:\bTMT\b)|jindal stainless|jindal saw|seamless|\bsail\b))/i', 'nic' => ['2410', '2431']],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'gearing', 'tol_tnw', 'debt_pbildt', 'icr', 'dscr', 'current_ratio', 'cash_st_debt', 'wc_cycle', 'promoter_holding', 'rpt_revenue'],
+            'override' => ['toi_crore' => [4000, 1170, 342, 100], 'roce' => [25, 20, 15, 10], 'tol_tnw' => [0.9, 1.34, 2.01, 3.0], 'debt_pbildt' => [0.5, 1.08, 2.32, 5],
+                'icr' => [18, 8.65, 4.16, 2], 'dscr' => [4, 2.6, 1.69, 1.1]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['commodity_margin_volatility', 'forex_exposure', 'capex_vs_networth', 'group_support'],
+        ],
         'non_ferrous' => [
             'name' => 'Non-ferrous metals', 'criteria' => 'Rating Methodology – Non-Ferrous Metals (Sep 2024)',
             'match' => ['industry' => '/aluminium|copper|zinc|non[- ]?ferrous/i', 'name' => '/alumin|copper|zinc|hindalco|vedanta|nalco|hindustan zinc|metal/i', 'nic' => ['2420']],

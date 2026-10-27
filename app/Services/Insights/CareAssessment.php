@@ -237,6 +237,7 @@ class CareAssessment
             if (!isset($m['largest_region_share']) && preg_match('~exports?(?: revenues?| sales| markets?)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x) && $x[1] <= 100) {
                 $m['largest_region_share'] = max((float) $x[1], 100 - (float) $x[1]); $sources['largest_region_share'] = $src . ' (domestic vs export split)';
             }
+            if (!isset($m['export_share']) && preg_match('~exports?(?: revenues?| sales| markets?)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x) && $x[1] <= 100) { $m['export_share'] = (float) $x[1]; $sources['export_share'] = $src; }
             if (!isset($m['aftermarket_share']) && preg_match('~(?:aftermarket|after-market|replacement)(?: segment| market| sales| business)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x) && $x[1] <= 100) { $m['aftermarket_share'] = (float) $x[1]; $sources['aftermarket_share'] = $src; }
             // Several segments may be named; the largest share is the concentration figure.
             if (!isset($m['largest_segment_share']) && preg_match_all('~(?:passenger vehicles?|\bPVs?\b|commercial vehicles?|\bM&HCVs?\b|\bCVs?\b|two[- ]wheelers?|\b2Ws?\b|tractors?|three[- ]wheelers?)(?: segment| OEMs?)?\b(?:[^.;%]{0,25}?)(?:accounted for|contributed|constituted|formed|comprised)' . $share . '~i', $text, $x)) {
