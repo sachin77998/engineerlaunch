@@ -127,7 +127,7 @@ class SectorDirectory
     /** Companies of one sub-category, most openings first, narrowed by the usual filters. */
     public function subcategoryCompanies(CompanyCategory $child, array $filters, int $perPage = 30)
     {
-        return $this->companies($filters)->whereHas('categories', fn ($q) => $q->where('company_categories.id', $child->id))
+        return $this->companies($filters, fn ($c) => $c->whereHas('categories', fn ($q) => $q->where('company_categories.id', $child->id)))
             ->paginate($perPage)->withQueryString();
     }
 
@@ -290,8 +290,7 @@ class SectorDirectory
     /** Companies of one sector grouped by subsector, narrowed by name/brand and plant location. */
     public function sector(CompanyCategory $sector, array $filters): Collection
     {
-        $companies = $this->companies($filters)
-            ->whereHas('categories', fn ($q) => $q->whereIn('company_categories.id', $sector->children->pluck('id')))
+        $companies = $this->companies($filters, fn ($c) => $c->whereHas('categories', fn ($q) => $q->whereIn('company_categories.id', $sector->children->pluck('id'))))
             ->with(['categories' => fn ($q) => $q->where('parent_id', $sector->id)->select('company_categories.id')])
             ->get();
         return $sector->children->map(fn ($child) => (object) [
@@ -303,7 +302,7 @@ class SectorDirectory
     /** Cross-sector search, e.g. a brand ("Santoor") or a hub ("Haridwar"). */
     public function search(array $filters): Collection
     {
-        return $this->companies($filters)->whereHas('categories', fn ($q) => $q->where('taxonomy', SectorCatalogImporter::TAXONOMY))
+        return $this->companies($filters, fn ($c) => $c->whereHas('categories', fn ($q) => $q->where('taxonomy', SectorCatalogImporter::TAXONOMY)))
             ->with(['categories' => fn ($q) => $q->where('taxonomy', SectorCatalogImporter::TAXONOMY)->select('company_categories.id', 'name', 'slug', 'parent_id')])
             ->limit(150)->get();
     }
@@ -330,13 +329,24 @@ class SectorDirectory
         return Cache::remember('sector-directory:has-facilities', now()->addMinutes(10), fn () => Schema::hasTable('company_facilities'));
     }
 
-    private function companies(array $filters): Builder
+    /**
+     * Matching companies, most open jobs first. The ids are found first ($scope adds the caller's category filter): with the
+     * filters and the job count in one query, MariaDB counted jobs for every active company before filtering (20-35s).
+     */
+    private function companies(array $filters, ?\Closure $scope = null): Builder
     {
         $location = array_filter(array_intersect_key($filters, array_flip(['state', 'city', 'industrial_area'])));
         $facilities = $this->hasFacilities();
         if (!$facilities) $location = [];
-        return Company::active()->withCount('activeJobs')
+        $ids = $this->matching($filters, $location)->when($scope, fn ($q) => $scope($q))->toBase()->pluck('companies.id');
+        return Company::whereIntegerInRaw('companies.id', $ids)->withCount('activeJobs')
             ->when($facilities, fn ($q) => $q->with(['facilities' => fn ($f) => $this->whereLocation($f, $location)->select('id', 'company_id', 'state', 'city', 'industrial_area')]))
+            ->orderByDesc('active_jobs_count')->orderBy('name');
+    }
+
+    private function matching(array $filters, array $location): Builder
+    {
+        return Company::active()
             ->when($filters['q'] ?? null, function ($query, $term) {
                 $like = $this->like(mb_strtolower($term));
                 $query->where(fn ($q) => $q->whereRaw('LOWER(name) LIKE ?', [$like])
@@ -344,8 +354,7 @@ class SectorDirectory
                     ->when($this->hasColumn('products'), fn ($w) => $w->orWhereRaw('LOWER(products) LIKE ?', [$like]))
                     ->when($this->hasFacilities(), fn ($w) => $w->orWhereHas('facilities', fn ($f) => $f->where('city', 'like', $like)->orWhere('industrial_area', 'like', $like))));
             })
-            ->when($location, fn ($query) => $query->whereHas('facilities', fn ($f) => $this->whereLocation($f, $location)))
-            ->orderByDesc('active_jobs_count')->orderBy('name');
+            ->when($location, fn ($query) => $query->whereHas('facilities', fn ($f) => $this->whereLocation($f, $location)));
     }
 
     private function whereLocation($query, array $location)

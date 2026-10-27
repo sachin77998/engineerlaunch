@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Job;
 use App\Models\NewsArticle;
 use App\Models\NewsCategory;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -31,12 +31,13 @@ class NewsController extends Controller
         $relatedArticles = NewsArticle::with(['category', 'source'])->where('is_published', true)->whereKeyNot($article->id)->when($article->category_id, fn($query) => $query->where('category_id', $article->category_id))->latest('published_at')->limit(6)->get();
         $jobQuery = Job::with('company')->active();
         $terms = $skills->take(5)->merge($roles->take(3))->filter()->unique();
+        // Jobs whose title names one of the terms: the ids come from the title index first. Searching descriptions with LIKE or
+        // phrase FULLTEXT read every job ("Process Engineering" took 70s per query).
         if ($terms->isNotEmpty()) {
-            $jobQuery->where(function (Builder $q) use ($terms) {
-                foreach ($terms as $term) {
-                    $q->orWhere('title', 'like', "%{$term}%")->orWhere('description', 'like', "%{$term}%");
-                }
-            });
+            $ids = DB::table('jobs')->where(function ($q) use ($terms) {
+                foreach ($terms as $term) $q->orWhere('title', 'like', '%' . addcslashes((string) $term, '%_\\') . '%');
+            })->limit(5000)->pluck('id');
+            $jobQuery->whereIntegerInRaw('id', $ids);
         }
         $relatedJobCount = (clone $jobQuery)->count();
         $relatedJobs = $jobQuery->latest('posted_at')->limit(6)->get();

@@ -6,6 +6,7 @@ use App\Models\Job;
 use App\Models\Technology;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /** Every programming language, framework, database and tool found by technologies:sync, each opening its jobs. */
 class TechnologyController extends Controller
@@ -31,9 +32,14 @@ class TechnologyController extends Controller
     public function show(Request $request, string $slug)
     {
         $technology = Technology::where('slug', $slug)->firstOrFail();
-        $jobs = Job::active()->whereHas('technologies', fn ($q) => $q->where('technologies.id', $technology->id))->with('company:id,name,slug,website,logo_url')->when($request->query('location'), fn ($q, $location) => $q->where('location', 'like', '%' . addcslashes($location, '%_\\') . '%'))->latest('posted_at')->paginate(20)->withQueryString();
+        // Job ids from the pivot first: filtering every active job through the pivot took 20-30s for a common technology.
+        $jobIds = DB::table('job_technology')->where('technology_id', $technology->id)->pluck('job_id');
+        // A location narrows the ids on the small (location, id) index before full job rows are read.
+        if ($location = $request->query('location')) $jobIds = DB::table(DB::raw('`jobs` FORCE INDEX (jobs_location_index)'))->whereIntegerInRaw('id', $jobIds)->where('location', 'like', '%' . addcslashes((string) $location, '%_\\') . '%')->pluck('id');
+        // A few hundred ids are read by primary key; otherwise MariaDB walks the posted_at index across every job to find them.
+        $jobs = Job::active()->when($jobIds->count() < 2000, fn ($q) => $q->from(DB::raw('`jobs` FORCE INDEX (PRIMARY)')))->whereIntegerInRaw('id', $jobIds)->with('company:id,name,slug,website,logo_url')->latest('posted_at')->paginate(20)->withQueryString();
         // Technologies that appear in the same job postings most often.
-        $related = Technology::query()->select('technologies.id', 'name', 'slug', 'jobs_count')->join('job_technology as jt', 'jt.technology_id', '=', 'technologies.id')->whereIn('jt.job_id', fn ($q) => $q->select('job_id')->from('job_technology')->where('technology_id', $technology->id))->where('technologies.id', '!=', $technology->id)->groupBy('technologies.id', 'name', 'slug', 'jobs_count')->orderByRaw('COUNT(*) DESC')->limit(12)->get();
+        $related = Cache::remember('technology-related:' . $technology->id, now()->addHours(6), fn () => Technology::query()->select('technologies.id', 'name', 'slug', 'jobs_count')->join('job_technology as jt', 'jt.technology_id', '=', 'technologies.id')->whereIn('jt.job_id', fn ($q) => $q->select('job_id')->from('job_technology')->where('technology_id', $technology->id))->where('technologies.id', '!=', $technology->id)->groupBy('technologies.id', 'name', 'slug', 'jobs_count')->orderByRaw('COUNT(*) DESC')->limit(12)->get());
         return view('technologies.show', compact('technology', 'jobs', 'related'));
     }
 }
