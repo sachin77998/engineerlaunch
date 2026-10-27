@@ -122,7 +122,8 @@ return [
     'icra_it_services' => [
         'agency' => 'ICRA', 'sector_key' => 'services', 'name' => 'IT (software & services)',
         // The base services profile also covers logistics and media: this paper applies to IT services, BPM and ER&D companies only.
-        'applies_if' => '/it services|it[- ]enabled|\bites\b|information technology|software|infotech|infosys|\bBPM\b|\bBPO\b|business process|engineering (?:research|R&D|services)|ER&D|digital (?:services|engineering|transformation)|technolog|consultancy services|wipro|mphasis|coforge|mindtree|tech mahindra/i',
+        // IT hardware traders and assemblers are rated under ICRA's corporate methodology (its hardware-services paper is archived).
+        'applies_if' => '/^(?!.*(?:hardware|peripherals?\b))(?=.*(?:it services|it[- ]enabled|\bites\b|information technology|software|infotech|infosys|\bBPM\b|\bBPO\b|business process|engineering (?:research|R&D|services)|ER&D|digital (?:services|engineering|transformation)|technolog|consultancy services|wipro|mphasis|coforge|mindtree|tech mahindra))/i',
         'criteria' => 'ICRA Rating Methodology – IT (Software & Services) (July 2025)', 'published_on' => '2025-07-01',
         'factors' => [
             // Industry risk (regulatory risk such as visa and immigration rules; competitive intensity, including GenAI) — assessed by the analyst.
