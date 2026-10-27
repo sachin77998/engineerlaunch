@@ -127,8 +127,8 @@ return [
         'factors' => [
             // Industry risk (regulatory risk such as visa and immigration rules; competitive intensity, including GenAI) — assessed by the analyst.
             ['key' => 'industry_position', 'group' => 'industry', 'label' => 'Industry position (regulation, competitive intensity, GenAI disruption)',
-                'strongest' => 'Differentiated offerings with deep client relationships; low dependence on onsite visas; capabilities to adopt GenAI and automation',
-                'weakest' => 'Commoditised, labour-arbitrage services exposed to visa or immigration curbs, pricing pressure and automation of service lines'],
+                'strongest' => 'Differentiated services and end-to-end solutions, with new technologies (cloud, digital, AI) and mitigants for visa and outsourcing restrictions in key markets',
+                'weakest' => 'Entry-level, commoditised services (data entry, back office, voice and chat support) that generative AI could replace; exposed to visa curbs and pricing pressure'],
             // Business risk — salient factors.
             ['key' => 'scale', 'group' => 'business', 'label' => 'Scale (operating income)', 'metric' => 'toi_crore', 'dir' => 'up', 'unit' => '₹ cr', 'spacing' => 'log',
                 'strongest_value' => 20000, 'weakest_value' => 1000, 'strongest' => '> ₹20,000 crore', 'weakest' => '< ₹1,000 crore'],
@@ -167,9 +167,12 @@ return [
             ['key' => 'parent_support', 'label' => 'Likelihood of parent support (rating of parent)', 'metric' => 'parent_support'],
         ],
         'notes' => [
-            'Analysis is on consolidated financials; overseas subsidiaries usually carry the front-end client contracts.',
-            'Working capital intensity is typically 15–25% of operating income; a rising unbilled revenue share is monitored as a sign of billing or collection stress.',
-            'Expenses capitalised as intellectual property or product development are evaluated for recoverability.',
+            'Many IT services companies own foreign subsidiaries, so cash flows, coverage and funding needs are assessed on consolidated and group-level figures.',
+            'Working capital intensity is typically 15–25% of operating income, mostly receivables; receivable ageing, debtor days against peers, exposure to domestic government clients and the trend in unbilled revenue as a % of revenue are monitored.',
+            'Expenses capitalised on developing own IP (e.g. software) are weighed against current profits and the record of monetising them.',
+            'Client concentration is read across the top five to ten clients; for captive IT units, dependence on the parent (and the parent\'s on the captive) is assessed.',
+            'Operating efficiency is judged against peers: employee cost to revenue, contract mix (time and material vs fixed price; onsite vs offshore) and utilisation.',
+            'Accounting review covers contingent consideration and amortisation of intangibles from acquisitions; a high share of pledged promoter shares weakens financial flexibility.',
             'Indicative metrics are what ICRA generally considers relatively strong or weak; weaker metrics on one parameter can be offset by others or by a strong parent.',
         ],
     ],
