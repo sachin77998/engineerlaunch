@@ -16,7 +16,7 @@ class DiscoveryWriter
         $result = ['companies' => 0, 'created' => 0, 'updated' => 0];
         foreach ($companies as $entry) {
             DB::transaction(function () use ($entry, $hub, &$result) {
-                [$sector, $subsector] = $this->classifier->classify($entry['name'], implode(' ', $entry['industries'] ?? []), $entry['tags'] ?? '', $entry['products'] ?? '');
+                [$sector, $subsector] = $this->classifier->localise($this->classifier->classify($entry['name'], implode(' ', $entry['industries'] ?? []), $entry['tags'] ?? '', $entry['products'] ?? ''), $entry['country'] ?? null, $entry['name']);
                 $company = $this->catalog->upsertCompany($entry, $sector, $subsector);
                 $this->catalog->attach($company, $sector, $subsector);
                 if ($hub) {

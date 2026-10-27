@@ -35,7 +35,7 @@ class RegistryWriter
         foreach ($rows as $row) {
             if ($existing->has($row['key'])) continue;
             $slug = $takenSlugs->has($row['slug']) ? Str::limit($row['slug'] . '-' . Str::slug($row['city'] ?: 'registered'), 240, '') : $row['slug'];
-            $match = $this->classifier->classify($row['name']);
+            $match = $this->classifier->localise($this->classifier->classify($row['name']), $row['country'] ?? null, $row['name']);
             // Every row must have the same columns for a bulk insert, so empty values stay as null.
             $insert = [
                 'name' => $row['name'], 'slug' => $slug, 'name_key' => $row['key'], 'country' => $row['country'] ?: 'Global',

@@ -50,6 +50,10 @@ class DiscoverCompaniesChunk implements ShouldQueue
                     if ($this->batchRunId) BatchRun::whereKey($this->batchRunId)->increment('total_items', 1, ['pending_items' => DB::raw('pending_items + 1')]);
                 } elseif ($this->job) {
                     dispatch($next->onConnection('database')->onQueue('discovery'));
+                } else {
+                    // Run inline (companies:discover --now): follow the cursor here once this page is counted.
+                    $inline = $next;
+                    if ($this->batchRunId) BatchRun::whereKey($this->batchRunId)->increment('total_items', 1, ['pending_items' => DB::raw('pending_items + 1')]);
                 }
             }
             usleep(500000);
@@ -73,6 +77,7 @@ class DiscoverCompaniesChunk implements ShouldQueue
                 'records_created' => $result['created'], 'records_updated' => $result['updated'],
             ], ['pending_items' => DB::raw('GREATEST(pending_items - 1, 0)')]);
         }
+        if (isset($inline)) app()->call([$inline, 'handle']);
     }
 
     public function failed(Throwable $exception): void

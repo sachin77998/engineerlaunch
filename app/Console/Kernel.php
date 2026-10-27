@@ -34,6 +34,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('trading:eod-export')->weekdays()->at('23:45')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // NSE-listed companies: audited results, shareholding and prices weekly (only companies not synced in a week); prices daily.
         $schedule->command('insights:import-nse')->weeklyOn(6, '21:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        // Every listing gets a company page and sector without waiting for its results to download.
+        $schedule->command('insights:import-nse --link')->weeklyOn(0, '06:30')->timezone('Asia/Kolkata')->withoutOverlapping(60);
         $schedule->command('insights:import-nse --prices')->weekdays()->at('19:30')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // US stocks: closing quotes after the New York close; listings and SEC annual results weekly.
         $schedule->command('insights:import-us --prices')->weekdays()->at('17:30')->timezone('America/New_York')->withoutOverlapping(30);
@@ -63,6 +65,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
         $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
+        // Every registered company in the world whose name carries a trade word (gears, axles, forging, software, ...).
+        $schedule->command('companies:discover gleif --gleif-trades --trade-country=WORLD')->monthlyOn(15, '01:30')->withoutOverlapping(1440);
         $schedule->command('market:data fetch-metals')->dailyAt('10:30')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // Insights dashboard: index levels, movers and database counts stay cached, so no visitor waits for them.
         $schedule->call(fn () => rescue(fn () => app(\App\Services\Insights\InsightsHome::class)->build()))->everyTenMinutes()->name('insights-home-warm')->withoutOverlapping(10);

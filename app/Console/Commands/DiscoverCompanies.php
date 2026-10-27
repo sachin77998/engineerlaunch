@@ -23,7 +23,10 @@ class DiscoverCompanies extends Command
         {--gleif-cities : GLEIF registry: companies registered in every industrial-area / hub city (India)}
         {--gleif-country=* : GLEIF registry: whole countries by ISO code, e.g. AE GB DE}
         {--gleif-pages=10 : GLEIF pages of 200 companies per city or country}
-        {--gleif-trades : GLEIF registry: every Indian company whose name contains a trade word (config discovery.trade_terms)}
+        {--gleif-trades : GLEIF registry: every company whose name contains a trade word (config discovery.trade_terms)}
+        {--trade-country=* : Countries for --gleif-trades by ISO code, or WORLD for every country (default IN)}
+        {--trade-term=* : Only these trade words (default: every word in config discovery.trade_terms)}
+        {--trade-pages=50 : Pages of 200 per trade word and country (cursor paging; GLEIF matches whole words)}
         {--gleif-all=* : GLEIF registry: every registered company of these countries (cursor paging, e.g. IN = ~400k)}
         {--state=* : parks: only these states (default: every state and union territory)}
         {--sync : Fetch openings for newly discovered company websites when finished}
@@ -52,7 +55,12 @@ class DiscoverCompanies extends Command
             foreach ($this->option('gleif-country') as $code) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => $page]];
             // One starting chunk per country; each chunk queues the next page (up to 5,000 pages = 1M records).
             if ($this->option('gleif-trades')) {
-                foreach (config('discovery.trade_terms', []) as $term) foreach (array_slice($pages, 0, 3) as $page) $jobs[] = ['gleif', ['country' => 'IN', 'term' => $term, 'page' => $page]];
+                // One chain per word and country: each chunk queues the next cursor page until the matches run out. Worldwide
+                // scans use the narrower engineering / software word list; generic words ("solutions") would flood the catalogue.
+                foreach ($this->option('trade-country') ?: ['IN'] as $code) foreach (array_values(array_unique($this->option('trade-term')
+                    ?: config(strtoupper($code) === 'WORLD' ? 'discovery.world_trade_terms' : 'discovery.trade_terms', []))) as $term) {
+                    $jobs[] = ['gleif', ['country' => strtoupper($code), 'term' => $term, 'page' => 1, 'cursor' => '*', 'pages_left' => max(1, (int) $this->option('trade-pages'))]];
+                }
             }
             foreach ($this->option('gleif-all') as $code) $jobs[] = ['gleif', ['country' => strtoupper($code), 'page' => 1, 'cursor' => '*', 'pages_left' => 5000]];
         }

@@ -23,7 +23,7 @@ class CompanyClassifier
         ['\bwatch(es)?\b|wearable|smartwatch|eyewear|optician|spectacle', 'Consumer Electronics & Devices', 'Watches & Wearables'],
         ['mobile phone|smartphone|mobile store|mobile shop', 'Consumer Electronics & Devices', 'Mobile Phones'],
         ['supermarket|hypermarket|department store|grocery|convenience store|retail chain|wholesale retail|cash (&|and) carry', 'FMCG - Personal & Home Care', 'Supermarkets & Retail Chains'],
-        ['\\bforg', 'Auto Components, Forging & Casting', 'Forging'],
+        ['\\bforg|schmied|\\bforja|forgiat', 'Auto Components, Forging & Casting', 'Forging'],
         ['(?<![a-z])casting|foundry|die-cast|die cast|technocast|metal melt', 'Auto Components, Forging & Casting', 'Casting & Die Casting (India)'],
         ['bearing', 'Auto Components, Forging & Casting', 'Bearings'],
         ['fastener|bolt|screws|rivet', 'Auto Components, Forging & Casting', 'Fasteners'],
@@ -46,7 +46,8 @@ class CompanyClassifier
         ['tractor|harvester|agricultural machine|farm equipment', 'Automobile Manufacturers', 'Tractors & Farm Machinery'],
         ['motorcycle|scooter|two-wheeler|two wheeler|bicycle|cycles', 'Automobile Manufacturers', 'Two-Wheelers & Three-Wheelers'],
         ['truck|commercial vehicle|\bbus\b|coach', 'Automobile Manufacturers', 'Commercial Vehicles & Buses'],
-        ['auto part|automotive_parts|auto component|automotive component|axle|gear|steering|brake|clutch|piston|radiator|shock absorber|diesel component|engine component|rubber component|automotive', 'Auto Components, Forging & Casting', 'Gears, Steering, Brakes & Systems'],
+        ['lifting gear|lifting equipment|hoist|\bwinch', 'Heavy Engineering & Capital Goods', 'Machine Tools & Industrial Machinery'],
+        ['auto part|automotive_parts|auto component|automotive component|axle|gear|getriebe|zahnrad|antriebstechnik|engrenage|ingranagg|engranaje|riduttor|drivetrain|driveline|steering|brake|clutch|piston|radiator|shock absorber|diesel component|engine component|rubber component|automotive', 'Auto Components, Forging & Casting', 'Gears, Steering, Brakes & Systems'],
         ['automobile|automaker|car manufactur|motor vehicle|motors\b', 'Automobile Manufacturers', 'Passenger Cars'],
         ['stainless|alumin|zinc|copper|non-ferrous|brass', 'Steel, Metals & Pipes', 'Stainless Steel & Non-Ferrous Metals'],
         ['\\bpipes?\\b|\\btubes?\\b|tubular', 'Steel, Metals & Pipes', 'Pipes & Tubes'],
@@ -129,6 +130,30 @@ class CompanyClassifier
             if (preg_match('~' . $pattern . '~u', $text)) return [$sector, $subsector];
         }
         return self::FALLBACK;
+    }
+
+    private const EUROPE = ['germany', 'france', 'italy', 'spain', 'portugal', 'netherlands', 'belgium', 'luxembourg', 'switzerland', 'austria', 'ireland',
+        'united kingdom', 'denmark', 'sweden', 'norway', 'finland', 'iceland', 'poland', 'czechia', 'czech republic', 'slovakia', 'hungary', 'romania',
+        'bulgaria', 'greece', 'cyprus', 'malta', 'slovenia', 'croatia', 'serbia', 'estonia', 'latvia', 'lithuania', 'ukraine', 'liechtenstein', 'monaco'];
+
+    /**
+     * The name rules are written for India; an IT company registered elsewhere is filed with software products, cybersecurity,
+     * European or global IT services instead of "Indian IT Services".
+     * @param array{0:string,1:string} $match
+     * @return array{0:string,1:string}
+     */
+    public function localise(array $match, ?string $country, string $name = ''): array
+    {
+        $c = mb_strtolower(trim((string) $country));
+        if ($match[1] !== 'Indian IT Services' || $c === '' || $c === 'india' || stripos($name, 'india') !== false) return $match;
+        $n = mb_strtolower($name);
+        $match[1] = match (true) {
+            (bool) preg_match('~cyber|\bsecurity\b~u', $n) => 'Cybersecurity',
+            (bool) preg_match('~software|saas|\bcloud\b|\bapps?\b|platform~u', $n) => 'Software Products & SaaS',
+            in_array($c, self::EUROPE, true) => 'European IT Services',
+            default => 'Global IT Services & Consulting',
+        };
+        return $match;
     }
 
     public function isFallback(array $match): bool

@@ -13,6 +13,7 @@ use RuntimeException;
 class GleifCompanySource
 {
     private const URL = 'https://api.gleif.org/api/v1/lei-records';
+    private const NOT_A_COMPANY = '/\b(?:pension|superannuation|retirement|provident|gratuity|benefit (?:plan|scheme|trust)|will trust|settlement|estate of|scheme|sicav|sub-?fund|unit trust|fund\b|portfolio|employee (?:benefit|share)|ESOP)\b/i';
 
     // Alternate spellings searched together for one city.
     public const CITY_ALIASES = [
@@ -42,7 +43,9 @@ class GleifCompanySource
     /** $term: registry search by trade word ("forging", "casting"); only companies whose name contains it are kept. */
     public function fetch(string $countryCode, ?string $city, int $page, int $size = 200, ?string $cursor = null, ?string $term = null): array
     {
-        $query = ['filter[entity.legalAddress.country]' => strtoupper($countryCode), 'page[size]' => $size];
+        // 'WORLD' searches every country (trade-word scans); each company keeps its own registered country.
+        $world = strtoupper($countryCode) === 'WORLD';
+        $query = ($world ? ['filter[entity.status]' => 'ACTIVE'] : ['filter[entity.legalAddress.country]' => strtoupper($countryCode)]) + ['page[size]' => $size];
         if ($cursor !== null) $query['page[cursor]'] = $cursor; else $query['page[number]'] = $page;
         if ($city) $query['filter[fulltext]'] = $city;
         if ($term) $query['filter[fulltext]'] = $term;
@@ -58,18 +61,22 @@ class GleifCompanySource
             if (($entity['status'] ?? '') !== 'ACTIVE') continue;
             $name = trim($entity['legalName']['name'] ?? '');
             if ($name === '' || mb_strlen($name) > 240) continue;
+            // Funds, pension schemes, trusts and estates hold an LEI too, but they are not employers.
+            if (($entity['category'] ?? '') === 'FUND' || preg_match(self::NOT_A_COMPANY, $name)) continue;
             $address = $entity['headquartersAddress'] ?? $entity['legalAddress'] ?? [];
             $legal = $entity['legalAddress'] ?? [];
             $haystack = Str::lower(implode(' ', array_merge($legal['addressLines'] ?? [], [$legal['city'] ?? '', $address['city'] ?? ''], $address['addressLines'] ?? [])));
             if ($needles && !Str::contains($haystack, $needles)) continue;
             if ($term && !Str::contains(Str::lower($name), Str::lower($term))) continue;
+            $iso = strtoupper((string) ($legal['country'] ?? $countryCode));
+            $rowCountry = $world ? (config('discovery.country_names.' . $iso) ?? config('discovery.countries.' . $iso . '.name') ?? $iso) : $countryName;
             $region = $address['region'] ?? $legal['region'] ?? '';
             $stateCode = Str::after((string) $region, '-');
             $rows[] = [
                 'name' => $this->display($name),
-                'country' => $countryName,
+                'country' => $rowCountry,
                 'city' => $city ? Str::title($city) : Str::title(Str::lower((string) ($address['city'] ?? $legal['city'] ?? ''))),
-                'state' => strtoupper($countryCode) === 'IN' ? (self::INDIAN_STATES[$stateCode] ?? null) : ($stateCode ?: null),
+                'state' => $iso === 'IN' ? (self::INDIAN_STATES[$stateCode] ?? null) : ($stateCode ?: null),
                 'registration' => $entity['registeredAs'] ?? null,
                 'lei' => $record['id'] ?? null,
             ];

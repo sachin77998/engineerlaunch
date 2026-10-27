@@ -192,11 +192,7 @@ class NseData
     public function import(object $listed): int
     {
         $company = $this->companyFor($listed);
-        try {
-            $sectors = app(ListedSectors::class);
-            $cin = DB::table('listed_companies')->where('id', $listed->id)->value('cin') ?: $company->registryDetail?->cin;
-            if ($decision = $sectors->classify($listed->name, $sectors->industries()[$listed->symbol] ?? null, $cin)) $sectors->file($company, $decision);
-        } catch (Throwable $e) { report($e); }
+        $this->fileSector($company, $listed);
         $years = 0;
         foreach ($this->annualFilings($listed->symbol) as $filing) {
             if ($filing['year_end']->year < 2017) continue;
@@ -229,6 +225,33 @@ class NseData
         return $years;
     }
 
+    /**
+     * Only the company page and its sector for a listed company: no filings are downloaded and the CIN is looked up in the local
+     * MCA table only, so every listing gets a page in minutes. Results, shareholding and prices follow with the full import.
+     */
+    public function link(object $listed): Company
+    {
+        $this->offline = true;
+        try {
+            $company = $this->companyFor($listed);
+        } finally { $this->offline = false; }
+        $this->fileSector($company, $listed);
+        DB::table('listed_companies')->where('id', $listed->id)->update(['company_id' => $company->id, 'updated_at' => now()]);
+        $company->registryDetail?->forceFill(['listing_status' => 'Listed (NSE: ' . $listed->symbol . ')'])->save();
+        return $company;
+    }
+
+    private bool $offline = false;
+
+    private function fileSector(Company $company, object $listed): void
+    {
+        try {
+            $sectors = app(ListedSectors::class);
+            $cin = DB::table('listed_companies')->where('id', $listed->id)->value('cin') ?: $company->registryDetail?->cin;
+            if ($decision = $sectors->classify($listed->name, $sectors->industries()[$listed->symbol] ?? null, $cin)) $sectors->file($company, $decision);
+        } catch (Throwable $e) { report($e); }
+    }
+
     /** The company page for a listed company: by CIN from the MCA register when the name matches, else by name. */
     public function companyFor(object $listed): Company
     {
@@ -257,7 +280,7 @@ class NseData
         $cin = DB::table('mca_companies')->whereIn('name', $variants)->where('cin', 'like', 'L%')->value('cin');
         if ($cin) return $cin;
         $mca = app(DataGovMca::class);
-        if (!$mca->configured()) return null;
+        if ($this->offline || !$mca->configured()) return null;
         try {
             foreach ($variants as $variant) {
                 $rows = $mca->page(['company_name' => $variant], 0, 5)['records'];

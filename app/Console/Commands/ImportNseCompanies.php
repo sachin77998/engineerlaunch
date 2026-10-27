@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class ImportNseCompanies extends Command
 {
-    protected $signature = 'insights:import-nse {--symbol=* : Only these NSE symbols} {--now : Import inline instead of queueing} {--force : Re-import companies synced in the last week} {--status : Show progress only} {--prices : Only refresh closing prices (for P/E)}';
+    protected $signature = 'insights:import-nse {--symbol=* : Only these NSE symbols} {--now : Import inline instead of queueing} {--force : Re-import companies synced in the last week} {--status : Show progress only} {--prices : Only refresh closing prices (for P/E)} {--link : Only give every listed company a company page and sector (no downloads)}';
     protected $description = 'Import every NSE-listed company: CIN, audited annual results (XBRL since FY 2016-17), shareholding pattern and closing price';
 
     public function handle(NseData $nse): int
@@ -19,6 +19,17 @@ class ImportNseCompanies extends Command
             $done = DB::table('listed_companies')->whereNotNull('synced_at')->whereNull('sync_error')->count();
             $this->info("Listed companies: {$total}; imported: {$done}; with CIN: " . DB::table('listed_companies')->whereNotNull('cin')->count()
                 . '; with results: ' . DB::table('listed_companies')->where('years_imported', '>', 0)->count() . '; errors: ' . DB::table('listed_companies')->whereNotNull('sync_error')->count());
+            return self::SUCCESS;
+        }
+
+        if ($this->option('link')) {
+            $linked = 0;
+            DB::table('listed_companies')->whereNull('company_id')->orderBy('id')->chunkById(200, function ($rows) use ($nse, &$linked) {
+                foreach ($rows as $listed) {
+                    try { $nse->link($listed); $linked++; } catch (\Throwable $e) { $this->warn("{$listed->symbol}: " . $e->getMessage()); }
+                }
+            });
+            $this->info("Linked {$linked} listed companies to company pages.");
             return self::SUCCESS;
         }
 

@@ -33,6 +33,41 @@ return [
         'plywood', 'timber', 'furniture', 'foods', 'food products', 'agro', 'dairy', 'milk', 'ghee', 'rice', 'dal mill', 'flour', 'spices', 'edible oil',
         'beverages', 'sugar', 'distillery', 'fertilizers', 'seeds', 'software', 'technologies', 'infotech', 'infosystems', 'it services', 'solutions',
         'consultancy', 'logistics', 'hotels', 'resorts', 'hospitality', 'finance', 'fintech', 'payments', 'bank',
+        // Registry search matches whole words, so singular / plural and other-language trade words are listed separately.
+        'gear', 'gearbox', 'gearboxes', 'gearing', 'transmission', 'transmissions', 'drives', 'drivetrain', 'driveline', 'axles', 'shafts',
+        'crankshafts', 'sprockets', 'chains', 'clutches', 'steering', 'suspension', 'stampings', 'pressings', 'machining', 'cnc', 'tooling',
+        'forgings', 'forge', 'forged', 'castings', 'foundries', 'automation', 'robotics', 'automotive', 'autoparts', 'motor',
+        'getriebe', 'zahnrad', 'antriebstechnik', 'schmiede', 'schmiedetechnik', 'giesserei', 'engrenages', 'forges', 'fonderie',
+        'ingranaggi', 'riduttori', 'forgiatura', 'engranajes', 'forja',
+        'software', 'saas', 'cloud', 'digital', 'infotech', 'informatics', 'analytics', 'cybersecurity', 'it solutions', 'systems', 'technology',
+    ],
+
+    // Trade words for worldwide registry scans (companies:discover gleif --gleif-trades --trade-country=WORLD).
+    'world_trade_terms' => [
+        'gear', 'gears', 'gearbox', 'gearboxes', 'gearing', 'transmission', 'transmissions', 'drivetrain', 'driveline', 'axle', 'axles',
+        'shafts', 'crankshafts', 'sprockets', 'clutches', 'steering', 'forging', 'forgings', 'forge', 'forged', 'casting', 'castings',
+        'foundry', 'foundries', 'die casting', 'bearings', 'fasteners', 'springs', 'pistons', 'stampings', 'pressings', 'machining', 'cnc',
+        'tooling', 'automotive', 'autoparts', 'auto parts', 'auto components', 'machine tools', 'hydraulics', 'pumps', 'valves', 'compressors',
+        'getriebe', 'zahnrad', 'antriebstechnik', 'schmiede', 'schmiedetechnik', 'giesserei', 'engrenages', 'forges', 'fonderie',
+        'ingranaggi', 'riduttori', 'forgiatura', 'engranajes', 'forja',
+        'software', 'saas', 'cybersecurity', 'infotech', 'it services', 'it solutions', 'informatics',
+    ],
+
+    // ISO country code → name for companies found by worldwide registry scans.
+    'country_names' => [
+        'IN' => 'India', 'US' => 'United States', 'GB' => 'United Kingdom', 'DE' => 'Germany', 'FR' => 'France', 'IT' => 'Italy', 'ES' => 'Spain',
+        'PT' => 'Portugal', 'NL' => 'Netherlands', 'BE' => 'Belgium', 'LU' => 'Luxembourg', 'CH' => 'Switzerland', 'AT' => 'Austria', 'IE' => 'Ireland',
+        'DK' => 'Denmark', 'SE' => 'Sweden', 'NO' => 'Norway', 'FI' => 'Finland', 'IS' => 'Iceland', 'PL' => 'Poland', 'CZ' => 'Czechia',
+        'SK' => 'Slovakia', 'HU' => 'Hungary', 'RO' => 'Romania', 'BG' => 'Bulgaria', 'GR' => 'Greece', 'CY' => 'Cyprus', 'MT' => 'Malta',
+        'SI' => 'Slovenia', 'HR' => 'Croatia', 'RS' => 'Serbia', 'BA' => 'Bosnia and Herzegovina', 'MK' => 'North Macedonia', 'AL' => 'Albania',
+        'EE' => 'Estonia', 'LV' => 'Latvia', 'LT' => 'Lithuania', 'UA' => 'Ukraine', 'TR' => 'Turkey', 'RU' => 'Russia', 'BY' => 'Belarus',
+        'CN' => 'China', 'HK' => 'Hong Kong', 'TW' => 'Taiwan', 'JP' => 'Japan', 'KR' => 'South Korea', 'SG' => 'Singapore', 'MY' => 'Malaysia',
+        'TH' => 'Thailand', 'VN' => 'Vietnam', 'ID' => 'Indonesia', 'PH' => 'Philippines', 'BD' => 'Bangladesh', 'LK' => 'Sri Lanka', 'NP' => 'Nepal',
+        'PK' => 'Pakistan', 'AE' => 'United Arab Emirates', 'SA' => 'Saudi Arabia', 'QA' => 'Qatar', 'KW' => 'Kuwait', 'BH' => 'Bahrain', 'OM' => 'Oman',
+        'IL' => 'Israel', 'EG' => 'Egypt', 'MA' => 'Morocco', 'NG' => 'Nigeria', 'KE' => 'Kenya', 'ZA' => 'South Africa', 'MU' => 'Mauritius',
+        'AU' => 'Australia', 'NZ' => 'New Zealand', 'CA' => 'Canada', 'MX' => 'Mexico', 'BR' => 'Brazil', 'AR' => 'Argentina', 'CL' => 'Chile',
+        'CO' => 'Colombia', 'PE' => 'Peru', 'UY' => 'Uruguay', 'KY' => 'Cayman Islands', 'BM' => 'Bermuda', 'VG' => 'British Virgin Islands',
+        'JE' => 'Jersey', 'GG' => 'Guernsey', 'IM' => 'Isle of Man', 'LI' => 'Liechtenstein', 'MC' => 'Monaco',
     ],
 
     // Wikidata country items scanned by `companies:discover wikidata`.
