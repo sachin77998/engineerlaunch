@@ -41,6 +41,14 @@ class SecureIncomingRequest
             }
         }
 
+        // Laravel 9's "email" rule lets CR/LF through and Symfony Mime 6.0 would put it in mail headers (header / SMTP
+        // injection); reject line breaks in any address field until the framework can be upgraded.
+        foreach (\Illuminate\Support\Arr::dot($request->except(['password', 'password_confirmation'])) as $key => $value) {
+            if (is_string($value) && preg_match('/(?:^|[._])(?:e-?mail|to|cc|bcc|reply_to)(?:$|[._])/i', (string) $key) && preg_match('/[\r\n]/', $value)) {
+                return $this->reject($request, 422, 'Invalid email address.');
+            }
+        }
+
         $response = $next($request);
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
