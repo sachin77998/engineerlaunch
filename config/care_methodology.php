@@ -144,7 +144,7 @@ return [
         ],
         'hospital' => [
             'name' => 'Hospitals', 'criteria' => 'Rating Methodology – Hospitals (Feb 2025)',
-            'match' => ['industry' => '/hospital|healthcare services/i', 'name' => '/hospital|medicare|clinic|medical (?:centre|center|college)|health ?city/i', 'nic' => ['861', '862']],
+            'match' => ['industry' => '/hospital|healthcare services/i', 'name' => '/hospital|medicare|\bclinics?\b|medical (?:centre|center|college)|health ?city/i', 'nic' => ['861', '862']],
             'override' => ['pbildt_margin' => [24, 17, 11, 6], 'collection_days' => [30, 50, 75, 100], 'fixed_asset_turnover' => [1.5, 1, 0.6, 0.3]],
             'skip' => ['inventory_days'],
             'checks' => ['capex_vs_networth', 'receivable_stretch', 'keyman'],

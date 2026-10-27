@@ -302,6 +302,26 @@ class CareAssessment
                 foreach ($by as $k => $hits) if (!isset($m[$k])) { $m[$k] = (float) $hits->max(fn ($h) => (float) $h[2]); $sources[$k] = $src; }
             }
         }
+        // Hospitals: ARPOB (₹ per occupied bed-day), top-two specialities' share, and the payor mix (cash + insurance + international
+        // patients; or 100 less the government-scheme / institutional share).
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            $src = $r->agency . ' rationale, ' . $r->published_on->format('M Y');
+            if (!isset($m['arpob']) && preg_match('~(?:\bARPOB\b|average revenue per occupied bed)[^.;]{0,50}?(?:Rs\.?|₹|INR)\s?([\d,]+(?:\.\d+)?)\s*(lakh)?~iu', $text, $x)) {
+                $v = (float) str_replace(',', '', $x[1]) * (!empty($x[2]) ? 100000 : 1);
+                if ($v >= 1000 && $v <= 1000000) { $m['arpob'] = $v; $sources['arpob'] = $src; }
+            }
+            if (!isset($m['top2_speciality_share']) && preg_match('~top (?:two|2) specialit(?:y|ies)[^.;%]{0,40}?(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x) && $x[1] <= 100) {
+                $m['top2_speciality_share'] = (float) $x[1]; $sources['top2_speciality_share'] = $src;
+            }
+            if (!isset($m['cash_insurance_share'])) {
+                if (preg_match('~cash(?:[ ,/&]+|\s+and\s+)(?:insurance|TPA)[^.;%]{0,50}?(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x) && $x[1] <= 100) {
+                    $m['cash_insurance_share'] = (float) $x[1]; $sources['cash_insurance_share'] = $src;
+                } elseif (preg_match('~(?:government[- ]scheme|government schemes|institutional (?:patients|payors?|business)|\bCGHS\b|\bECHS\b|\bPM-?JAY\b|Ayushman)[^.;%]{0,50}?(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x) && $x[1] <= 100) {
+                    $m['cash_insurance_share'] = 100 - (float) $x[1]; $sources['cash_insurance_share'] = $src . ' (100% less the government-scheme / institutional share)';
+                }
+            }
+        }
         // InvITs: net debt to enterprise value (valuer's figure from the rationale; book assets otherwise), the largest asset's share of
         // cash flows, and the structural features in ICRA's positive / neutral / negative table.
         $found = ['positive' => [], 'neutral' => [], 'watch' => []];
