@@ -39,7 +39,7 @@ class UpdateCandidateProfileRequest extends FormRequest
             'experience_years' => ['nullable','integer','min:0','max:60'], 'current_salary' => ['nullable','numeric','min:0'], 'expected_salary' => ['nullable','numeric','min:0'],
             'salary_currency' => ['nullable',Rule::in($currencies)], 'current_salary_currency' => ['nullable',Rule::in($currencies)], 'expected_salary_currency' => ['nullable',Rule::in($currencies)],
             'notice_period' => ['nullable',Rule::in(['Immediate','15 days','1 month','2 months','3 months','More than 3 months'])],
-            'preferred_role' => ['nullable','string','max:150'], 'education' => ['nullable','string','max:2000'], 'avatar' => ['nullable','image','max:3072'],
+            'preferred_role' => ['nullable','string','max:150'], 'education' => ['nullable','string','max:2000'], 'avatar' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:3072'],
         ];
     }
 
