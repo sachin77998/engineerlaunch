@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Schema;
 class AgencyCriteria
 {
     public const GRADES = [5 => 'Strong', 4 => 'Comfortable', 3 => 'Adequate', 2 => 'Moderate', 1 => 'Weak'];
+    // Liquidity is graded on its own scale in the annexures (Superior … Poor).
+    public const LIQUIDITY_GRADES = [5 => 'Superior', 4 => 'Strong', 3 => 'Adequate', 2 => 'Stretched', 1 => 'Poor'];
+
+    public static function label(string $group, int $grade): string
+    {
+        return ($group === 'liquidity' ? self::LIQUIDITY_GRADES : self::GRADES)[$grade];
+    }
     private const CACHE = 'agency-criteria:v1';
 
     /** Five-step cut points [strongest, c1, c2, weakest]; the middle two are spaced evenly (linear or on a ratio scale). */
@@ -86,15 +93,19 @@ class AgencyCriteria
         $factors = [];
         foreach ($c['factors'] as $f) {
             $v = isset($f['metric']) ? ($metrics[$f['metric']] ?? null) : null;
-            $grade = $v !== null && isset($f['band']) ? self::grade((float) $v, $f['band'], $f['dir'] ?? 'up') : null;
+            // A fallback measure (return on net worth when RoEV is not disclosed) is only graded when the primary one is missing.
+            $replaced = isset($f['fallback_for']) && ($metrics[$f['fallback_for']] ?? null) !== null;
+            $grade = $v !== null && !$replaced && isset($f['band']) ? self::grade((float) $v, $f['band'], $f['dir'] ?? 'up') : null;
             $factors[] = ['key' => $f['key'], 'group' => $f['group'], 'sub' => $f['sub'] ?? null, 'label' => $f['label'], 'unit' => $f['unit'] ?? null,
-                'value' => $v, 'grade' => $grade, 'qualitative' => !isset($f['metric']), 'band' => $f['band'] ?? null, 'dir' => $f['dir'] ?? null,
-                'strongest' => $f['strongest'] ?? null, 'weakest' => $f['weakest'] ?? null, 'source' => isset($f['metric']) ? ($sources[$f['metric']] ?? null) : null];
+                'value' => $v, 'grade' => $grade, 'grade_label' => $grade ? self::label($f['group'], $grade) : null, 'qualitative' => !isset($f['metric']), 'band' => $f['band'] ?? null, 'dir' => $f['dir'] ?? null,
+                'strongest' => $f['strongest'] ?? null, 'weakest' => $f['weakest'] ?? null,
+                'source' => $replaced ? 'Not graded: RoEV is available' : (isset($f['metric']) ? ($sources[$f['metric']] ?? null) : null)];
         }
         $groups = [];
-        foreach (['industry', 'business', 'financial'] as $g) {
+        foreach (array_values(array_unique(array_column($factors, 'group'))) as $g) {
             $grades = collect($factors)->where('group', $g)->pluck('grade')->filter()->sort()->values();
-            $groups[$g] = ['grade' => $grades->isEmpty() ? null : (int) $grades[intdiv($grades->count() - 1, 2)], 'graded' => $grades->count(), 'of' => collect($factors)->where('group', $g)->count()];
+            $grade = $grades->isEmpty() ? null : (int) $grades[intdiv($grades->count() - 1, 2)];
+            $groups[$g] = ['grade' => $grade, 'label' => $grade ? self::label($g, $grade) : null, 'graded' => $grades->count(), 'of' => collect($factors)->where('group', $g)->count()];
         }
         $adjustments = array_map(fn ($a) => ['key' => $a['key'], 'label' => $a['label']] + $this->effect($a['metric'] ?? null, $metrics), $c['adjustments']);
         return ['key' => $c['key'], 'agency' => $c['agency'], 'name' => $c['name'], 'criteria' => $c['criteria'], 'published_on' => $c['published_on'],
@@ -113,6 +124,11 @@ class AgencyCriteria
             },
             'rpt_revenue' => ($v = $m['rpt_revenue'] ?? null) === null ? ['effect' => null, 'why' => null]
                 : ($v > 30 ? ['effect' => 'Hinder', 'why' => "Related-party transactions are {$v}% of revenue"] : ['effect' => 'Support / Neutral', 'why' => "Related-party transactions are {$v}% of revenue"]),
+            // Insurer hybrids: coupons need IRDAI approval below 1.50x solvency; a call without prior approval needs 1.80x afterwards.
+            'hybrid_servicing' => ($sv = $m['solvency_ratio'] ?? null) === null ? ['effect' => null, 'why' => null]
+                : ($sv >= 1.8 ? ['effect' => 'Support / Neutral', 'why' => "Solvency {$sv}x: sub-debt coupons and a call need no prior IRDAI approval (call threshold 1.80x)"]
+                    : ($sv >= 1.5 ? ['effect' => 'Hinder', 'why' => "Solvency {$sv}x: above the 1.50x minimum, but a call would need prior IRDAI approval (below 1.80x)"]
+                        : ['effect' => 'Hinder', 'why' => "Solvency {$sv}x is below the 1.50x minimum: coupon servicing needs prior IRDAI approval"])),
             'parent_support' => ($m['parent_support'] ?? null) ? ['effect' => 'Enhance', 'why' => $m['parent_support_why'] ?? 'Demonstrated funding support from the group'] : ['effect' => null, 'why' => null],
             default => ['effect' => null, 'why' => null],
         };

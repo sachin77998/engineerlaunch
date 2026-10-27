@@ -121,7 +121,7 @@ class CareAssessment
     /** A generic "financial services" industry: the name decides between HFC, broker, insurer and NBFC (Financial Ratios profile otherwise). */
     private function financialSubsector(string $name): string
     {
-        foreach (['hfc', 'broking', 'insurance', 'nbfc'] as $key) {
+        foreach (['hfc', 'broking', 'life_insurance', 'insurance', 'nbfc'] as $key) {
             $re = $this->m->sectors()[$key]['match']['name'] ?? null;
             if ($re && preg_match($re, $name)) return $key;
         }
@@ -474,7 +474,11 @@ class CareAssessment
     private const KPI_LABELS = [
         'tier1' => '/tier[- ]?(?:i|1)\b(?!i)/i', 'cet1' => '/\bcet[- ]?(?:i|1)\b|common equity/i', 'crar' => '/crar|capital adequacy|capital to risk|^car\b|total car/i',
         'net_npa' => '/net (?:npa|stage|non[- ]performing)|\bnnpa\b|\bns-?3\b/i', 'gross_npa' => '/gross (?:npa|stage|non[- ]performing)|\bgnpa\b|\bgs-?3\b/i',
-        'casa' => '/\bcasa\b/i', 'lcr' => '/liquidity coverage|\blcr\b/i', 'collection_efficiency' => '/collection efficiency/i', 'solvency_ratio' => '/solvency/i',
+        'casa' => '/\bcasa\b/i', 'lcr' => '/liquidity coverage|\blcr\b/i', 'collection_efficiency' => '/collection efficiency/i',
+        // Life insurers (core solvency before the general solvency row it would otherwise match).
+        'core_solvency' => '/core solvency/i', 'persistency_13m' => '/13(th)?[- ]?month persistency/i', 'roev' => '/return on (embedded value|ev)\b|\broev\b/i',
+        'life_expense_ratio' => '/total expense ratio|expense ratio.*commission/i', 'vnb_margin' => '/vnb margin|value of new business margin/i',
+        'solvency_ratio' => '/solvency/i',
         'combined_ratio' => '/combined ratio/i', 'claims_ratio' => '/claims? ratio|loss ratio|incurred claims/i', 'plf' => '/\bplf\b|plant load|\bcuf\b|capacity utili[sz]ation factor/i',
         'availability' => '/\bpaf\b|plant availability|availability factor/i', 'atc_loss' => '/at\s?&\s?c/i', 'occupancy' => '/occupancy/i', 'wale' => '/\bwale\b|weighted average lease/i',
         'avg_dscr' => '/\bdscr\b|debt service coverage/i', 'fleet_age' => '/fleet age|average age of (?:the )?fleet/i',
@@ -485,12 +489,24 @@ class CareAssessment
         'tier1' => ['tier[- ]?(?:I|1)\b(?!I)(?: capital| CRAR| CAR)?', '%'], 'cet1' => ['(?:CET[- ]?(?:I|1)|common equity tier[- ]?(?:I|1))', '%'],
         'crar' => ['(?:capital adequacy(?: ratio)?|\bCRAR\b|(?-i:\bCAR\b))', '%'], 'net_npa' => ['(?:net NPA|NNPA|net stage[- ]?(?:3|III))', '%'],
         'gross_npa' => ['(?:gross NPA|GNPA|gross stage[- ]?(?:3|III)|GS-?3)', '%'], 'casa' => ['CASA(?: ratio| deposits| share)?', '%'], 'lcr' => ['(?:liquidity coverage ratio|\bLCR\b)', '%'],
-        'collection_efficiency' => ['collection efficiency', '%'], 'solvency_ratio' => ['solvency (?:ratio|margin)', 'x'], 'combined_ratio' => ['combined ratio', '%'],
+        'collection_efficiency' => ['collection efficiency', '%'], 'core_solvency' => ['core solvency(?: ratio)?', 'xp'], 'solvency_ratio' => ['(?<!core )solvency (?:ratio|margin)', 'xp'], 'combined_ratio' => ['combined ratio', '%'],
+        // Life insurance (ICRA life methodology indicative metrics) as worded in rationales.
+        'persistency_13m' => ['13(?:th)?[- ]?month persistency(?: ratio)?', '%'], 'life_expense_ratio' => ['total expense ratio', '%'],
+        'roev' => ['(?:operating )?(?:return on (?:embedded value|EV)|\bRoEV\b)', '%'], 'vnb_margin' => ['(?:VNB|value of new business) margin', '%'],
+        'nbp_share' => ['(?:market share (?:in|of) (?:the )?(?:overall |total )?(?:new business premium|NBP)|NBP market share)', '%'],
+        'ape_share' => ['(?:market share (?:in|of) (?:the )?individual (?:APE|annuali[sz]ed premium equivalent)|individual APE market share)', '%'],
+        'par_ulip_share' => ['(?:par(?:ticipating)?(?: products?)? (?:and|\+|&) (?:ULIP|unit[- ]linked|linked)|ULIPs? (?:and|\+|&) par(?:ticipating)?)', '%'],
+        'top_bank_share' => ['(?:largest|topmost|top|single largest) (?:bank|banca|bancassurance) partner', '%'],
+        'asm_nsar' => ['ASM (?:as a (?:percentage|%) of|to) (?:the )?(?:risk retained|(?:total )?net sum (?:at risk|assured))', '%'],
+        'claims_gsa' => ['mortality claims[^.]{0,40}?(?:of|to) (?:the )?(?:gross )?sum assured', '%'],
+        'reinsurance_claims_share' => ['(?:mortality )?claims (?:received |recovered )?from (?:the )?reinsurers?', '%'],
+        'gov_sec_share' => ['(?:central and state |state and central )?government securities (?:in|to|as a (?:percentage|%) of) (?:the )?(?:total )?investments?', '%'],
+        'surrender_aum' => ['surrenders?(?: benefits?)?(?: paid)? (?:as a (?:percentage|%) of|to) (?:the )?AUM', '%'],
         'claims_ratio' => ['(?:claims ratio|loss ratio)', '%'], 'plf' => ['(?:\bPLF\b|plant load factor|\bCUF\b|capacity utili[sz]ation factor)', '%'],
         'availability' => ['(?:\bPAF\b|plant availability)', '%'], 'atc_loss' => ['AT\s?&\s?C loss(?:es)?', '%'], 'occupancy' => ['occupancy(?: level| rate)?', '%'],
         'wale' => ['(?:\bWALE\b|weighted average lease expiry)', 'years'], 'avg_dscr' => ['(?:average|cumulative|minimum) DSCR', 'x'], 'fleet_age' => ['average (?:fleet )?age', 'years'],
     ];
-    private const KPI_RANGE = ['%' => [0, 100], 'x' => [0.3, 10], 'years' => [0, 40]];
+    private const KPI_RANGE = ['%' => [0, 100], 'x' => [0.3, 10], 'xp' => [0.3, 10], 'years' => [0, 40], 'pct_signed' => [-100, 100]];
 
     /**
      * Sector figures from the latest agency reports: the brief-financials table first, then the rationale text
@@ -517,7 +533,7 @@ class CareAssessment
                     if (!preg_match($re, $label)) continue;
                     if (!isset($values[$k])) {
                         $v = (float) $row['values'][$pick];
-                        if ($k === 'solvency_ratio' && $v > 10) $v /= 100;
+                        if (in_array($k, ['solvency_ratio', 'core_solvency'], true) && $v > 10) $v /= 100;
                         $values[$k] = round($v, 2);
                         $source[$k] = $r->agency . ' report, ' . ($periods[$pick]['label'] ?? $r->published_on->format('M Y'));
                     }
@@ -529,9 +545,10 @@ class CareAssessment
             if ($text === '') continue;
             foreach (self::KPI_TEXT as $k => [$kw, $unit]) {
                 if (isset($values[$k]) || !preg_match('/' . $kw . '((?:[^.;]|\.(?=\d)){0,90})/i', $text, $m)) continue;
-                $num = $unit === '%' ? '(\d{1,3}(?:\.\d+)?)\s?%' : ($unit === 'x' ? '(\d{1,2}(?:\.\d+)?)\s?(?:x|times)' : '(\d{1,2}(?:\.\d+)?)\s?years?');
-                $v = preg_match('/from\s+[^\d]{0,12}\d+(?:\.\d+)?\s?(?:%|x|times|years?)?.{0,40}?\bto\s+[^\d]{0,12}' . $num . '/i', $m[1], $t) ? (float) $t[1]
-                    : (preg_match('/' . $num . '/i', $m[1], $t) ? (float) $t[1] : null);
+                // 'xp': a multiple written either way ("2.1x" or "210%"), stored as the multiple.
+                $num = match ($unit) { '%' => '(\d{1,3}(?:\.\d+)?)\s?(%)', 'x' => '(\d{1,2}(?:\.\d+)?)\s?(x|times)', 'xp' => '(\d{1,3}(?:\.\d+)?)\s?(x|times|%)', default => '(\d{1,2}(?:\.\d+)?)\s?(years?)' };
+                $v = preg_match('/from\s+[^\d]{0,12}\d+(?:\.\d+)?\s?(?:%|x|times|years?)?.{0,40}?\bto\s+[^\d]{0,12}' . $num . '/i', $m[1], $t) || preg_match('/' . $num . '/i', $m[1], $t)
+                    ? (float) $t[1] / ($unit === 'xp' && $t[2] === '%' ? 100 : 1) : null;
                 if ($v === null || $v < self::KPI_RANGE[$unit][0] || $v > ($k === 'lcr' ? 500 : self::KPI_RANGE[$unit][1])) continue;
                 $values[$k] = round($v, 2);
                 $source[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y');

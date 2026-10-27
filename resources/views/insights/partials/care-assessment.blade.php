@@ -69,19 +69,19 @@
             $grades = \App\Services\Insights\AgencyCriteria::GRADES;
             $gColor = [5 => '#16a34a', 4 => '#65a30d', 3 => '#eab308', 2 => '#f97316', 1 => '#dc2626'];
             $gv = fn ($f) => $f['value'] === null ? '—' : ($f['unit'] === '%' ? number_format($f['value'], 1) . '%' : ($f['unit'] === 'x' ? number_format($f['value'], 2) . '×' : ($f['unit'] === '₹ cr' ? '₹' . number_format($f['value'], 0) . ' cr' : $f['value'])));
-            $groupNames = ['industry' => 'Industry risk', 'business' => 'Business risk', 'financial' => 'Financial risk'];
+            $groupNames = ['industry' => 'Industry risk', 'business' => 'Business risk', 'financial' => 'Financial risk', 'liquidity' => 'Liquidity'];
         @endphp
         <h3>{{ $g['agency'] }} factor grid · {{ $g['name'] }}</h3>
         <p class="ci-muted" style="font-size:12.5px;margin:0 0 8px">{{ $g['criteria'] }}</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
             @foreach($g['groups'] as $gk => $gs)
-                <span style="border:1px solid #e3e9f2;border-radius:999px;padding:4px 12px;font-size:13px">{{ $groupNames[$gk] }}: <b style="color:{{ $gs['grade'] ? $gColor[$gs['grade']] : '#64748b' }}">{{ $gs['grade'] ? $grades[$gs['grade']] : 'Not graded' }}</b> <span class="ci-muted">({{ $gs['graded'] }} of {{ $gs['of'] }} factors)</span></span>
+                <span style="border:1px solid #e3e9f2;border-radius:999px;padding:4px 12px;font-size:13px">{{ $groupNames[$gk] }}: <b style="color:{{ $gs['grade'] ? $gColor[$gs['grade']] : '#64748b' }}">{{ $gs['grade'] ? ($gs['label'] ?? $grades[$gs['grade']]) : 'Not graded' }}</b> <span class="ci-muted">({{ $gs['graded'] }} of {{ $gs['of'] }} factors)</span></span>
             @endforeach
         </div>
         <div style="overflow-x:auto"><table class="ci-table"><thead><tr><th>Factor</th><th style="text-align:right">Company</th>@foreach($grades as $gi => $gname)<th style="text-align:center;font-size:11.5px">{{ $gname }}</th>@endforeach</tr></thead><tbody>
         @foreach($g['factors'] as $f)
             <tr><td style="white-space:normal;min-width:220px">{{ $f['label'] }}<small class="ci-muted" style="display:block;font-size:11.5px">{{ $groupNames[$f['group']] }}{{ $f['sub'] ? ' · ' . $f['sub'] : '' }}{{ $f['source'] ? ' · ' . $f['source'] : '' }}</small></td>
-                <td style="text-align:right;white-space:nowrap"><b>{{ $f['qualitative'] ? 'Analyst view' : $gv($f) }}</b>@if($f['grade'])<small style="display:block;font-size:11.5px;color:{{ $gColor[$f['grade']] }}">{{ $grades[$f['grade']] }}</small>@endif</td>
+                <td style="text-align:right;white-space:nowrap"><b>{{ $f['qualitative'] ? 'Analyst view' : $gv($f) }}</b>@if($f['grade'])<small style="display:block;font-size:11.5px;color:{{ $gColor[$f['grade']] }}">{{ $f['grade_label'] ?? $grades[$f['grade']] }}</small>@endif</td>
                 @foreach($grades as $gi => $gname)
                     <td style="text-align:center" title="{{ $gi === 5 ? 'Strongest: ' . $f['strongest'] : ($gi === 1 ? 'Weakest: ' . $f['weakest'] : '') }}">@if($f['grade'] === $gi)<span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:{{ $gColor[$gi] }}"></span>@elseif($f['band'] && $gi >= 2)<span class="ci-muted" style="font-size:11px">{{ $f['dir'] === 'up' ? '≥' : '≤' }}{{ rtrim(rtrim(number_format($f['band'][5 - $gi], 2), '0'), '.') }}</span>@endif</td>
                 @endforeach

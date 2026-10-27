@@ -49,10 +49,10 @@ class Methodology
     }
 
     /** Sectors are matched in this order (specific before generic); unknown keys go last. */
-    private const MATCH_ORDER = ['bank', 'hfc', 'broking', 'insurance', 'reit', 'nbfc', 'financial', 'investment_holding', 'power_distribution', 'wind_power', 'solar_power',
+    private const MATCH_ORDER = ['bank', 'hfc', 'broking', 'life_insurance', 'insurance', 'reit', 'nbfc', 'financial', 'investment_holding', 'power_distribution', 'wind_power', 'solar_power',
         'thermal_power', 'airport', 'port', 'shipping', 'road_annuity', 'toll_road', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'diamond',
         'manmade_yarn', 'cotton_textile', 'non_ferrous', 'commercial_vehicles', 'auto_components', 'services', 'manufacturing'];
-    private const FINANCIAL = ['bank', 'financial', 'nbfc', 'hfc', 'broking', 'insurance'];
+    private const FINANCIAL = ['bank', 'financial', 'nbfc', 'hfc', 'broking', 'life_insurance', 'insurance'];
 
     /**
      * Copies config/care_methodology.php into the tables. Without --reset it adds new ratios, sectors and settings and refreshes
