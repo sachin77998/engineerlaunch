@@ -50,7 +50,7 @@ class Methodology
 
     /** Sectors are matched in this order (specific before generic); unknown keys go last. */
     private const MATCH_ORDER = ['bank', 'hfc', 'broking', 'life_insurance', 'insurance', 'reit', 'nbfc', 'financial', 'investment_holding', 'power_distribution', 'wind_power', 'solar_power',
-        'thermal_power', 'airport', 'port', 'shipping', 'road_annuity', 'toll_road', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'diamond',
+        'thermal_power', 'airport', 'port', 'shipping', 'road_annuity', 'toll_road', 'telecom', 'hotel', 'hospital', 'education', 'fertiliser', 'cement', 'jewellery_retail', 'diamond',
         'manmade_yarn', 'cotton_textile', 'non_ferrous', 'commercial_vehicles', 'auto_components', 'services', 'manufacturing'];
     private const FINANCIAL = ['bank', 'financial', 'nbfc', 'hfc', 'broking', 'life_insurance', 'insurance'];
 

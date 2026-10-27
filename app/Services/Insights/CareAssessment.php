@@ -244,6 +244,20 @@ class CareAssessment
                 if ($v !== null) { $m['largest_segment_share'] = $v; $sources['largest_segment_share'] = $src; }
             }
         }
+        // Jewellery retail: stock holding in months, largest state's revenue share, and how much of the inventory is funded
+        // externally (3-year average current liabilities / inventory; total outside liabilities / inventory).
+        if (($ratios['inventory_days'] ?? null) !== null) $m['stock_months'] = round($ratios['inventory_days'] / 30.42, 1);
+        $cl = $years->take(-3)->filter(fn ($y) => $y->inventories > 0 && $y->current_liabilities !== null)->map(fn ($y) => (float) $y->current_liabilities / (float) $y->inventories);
+        if ($cl->isNotEmpty()) { $m['cl_inventory'] = round($cl->avg(), 2); $sources['cl_inventory'] = 'Calculated over ' . $cl->count() . ' year(s)'; }
+        if (($t = $years->last()) && $t->inventories > 0 && $t->total_assets !== null && $t->net_worth !== null) $m['tol_inventory'] = round(((float) $t->total_assets - (float) $t->net_worth) / (float) $t->inventories, 2);
+        foreach ($ratings->sortByDesc('published_on') as $r) {
+            $text = preg_replace('~\s+~u', ' ', implode(' ', array_filter(array_map($flat, [$r->rationale, $r->strengths, $r->challenges]))));
+            $states = 'Kerala|Tamil Nadu|Karnataka|Andhra Pradesh|Telangana|Maharashtra|Gujarat|West Bengal|Odisha|Bihar|Uttar Pradesh|Delhi|Rajasthan|Punjab|Madhya Pradesh|Assam|its home state|home state|a single state';
+            if (!isset($m['largest_state_share']) && preg_match_all('~(?:' . $states . ')(?:[^.;%]{0,35}?)(?:accounted for|contributed|constituted|formed|comprised)[^.;%]{0,40}?(\d{1,3}(?:\.\d+)?)\s?%~i', $text, $x)) {
+                $v = collect($x[1])->map(fn ($s) => (float) $s)->filter(fn ($s) => $s <= 100)->max();
+                if ($v !== null) { $m['largest_state_share'] = $v; $sources['largest_state_share'] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
+            }
+        }
         $m['liquidity'] = $liquidity['level'] ?? null;
         $support = collect($adjustments)->first(fn ($a) => str_contains($a['why'], 'funding support'));
         $m['parent_support'] = (bool) $support;
@@ -502,11 +516,15 @@ class CareAssessment
         'reinsurance_claims_share' => ['(?:mortality )?claims (?:received |recovered )?from (?:the )?reinsurers?', '%'],
         'gov_sec_share' => ['(?:central and state |state and central )?government securities (?:in|to|as a (?:percentage|%) of) (?:the )?(?:total )?investments?', '%'],
         'surrender_aum' => ['surrenders?(?: benefits?)?(?: paid)? (?:as a (?:percentage|%) of|to) (?:the )?AUM', '%'],
+        // Jewellery retail (ICRA Jewellery (Retail) methodology).
+        'store_count' => ['(?:network of|presence of|operates|operated|operating|footprint of|chain of|total of)', 'stores'],
+        'hedged_share' => ['hedg(?:ed|es|ing)', '%'],
+        'studded_share' => ['studded(?: jewellery)?(?: share| sales| ratio| contribution| mix)?', '%'],
         'claims_ratio' => ['(?:claims ratio|loss ratio)', '%'], 'plf' => ['(?:\bPLF\b|plant load factor|\bCUF\b|capacity utili[sz]ation factor)', '%'],
         'availability' => ['(?:\bPAF\b|plant availability)', '%'], 'atc_loss' => ['AT\s?&\s?C loss(?:es)?', '%'], 'occupancy' => ['occupancy(?: level| rate)?', '%'],
         'wale' => ['(?:\bWALE\b|weighted average lease expiry)', 'years'], 'avg_dscr' => ['(?:average|cumulative|minimum) DSCR', 'x'], 'fleet_age' => ['average (?:fleet )?age', 'years'],
     ];
-    private const KPI_RANGE = ['%' => [0, 100], 'x' => [0.3, 10], 'xp' => [0.3, 10], 'years' => [0, 40], 'pct_signed' => [-100, 100]];
+    private const KPI_RANGE = ['%' => [0, 100], 'x' => [0.3, 10], 'xp' => [0.3, 10], 'stores' => [1, 5000], 'years' => [0, 40], 'pct_signed' => [-100, 100]];
 
     /**
      * Sector figures from the latest agency reports: the brief-financials table first, then the rationale text
@@ -546,7 +564,7 @@ class CareAssessment
             foreach (self::KPI_TEXT as $k => [$kw, $unit]) {
                 if (isset($values[$k]) || !preg_match('/' . $kw . '((?:[^.;]|\.(?=\d)){0,90})/i', $text, $m)) continue;
                 // 'xp': a multiple written either way ("2.1x" or "210%"), stored as the multiple.
-                $num = match ($unit) { '%' => '(\d{1,3}(?:\.\d+)?)\s?(%)', 'x' => '(\d{1,2}(?:\.\d+)?)\s?(x|times)', 'xp' => '(\d{1,3}(?:\.\d+)?)\s?(x|times|%)', default => '(\d{1,2}(?:\.\d+)?)\s?(years?)' };
+                $num = match ($unit) { '%' => '(\d{1,3}(?:\.\d+)?)\s?(%)', 'x' => '(\d{1,2}(?:\.\d+)?)\s?(x|times)', 'xp' => '(\d{1,3}(?:\.\d+)?)\s?(x|times|%)', 'stores' => '(\d{1,4})\s?(?:own(?:ed)?\s|retail\s|exclusive\s)?(stores|showrooms|outlets)', default => '(\d{1,2}(?:\.\d+)?)\s?(years?)' };
                 $v = preg_match('/from\s+[^\d]{0,12}\d+(?:\.\d+)?\s?(?:%|x|times|years?)?.{0,40}?\bto\s+[^\d]{0,12}' . $num . '/i', $m[1], $t) || preg_match('/' . $num . '/i', $m[1], $t)
                     ? (float) $t[1] / ($unit === 'xp' && $t[2] === '%' ? 100 : 1) : null;
                 if ($v === null || $v < self::KPI_RANGE[$unit][0] || $v > ($k === 'lcr' ? 500 : self::KPI_RANGE[$unit][1])) continue;

@@ -152,6 +152,17 @@ return [
             'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 10, 'management' => 20],
             'checks' => ['capex_vs_networth', 'seasonality'],
         ],
+        // Jewellery retailers (matched before diamonds; exporters stay with the diamond profile). Bands span ICRA's
+        // strongest / weakest indicative levels in its Jewellery (Retail) methodology.
+        'jewellery_retail' => [
+            'name' => 'Jewellery retail', 'criteria' => 'ICRA Rating Methodology – Jewellery (Retail) (Mar 2026)',
+            'match' => ['industry' => '/jewell?ery retail/i', 'name' => '/^(?!.*export).*(jewell?ers?\b|jewell?ery|tanishq|titan company|senco gold|malabar gold|joyalukkas|thangamayil|tribhovandas|gadgil|bluestone|caratlane|motisons|khazana)/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'roce', 'tol_tnw', 'gearing', 'icr', 'dscr', 'inventory_days', 'current_ratio', 'cash_st_debt', 'promoter_holding', 'rpt_revenue'],
+            'override' => ['toi_crore' => [20000, 7368, 2714, 1000], 'tol_tnw' => [0.9, 1.34, 2.01, 3.0], 'icr' => [18, 8.65, 4.16, 2], 'dscr' => [4, 2.6, 1.69, 1.1],
+                'inventory_days' => [91, 152, 213, 274]],
+            'weights' => ['business' => 30, 'financial' => 40, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['inventory_build', 'commodity_margin_volatility', 'forex_exposure', 'group_support'],
+        ],
         'diamond' => [
             'name' => 'Cut & polished diamonds', 'criteria' => 'Rating Methodology – Cut and Polished Diamond Industry (Sep 2026)',
             'match' => ['industry' => '/gems|jewel|diamond/i', 'name' => '/diamond|gems|jewel|exports? .*surat/i', 'nic' => ['3211', '2399']],

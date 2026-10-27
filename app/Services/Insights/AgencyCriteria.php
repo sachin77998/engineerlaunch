@@ -122,6 +122,12 @@ class AgencyCriteria
                 (bool) preg_match('/adequate/i', $m['liquidity']) => ['effect' => 'Support / Neutral', 'why' => 'Liquidity assessed as ' . $m['liquidity']],
                 default => ['effect' => 'Hinder', 'why' => 'Liquidity assessed as ' . $m['liquidity']],
             },
+            // Jewellery retail: liquidity level, with how much of the (readily saleable) inventory is funded by current liabilities.
+            'liquidity_inventory' => ($m['liquidity'] ?? null) === null && ($m['cl_inventory'] ?? null) === null ? ['effect' => null, 'why' => null]
+                : ['effect' => ($m['liquidity'] ?? null) === null ? null : ((bool) preg_match('/strong|superior/i', $m['liquidity']) ? 'Enhance' : ((bool) preg_match('/adequate/i', $m['liquidity']) ? 'Support / Neutral' : 'Hinder')),
+                    'why' => implode('; ', array_filter([($m['liquidity'] ?? null) ? 'Liquidity assessed as ' . $m['liquidity'] : null,
+                        ($m['cl_inventory'] ?? null) !== null ? '3-year average current liabilities / inventory ' . $m['cl_inventory'] . 'x' : null,
+                        ($m['tol_inventory'] ?? null) !== null ? 'total outside liabilities / inventory ' . $m['tol_inventory'] . 'x' : null]))],
             'rpt_revenue' => ($v = $m['rpt_revenue'] ?? null) === null ? ['effect' => null, 'why' => null]
                 : ($v > 30 ? ['effect' => 'Hinder', 'why' => "Related-party transactions are {$v}% of revenue"] : ['effect' => 'Support / Neutral', 'why' => "Related-party transactions are {$v}% of revenue"]),
             // Insurer hybrids: coupons need IRDAI approval below 1.50x solvency; a call without prior approval needs 1.80x afterwards.

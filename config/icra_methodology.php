@@ -8,6 +8,49 @@
 // ICRA states its ratings are set by rating committees, not a formula: the grid is a factor view, not an ICRA rating.
 
 return [
+    'icra_jewellery_retail' => [
+        'agency' => 'ICRA', 'sector_key' => 'jewellery_retail', 'name' => 'Jewellery retail',
+        'criteria' => 'ICRA Rating Methodology – Jewellery (Retail) (March 2026)', 'published_on' => '2026-03-01',
+        'factors' => [
+            ['key' => 'industry_position', 'group' => 'industry', 'label' => 'Industry position (demand-supply, regulation, gold price risk)',
+                'strongest' => 'Diversified sourcing; earnings insulated from gold price swings through gold metal loans / derivative hedges',
+                'weakest' => 'Exposure to bullion import curbs, duty and hallmarking changes and unhedged gold price movements'],
+            // Business risk — summary of the salient business risk factors (page 5).
+            ['key' => 'scale', 'group' => 'business', 'sub' => 'Scale', 'label' => 'Revenue (₹ cr)', 'metric' => 'toi_crore', 'dir' => 'up', 'unit' => '₹ cr', 'spacing' => 'log',
+                'strongest_value' => 20000, 'weakest_value' => 1000, 'strongest' => '> ₹20,000 crore', 'weakest' => '< ₹1,000 crore'],
+            ['key' => 'stores', 'group' => 'business', 'sub' => 'Scale', 'label' => 'Store count', 'metric' => 'store_count', 'dir' => 'up', 'unit' => 'stores', 'spacing' => 'log',
+                'strongest_value' => 100, 'weakest_value' => 5, 'strongest' => '> 100', 'weakest' => '< 5'],
+            ['key' => 'brand', 'group' => 'business', 'sub' => 'Competitive position and brand equity', 'label' => 'Brand recall, footfall and same-store sales growth versus peers',
+                'strongest' => 'Strong brand recall and consistent revenue / same-store sales growth', 'weakest' => 'Traditional family business without the resources to scale amid intense competition'],
+            ['key' => 'stock_holding', 'group' => 'business', 'sub' => 'Operating efficiency', 'label' => 'Stock holding period (months)', 'metric' => 'stock_months', 'dir' => 'down', 'unit' => 'months', 'spacing' => 'linear',
+                'strongest_value' => 3, 'weakest_value' => 9, 'strongest' => '< 3 months', 'weakest' => '> 9 months'],
+            ['key' => 'hedging', 'group' => 'business', 'sub' => 'Operating efficiency', 'label' => 'Inventory hedged (%)', 'metric' => 'hedged_share', 'dir' => 'up', 'unit' => '%', 'spacing' => 'linear',
+                'strongest_value' => 80, 'weakest_value' => 0.01, 'strongest' => '> 80%', 'weakest' => 'No inventory hedging'],
+            ['key' => 'geography', 'group' => 'business', 'sub' => 'Geographical diversification', 'label' => 'Largest state’s share of revenue (%)', 'metric' => 'largest_state_share', 'dir' => 'down', 'unit' => '%', 'spacing' => 'linear',
+                'strongest_value' => 25, 'weakest_value' => 80, 'strongest' => 'No single state above 25% of revenues', 'weakest' => 'A single state above 80% of revenues'],
+            ['key' => 'studded', 'group' => 'business', 'sub' => 'Product diversification', 'label' => 'Studded jewellery share of sales (%)', 'metric' => 'studded_share', 'dir' => 'up', 'unit' => '%', 'spacing' => 'linear',
+                'strongest_value' => 25, 'weakest_value' => 5, 'strongest' => '≥ 25%', 'weakest' => '< 5%'],
+            // Financial risk — leverage and coverage (pages 6–7). Gold metal loans, scheme advances, lease liabilities and promoter loans count as debt.
+            ['key' => 'indebtedness', 'group' => 'financial', 'sub' => 'Leverage', 'label' => 'Indebtedness ratio (TOL / TNW, x)', 'metric' => 'tol_tnw', 'dir' => 'down', 'unit' => 'x', 'spacing' => 'log',
+                'strongest_value' => 0.9, 'weakest_value' => 3.0, 'strongest' => '< 0.9x', 'weakest' => '≥ 3.0x'],
+            ['key' => 'interest_coverage', 'group' => 'financial', 'sub' => 'Coverage', 'label' => 'Interest coverage (x)', 'metric' => 'icr', 'dir' => 'up', 'unit' => 'x', 'spacing' => 'log',
+                'strongest_value' => 18, 'weakest_value' => 2, 'strongest' => '≥ 18.0x', 'weakest' => '< 2.0x'],
+            ['key' => 'dscr', 'group' => 'financial', 'sub' => 'Coverage', 'label' => 'DSCR (x)', 'metric' => 'dscr', 'dir' => 'up', 'unit' => 'x', 'spacing' => 'log',
+                'strongest_value' => 4, 'weakest_value' => 1.1, 'strongest' => '≥ 4.0x', 'weakest' => '< 1.1x'],
+        ],
+        'adjustments' => [
+            ['key' => 'diversification', 'label' => 'Diversification (owned / leased / franchise store mix, sourcing)'],
+            ['key' => 'liquidity', 'label' => 'Liquidity and financial flexibility (gold inventory readily saleable)', 'metric' => 'liquidity_inventory'],
+            ['key' => 'currency', 'label' => 'Currency risk (direct gold imports, jewellery exports, unhedged gold metal loans)'],
+            ['key' => 'financial_policy', 'label' => 'Financial policy (store expansion funding, pledged promoter shares)'],
+            ['key' => 'management', 'label' => 'Management, governance and reporting', 'metric' => 'rpt_revenue'],
+            ['key' => 'parent_support', 'label' => 'Parentage / group support', 'metric' => 'parent_support'],
+        ],
+        'notes' => [
+            'Debt includes interest-bearing gold metal loans, customer advances under jewellery savings schemes, showroom lease liabilities and loans from promoters / group entities.',
+            'Consolidated figures are used where the retailer operates through subsidiaries and associates.',
+        ],
+    ],
     'icra_life_insurance' => [
         'agency' => 'ICRA', 'sector_key' => 'life_insurance', 'name' => 'Life insurance',
         'criteria' => 'ICRA Rating Methodology – Life Insurance (September 2026)', 'published_on' => '2026-09-01',
