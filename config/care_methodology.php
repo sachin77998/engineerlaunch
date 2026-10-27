@@ -190,10 +190,35 @@ return [
         ],
         'diamond' => [
             'name' => 'Cut & polished diamonds', 'criteria' => 'Rating Methodology – Cut and Polished Diamond Industry (Sep 2026)',
-            'match' => ['industry' => '/gems|jewel|diamond/i', 'name' => '/diamond|gems|jewel|exports? .*surat/i', 'nic' => ['3211', '2399']],
+            'match' => ['industry' => '/gems|jewel|diamond/i', 'name' => '/^(?!.*(?:\binc\b|\.com\b|therapeutic|energy|diamond tools?|drill|abrasive|diamond standard))(?=.*(?:diamond|gems|jewel|exports? .*surat))/i', 'nic' => ['3211', '2399']],
             'override' => ['pbildt_margin' => [8, 6, 4, 2], 'wc_cycle' => [120, 160, 200, 250], 'inventory_days' => [90, 130, 170, 220], 'collection_days' => [60, 90, 120, 160], 'gearing' => [0.7, 1.2, 1.8, 2.5]],
             'weights' => ['business' => 25, 'financial' => 30, 'liquidity' => 30, 'management' => 15],
             'checks' => ['inventory_build', 'receivable_stretch', 'forex_exposure', 'related_party_heavy'],
+        ],
+        // Construction equipment makers (earthmoving, cranes, road building, concreting). Their stated industry varies (auto
+        // components, capital goods, agri inputs), so the name is checked first. Bands span ICRA's indicative levels (Sep 2026):
+        // revenue ₹8,000 cr → ₹500 cr, RoCE 25% → 10%, TOL/TNW 0.9x → 3.0x, debt / OPBDITA 0.5x → 5.0x, interest cover 18x → 2x, DSCR 4x → 1.1x.
+        'construction_equipment' => [
+            'name' => 'Construction equipment', 'criteria' => 'ICRA Rating Methodology – Construction Vehicles (Sep 2026)',
+            'match' => ['name' => '/construction equipment|construction machinery|earth ?moving|\bBEML\b|\bJCB\b|tata hitachi|ajax engineering|schwing stetter|komatsu india|caterpillar india|volvo construction|sany (?:heavy|india)|liugong|kobelco|hyundai construction|wirtgen|apollo carter/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'gearing', 'tol_tnw', 'debt_pbildt', 'icr', 'dscr', 'current_ratio', 'inventory_days', 'collection_days', 'wc_cycle', 'cash_st_debt', 'promoter_holding', 'rpt_revenue'],
+            'override' => ['toi_crore' => [8000, 3175, 1260, 500], 'roce' => [25, 20, 15, 10], 'tol_tnw' => [0.9, 1.34, 2.01, 3.0], 'debt_pbildt' => [0.5, 1.08, 2.32, 5],
+                'icr' => [18, 8.65, 4.16, 2], 'dscr' => [4, 2.6, 1.69, 1.1]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['inventory_build', 'commodity_margin_volatility', 'forex_exposure', 'group_support'],
+        ],
+        // EPC / construction contractors. Real estate developers (properties, realty, developers, homes) and power or telecom
+        // "infra" names stay out. Bands span ICRA's indicative levels (Oct 2024): revenue ₹7,500 cr → ₹100 cr (ICRA's weakest is
+        // "a marginal player"), RoCE 25% → 10%, TOL/TNW 0.9x → 3.0x, debt / OPBDITA 0.5x → 5.0x, interest cover 18x → 2x, DSCR 4x → 1.1x.
+        'construction' => [
+            'name' => 'Construction (EPC contractors)', 'criteria' => 'ICRA Rating Methodology – Construction (Oct 2024)',
+            'match' => ['industry' => '/^(?:construction|civil construction|epc\b|infrastructure (?:construction|development))/i',
+                'name' => '/^(?!.*(?:green infra|propert|realty|estates?\b|developers?\b|homes\b|housing|\bland|renewable|wind|solar|energy|power|tele|data|software|consult|emea|\binc\b|equipment|machinery))(?=.*(?:construct|infra(?:con|tech|structure|projects)?\b|buildcon|\bEPC\b|navayuga|nirman|larsen|kec international|kalpataru projects|\bNCC\b|afcons|tata projects))/i'],
+            'ratios' => ['toi_crore', 'growth_toi', 'pbildt_margin', 'margin_stability', 'roce', 'gearing', 'tol_tnw', 'debt_pbildt', 'icr', 'dscr', 'current_ratio', 'collection_days', 'wc_cycle', 'cash_st_debt', 'promoter_holding', 'rpt_revenue'],
+            'override' => ['toi_crore' => [7500, 1778, 422, 100], 'roce' => [25, 20, 15, 10], 'tol_tnw' => [0.9, 1.34, 2.01, 3.0], 'debt_pbildt' => [0.5, 1.08, 2.32, 5],
+                'icr' => [18, 8.65, 4.16, 2], 'dscr' => [4, 2.6, 1.69, 1.1]],
+            'weights' => ['business' => 35, 'financial' => 35, 'liquidity' => 15, 'management' => 15],
+            'checks' => ['receivable_stretch', 'capex_vs_networth', 'group_support'],
         ],
         'commercial_vehicles' => [
             'name' => 'Commercial vehicles', 'criteria' => 'Rating Methodology – Commercial Vehicles (Sep 2026)',

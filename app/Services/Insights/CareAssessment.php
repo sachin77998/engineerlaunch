@@ -109,7 +109,7 @@ class CareAssessment
         // Stated industry first, then the company name; registry NIC codes are often stale, so they only decide generic industries.
         $foreign = function () use ($company) { static $memo = []; return $memo[$company->id] ??= CompanyLookup::foreign($company); };
         // Sectors whose companies sit under a mixed industry label are matched on the name first.
-        foreach (['footwear'] as $key) if (($re = $this->m->sectors()[$key]['match']['name'] ?? null) && preg_match($re, $name)) return $key;
+        foreach (['footwear', 'construction_equipment'] as $key) if (($re = $this->m->sectors()[$key]['match']['name'] ?? null) && preg_match($re, $name)) return $key;
         foreach (['industry', 'name', 'nic'] as $by) {
             if ($by === 'nic' && ($nic === '' || ($industry !== '' && !preg_match('/^other|^manufacturing$|^industrial/i', $industry)))) break;
             foreach ($this->m->sectors() as $key => $def) {
@@ -259,6 +259,7 @@ class CareAssessment
         // Jewellery retail: stock holding in months, largest state's revenue share, and how much of the inventory is funded
         // externally (3-year average current liabilities / inventory; total outside liabilities / inventory).
         if (($ratios['inventory_days'] ?? null) !== null) $m['stock_months'] = round($ratios['inventory_days'] / 30.42, 1);
+        if (($t = $years->last()) && $t->net_worth !== null) { $m['tnw_crore'] = round((float) $t->net_worth / 1e7, 2); $sources['tnw_crore'] = 'Latest balance sheet'; }
         $cl = $years->take(-3)->filter(fn ($y) => $y->inventories > 0 && $y->current_liabilities !== null)->map(fn ($y) => (float) $y->current_liabilities / (float) $y->inventories);
         if ($cl->isNotEmpty()) { $m['cl_inventory'] = round($cl->avg(), 2); $sources['cl_inventory'] = 'Calculated over ' . $cl->count() . ' year(s)'; }
         if (($t = $years->last()) && $t->inventories > 0 && $t->total_assets !== null && $t->net_worth !== null) $m['tol_inventory'] = round(((float) $t->total_assets - (float) $t->net_worth) / (float) $t->inventories, 2);
@@ -324,11 +325,24 @@ class CareAssessment
             'gdpi_market_share' => [['~market share in (?:the )?(?:overall )?(?:GDPI|gross direct premium(?: income)?)[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i', '~market share[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%[^.;]{0,25}?(?:GDPI|gross direct premium|general insurance industry|non-life industry)~i'], 'first', null],
             'retail_market_share' => [['~market share in (?:the )?retail (?:segments?|health(?: and motor)?|motor and (?:retail )?health)[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i'], 'first', null],
             'diversified_channel_share' => [['~(?:agency|individual agents?)[^.;%]{0,40}?banca(?:ssurance)?[^.;%]{0,40}?direct' . $said . '~i'], 'first', null],
-            'top3_state_share' => [['~top (?:three|3) states' . $said . '~i'], 'first', null],
+            'top3_state_share' => [['~top (?:three|3) (?:states|regions|geographies)' . $said . '~i'], 'first', null],
+            // Construction: order book (₹ cr, or as a multiple of operating income) and its concentration.
+            'order_book_ratio' => [['~(?:order book|\bOB\b)(?:[^.;]|(?<=Rs)\.|\.(?=\d)){0,80}?(\d{1,2}(?:\.\d{1,2})?)\s?(?:times|x)\b[^.;]{0,40}?(?:operating income|\bOI\b|revenues?|turnover)~i', '~OB\s?/\s?OI(?: ratio)?[^.;\d]{0,20}?(\d{1,2}(?:\.\d{1,2})?)~i'], 'first', null],
+            'order_book_crore' => [['~(?:unexecuted |outstanding |healthy |strong )?order book(?: position)?(?: of| stood at| was| at)[^.;\d]{0,25}?(?:Rs\.?|₹|INR)\s?([\d,]+(?:\.\d+)?)\s?(?:crore|cr)\b~iu'], 'first', $num],
+            'top5_project_share' => [['~top (?:five|5) (?:projects|orders|contracts)' . $said . '~i'], 'first', null],
+            'top2_segment_share' => [['~top (?:two|2) (?:segments|verticals|sectors)' . $said . '~i'], 'first', null],
+            'top3_client_share' => [['~top (?:three|3) (?:clients|customers)' . $said . '~i'], 'first', null],
+            // Cut & polished diamonds: roughs from primary sources (miners) and the largest consuming market.
+            'primary_rough_share' => [['~(?:primary sources?|directly from (?:the )?miners|from miners|sightholder (?:allocations?|supplies)|De Beers|Alrosa|Rio Tinto)[^.;%]{0,60}?(\d{1,3}(?:\.\d+)?)\s?%~i',
+                '~(\d{1,3}(?:\.\d+)?)\s?% of (?:its |the )?rough(?: diamond)? (?:requirement|procurement|purchases|supply)[^.;]{0,40}?(?:primary sources?|miners|sight)~i'], 'first', null],
+            'largest_market_share' => [['~(?:the US|\bUSA?\b|United States|Hong Kong|\bHK\b|Belgium|Antwerp|\bUAE\b|Dubai|West Asia|Middle East|Israel|China|Europe)(?: market| region)?\b' . $said . '~'], 'max', null],
+            // Construction equipment: market share in its product segments.
+            'ce_market_share' => [['~market share[^.;%]{0,50}?(\d{1,2}(?:\.\d+)?)\s?%[^.;]{0,40}?(?:backhoe|crane|excavator|loader|compactor|grader|paver|mixer|concrete|construction equipment|earth ?moving)~i',
+                '~(?:backhoe loaders?|cranes|excavators|transit mixers|compactors|motor graders|concrete mixers|SLCMs?)[^.;%]{0,40}?market share[^.;%]{0,30}?(\d{1,2}(?:\.\d+)?)\s?%~i'], 'max', null],
             'motor_tp_share' => [['~(?:motor[- ](?:third[- ]party|TP)|third[- ]party (?:motor|liability))(?: segment| business| premium)?' . $said . '~i'], 'first', null],
             'retention_ratio' => [['~retention (?:ratio|level)[^.;%]{0,40}?(\d{2,3}(?:\.\d+)?)\s?%~i'], 'first', null],
             'gsec_share' => [['~(?:government|G-?Sec|sovereign)(?: and state government)? securities[^.;%]{0,50}?(?:accounted for|constituted|formed|comprised)[^.;%]{0,30}?(\d{1,3}(?:\.\d+)?)\s?% of (?:the |its |total )*investment~i'], 'first', null],
-            'largest_product_share' => [['~(?:slippers?|sandals?|sports (?:shoes|footwear)|casual footwear|formal footwear|school shoes|flip[- ]flops|chappals?|(?:non[- ])?leather footwear|\bshoes)(?: segment| category| products?)?\b' . $said . '~i'], 'max', null],
+            'largest_product_share' => [['~(?:backhoe loaders?|pick[- ]and[- ]carry cranes|cranes?|excavators?|wheel(?:ed)? loaders?|compactors?|motor graders?|pavers?|transit mixers?|concrete (?:mixers?|equipment)|batching plants?|crushers?|material handling)(?: segment| category| products?)?\b' . $said . '~i', '~(?:slippers?|sandals?|sports (?:shoes|footwear)|casual footwear|formal footwear|school shoes|flip[- ]flops|chappals?|(?:non[- ])?leather footwear|\bshoes)(?: segment| category| products?)?\b' . $said . '~i'], 'max', null],
             'top2_region_share' => [['~top (?:two|2) (?:regions|countries|states|markets)' . $said . '~i'], 'first', null],
             // Fertilisers: urea and P&K capacity (MMT; lakh tonnes / 10), urea capacity utilisation and energy use (Gcal per MT).
             'urea_capacity' => [['~urea[^.;]{0,80}?capacity[^.;]{0,40}?(\d+(?:\.\d+)?\s?(?:MMT|million (?:metric )?tonnes|lakh (?:metric )?tonnes|LMT))~i'], 'first', $mmt = fn ($s) => (float) $s / (preg_match('~lakh|LMT~i', $s) ? 10 : 1)],
@@ -341,10 +355,14 @@ class CareAssessment
             foreach ($text_figures as $k => [$res, $mode, $fn]) {
                 if (isset($m[$k])) continue;
                 $vals = collect($res)->flatMap(fn ($re) => preg_match_all($re, $text, $x) ? $x[1] : [])->map(fn ($s) => $fn ? $fn($s) : (float) $s)
-                    ->filter(fn ($v) => $v > 0 && (in_array($k, ['students', 'states_count', 'institute_age']) || $v <= ($k === 'urea_utilisation' ? 150 : 100)));
+                    ->filter(fn ($v) => $v > 0 && (in_array($k, ['students', 'states_count', 'institute_age', 'order_book_crore']) || $v <= ($k === 'urea_utilisation' ? 150 : 100)));
                 $v = $mode === 'max' ? $vals->max() : $vals->first();
                 if ($v !== null) { $m[$k] = $v; $sources[$k] = $r->agency . ' rationale, ' . $r->published_on->format('M Y'); }
             }
+        }
+        if (!isset($m['order_book_ratio']) && isset($m['order_book_crore']) && ($ratios['toi_crore'] ?? 0) > 0) {
+            $m['order_book_ratio'] = round($m['order_book_crore'] / $ratios['toi_crore'], 2);
+            $sources['order_book_ratio'] = 'Calculated: order book ÷ latest operating income (' . $sources['order_book_crore'] . ')';
         }
         // Hospitals: ARPOB (₹ per occupied bed-day), top-two specialities' share, and the payor mix (cash + insurance + international
         // patients; or 100 less the government-scheme / institutional share).
