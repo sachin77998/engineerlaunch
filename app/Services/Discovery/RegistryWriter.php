@@ -67,7 +67,7 @@ class RegistryWriter
                 $facilities[] = [
                     'company_id' => $id, 'slug' => Str::limit(Str::slug($row['slug'] . ' ' . $row['city'] . ' registered'), 240, ''),
                     'name' => Str::limit($row['name'] . ' - ' . $row['city'], 250, ''), 'facility_type' => 'Registered office',
-                    'country' => $row['country'] ?: 'India', 'state' => $row['state'], 'city' => $row['city'], 'industrial_area' => null,
+                    'country' => $row['country'] ?: 'India', 'state' => $row['state'], 'city' => $row['city'], 'industrial_area' => $row['area'] ?? null,
                     'industry' => isset($new[$row['key']]) ? $new[$row['key']]['match'][0] : 'Registered company',
                     'source_url' => $row['lei'] ? 'https://search.gleif.org/#/record/' . $row['lei'] : $source,
                     'verified_on' => $now->toDateString(), 'created_at' => $now, 'updated_at' => $now,

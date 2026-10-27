@@ -39,7 +39,8 @@ class AuthController extends Controller
     }
     public function otpForm(VerificationOtpService $otpService)
     {
-        abort_unless(session('pending_registration'), 403);
+        // An expired or never-started sign-up goes back to the form instead of a "forbidden" page.
+        if (!session('pending_registration')) return redirect()->route('register')->with('warning', 'Your verification session has expired. Please sign up again to get a new code.');
         return view('auth.otp', ['email' => session('pending_registration.email'), 'devOtp' => $otpService->usesFixedCode() ? session('dev_otp') : null]);
     }
     public function resendOtp(VerificationOtpService $otpService)

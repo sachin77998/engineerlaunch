@@ -21,6 +21,7 @@ class DiscoverCompanies extends Command
         {--with-plant-areas : Also scan industrial areas recorded on company plants (geocoded)}
         {--industrial-areas : Also scan every area in the industrial area directory (all cities)}
         {--gleif-cities : GLEIF registry: companies registered in every industrial-area / hub city (India)}
+        {--gleif-place=* : GLEIF registry: Indian companies whose address names this place (Chakan, Ranjangaon); filed in the matching hub}
         {--gleif-country=* : GLEIF registry: whole countries by ISO code, e.g. AE GB DE}
         {--gleif-pages=10 : GLEIF pages of 200 companies per city or country}
         {--gleif-trades : GLEIF registry: every company whose name contains a trade word (config discovery.trade_terms)}
@@ -49,6 +50,11 @@ class DiscoverCompanies extends Command
         }
         if (in_array($source, ['gleif', 'all'], true)) {
             $pages = range(1, max(1, (int) $this->option('gleif-pages')));
+            // A place inside a city ("Chakan" in Pune): the address must name it; a hub named after it becomes the industrial area.
+            foreach ($this->option('gleif-place') as $place) {
+                $hub = collect(config('discovery.hubs'))->first(fn ($h) => str_contains(mb_strtolower($h['name']), mb_strtolower($place)));
+                foreach ($pages as $page) $jobs[] = ['gleif', ['country' => 'IN', 'city' => $place, 'page' => $page, 'area' => $hub['name'] ?? null]];
+            }
             if ($this->option('gleif-cities')) {
                 foreach ($this->registryCities() as $city) foreach ($pages as $page) $jobs[] = ['gleif', ['country' => 'IN', 'city' => $city, 'page' => $page]];
             }
