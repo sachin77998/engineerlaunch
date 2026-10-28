@@ -31,6 +31,10 @@ use App\Http\Controllers\AdminCompanyExperienceController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Search engines: sitemaps and robots.txt (built from APP_URL so they point at the live domain).
+// Bills & Payments: categories, billers and municipal services by city.
+Route::get('/bills', [\App\Http\Controllers\BillPaymentController::class, 'index'])->name('bills.index');
+Route::get('/bills/city/{slug}', [\App\Http\Controllers\BillPaymentController::class, 'city'])->where('slug', '[a-z0-9-]+')->name('bills.city');
+Route::get('/bills/{category}', [\App\Http\Controllers\BillPaymentController::class, 'category'])->where('category', '[a-z]+')->name('bills.category');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/{part}.xml', [\App\Http\Controllers\SitemapController::class, 'part'])->name('sitemap.part');
 Route::get('/robots.txt', fn () => response(implode("

@@ -47,6 +47,8 @@
 .sitebar[data-shared-header] summary:focus-visible,.sitebar[data-shared-header] .header-menu a:focus-visible,.sitebar[data-shared-header] .header-menu button:focus-visible{outline:3px solid #f4b400;outline-offset:2px}
 .sitebar[data-shared-header] .header-toggle{display:none;margin-left:auto;padding:9px 14px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:transparent;color:#fff;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
 .sitebar[data-shared-header] .header-insights-btn{flex:0 0 auto;padding:10px 16px;border-radius:9px;background:#f4b400;color:#0b2545!important;font:800 14px Inter,system-ui,sans-serif;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(244,180,0,.25)}
+.sitebar[data-shared-header] .header-bills-btn{background:#00b9f5;color:#fff!important;box-shadow:0 4px 14px rgba(0,185,245,.25)}
+.sitebar[data-shared-header] .header-bills-btn:hover,.sitebar[data-shared-header] .header-bills-btn.is-active{background:#21c7ff}
 .sitebar[data-shared-header] .header-insights-btn:hover,.sitebar[data-shared-header] .header-insights-btn.is-active{background:#ffc933;box-shadow:0 0 0 2px #fff inset}
 .sitebar[data-shared-header] .header-menu-nested{min-width:280px;max-height:75vh;overflow:auto;gap:2px}
 .sitebar[data-shared-header] .header-sub>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;color:#0b2545;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
@@ -71,6 +73,7 @@
   <div class="sitebar-inner">
     <a class="site-logo" href="{{ route('home') }}" aria-label="Ascendia home"><img src="{{ asset('images/ascendia-logo.png') }}" alt="Ascendia"></a>
     <a class="header-insights-btn {{ request()->routeIs('insights.*') ? 'is-active' : '' }}" href="{{ route('insights.index') }}">Insights into Company</a>
+    <a class="header-insights-btn header-bills-btn {{ request()->routeIs('bills.*') ? 'is-active' : '' }}" href="{{ route('bills.index') }}">Bills &amp; Payments</a>
     <button class="header-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
     <nav class="site-nav" id="site-nav" aria-label="Main navigation">
       <details class="header-group header-primary {{ request()->routeIs('trading.*', 'calculators.*', 'insurance.*', 'markets.us*') ? 'is-active' : '' }}">

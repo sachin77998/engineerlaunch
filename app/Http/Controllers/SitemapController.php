@@ -49,8 +49,10 @@ class SitemapController extends Controller
         }
         return match ($part) {
             'static' => collect(['home', 'companies.index', 'career-explorer', 'sectors.index', 'industrial.index', 'approvals.index', 'insights.index', 'news.index',
-                'technologies.index', 'learning.index', 'practice', 'calculators.index', 'company.experiences.index', 'money.index', 'trading.index', 'about', 'contact'])
-                ->filter(fn ($r) => \Route::has($r))->map(fn ($r) => [route($r), null]),
+                'technologies.index', 'learning.index', 'practice', 'calculators.index', 'company.experiences.index', 'money.index', 'trading.index', 'about', 'contact', 'bills.index'])
+                ->filter(fn ($r) => \Route::has($r))->map(fn ($r) => [route($r), null])
+                ->concat(collect(config('bill_payments.categories'))->keys()->map(fn ($k) => [route('bills.category', $k), null]))
+                ->concat(collect(config('bill_payments.cities'))->map(fn ($c) => [route('bills.city', \Illuminate\Support\Str::slug($c[0])), null])),
             'sectors' => DB::table('company_categories as c')->leftJoin('company_categories as p', 'p.id', '=', 'c.parent_id')->where('c.taxonomy', 'sector')
                 ->orderBy('c.id')->get(['c.slug', 'p.slug as parent', 'c.updated_at'])
                 ->map(fn ($c) => [$c->parent ? route('sectors.subcategory', [$c->parent, $c->slug]) : route('sectors.show', $c->slug), $c->updated_at]),
