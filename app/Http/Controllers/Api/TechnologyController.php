@@ -41,18 +41,12 @@ class TechnologyController extends Controller
         $technologies = Technology::withCount('jobs')->orderBy('jobs_count', 'desc')->limit($limit)->get();
         return response()->json(['success' => true,'data' => $technologies,]);
     }
-
     public function show($id, Request $request): JsonResponse
     {
         $technology = Technology::with('jobs')->find($id);
         if (!$technology) {return response()->json(['success' => false,'message' => 'Technology not found',], 404);}
         $perPage = $request->get('per_page', 15);
         $jobs = $technology->jobs()->active()->paginate($perPage);
-        return response()->json(['success' => true,
-            'data' => [
-                'technology' => $technology,'jobs' => $jobs->items(),
-                'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],
-            ],
-        ]);
+        return response()->json(['success' => true,'data' => ['technology' => $technology,'jobs' => $jobs->items(),'pagination' => ['total' => $jobs->total(),'per_page' => $jobs->perPage(),'current_page' => $jobs->currentPage(),'last_page' => $jobs->lastPage(),],],]);
     }
 }

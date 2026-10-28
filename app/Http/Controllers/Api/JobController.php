@@ -22,15 +22,12 @@ class JobController extends Controller
             'state' => ['nullable', 'string', 'max:100'],
             'q' => ['nullable', 'string', 'max:100'],
         ]);
-
         return response()->json(['success' => true, 'data' => $geography->options($filters)]);
     }
-
     public function categories(): JsonResponse
     {
         return response()->json(['success' => true, 'data' => JobCategory::query()->orderBy('name')->get()]);
     }
-
     public function index(Request $request, \App\Services\JobGeography $geography): JsonResponse
     {
         $validated = $request->validate(['country' => ['nullable', 'string', 'max:100'],'region' => ['nullable', 'string', 'max:100'],'state' => ['nullable', 'string', 'max:100'],'city' => ['nullable', 'string', 'max:150'],
@@ -55,17 +52,10 @@ class JobController extends Controller
         ]);
         $query = Job::active()->with($this->jobRelations());
         $geography->apply($query, $validated);
-        if ($request->has('company_id')) {
-            $query->company($request->get('company_id'));
-        }
-        if ($request->has('job_type')) {
-            $query->jobType($request->get('job_type'));
-        }
-        if ($request->has('experience_level')) {
-            $query->experienceLevel($request->get('experience_level'));
-        }
-        if ($request->filled('experience_years')) {
-            $years = (int) $request->get('experience_years');
+        if ($request->has('company_id')) {$query->company($request->get('company_id'));}
+        if ($request->has('job_type')) {$query->jobType($request->get('job_type'));}
+        if ($request->has('experience_level')) {$query->experienceLevel($request->get('experience_level'));}
+        if ($request->filled('experience_years')) {$years = (int) $request->get('experience_years');
             $query->where(function ($experience) use ($years) {
                 $experience->whereNotNull('experience_min')->where('experience_min', '<=', $years);
             })->where(function ($experience) use ($years) {
@@ -73,40 +63,20 @@ class JobController extends Controller
             });
         }
         foreach (['posting_source', 'source', 'work_mode'] as $filter) {
-            if ($request->filled($filter)) {
-                $query->where($filter, $request->get($filter));
-            }
+            if ($request->filled($filter)) {$query->where($filter, $request->get($filter));}
         }
-        if ($request->filled('role_family')) {
-            \App\Support\JobRoles::apply($query, (string) $request->get('role_family'));
-        }
-        if ($request->filled('posted_within_days')) {
-            $query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));
-        }
-        if ($request->has('technology_id')) {
-            $query->withTechnology($request->get('technology_id'));
-        }
-        if ($request->has('category_id')) {
-            $query->withCategory($request->get('category_id'));
-        }
-        if ($request->has('q')) {
-            $query->search($request->get('q'));
-        }
-        if ($request->filled('salary_min')) {
-            $query->where('salary_max', '>=', $request->get('salary_min'));
-        }
-        if ($request->filled('salary_max')) {
-            $query->where('salary_min', '<=', $request->get('salary_max'));
-        }
+        if ($request->filled('role_family')) {\App\Support\JobRoles::apply($query, (string) $request->get('role_family'));}
+        if ($request->filled('posted_within_days')) {$query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));}
+        if ($request->has('technology_id')) {$query->withTechnology($request->get('technology_id'));}
+        if ($request->has('category_id')) {$query->withCategory($request->get('category_id'));}
+        if ($request->has('q')) {$query->search($request->get('q'));}
+        if ($request->filled('salary_min')) {$query->where('salary_max', '>=', $request->get('salary_min'));}
+        if ($request->filled('salary_max')) {$query->where('salary_min', '<=', $request->get('salary_max'));}
         $sortBy = $validated['sort_by'] ?? 'posted_at';
         $sortOrder = $validated['sort_order'] ?? 'desc';
-        if ($sortBy === 'posted_at') {
-            $query->orderBy('posted_at', $sortOrder);
-        } elseif ($sortBy === 'salary') {
-            $query->orderBy('salary_max', $sortOrder);
-        } elseif ($sortBy === 'views') {
-            $query->orderBy('views', $sortOrder);
-        }
+        if ($sortBy === 'posted_at') {$query->orderBy('posted_at', $sortOrder);} 
+        elseif ($sortBy === 'salary') {$query->orderBy('salary_max', $sortOrder);} 
+        elseif ($sortBy === 'views') {$query->orderBy('views', $sortOrder);}
         $perPage = $validated['per_page'] ?? 50;
         $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()), DiscoveryCache::ttl(), fn () => $query->paginate($perPage));
         $syncing = [];
@@ -118,24 +88,19 @@ class JobController extends Controller
         if ($request->filled('q') || $request->filled('location') || collect($validated)->except(['per_page', 'sort_by', 'sort_order'])->filter()->isNotEmpty()) {
             DB::table('search_logs')->insert(['user_id' => $request->user()?->id, 'session_id' => hash_hmac('sha256', (string) $request->ip(), config('app.key')), 'keyword' => $validated['q'] ?? null, 'location' => $validated['location'] ?? null, 'filters' => json_encode(collect($validated)->except(['q', 'location', 'per_page'])->filter()->all()), 'results_count' => $jobs->total(), 'created_at' => now()]);
         }
-
         return response()->json(['success' => true, 'data' => $jobs->items(), 'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage(), 'from' => $jobs->firstItem(), 'to' => $jobs->lastItem()]] + ($syncing ? ['syncing' => $syncing] : []));
     }
     public function show($id): JsonResponse
     {
         $job = Job::active()->with($this->jobRelations())->find($id);
-        if (! $job) {
-            return response()->json(['success' => false, 'message' => 'Job not found'], 404);
-        }
+        if (! $job) {return response()->json(['success' => false, 'message' => 'Job not found'], 404);}
         $job->incrementViews();
         return response()->json(['success' => true, 'data' => $job]);
     }
     public function byCompany($companyId, Request $request): JsonResponse
     {
         $query = Job::active()->where('company_id', $companyId)->with($this->jobRelations());
-        if ($request->has('q')) {
-            $query->search($request->get('q'));
-        }
+        if ($request->has('q')) {$query->search($request->get('q'));}
         $perPage = min(50, max(1, (int) $request->get('per_page', 50)));
         $jobs = $query->paginate($perPage);
         return response()->json(['success' => true, 'data' => $jobs->items(),'pagination' => ['total' => $jobs->total(), 'per_page' => $jobs->perPage(), 'current_page' => $jobs->currentPage(), 'last_page' => $jobs->lastPage()], ]);

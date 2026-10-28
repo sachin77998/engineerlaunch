@@ -117,10 +117,29 @@ class TradingApiController extends Controller
     {
         abort_unless(in_array($type, Calculators::TYPES, true), 404);
         $rules = [
-            'lumpsum' => ['amount' => 'required|numeric|min:1|max:1000000000', 'rate' => 'required|numeric|min:-50|max:100', 'years' => 'required|numeric|min:0.1|max:50'],
-            'sip' => ['monthly' => 'required|numeric|min:1|max:10000000', 'rate' => 'required|numeric|min:-50|max:100', 'years' => 'required|numeric|min:0.1|max:50', 'step_up' => 'nullable|numeric|min:0|max:100'],
-            'emi' => ['principal' => 'required|numeric|min:1|max:10000000000', 'rate' => 'required|numeric|min:0|max:60', 'months' => 'required|integer|min:1|max:600'],
-            'amortization' => ['principal' => 'required|numeric|min:1|max:10000000000', 'rate' => 'required|numeric|min:0|max:60', 'months' => 'required|integer|min:1|max:600', 'prepayment' => 'nullable|numeric|min:0', 'prepay_month' => 'nullable|integer|min:0|max:600'],
+            'lumpsum' => [
+                'amount' => 'required|numeric|min:1|max:1000000000',
+                'rate' => 'required|numeric|min:-50|max:100',
+                'years' => 'required|numeric|min:0.1|max:50'
+            ],
+            'sip' => 
+            [
+                'monthly' => 'required|numeric|min:1|max:10000000',
+                'rate' => 'required|numeric|min:-50|max:100',
+                'years' => 'required|numeric|min:0.1|max:50',
+                'step_up' => 'nullable|numeric|min:0|max:100'
+            ],
+            'emi' => [
+                'principal' => 'required|numeric|min:1|max:10000000000',
+                 'rate' => 'required|numeric|min:0|max:60',
+                  'months' => 'required|integer|min:1|max:600'
+                  ],
+            'amortization' => [
+                'principal' => 'required|numeric|min:1|max:10000000000',
+                'rate' => 'required|numeric|min:0|max:60',
+                'months' => 'required|integer|min:1|max:600',
+                'prepayment' => 'nullable|numeric|min:0',
+                'prepay_month' => 'nullable|integer|min:0|max:600'],
             'fd' => ['amount' => 'required|numeric|min:1|max:1000000000', 'rate' => 'required|numeric|min:0|max:30', 'years' => 'required|numeric|min:0.1|max:30', 'compounding' => 'nullable|integer|in:1,2,4,12'],
             'rd' => ['monthly' => 'required|numeric|min:1|max:10000000', 'rate' => 'required|numeric|min:0|max:30', 'years' => 'required|numeric|min:0.5|max:20'],
             'margin' => ['symbol' => 'nullable|string|max:30', 'price' => 'required|numeric|min:0.01|max:10000000', 'quantity' => 'required|integer|min:1|max:10000000', 'product' => ['required', Rule::in(['delivery', 'intraday'])], 'margin_pct' => 'nullable|numeric|min:1|max:100'],
@@ -130,7 +149,6 @@ class TradingApiController extends Controller
         CalculatorRun::create(['user_id' => $request->user()?->id, 'type' => $type, 'inputs' => $inputs, 'result' => $type === 'amortization' ? array_diff_key($result, ['schedule' => 1]) : $result]);
         return response()->json(['data' => $result]);
     }
-
     public function market(MarketCalendar $calendar): JsonResponse
     {
         $now = $calendar->now();
@@ -138,13 +156,11 @@ class TradingApiController extends Controller
             'next_business_day' => $calendar->nextBusinessDay($now)->toDateString(),
             'upcoming_holidays' => collect($calendar->holidays())->filter(fn ($d, $date) => $date >= $now->toDateString())->take(10)]]);
     }
-
     private function authorizeOrder(Request $request, MfOrder $order, bool $allowOwner = true): void
     {
         $user = $request->user();
         abort_unless($user && ($order->user_id === $user->id || ($allowOwner && $user->isOwner())), 404);
     }
-
     private function present(MfOrder $order, bool $withEvents = false): array
     {
         $scheme = $order->relationLoaded('scheme') ? $order->scheme : null;
@@ -160,7 +176,6 @@ class TradingApiController extends Controller
         if ($withEvents) $out['history'] = $order->events->map(fn ($e) => ['from' => $e->from_status, 'to' => $e->to_status, 'by' => $e->actor, 'note' => $e->note, 'at' => $e->created_at?->toIso8601String()])->all();
         return $out;
     }
-
     /** Boolean full-text query requiring every word (prefix match): "hdfc flexi" → "+hdfc* +flexi*". */
     private static function words(string $q): string
     {

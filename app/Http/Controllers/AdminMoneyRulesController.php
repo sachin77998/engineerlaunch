@@ -13,26 +13,119 @@ class AdminMoneyRulesController extends Controller
     /** table => [title, columns]; column => [type, label, options?]. Types: text, num, int, select, bool, csv. */
     public const TABLES = [
         'money_tax_slabs' => ['Income-tax slabs (upto blank = no upper limit)', [
-            'regime' => ['select', 'Regime', ['new', 'old', 'old_senior', 'old_super_senior']], 'upto' => ['num?', 'Income up to (₹)'], 'rate' => ['num', 'Rate %'], 'sort_order' => ['int', 'Order']]],
-        'money_tax_surcharges' => ['Surcharge', ['regime' => ['select', 'Regime', ['new', 'old']], 'above' => ['num', 'Income above (₹)'], 'rate' => ['num', 'Rate %']]],
-        'money_capital_gains_rules' => ['Capital gains (rate blank = slab rate)', [
-            'asset' => ['text', 'Asset'], 'ltcg_months' => ['int?', 'Long-term after (months)'], 'stcg_rate' => ['num?', 'STCG %'], 'ltcg_rate' => ['num?', 'LTCG %'],
-            'ltcg_exemption' => ['num', 'LTCG exemption (₹)'], 'section_st' => ['text?', 'Section (ST)'], 'section_lt' => ['text?', 'Section (LT)']]],
-        'money_deductions' => ['Deductions', [
-            'section' => ['text', 'Section'], 'label' => ['text', 'What qualifies'], 'limit' => ['num?', 'Limit (₹)'], 'limit_senior' => ['num?', 'Senior limit'],
-            'parents' => ['num?', 'Parents'], 'parents_senior' => ['num?', 'Senior parents'], 'limit_pct_basic' => ['num?', '% of basic'], 'regimes' => ['csv', 'Regimes (old,new)'],
-            'sort_order' => ['int', 'Order'], 'is_active' => ['bool', 'On']]],
-        'money_instruments' => ['Investment instruments', [
-            'key' => ['text', 'Key'], 'label' => ['text', 'Name'], 'expected_return' => ['num', 'Expected return %'],
-            'tax_class' => ['select', 'Tax treatment', ['equity', 'debt', 'fd', 'exempt', 'nps', 'gold', 'none']], 'liquid' => ['bool', 'Liquid'], 'sort_order' => ['int', 'Order'], 'is_active' => ['bool', 'On']]],
-        'money_income_products' => ['Retirement income products', [
-            'key' => ['text', 'Key'], 'label' => ['text', 'Name'], 'rate' => ['num', 'Rate %'], 'withdrawal' => ['num?', 'Withdrawal %'], 'max_per_person' => ['num?', 'Max per person (₹)'],
-            'max_joint' => ['num?', 'Max joint (₹)'], 'min_age' => ['int?', 'Min age'], 'payout' => ['select', 'Payout', ['monthly', 'quarterly', 'half-yearly', 'yearly']],
-            'tax_note' => ['text?', 'Tax'], 'risk' => ['text?', 'Risk'], 'sort_order' => ['int', 'Order'], 'is_active' => ['bool', 'On']]],
-        'money_plan_examples' => ['Plan examples', ['category' => ['select', 'Category', ['immediate_annuity', 'deferred_annuity', 'nps', 'term', 'health']], 'name' => ['text', 'Plan'], 'sort_order' => ['int', 'Order']]],
+            'regime' => [
+                         'select',
+                         'Regime',
+                          [
+                            'new',
+                            'old',
+                            'old_senior',
+                            'old_super_senior'
+                          ]
+                            ],
+                             'upto' => ['num?', 'Income up to (₹)'],
+                             'rate' => ['num', 'Rate %'],
+                             'sort_order' => ['int', 'Order']
+                             ]
+                             ],
+        'money_tax_surcharges' => [
+                               'Surcharge',
+                                ['regime' => [
+                                    'select',
+                                    'Regime',
+                                    ['new', 'old']
+                                    ],
+                                    'above' => ['num', 'Income above (₹)'],
+                                    'rate' => ['num', 'Rate %']
+                                    ]
+                                    ],
+        'money_capital_gains_rules' => [
+                                       'Capital gains (rate blank = slab rate)',
+                                       [
+                                       'asset' => ['text', 'Asset'],
+                                       'ltcg_months' => ['int?', 'Long-term after (months)'],
+                                       'stcg_rate' => ['num?', 'STCG %'],
+                                       'ltcg_rate' => ['num?', 'LTCG %'],
+                                       'ltcg_exemption' => ['num', 'LTCG exemption (₹)'],
+                                       'section_st' => ['text?', 'Section (ST)'],
+                                       'section_lt' => ['text?', 'Section (LT)']
+                                       ]
+                                       ],
+        'money_deductions' => [
+                              'Deductions', [
+            'section' => ['text', 'Section'],
+            'label' => ['text', 'What qualifies'],
+            'limit' => ['num?', 'Limit (₹)'],
+            'limit_senior' => ['num?', 'Senior limit'],
+            'parents' => ['num?', 'Parents'],
+            'parents_senior' => ['num?', 'Senior parents'],
+            'limit_pct_basic' => ['num?', '% of basic'],
+            'regimes' => ['csv', 'Regimes (old,new)'],
+            'sort_order' => ['int', 'Order'],
+            'is_active' => ['bool', 'On']
+            ]
+            ],
+        'money_instruments' => [
+            'Investment instruments',
+             [
+            'key' => ['text', 'Key'],
+            'label' => ['text', 'Name'],
+            'expected_return' => ['num', 'Expected return %'],
+            'tax_class' => ['select', 'Tax treatment',['equity', 'debt', 'fd', 'exempt', 'nps', 'gold', 'none']
+            ],
+            'liquid' => ['bool', 'Liquid'],
+            'sort_order' => ['int', 'Order'],
+            'is_active' => ['bool', 'On']
+            ]
+            ],
+        'money_income_products' => 
+        [
+            'Retirement income products',
+             [
+                'key' => ['text', 'Key'],
+                'label' => ['text', 'Name'],
+                'rate' => ['num', 'Rate %'],
+                'withdrawal' => ['num?', 'Withdrawal %'],
+                'max_per_person' => ['num?', 'Max per person (₹)'],
+                'max_joint' => ['num?', 'Max joint (₹)'],
+                'min_age' => ['int?', 'Min age'],
+                'payout' => ['select', 'Payout', ['monthly', 'quarterly', 'half-yearly', 'yearly']
+                ],
+            'tax_note' => ['text?', 'Tax'],
+            'risk' => ['text?', 'Risk'],
+            'sort_order' => ['int', 'Order'],
+            'is_active' => ['bool', 'On']
+            ]
+            ],
+        'money_plan_examples' => [
+            'Plan examples',
+             [
+                'category' => ['select', 'Category',
+                 [
+                    'immediate_annuity',
+                    'deferred_annuity',
+                    'nps',
+                    'term',
+                    'health'
+                    ]
+                    ],
+                     'name' => ['text', 'Plan'],
+                    'sort_order' => ['int', 'Order']
+                    ]
+                    ],
     ];
-    private const SETTINGS = ['tax_year' => 'text', 'cess' => 'num', 'capital_gains_surcharge_cap' => 'num', '54EC_cap' => 'num', 'new_standard_deduction' => 'num', 'new_rebate_limit' => 'num',
-        'new_rebate_max' => 'num', 'old_standard_deduction' => 'num', 'old_rebate_limit' => 'num', 'old_rebate_max' => 'num', 'gift_exempt_relatives' => 'csv'];
+    private const SETTINGS = [
+        'tax_year' => 'text', 
+        'cess' => 'num',
+        'capital_gains_surcharge_cap' => 'num',
+        '54EC_cap' => 'num',
+        'new_standard_deduction' => 'num',
+        'new_rebate_limit' => 'num',
+        'new_rebate_max' => 'num',
+        'old_standard_deduction' => 'num',
+        'old_rebate_limit' => 'num',
+        'old_rebate_max' => 'num', 'gift_exempt_relatives' => 'csv'
+        ];
 
     public function index()
     {

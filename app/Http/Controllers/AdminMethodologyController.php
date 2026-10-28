@@ -32,7 +32,6 @@ class AdminMethodologyController extends Controller
                 'model' => DB::table('credit_model_runs')->where('is_active', true)->latest('trained_at')->first()],
         ]);
     }
-
     public function ratios(Request $r, Methodology $m)
     {
         $data = $r->validate(['ratios' => 'required|array', 'ratios.*.label' => 'required|string|max:120', 'ratios.*.direction' => 'required|in:up,down',
@@ -46,7 +45,6 @@ class AdminMethodologyController extends Controller
         }
         return $this->saved($m, 'Ratio definitions saved.');
     }
-
     public function sector(Request $r, int $id, Methodology $m)
     {
         $data = $r->validate(['name' => 'required|string|max:120', 'criteria' => 'nullable|string|max:250', 'match_industry' => 'nullable|string|max:250', 'match_name' => 'nullable|string|max:250',
@@ -60,24 +58,35 @@ class AdminMethodologyController extends Controller
             if (empty($o['ratio']) || count(array_filter($o['band'] ?? [], 'is_numeric')) !== 4) continue;
             $overrides[$o['ratio']] = array_map('floatval', array_values($o['band']));
         }
-        DB::table('credit_methodology_sectors')->where('id', $id)->update([
-            'name' => $data['name'], 'criteria' => $data['criteria'], 'match_industry' => $data['match_industry'] ?: null, 'match_name' => $data['match_name'] ?: null,
-            'nic_prefixes' => ($nic = array_values(array_filter(array_map('trim', explode(',', (string) $data['nic']))))) ? json_encode($nic) : null,
-            'match_order' => $data['match_order'], 'weights' => json_encode(array_map('floatval', $data['weights'])),
-            'ratios' => !empty($data['ratios']) ? json_encode(array_values($data['ratios'])) : null, 'checks' => json_encode(array_values($data['checks'] ?? [])),
-            'overrides' => $overrides ? json_encode($overrides) : null,
-            'notes' => trim((string) $data['notes']) !== '' ? json_encode(array_values(array_filter(array_map('trim', preg_split('/\R/', $data['notes'])))), JSON_UNESCAPED_UNICODE) : null,
-            'is_active' => $r->boolean('is_active'), 'financial_ratios' => $r->boolean('financial_ratios'), 'updated_at' => now(),
+        DB::table('credit_methodology_sectors')
+              ->where('id', $id)
+              ->update([
+               'name' => $data['name'],
+               'criteria' => $data['criteria'],
+               'match_industry' => $data['match_industry'] ?: null,
+               'match_name' => $data['match_name'] ?: null,
+               'nic_prefixes' => ($nic = array_values(array_filter(array_map('trim', explode(',', (string) $data['nic']))))) ? json_encode($nic) : null,
+               'match_order' => $data['match_order'], 'weights' => json_encode(array_map('floatval', $data['weights'])),
+               'ratios' => !empty($data['ratios']) ? json_encode(array_values($data['ratios'])) : null, 'checks' => json_encode(array_values($data['checks'] ?? [])),
+               'overrides' => $overrides ? json_encode($overrides) : null,
+               'notes' => trim((string) $data['notes']) !== '' ? json_encode(array_values(array_filter(array_map('trim', preg_split('/\R/', $data['notes'])))), JSON_UNESCAPED_UNICODE) : null,
+               'is_active' => $r->boolean('is_active'), 'financial_ratios' => $r->boolean('financial_ratios'), 'updated_at' => now(),
         ]);
         return $this->saved($m, "Sector '{$data['name']}' saved.");
     }
-
     public function settings(Request $r, Methodology $m)
     {
         $scale = RatingRationaleParser::LONG_SCALE; $short = RatingRationaleParser::SHORT_SCALE;
-        $data = $r->validate(['bands' => 'required|array', 'bands.*.min' => 'nullable|numeric|min:0|max:100', 'bands.*.rating' => 'required|in:' . implode(',', $scale),
-            'short' => 'required|array', 'short.*.usual' => 'required|in:' . implode(',', $short), 'short.*.superior' => 'required|in:' . implode(',', $short),
-            'overlays' => 'required|array', 'overlays.*' => 'required', 'default_weights' => 'required|array', 'default_weights.*' => 'required|numeric|min:0|max:100']);
+        $data = $r->validate(
+            ['bands' => 'required|array',
+             'bands.*.min' => 'nullable|numeric|min:0|max:100',
+             'bands.*.rating' => 'required|in:' . implode(',', $scale),
+             'short' => 'required|array',
+             'short.*.usual' => 'required|in:' . implode(',', $short),
+             'short.*.superior' => 'required|in:' . implode(',', $short),
+             'overlays' => 'required|array',
+             'overlays.*' => 'required',
+             'default_weights' => 'required|array', 'default_weights.*' => 'required|numeric|min:0|max:100']);
         $bands = collect($data['bands'])->filter(fn ($b) => $b['min'] !== null && $b['min'] !== '')->mapWithKeys(fn ($b) => [(string) (float) $b['min'] => $b['rating']])->sortKeysDesc()->all();
         if (abs(array_sum($data['default_weights']) - 100) > 0.01) return back()->withErrors(['Default pillar weights must add up to 100.'])->withInput();
         $overlays = collect($data['overlays'])->map(fn ($v, $k) => in_array($k, ['inc_cap', 'post_default_cap'], true) ? (in_array($v, $scale, true) ? $v : 'BB+') : (float) $v)->all();
@@ -145,7 +154,6 @@ class AdminMethodologyController extends Controller
         $criteria->flush();
         return $this->saved($m, "{$row->agency} {$row->name} criteria saved.");
     }
-
     /** Owner edits keep the original created_at, so the seeder can tell them apart from untouched defaults. */
     private static function putSetting(string $key, $value): void
     {
@@ -153,21 +161,18 @@ class AdminMethodologyController extends Controller
         $exists ? DB::table('credit_methodology_settings')->where('key', $key)->update(['value' => json_encode($value), 'updated_at' => now()->addSecond()])
             : DB::table('credit_methodology_settings')->insert(['key' => $key, 'value' => json_encode($value), 'created_at' => now()->subSecond(), 'updated_at' => now()]);
     }
-
     /** Recomputes a batch now (the nightly job finishes the rest). */
     public function recompute(Request $r)
     {
         Artisan::call('insights:assess', ['--limit' => 200]);
         return back()->with('status', trim(Artisan::output()) ?: 'Recomputed.');
     }
-
     public function reset(Methodology $m)
     {
         $m->seed(true);
         DB::table('company_credit_assessments')->update(['computed_at' => null]);
         return back()->with('status', 'Methodology restored to the defaults; assessments will be recomputed.');
     }
-
     private function saved(Methodology $m, string $msg)
     {
         $m->flush();

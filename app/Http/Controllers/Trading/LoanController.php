@@ -51,11 +51,29 @@ class LoanController extends Controller
         if ($format === 'pdf') {
             return Pdf::loadView('trading.loans.pdf', ['loan' => $loan, 'frequencies' => LoanAmortization::FREQUENCIES])->setPaper('a4', 'landscape')->download($loan->loan_no . '-schedule.pdf');
         }
-        $columns = ['installment_no' => 'No', 'due_date' => 'Due date', 'days' => 'Days', 'opening_balance' => 'Opening balance', 'scheduled_payment' => 'Scheduled payment',
-            'principal' => 'Principal', 'interest' => 'Interest', 'total_payment' => 'Total payment', 'closing_balance' => 'Closing balance', 'is_moratorium' => 'Moratorium'];
-        $rows = $loan->schedule->map(fn ($r) => ['installment_no' => $r->installment_no, 'due_date' => $r->due_date->format('d-m-Y'), 'days' => $r->days,
-            'opening_balance' => $r->opening_balance, 'scheduled_payment' => $r->scheduled_payment, 'principal' => $r->principal, 'interest' => $r->interest,
-            'total_payment' => $r->total_payment, 'closing_balance' => $r->closing_balance, 'is_moratorium' => $r->is_moratorium ? 'Yes' : ''])->all();
+        $columns = [
+            'installment_no' => 'No',
+            'due_date' => 'Due date',
+            'days' => 'Days',
+            'opening_balance' => 'Opening balance',
+            'scheduled_payment' => 'Scheduled payment',
+            'principal' => 'Principal',
+            'interest' => 'Interest',
+            'total_payment' => 'Total payment',
+            'closing_balance' => 'Closing balance',
+            'is_moratorium' => 'Moratorium'
+            ];
+        $rows = $loan->schedule->map(fn ($r) => [
+            'installment_no' => $r->installment_no,
+            'due_date' => $r->due_date->format('d-m-Y'),
+            'days' => $r->days,
+            'opening_balance' => $r->opening_balance,
+            'scheduled_payment' => $r->scheduled_payment,
+            'principal' => $r->principal,
+            'interest' => $r->interest,
+            'total_payment' => $r->total_payment,
+            'closing_balance' => $r->closing_balance,
+            'is_moratorium' => $r->is_moratorium ? 'Yes' : ''])->all();
         return response()->download($exporter->xlsx($rows, $loan->loan_no, $columns), $loan->loan_no . '-schedule.xlsx')->deleteFileAfterSend();
     }
     private function validated(Request $request): array

@@ -25,12 +25,10 @@ class MarketController extends Controller
     {
         return $this->list($request, 'STOCK', 'Stocks');
     }
-
     public function etfs(Request $request)
     {
         return $this->list($request, 'ETF', 'ETFs');
     }
-
     private function list(Request $request, string $type, string $title)
     {
         $q = trim((string) $request->query('q'));
@@ -52,7 +50,6 @@ class MarketController extends Controller
         return view('trading.instruments', ['instruments' => $instruments, 'type' => $type, 'title' => $title, 'movers' => $movers, 'exchange' => $exchange, 'sort' => $sort, 'dir' => $dir,
             'connected' => $request->user() ? $this->kite->connection($request->user()) : null, 'status' => $this->orders->marketStatus()]);
     }
-
     public function instrument(Request $request, string $exchange, string $symbol)
     {
         $instrument = MarketInstrument::where('exchange', strtoupper($exchange))->where('symbol', strtoupper($symbol))->firstOrFail();
@@ -62,7 +59,6 @@ class MarketController extends Controller
         return view('trading.instrument', ['instrument' => $instrument, 'connected' => $connected, 'kiteReady' => $this->kite->configured(), 'status' => $this->orders->marketStatus(),
             'myOrders' => $myOrders, 'sample' => $instrument->last_price ? $this->orders->charges('BUY', 'CNC', 1, $instrument->last_price) : null]);
     }
-
     /** Search box: symbols and names (JSON). */
     public function search(Request $request)
     {
@@ -72,7 +68,6 @@ class MarketController extends Controller
             ->orderByRaw("exchange = 'NSE' DESC")->orderByDesc('turnover_lakhs')->limit(12)->get(['exchange', 'symbol', 'name', 'instrument_type', 'last_price', 'change_pct']);
         return response()->json(['data' => $rows]);
     }
-
     /** Charges preview for an order. */
     public function charges(Request $request)
     {
@@ -92,19 +87,16 @@ class MarketController extends Controller
         $order = $this->orders->place($request->user(), $instrument, $d, $key);
         return response()->json(['data' => $this->present($order), 'message' => $order->status === 'rejected' ? $order->status_message : 'Order sent to Zerodha.'], $order->status === 'rejected' ? 422 : 201);
     }
-
     public function showOrder(Request $request, StockOrder $order)
     {
         abort_unless($order->user_id === $request->user()->id || $request->user()->isOwner(), 404);
         return response()->json(['data' => $this->present($this->orders->refresh($order)->load('events'), true)]);
     }
-
     public function cancelOrder(Request $request, StockOrder $order)
     {
         abort_unless($order->user_id === $request->user()->id, 404);
         return response()->json(['data' => $this->present($this->orders->cancel($order))]);
     }
-
     public function stockOrders(Request $request)
     {
         $orders = StockOrder::where('user_id', $request->user()->id)->latest('id')->paginate(30)->withQueryString();
@@ -148,14 +140,12 @@ class MarketController extends Controller
         $audit->log('broker.connected', $c, ['broker' => 'kite', 'client' => $c->broker_user_id]);
         return redirect()->intended(route('trading.stocks'))->with('success', 'Zerodha account ' . $c->broker_user_id . ' connected until 6 AM tomorrow.');
     }
-
     public function disconnect(Request $request, TradingAudit $audit)
     {
         $this->kite->disconnect($request->user());
         $audit->log('broker.disconnected', null, ['broker' => 'kite']);
         return back()->with('success', 'Zerodha disconnected.');
     }
-
     /** Kite postback (order status pushed by Zerodha); verified by checksum. */
     public function postback(Request $request)
     {

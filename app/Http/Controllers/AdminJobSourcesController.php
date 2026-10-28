@@ -20,7 +20,6 @@ class AdminJobSourcesController extends Controller
         $items=$run ? BatchRunItem::where('batch_run_id',$run->id)->get()->keyBy('company_id') : collect();
         return view('admin.job-sources',compact('inventory','companies','ready','run','items'));
     }
-
     public function refresh(Request $request)
     {
         foreach (['batch_runs','batch_run_items','jobs_queue','job_batches'] as $table) {

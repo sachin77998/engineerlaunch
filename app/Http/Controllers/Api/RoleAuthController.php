@@ -92,28 +92,15 @@ class RoleAuthController extends Controller
             report($exception);
             return response()->json(['message' => 'We could not send the verification email. Please try again shortly.'], 503);
         }
-        Cache::put('api-registration:'.hash('sha256', $token), [
-            'user' => $data,
-            'role' => $role,
-            'company' => $companyData,
-            'code_hash' => Hash::make($code),
-            'attempts' => 0,
-        ], now()->addMinutes(10));
-        return response()->json(array_filter([
-            'message' => 'Enter the six-digit code sent to your email address.',
-            'verification_token' => $token,
-            'expires_in' => 600,
-            'development_code' => $otpService->usesFixedCode() ? $code : null,
-        ]), 202);
+        Cache::put('api-registration:'.hash('sha256', $token), ['user' => $data,'role' => $role,'company' => $companyData,'code_hash' => Hash::make($code),'attempts' => 0,], now()->addMinutes(10));
+        return response()->json(array_filter(['message' => 'Enter the six-digit code sent to your email address.','verification_token' => $token,'expires_in' => 600,'development_code' => $otpService->usesFixedCode() ? $code : null,]), 202);
     }
-
     private function registrationData(Request $request): array
     {
         $data = $request->validate(['name' => ['required','string','max:100'], 'email' => ['required','email:rfc','max:190','unique:users,email'], 'password' => ['required','string','min:8','confirmed']]);
         $data['password'] = Hash::make($data['password']);
         return $data;
     }
-
     private function tokenResponse(User $user, string $name): JsonResponse
     {
         return response()->json(['token_type' => 'Bearer', 'access_token' => $user->createToken($name)->plainTextToken, 'user' => $user], 201);

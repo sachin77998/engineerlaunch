@@ -17,7 +17,10 @@ use Throwable;
 class AdminMaintenanceController extends Controller
 {
     public const STEPS = [
-        'env' => ['Write missing .env settings', 'env:ensure', []],
+        'env' => [
+            'Write missing .env settings',
+            'env:ensure', []
+            ],
         'clear' => ['Clear caches', 'optimize:clear', []],
         'prepare' => ['Prepare career tables', 'portal:prepare-discovery', []],
         'migrate' => ['Run database migrations', 'migrate', ['--force' => true]],
@@ -48,14 +51,23 @@ class AdminMaintenanceController extends Controller
 
     /** "Refresh everything" (one click each morning): module => [label => [command, arguments]]. All run on the queue. */
     public const REFRESH_MODULES = [
-        'jobs' => ['Jobs', [
-            'Company career pages (every verified feed)' => ['jobs:dispatch-daily', ['--triggered-by' => 'owner']],
+        'jobs' => [
+            'Jobs', [
+            'Company career pages (every verified feed)' => 
+            [
+                'jobs:dispatch-daily',
+                 [
+                    '--triggered-by' => 'owner'
+                 ]
+            ],
             'Job boards (Arbeitnow, Remotive, Adzuna, Jooble)' => ['jobs:import-feeds', ['--now' => true, '--queries' => 20]],
             'Match industrial jobs to companies' => ['industrial:sync-jobs', ['--limit' => 2000]],
             'Classify jobs into categories' => ['jobs:classify', []],
         ]],
-        'companies' => ['Companies & sectors', [
-            'Research new companies: IT parks, registries, trades, brands, group subsidiaries (each when due)' => ['discovery:bootstrap', []],
+        'companies' => [
+            'Companies & sectors', [
+            'Research new companies: IT parks,
+             registries, trades, brands, group subsidiaries (each when due)' => ['discovery:bootstrap', []],
             'Import sector catalog' => ['companies:import-catalog', []],
             'Re-sort unclassified companies into sectors' => ['companies:reclassify', []],
             'Rebuild Companies by Sector cards' => ['sectors:warm', []],

@@ -15,7 +15,6 @@ class SearchSuggestionController extends Controller
         $data = $request->validate(['q' => ['required','string','max:80'],'type' => ['nullable','in:keyword,location']]);
         $term = trim($data['q']);
         if (mb_strlen($term) < 1) return response()->json(['data' => []]);
-
         $type = $data['type'] ?? 'keyword';
         $key = 'search-suggestions:'.sha1(mb_strtolower($type.'|'.$term));
         $suggestions = Cache::remember($key, now()->addMinutes(10), function () use ($term, $type) {
@@ -30,7 +29,6 @@ class SearchSuggestionController extends Controller
                 ->distinct()->orderByRaw('CASE WHEN title LIKE ? THEN 0 ELSE 1 END', [$prefix])->limit(6)->pluck('title')->map(fn ($v)=>['value'=>$v,'type'=>'Job title']);
             return $companies->concat($technologies)->concat($titles)->unique(fn ($item)=>mb_strtolower($item['value']))->take(12)->values()->all();
         });
-
         return response()->json(['data' => $suggestions]);
     }
 }

@@ -20,13 +20,7 @@ class AiChatController extends Controller
         $this->conversationService = $conversationService;
     }
     public function chat(Request $request): JsonResponse {
-        $validated = $request->validate(['message' => ['required','string','min:1','max:10000',],
-            'agent' => ['nullable','string','max:50',],
-            'conversation_id' => ['nullable','integer','min:1',],
-            'context' => ['nullable','array',],
-            'metadata' => ['nullable','array',
-            ],
-        ]);
+        $validated = $request->validate(['message' => ['required','string','min:1','max:10000',],'agent' => ['nullable','string','max:50',],'conversation_id' => ['nullable','integer','min:1',],'context' => ['nullable','array',],'metadata' => ['nullable','array',],]);
         try {
             $userId = Auth::id();
             $conversationId =isset($validated['conversation_id'])? (int) $validated['conversation_id']: null;

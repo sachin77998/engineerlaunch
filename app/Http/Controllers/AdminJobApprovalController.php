@@ -12,7 +12,6 @@ class AdminJobApprovalController extends Controller
         $job->update(['status' => 'published', 'is_active' => true, 'published_at' => now(), 'posted_at' => $job->posted_at ?? now()]);
         return back()->with('success', 'Job published.');
     }
-
     public function reject(Job $job)
     {
         $job->update(['status' => 'rejected', 'is_active' => false]);
