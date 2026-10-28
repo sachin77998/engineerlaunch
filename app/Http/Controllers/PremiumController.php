@@ -29,7 +29,7 @@ class PremiumController extends Controller
     {
         $order = PremiumOrder::where('order_no', $orderNo)->where('user_id', $request->user()->id)->firstOrFail();
         return view('premium.pay', ['order' => $order, 'plan' => $this->premium->plans()[$order->plan] ?? null, 'gateway' => $order->gateway === 'razorpay' && $this->premium->gatewayReady(),
-            'keyId' => config('premium.razorpay.key_id')]);
+            'keyId' => config('premium.razorpay.key_id'), 'paytm' => app(\App\Services\Payments\PaytmGateway::class)->ready()]);
     }
     public function verify(Request $request, string $orderNo)
     {

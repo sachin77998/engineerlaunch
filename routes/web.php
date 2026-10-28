@@ -199,9 +199,12 @@ Route::get('/markets/us/{ticker}/history', [\App\Http\Controllers\UsMarketContro
 Route::get('/markets/nse/{symbol}/history', [\App\Http\Controllers\UsMarketController::class, 'nseHistory'])->where('symbol', '[A-Za-z0-9&\-]{1,20}')->middleware('throttle:60,1')->name('markets.nse.history');
 // Premium plans: fee breakdown, checkout and Razorpay payment.
 Route::get('/premium', [\App\Http\Controllers\PremiumController::class, 'index'])->name('premium.index');
+Route::post('/payments/paytm/callback', [\App\Http\Controllers\PaytmPaymentController::class, 'callback'])->name('payments.paytm.callback');
 Route::middleware('auth')->group(function () {
     Route::post('/premium/checkout', [\App\Http\Controllers\PremiumController::class, 'checkout'])->middleware('throttle:10,1')->name('premium.checkout');
     Route::get('/premium/orders/{orderNo}', [\App\Http\Controllers\PremiumController::class, 'pay'])->name('premium.pay');
+    Route::post('/premium/orders/{orderNo}/paytm', [\App\Http\Controllers\PaytmPaymentController::class, 'initiate'])->middleware('throttle:20,1')->name('payments.paytm.initiate');
+    Route::get('/payments/{orderId}/status', [\App\Http\Controllers\PaytmPaymentController::class, 'status'])->where('orderId', '[A-Za-z0-9_]+')->name('payments.status');
     Route::post('/premium/orders/{orderNo}/verify', [\App\Http\Controllers\PremiumController::class, 'verify'])->middleware('throttle:20,1')->name('premium.verify');
 });
 Route::get('/admin/market/template/{type}', [\App\Http\Controllers\MarketController::class, 'template'])->middleware(['auth','admin'])->name('admin.market.template');

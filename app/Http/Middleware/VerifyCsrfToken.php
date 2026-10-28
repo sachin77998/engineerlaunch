@@ -14,5 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         // Zerodha order postbacks (verified by checksum in MarketController::postback).
         'trading/broker/kite/postback',
+        // Paytm payment result (verified by CHECKSUMHASH and the Transaction Status API).
+        'payments/paytm/callback',
     ];
 }

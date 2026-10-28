@@ -18,11 +18,14 @@
             @if($order->premium_until)<div><span>Premium until</span><b>{{ $order->premium_until->format('d M Y') }}</b></div>@endif
         </div>
         @if($order->status === 'created')
+            @if($paytm ?? false)
+                <form method="post" action="{{ route('payments.paytm.initiate', $order->order_no) }}" style="margin-top:18px">@csrf<button class="pm-btn" style="background:#00b9f5;color:#fff">Pay ₹{{ number_format($order->total_amount, 2) }} with Paytm</button></form>
+            @endif
             @if($gateway)
                 <p style="margin-top:18px"><button class="pm-btn" id="pm-pay" type="button">Pay ₹{{ number_format($order->total_amount, 2) }}</button></p>
                 <form id="pm-verify" method="post" action="{{ route('premium.verify', $order->order_no) }}" hidden>@csrf
                     <input name="razorpay_payment_id"><input name="razorpay_order_id"><input name="razorpay_signature"></form>
-            @else
+            @elseif(!($paytm ?? false))
                 <p class="pm-flash warn" style="margin-top:18px">Your order is saved. Online payment is being set up; Premium is switched on as soon as your payment is received. Quote order {{ $order->order_no }} when you pay or <a href="{{ route('contact') }}?subject={{ rawurlencode('Premium order ' . $order->order_no) }}">contact us</a>.</p>
             @endif
         @elseif($order->status === 'activated')

@@ -157,4 +157,12 @@ return [
         'user_agent' => env('SEC_USER_AGENT', 'Ascendia Insights sachinsoni77998@gmail.com'),
     ],
 
+    // Paytm Payment Gateway (Paytm for Business → Developers → API keys). Staging: PAYTM_ENV=staging, PAYTM_WEBSITE=WEBSTAGING.
+    'paytm' => [
+        'environment' => env('PAYTM_ENV', 'staging'),
+        'mid' => env('PAYTM_MID'),
+        'merchant_key' => env('PAYTM_MERCHANT_KEY'),
+        'website' => env('PAYTM_WEBSITE', 'WEBSTAGING'),
+        'callback_url' => env('PAYTM_CALLBACK_URL'),
+    ],
 ];
