@@ -25,5 +25,6 @@
 </style>@endpush
 <div class="bp-band"><div class="container"><nav class="bp-cats" aria-label="Bill categories">
     <a href="{{ route('bills.index') }}" class="{{ request()->routeIs('bills.index') ? 'on' : '' }}"><span>🧾</span>All bills</a>
-    @foreach($categories as $c)<a href="{{ route('bills.category', $c['key']) }}" class="{{ ($key ?? null) === $c['key'] ? 'on' : '' }}"><span>{{ $c['icon'] }}</span>{{ $c['name'] }}</a>@endforeach
+    @foreach($categories as $c) @continue(!empty($c['more']))<a href="{{ route('bills.category', $c['key']) }}" class="{{ ($key ?? null) === $c['key'] ? 'on' : '' }}"><span>{{ $c['icon'] }}</span>{{ $c['name'] }}</a>@endforeach
+    @php($moreOn = !empty($categories[$key ?? '']['more']))<a href="{{ route('bills.index') }}#more" class="{{ $moreOn ? 'on' : '' }}"><span>•••</span>{{ $moreOn ? $categories[$key]['name'] : 'More' }}</a>
 </nav></div></div>

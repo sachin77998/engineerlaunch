@@ -8,9 +8,18 @@
         <section class="bp-card" id="pay">
             <h1>Pay {{ $cat['name'] }}</h1>
             <form id="bp-form" onsubmit="return false">
-                <label class="bp-muted" for="bp-biller">{{ $key === 'mobile' || $key === 'dth' || $key === 'broadband' ? 'Operator' : ($key === 'municipal' ? 'Municipal body' : 'Biller') }}</label>
+                @php($label = ['mobile' => 'Operator', 'dth' => 'DTH operator', 'broadband' => 'Provider', 'electricity' => 'Electricity board', 'water' => 'Water board', 'gas' => 'Gas provider', 'cylinder' => 'Gas agency', 'loan' => 'Lender', 'insurance' => 'Insurer', 'creditcard' => 'Card issuer', 'municipal' => 'Municipal body', 'fastag' => 'FASTag issuer', 'challan' => 'Challan authority'][$key] ?? 'Biller')
+                @php($allStates = collect($cat['billers'])->pluck('state')->unique()->sort()->values())
+                @if($allStates->count() > 1)
+                    <label class="bp-muted" for="bp-state">State</label>
+                    <select id="bp-state" class="bp-in" style="font-weight:700">
+                        @foreach($allStates as $s)<option value="{{ $s }}" @selected(($selected['state'] ?? null) === $s)>{{ $s }}</option>@endforeach
+                    </select>
+                    <div style="height:18px"></div>
+                @endif
+                <label class="bp-muted" for="bp-biller">{{ $label }}</label>
                 <select id="bp-biller" class="bp-in" style="font-weight:700">
-                    @foreach($billers as $b)<option value="{{ $b['url'] }}" data-id="{{ $b['id'] }}" data-slug="{{ $b['slug'] }}" @selected($selected && $selected['slug'] === $b['slug'])>{{ $b['name'] }}{{ $b['state'] !== 'All India' ? ' — ' . $b['state'] : '' }}</option>@endforeach
+                    @foreach($cat['billers'] as $b)<option value="{{ $b['url'] }}" data-id="{{ $b['id'] }}" data-slug="{{ $b['slug'] }}" data-state="{{ $b['state'] }}" @selected($selected && $selected['slug'] === $b['slug'])>{{ $b['name'] }}</option>@endforeach
                 </select>
                 <div style="height:18px"></div>
                 <label class="bp-muted" for="bp-id" id="bp-id-label">{{ $selected['id'] ?? $cat['id'] }}</label>
@@ -36,7 +45,18 @@
 @push('scripts')<script>
 (function () {
     var sel = document.getElementById('bp-biller'), id = document.getElementById('bp-id'), label = document.getElementById('bp-id-label'), err = document.getElementById('bp-err');
-    sel.addEventListener('change', function () { var o = sel.selectedOptions[0]; label.textContent = o.dataset.id; id.placeholder = o.dataset.id; err.textContent = ''; });
+    var st = document.getElementById('bp-state');
+    function syncId() { var o = sel.selectedOptions[0]; if (!o) return; label.textContent = o.dataset.id; id.placeholder = o.dataset.id; err.textContent = ''; }
+    // State first: only that state's boards are offered (All India providers are offered everywhere).
+    function syncState() {
+        if (!st) return;
+        var first = null;
+        [].forEach.call(sel.options, function (o) { var show = o.dataset.state === st.value || o.dataset.state === 'All India'; o.hidden = !show; o.disabled = !show; if (show && !first) first = o; });
+        if (sel.selectedOptions[0] && sel.selectedOptions[0].disabled && first) first.selected = true;
+        syncId();
+    }
+    sel.addEventListener('change', syncId);
+    if (st) { st.addEventListener('change', syncState); syncState(); }
     document.getElementById('bp-go').addEventListener('click', function () {
         var v = id.value.trim();
         if (v && !/^[A-Za-z0-9\/ -]{3,30}$/.test(v)) { err.textContent = 'Use letters, numbers, spaces, - or / only.'; return; }

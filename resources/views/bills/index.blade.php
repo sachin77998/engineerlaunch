@@ -26,7 +26,15 @@
         </div>
     </section>
 
-    <section class="bp-card">
+    <section class="bp-card" id="more">
+        <h2>More</h2>
+        <div class="bp-grid">
+            @foreach($categories as $c) @continue(empty($c['more']))<a class="bp-tile" href="{{ route('bills.category', $c['key']) }}"><span class="bp-mono" style="background:#eef4ff;font-size:32px">{{ $c['icon'] }}</span><strong>{{ $c['name'] }}</strong><span class="bp-muted">{{ count($c['billers']) }} billers</span></a>@endforeach
+            <a class="bp-tile" href="#cities"><span class="bp-mono" style="background:#eef4ff;font-size:32px">🏙️</span><strong>City services</strong><span class="bp-muted">{{ $cities->count() }} cities</span></a>
+        </div>
+    </section>
+
+    <section class="bp-card" id="cities">
         <h2>Municipal services by city</h2>
         <p class="bp-muted" style="margin-top:-6px">Property tax, water and sewerage bills, trade licence, fire NOC and building plans on each corporation's official portal.</p>
         @foreach($cities->groupBy('state') as $stateName => $list)

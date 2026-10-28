@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 // The user picks a biller, enters the customer ID and continues to the biller's official payment page.
 class BillPaymentController extends Controller
 {
+    private const ORDER = ['mobile', 'fastag', 'dth', 'electricity', 'loan', 'insurance', 'gas', 'cylinder', 'water', 'broadband', 'challan', 'creditcard', 'municipal'];
+
     public function index(Request $request)
     {
         $q = mb_strtolower(trim((string) $request->query('q')));
@@ -40,7 +42,9 @@ class BillPaymentController extends Controller
     {
         return collect(config('bill_payments.categories'))->map(fn ($c, $key) => array_merge($c, ['key' => $key,
             'billers' => collect($c['billers'])->map(fn ($b) => ['name' => $b[0], 'state' => $b[1], 'url' => $b[2], 'slug' => Str::slug($b[0]),
-                'id' => $b[3] ?? $c['id'], 'category' => $key])->all()]))->all();
+                'id' => $b[3] ?? $c['id'], 'category' => $key])->all()]))
+            // Same order as bill-pay apps; anything not listed follows.
+            ->sortBy(fn ($c, $k) => ($i = array_search($k, self::ORDER, true)) === false ? 99 : $i)->all();
     }
 
     private function billers()
