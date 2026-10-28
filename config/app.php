@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    // The brand (mail subjects, notifications); session and cache keys keep reading APP_NAME directly.
+    'name' => env('PLATFORM_NAME', env('APP_NAME', 'Laravel') === 'Laravel' ? 'EngineerLaunch' : env('APP_NAME')),
 
     /*
     |--------------------------------------------------------------------------

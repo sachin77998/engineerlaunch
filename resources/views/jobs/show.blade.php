@@ -1,5 +1,40 @@
 @extends('layouts.site')
-@section('title',$job->title)
+@section('title', $job->title . ($job->company ? ' at ' . $job->company->name : '') . ($job->location ? ', ' . $job->location : ''))
+@section('meta_description', ($job->company?->name ? $job->company->name . ' is hiring: ' : 'Hiring: ') . $job->title . ($job->location ? ' in ' . $job->location : '') . '. ' . \Illuminate\Support\Str::limit(\App\Support\PlainText::from($job->description), 110))
+@section('og_type', 'article')
+@section('canonical', $job->slug ? route('jobs.show', $job->slug) : route('opportunities.show', $job->id))
+@php
+    // Google for Jobs (JobPosting structured data): only while the opening is live.
+    $jt = mb_strtolower((string) $job->job_type);
+    $employment = match (true) {
+        str_contains($jt, 'part') => 'PART_TIME', str_contains($jt, 'intern') => 'INTERN', str_contains($jt, 'contract') || str_contains($jt, 'temporary') => 'CONTRACTOR',
+        default => 'FULL_TIME',
+    };
+    $loc = array_values(array_filter(array_map('trim', explode(',', (string) $job->location))));
+    $posting = array_filter([
+        '@context' => 'https://schema.org', '@type' => 'JobPosting',
+        'title' => $job->title,
+        'description' => nl2br(e(\Illuminate\Support\Str::limit(\App\Support\PlainText::from($job->description, true), 9000))) ?: e($job->title),
+        'datePosted' => optional($job->posted_at ?? $job->published_at ?? $job->created_at)->toDateString(),
+        'validThrough' => optional($job->expires_at ?? $job->application_deadline)?->toIso8601String(),
+        'employmentType' => $employment,
+        'identifier' => ['@type' => 'PropertyValue', 'name' => $job->company?->name ?? config('platform.name'), 'value' => (string) $job->id],
+        'hiringOrganization' => array_filter(['@type' => 'Organization', 'name' => $job->is_confidential ? 'Confidential' : ($job->company?->name ?? config('platform.name')),
+            'sameAs' => $job->company?->website ?: null, 'logo' => $job->company?->logo_url ?: null]),
+        'jobLocationType' => in_array(mb_strtolower((string) $job->work_mode), ['remote'], true) ? 'TELECOMMUTE' : null,
+        'applicantLocationRequirements' => in_array(mb_strtolower((string) $job->work_mode), ['remote'], true) ? ['@type' => 'Country', 'name' => $job->country ?: 'India'] : null,
+        'jobLocation' => $loc ? ['@type' => 'Place', 'address' => array_filter(['@type' => 'PostalAddress', 'addressLocality' => $loc[0], 'addressRegion' => $job->state ?: ($loc[1] ?? null),
+            'addressCountry' => $job->country ?: 'IN'])] : null,
+        'baseSalary' => $job->salary_min || $job->salary_max ? ['@type' => 'MonetaryAmount', 'currency' => $job->salary_currency ?: 'INR', 'value' => array_filter(['@type' => 'QuantitativeValue',
+            'minValue' => $job->salary_min ? (float) $job->salary_min : null, 'maxValue' => $job->salary_max ? (float) $job->salary_max : null,
+            'unitText' => ['year' => 'YEAR', 'month' => 'MONTH', 'hour' => 'HOUR', 'day' => 'DAY', 'week' => 'WEEK'][$job->salary_period ?: 'year'] ?? 'YEAR'])] : null,
+        'experienceRequirements' => $job->experience_min !== null ? ['@type' => 'OccupationalExperienceRequirements', 'monthsOfExperience' => (int) $job->experience_min * 12] : null,
+        'directApply' => $job->application_method === 'portal',
+    ], fn ($v) => $v !== null && $v !== '' && $v !== []);
+@endphp
+@if(!$job->expires_at || $job->expires_at->isFuture())
+@push('jsonld')<script type="application/ld+json">{!! json_encode($posting, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>@endpush
+@endif
 @push('styles')<style>.job-wrap{display:grid;grid-template-columns:1fr 330px;gap:22px}.job-head{padding:30px;margin-bottom:20px}.job-head h1{font-size:34px;margin:8px 0}.meta,.chips{display:flex;gap:10px;flex-wrap:wrap;color:#667085}.chip{padding:7px 10px;border-radius:7px;background:#eef4ff;color:#2457bd}.content{padding:30px;line-height:1.75}.aside{padding:24px;position:sticky;top:90px}.field{width:100%;margin-bottom:12px}.success{padding:13px;background:#ecfdf3;color:#087443;border-radius:8px}.question{display:block;font-weight:700;margin:15px 0 7px}.apply-overlay{position:fixed;inset:0;z-index:3000;background:rgba(15,23,42,.58);opacity:0;visibility:hidden;transition:.2s}.apply-overlay.open{opacity:1;visibility:visible}.apply-drawer{position:absolute;top:0;right:0;width:min(560px,100%);height:100%;display:flex;flex-direction:column;background:#fff;box-shadow:-20px 0 45px rgba(15,23,42,.2);transform:translateX(100%);transition:.25s ease}.apply-overlay.open .apply-drawer{transform:translateX(0)}.drawer-head{display:flex;align-items:flex-start;justify-content:space-between;padding:25px 28px;border-bottom:1px solid #e5eaf2}.drawer-head h2{margin:0 0 5px}.drawer-close{border:0;background:transparent;font-size:31px;line-height:1;cursor:pointer}.drawer-body{padding:26px 28px;overflow:auto}.drawer-intro{padding:16px;border-radius:13px;background:#f3f7ff;color:#263b61;line-height:1.55}.drawer-footer{margin-top:auto;padding:18px 28px;border-top:1px solid #e5eaf2;background:#fff}.drawer-footer button{width:100%}.validation-errors{padding:13px;border-radius:8px;background:#fff1f2;color:#b42318}.step-label{color:#2563eb;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}body.drawer-open{overflow:hidden}@media(max-width:800px){.job-wrap{grid-template-columns:1fr}.aside{position:static}.drawer-body,.drawer-head,.drawer-footer{padding-left:20px;padding-right:20px}}</style>@endpush
 @push('styles')<style>.recommendation-list{display:grid;gap:10px}.recommendation-card{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:12px;padding:14px;border:1px solid #dfe7f2;border-radius:13px;color:#17233c;text-decoration:none;transition:.16s}.recommendation-card:hover{border-color:#7da6f3;background:#f7faff;transform:translateX(-2px)}.recommendation-card span,.recommendation-card small{display:block;margin-top:4px;color:#64748b}.recommendation-card small{font-size:11px;color:#315fba}.recommendation-logo{width:48px;height:48px;display:grid;place-items:center;border-radius:10px;background:#eef4ff;color:#2457bd;font-weight:800;overflow:hidden}.recommendation-logo img{width:100%;height:100%;object-fit:contain}</style>@endpush
 @section('content')

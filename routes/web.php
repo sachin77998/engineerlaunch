@@ -30,6 +30,12 @@ use App\Http\Controllers\AdminCompanyExperienceController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// Search engines: sitemaps and robots.txt (built from APP_URL so they point at the live domain).
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemaps/{part}.xml', [\App\Http\Controllers\SitemapController::class, 'part'])->name('sitemap.part');
+Route::get('/robots.txt', fn () => response(implode("
+", ['User-agent: *', 'Disallow: /admin', 'Disallow: /employer', 'Disallow: /dashboard', 'Disallow: /profile', 'Disallow: /joining/', 'Disallow: /offer/', 'Disallow: /hiring/', 'Disallow: /trading/admin', 'Disallow: /trading/onboarding', 'Disallow: /api/', 'Disallow: /*report.pdf', 'Disallow: /*report.xlsx', '', 'Sitemap: ' . route('sitemap')]) . "
+", 200, ['Content-Type' => 'text/plain']))->name('robots');
 Route::get('/latest', [NewsController::class, 'index'])->name('news.index');
 Route::get('/latest/ajax', [NewsController::class, 'ajax'])->name('news.ajax');
 Route::get('/latest/{slug}', [NewsController::class, 'show'])->name('news.show');
