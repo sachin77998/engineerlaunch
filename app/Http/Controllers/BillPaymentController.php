@@ -9,7 +9,10 @@ use Illuminate\Support\Str;
 // The user picks a biller, enters the customer ID and continues to the biller's official payment page.
 class BillPaymentController extends Controller
 {
-    private const ORDER = ['mobile', 'fastag', 'dth', 'electricity', 'loan', 'insurance', 'gas', 'cylinder', 'water', 'broadband', 'challan', 'creditcard', 'municipal'];
+    private const ORDER = ['mobile', 'dth', 'fastag', 'ncmc', 'prepaidmeter', 'ev', 'metro', 'tolltag', 'electricity', 'broadband', 'gas', 'water', 'loan', 'insurance', 'cabletv', 'municipal', 'creditcard', 'cylinder', 'challan'];
+    // The icon row (as on bill-pay apps); everything else is in the More menu.
+    public const PRIMARY = ['mobile', 'fastag', 'dth', 'electricity', 'loan', 'insurance', 'gas', 'cylinder', 'water', 'broadband', 'challan'];
+    public const GROUPS = ['recharge' => 'Recharges', 'bills' => 'Bill Payments', 'more' => 'Book & Pay'];
 
     public function index(Request $request)
     {

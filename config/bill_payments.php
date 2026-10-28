@@ -8,23 +8,64 @@ return [
     'bbps' => ['provider' => env('BBPS_PROVIDER'), 'key' => env('BBPS_API_KEY')],
 
     'categories' => [
-        'mobile' => ['name' => 'Mobile Recharge', 'icon' => '📱', 'id' => 'Mobile number', 'billers' => [
+        'mobile' => ['name' => 'Mobile Recharge', 'icon' => '📱', 'group' => 'recharge', 'id' => 'Mobile number', 'billers' => [
             ['Jio', 'All India', 'https://www.jio.com/selfcare/recharge/mobility/'],
             ['Airtel', 'All India', 'https://www.airtel.in/recharge-online'],
             ['Vi (Vodafone Idea)', 'All India', 'https://www.myvi.in/prepaid/online-mobile-recharge'],
             ['BSNL', 'All India', 'https://portal.bsnl.in/myportal/quickrecharge.do'],
         ]],
-        'fastag' => ['name' => 'FASTag Recharge', 'icon' => '🚗', 'id' => 'Vehicle number', 'billers' => [
+        'fastag' => ['name' => 'FASTag Recharge', 'icon' => '🚗', 'group' => 'recharge', 'id' => 'Vehicle number', 'billers' => [
             ['IHMCL / NHAI FASTag', 'All India', 'https://www.ihmcl.co.in/fastag-user/'],
             ['NPCI NETC FASTag (issuer banks)', 'All India', 'https://www.npci.org.in/what-we-do/netc-fastag/product-overview'],
+            ['Axis Bank FASTag', 'All India', 'https://www.axisbank.com/retail/cards/fastag'],
         ]],
-        'dth' => ['name' => 'DTH Recharge', 'icon' => '📡', 'id' => 'Subscriber ID / registered mobile', 'billers' => [
+        'ncmc' => ['name' => 'NCMC Recharge', 'icon' => '🎫', 'group' => 'recharge', 'id' => 'Card number / registered mobile', 'billers' => [
+            ['NPCI National Common Mobility Card (issuer banks)', 'All India', 'https://www.npci.org.in/what-we-do/rupay/ncmc'],
+            ['Airtel Payments Bank NCMC', 'All India', 'https://www.airtel.in/bank/'],
+        ]],
+        'prepaidmeter' => ['name' => 'Prepaid Meter', 'icon' => '⏲️', 'group' => 'recharge', 'id' => 'Meter / account number', 'billers' => [
+            ['UPPCL smart prepaid meter', 'Uttar Pradesh', 'https://www.uppcl.org/'],
+            ['Tata Power Delhi smart prepaid meter', 'Delhi', 'https://www.tatapower-ddl.com/', 'CA number'],
+            ['BSES smart prepaid meter', 'Delhi', 'https://www.bsesdelhi.com/', 'CA number'],
+            ['Adani Electricity Mumbai prepaid', 'Maharashtra', 'https://www.adanielectricity.com/'],
+            ['MSEDCL smart prepaid meter', 'Maharashtra', 'https://wss.mahadiscom.in/wss/wss', 'Consumer number'],
+        ]],
+        'ev' => ['name' => 'EV Recharge', 'icon' => '🔌', 'group' => 'recharge', 'id' => 'Registered mobile / wallet ID', 'billers' => [
+            ['Tata Power EZ Charge', 'All India', 'https://www.tatapower.com/ez-charge'],
+            ['Statiq', 'All India', 'https://www.statiq.in/'],
+            ['ChargeZone', 'All India', 'https://chargezone.com/'],
+            ['Jio-bp pulse', 'All India', 'https://www.jiobp.com/'],
+            ['Zeon Charging', 'All India', 'https://www.zeoncharging.com/'],
+        ]],
+        'metro' => ['name' => 'Metro Recharge', 'icon' => '🚇', 'group' => 'recharge', 'id' => 'Metro card number', 'billers' => [
+            ['Delhi Metro (DMRC)', 'Delhi', 'https://www.delhimetrorail.com/'],
+            ['Mumbai Metro One', 'Maharashtra', 'https://www.reliancemumbaimetro.com/'],
+            ['Mumbai Metro Line 3 (MMRCL)', 'Maharashtra', 'https://www.mmrcl.com/'],
+            ['Pune Metro', 'Maharashtra', 'https://www.punemetrorail.org/'],
+            ['Namma Metro Bengaluru (BMRCL)', 'Karnataka', 'https://english.bmrc.co.in/'],
+            ['Hyderabad Metro (L&T)', 'Telangana', 'https://www.ltmetro.com/'],
+            ['Chennai Metro', 'Tamil Nadu', 'https://chennaimetrorail.org/'],
+            ['Lucknow Metro', 'Uttar Pradesh', 'https://lmrcl.com/'],
+            ['Gujarat Metro (Ahmedabad / Surat)', 'Gujarat', 'https://www.gujaratmetrorail.com/'],
+        ]],
+        'tolltag' => ['name' => 'Toll Tag Recharge', 'icon' => '🛣️', 'group' => 'recharge', 'id' => 'Vehicle number', 'billers' => [
+            ['FASTag Annual Pass (NHAI Rajmargyatra)', 'All India', 'https://rajmargyatra.nhai.gov.in/'],
+            ['National Highways Authority of India (NHAI)', 'All India', 'https://www.nhai.gov.in/'],
+            ['IHMCL toll services', 'All India', 'https://www.ihmcl.co.in/'],
+        ]],
+        'cabletv' => ['name' => 'Cable TV', 'icon' => '📺', 'group' => 'bills', 'id' => 'Subscriber / customer ID', 'billers' => [
+            ['Hathway', 'All India', 'https://www.hathway.com/'],
+            ['GTPL Hathway', 'All India', 'https://www.gtpl.net/'],
+            ['SITI Networks', 'All India', 'https://www.siticable.com/'],
+            ['Asianet', 'Kerala', 'https://www.asianet.co.in/'],
+        ]],
+        'dth' => ['name' => 'DTH Recharge', 'icon' => '📡', 'group' => 'recharge', 'id' => 'Subscriber ID / registered mobile', 'billers' => [
             ['Tata Play', 'All India', 'https://www.tataplay.com/recharge'],
             ['Airtel Digital TV', 'All India', 'https://www.airtel.in/dth-recharge'],
             ['Dish TV', 'All India', 'https://www.dishtv.in/'],
             ['d2h', 'All India', 'https://www.d2h.com/'],
         ]],
-        'electricity' => ['name' => 'Electricity Bill', 'icon' => '💡', 'id' => 'Account / consumer number', 'billers' => [
+        'electricity' => ['name' => 'Electricity Bill', 'icon' => '💡', 'group' => 'bills', 'id' => 'Account / consumer number', 'billers' => [
             ['Punjab State Power Corporation (PSPCL)', 'Punjab', 'https://www.pspcl.in/', 'Account number'],
             ['BSES Rajdhani / Yamuna', 'Delhi', 'https://www.bsesdelhi.com/', 'CA number'],
             ['Tata Power Delhi Distribution (TPDDL)', 'Delhi', 'https://www.tatapower-ddl.com/', 'CA number'],
@@ -48,7 +89,7 @@ return [
             ['CESC Kolkata', 'West Bengal', 'https://www.cesc.co.in/'],
             ['TP Central Odisha Distribution', 'Odisha', 'https://www.tpcentralodisha.com/'],
         ]],
-        'loan' => ['name' => 'Loan EMI', 'icon' => '🏦', 'id' => 'Loan account number', 'billers' => [
+        'loan' => ['name' => 'Loan EMI', 'icon' => '🏦', 'group' => 'bills', 'id' => 'Loan account number', 'billers' => [
             ['Bajaj Finance', 'All India', 'https://www.bajajfinserv.in/'],
             ['Tata Capital', 'All India', 'https://www.tatacapital.com/'],
             ['HDFC Bank loans', 'All India', 'https://www.hdfcbank.com/'],
@@ -66,7 +107,7 @@ return [
             ['PNB Housing Finance', 'All India', 'https://www.pnbhousing.com/'],
             ['Aditya Birla Capital', 'All India', 'https://www.adityabirlacapital.com/'],
         ]],
-        'water' => ['name' => 'Water Bill', 'icon' => '🚰', 'id' => 'Consumer / connection ID', 'billers' => [
+        'water' => ['name' => 'Water Bill', 'icon' => '🚰', 'group' => 'bills', 'id' => 'Consumer / connection ID', 'billers' => [
             ['Punjab water & sewerage bills (Local Government Punjab)', 'Punjab', 'https://stvending.punjab.gov.in/'],
             ['Delhi Jal Board (DJB)', 'Delhi', 'https://delhijalboard.delhi.gov.in/', 'K No.'],
             ['Bangalore Water (BWSSB)', 'Karnataka', 'https://bwssb.karnataka.gov.in/'],
@@ -77,7 +118,7 @@ return [
             ['Haryana PHED', 'Haryana', 'https://phedharyana.gov.in/'],
             ['Rajasthan PHED', 'Rajasthan', 'https://phed.rajasthan.gov.in/'],
         ]],
-        'gas' => ['name' => 'Piped Gas Bill', 'icon' => '🔥', 'id' => 'Customer / BP number', 'billers' => [
+        'gas' => ['name' => 'Piped Gas Bill', 'icon' => '🔥', 'group' => 'bills', 'id' => 'Customer / BP number', 'billers' => [
             ['Indraprastha Gas (IGL)', 'Delhi NCR', 'https://www.iglonline.net/', 'BP number'],
             ['Mahanagar Gas (MGL)', 'Maharashtra', 'https://www.mahanagargas.com/'],
             ['Gujarat Gas', 'Gujarat', 'https://www.gujaratgas.com/'],
@@ -85,21 +126,21 @@ return [
             ['GAIL Gas', 'All India', 'https://www.gailgas.com/'],
             ['Torrent Gas', 'All India', 'https://www.torrentgas.com/'],
         ]],
-        'cylinder' => ['name' => 'Book a Cylinder', 'icon' => '🛢️', 'id' => 'LPG ID / registered mobile', 'billers' => [
+        'cylinder' => ['name' => 'Book a Cylinder', 'icon' => '🛢️', 'group' => 'more', 'id' => 'LPG ID / registered mobile', 'billers' => [
             ['HP Gas', 'All India', 'https://myhpgas.in/'],
             ['Bharat Gas', 'All India', 'https://my.ebharatgas.com/'],
         ]],
-        'broadband' => ['name' => 'Broadband / Landline', 'icon' => '🌐', 'id' => 'Account number / registered mobile', 'billers' => [
+        'broadband' => ['name' => 'Broadband / Landline', 'icon' => '🌐', 'group' => 'bills', 'id' => 'Account number / registered mobile', 'billers' => [
             ['ACT Fibernet', 'All India', 'https://www.actcorp.in/'],
             ['Jio AirFiber / JioFiber', 'All India', 'https://www.jio.com/airfiber'],
             ['Excitel', 'All India', 'https://www.excitel.com/'],
             ['BSNL', 'All India', 'https://portal.bsnl.in/myportal/quickrecharge.do'],
         ]],
-        'challan' => ['name' => 'Traffic Challan', 'icon' => '🚦', 'id' => 'Challan / vehicle number', 'billers' => [
+        'challan' => ['name' => 'Traffic Challan', 'icon' => '🚦', 'group' => 'more', 'id' => 'Challan / vehicle number', 'billers' => [
             ['e-Challan (Parivahan, all states)', 'All India', 'https://echallan.parivahan.gov.in/index/accused-challan'],
             ['Delhi Traffic Police', 'Delhi', 'https://traffic.delhipolice.gov.in/'],
         ]],
-        'insurance' => ['name' => 'Insurance / LIC', 'icon' => '☂️', 'id' => 'Policy number', 'billers' => [
+        'insurance' => ['name' => 'Insurance / LIC', 'icon' => '☂️', 'group' => 'bills', 'id' => 'Policy number', 'billers' => [
             ['LIC of India — pay premium', 'All India', 'https://licindia.in/'],
             ['HDFC Life', 'All India', 'https://www.hdfclife.com/'],
             ['SBI Life', 'All India', 'https://www.sbilife.co.in/'],
@@ -107,7 +148,7 @@ return [
             ['Tata AIA Life', 'All India', 'https://www.tataaia.com/'],
             ['Bajaj Allianz', 'All India', 'https://www.bajajallianz.com/'],
         ]],
-        'creditcard' => ['name' => 'Credit Card Bill', 'icon' => '💳', 'more' => true, 'id' => 'Card number (last 4 digits are enough to find it)', 'billers' => [
+        'creditcard' => ['name' => 'Credit Card Bill', 'icon' => '💳', 'group' => 'bills', 'id' => 'Card number (last 4 digits are enough to find it)', 'billers' => [
             ['HDFC Bank credit card', 'All India', 'https://www.hdfcbank.com/'],
             ['ICICI Bank credit card', 'All India', 'https://www.icicibank.com/'],
             ['SBI Card', 'All India', 'https://www.sbicard.com/'],
@@ -119,7 +160,7 @@ return [
             ['YES Bank credit card', 'All India', 'https://www.yesbank.in/'],
             ['IndusInd Bank credit card', 'All India', 'https://www.indusind.com/'],
         ]],
-        'municipal' => ['name' => 'Property Tax & Municipal', 'icon' => '🏛️', 'more' => true, 'id' => 'Property / assessment ID', 'billers' => [
+        'municipal' => ['name' => 'Property Tax & Municipal', 'icon' => '🏛️', 'group' => 'bills', 'id' => 'Property / assessment ID', 'billers' => [
             ['Punjab property tax & trade licence (mSeva)', 'Punjab', 'https://mseva.lgpunjab.gov.in/common-screen'],
             ['Brihanmumbai Municipal Corporation (MCGM)', 'Maharashtra', 'https://portal.mcgm.gov.in/'],
             ['Municipal Corporation of Delhi (MCD)', 'Delhi', 'https://mcdonline.nic.in/'],

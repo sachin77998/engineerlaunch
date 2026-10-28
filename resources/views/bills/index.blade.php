@@ -19,20 +19,15 @@
         @endif
     </section>
 
-    <section class="bp-card">
-        <h2>Pay a bill</h2>
+    @foreach(\App\Http\Controllers\BillPaymentController::GROUPS as $gk => $gname)
+    <section class="bp-card" @if($gk === 'more') id="more" @endif>
+        <h2>{{ $gname }}</h2>
         <div class="bp-grid">
-            @foreach($categories as $c)<a class="bp-tile" href="{{ route('bills.category', $c['key']) }}"><span class="bp-mono" style="background:#eef4ff;font-size:32px">{{ $c['icon'] }}</span><strong>{{ $c['name'] }}</strong><span class="bp-muted">{{ count($c['billers']) }} billers</span></a>@endforeach
+            @foreach($categories as $c) @continue(($c['group'] ?? 'bills') !== $gk)<a class="bp-tile" href="{{ route('bills.category', $c['key']) }}"><span class="bp-mono" style="background:#eef4ff;font-size:32px">{{ $c['icon'] }}</span><strong>{{ $c['name'] }}</strong><span class="bp-muted">{{ count($c['billers']) }} billers</span></a>@endforeach
+            @if($gk === 'more')<a class="bp-tile" href="#cities"><span class="bp-mono" style="background:#eef4ff;font-size:32px">🏙️</span><strong>City services</strong><span class="bp-muted">{{ $cities->count() }} cities</span></a>@endif
         </div>
     </section>
-
-    <section class="bp-card" id="more">
-        <h2>More</h2>
-        <div class="bp-grid">
-            @foreach($categories as $c) @continue(empty($c['more']))<a class="bp-tile" href="{{ route('bills.category', $c['key']) }}"><span class="bp-mono" style="background:#eef4ff;font-size:32px">{{ $c['icon'] }}</span><strong>{{ $c['name'] }}</strong><span class="bp-muted">{{ count($c['billers']) }} billers</span></a>@endforeach
-            <a class="bp-tile" href="#cities"><span class="bp-mono" style="background:#eef4ff;font-size:32px">🏙️</span><strong>City services</strong><span class="bp-muted">{{ $cities->count() }} cities</span></a>
-        </div>
-    </section>
+    @endforeach
 
     <section class="bp-card" id="cities">
         <h2>Municipal services by city</h2>
