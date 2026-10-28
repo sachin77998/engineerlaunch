@@ -28,10 +28,8 @@
 .pf-co{display:inline-flex;gap:8px;align-items:center}.pf-co img{width:26px;height:26px;border-radius:6px;object-fit:contain;border:1px solid #eef1f5}
 .pf-tools{float:right;display:flex;gap:6px;margin-top:-4px}.pf-tools button{width:34px;height:34px;border:1px solid #dbe3ef;border-radius:8px;background:#fff;cursor:pointer;color:#425066}
 .ci-card.pf-collapsed>*:not(h2):not(.pf-tools){display:none!important}
-.pf-help{display:flex;justify-content:center;align-items:center;gap:10px;margin:16px -6px -4px;padding-top:12px;border-top:1px solid #eef1f5;color:#425066;font-size:14px}
-.pf-help button{padding:6px 12px;border:1px solid #dbe3ef;border-radius:8px;background:#fff;cursor:pointer;font:inherit}.pf-help button.on{background:#eaf1fb;border-color:#9cb6d3}
 .pf-ptabs{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:8px 0 10px}.pf-ptabs button{padding:7px 14px;border:0;border-radius:8px;background:#f1f4f8;color:#425066;font-weight:600;cursor:pointer}
 .pf-ptabs button.on{background:#fff;color:#0b2545;box-shadow:0 0 0 1px #dbe3ef}.pf-ptabs input{margin-left:auto;padding:8px 12px;border:1px solid #dbe3ef;border-radius:8px;min-width:220px;font:inherit}
 .pf-avatar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#eef2f7;color:#425066;font-size:12px;font-weight:800;margin-right:8px}
-@media print{.pf-sticky,.pf-actions,.pf-nav,.pf-tools,.pf-help,header,footer,.site-footer,.sitebar{display:none!important}.ci-main.ci-layout{display:block}}
+@media print{.pf-sticky,.pf-actions,.pf-nav,.pf-tools,header,footer,.site-footer,.sitebar{display:none!important}.ci-main.ci-layout{display:block}}
 </style>
