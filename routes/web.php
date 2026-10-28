@@ -156,7 +156,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'update'])->middleware('throttle:password-update')->name('password.update');
 });
 
-Route::get('/health', fn () => response()->json(['status' => 'ok']))->name('health');
+Route::get('/health', fn () => response()->json(['status' => 'ok', 'deployed' => is_file($v = storage_path('app/deployed-version.txt')) ? trim(file_get_contents($v)) : null, 'app_path' => base_path()]))->name('health');
 Route::get('/jobs/{job:slug}',[CandidateJobController::class,'show'])->name('jobs.show');
 Route::get('/opportunities/{job}',[CandidateJobController::class,'show'])->whereNumber('job')->name('opportunities.show');
 Route::post('/jobs/{job:slug}/apply',[CandidateJobController::class,'apply'])->middleware('auth')->name('jobs.apply');

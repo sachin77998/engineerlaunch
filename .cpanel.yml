@@ -29,4 +29,7 @@ deployment:
     - /bin/cp -R scripts "$DEPLOY_PATH"
 
     # All artisan steps run from one script that logs to storage/logs/deploy.log and never stops halfway.
+    # Which commit is live: shown at /health.
+    - /bin/mkdir -p "$DEPLOY_PATH/storage/app" && (git log -1 --format='%h %cd %s' --date=format:'%Y-%m-%d %H:%M' > "$DEPLOY_PATH/storage/app/deployed-version.txt" || true)
+
     - /bin/bash "$DEPLOY_PATH/scripts/cpanel-deploy.sh" "$DEPLOY_PATH"
