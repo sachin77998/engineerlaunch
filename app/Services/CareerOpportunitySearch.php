@@ -31,8 +31,13 @@ class CareerOpportunitySearch
         $hasTracks = Schema::hasTable('career_tracks') && Schema::hasTable('career_roles');
         $hasBenchmarks = Schema::hasTable('career_salary_benchmarks');
         $facilities = CompanyFacility::query()->whereHas('company', fn($q) => $q->active());
-        foreach (['country', 'state', 'city', 'industrial_area', 'products'] as $field) {
+        foreach (['country', 'state', 'industrial_area', 'products'] as $field) {
             if (isset($filters[$field])) $facilities->where($field, 'like', $this->like($filters[$field]));
+        }
+        // Every spelling of the chosen city (Bengaluru = Bangalore, Bangalore Urban, Banagalore…).
+        if (isset($filters['city'])) {
+            $spellings = app(\App\Services\CityNames::class)->variants($filters['city'], $filters['state'] ?? '', $filters['country'] ?? '');
+            $facilities->where(fn ($q) => collect($spellings)->each(fn ($s) => $q->orWhere('city', 'like', $this->like($s))));
         }
         if (isset($filters['industry'])) $this->industry($facilities, $filters['industry'], ['industry']);
         if (isset($filters['company'])) $facilities->whereHas('company', fn($q) => $q->where('name', 'like', $this->like($filters['company'])));
@@ -47,7 +52,10 @@ class CareerOpportunitySearch
             }
         }
         $jobs = Job::active()->with(['company', 'technologies']);
-        app(JobGeography::class)->apply($jobs, array_intersect_key($filters, array_flip(['country', 'state', 'city'])));
+        $geo = array_intersect_key($filters, array_flip(['country', 'state', 'city']));
+        // The city's official name, so old names and typos ("Banagalore") still find the city's jobs.
+        if (isset($geo['city'])) $geo['city'] = app(\App\Services\CityNames::class)->variants($geo['city'], $geo['state'] ?? '', $geo['country'] ?? '')[0];
+        app(JobGeography::class)->apply($jobs, $geo);
         if ($sourceCompany !== null) $jobs->whereIn('company_id', $sourceCompany);
         if (isset($filters['company'])) $jobs->whereHas('company', fn($q) => $q->where('name', 'like', $this->like($filters['company'])));
         // Company ids first: filtering jobs through whereHas made MariaDB walk every job by date (36s).

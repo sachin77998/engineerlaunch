@@ -26,9 +26,10 @@ class CareerExplorerController extends Controller
         $state = mb_substr(trim((string) $request->query('state')), 0, 100);
         $country = mb_substr(trim((string) $request->query('country')), 0, 100);
         if ($state === '') return response()->json(['cities' => [], 'areas' => []]);
-        $data = Cache::remember('career-explorer:places:' . md5($country . '|' . $state), now()->addHours(6), function () use ($state, $country) {
+        $data = Cache::remember('career-explorer:places.v2:' . md5($country . '|' . $state), now()->addHours(6), function () use ($state, $country) {
             $facilities = DB::table('company_facilities')->where('state', $state)->when($country !== '', fn ($q) => $q->where('country', $country));
-            $cities = (clone $facilities)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->limit(800)->pluck('city');
+            // One entry per city: spellings, old names and typos grouped ("Banagalore", "Bangalore Urban" → Bengaluru).
+            $cities = collect(array_keys(app(\App\Services\CityNames::class)->groups($state, $country)));
             $areas = (clone $facilities)->whereNotNull('industrial_area')->where('industrial_area', '!=', '')->distinct()->pluck('industrial_area')
                 ->merge(DB::table('industrial_areas as a')->join('industrial_states as s', 's.id', '=', 'a.state_id')->where('s.name', $state)->where('a.is_active', true)->pluck('a.name'))
                 ->unique()->sort()->values();
