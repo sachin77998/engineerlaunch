@@ -33,3 +33,6 @@ deployment:
     - /bin/mkdir -p "$DEPLOY_PATH/storage/app" && (git log -1 --format='%h %cd %s' --date=format:'%Y-%m-%d %H:%M' > "$DEPLOY_PATH/storage/app/deployed-version.txt" || true)
 
     - /bin/bash "$DEPLOY_PATH/scripts/cpanel-deploy.sh" "$DEPLOY_PATH"
+
+    # If the website runs from another folder than DEPLOY_PATH, update that folder too (see scripts/sync-live.sh).
+    - /bin/bash scripts/sync-live.sh "$DEPLOY_PATH"
