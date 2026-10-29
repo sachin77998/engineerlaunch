@@ -75,6 +75,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new \App\Jobs\WarmSectorGroups, 'catalog', 'database')->cron('0 */5 * * *');
         $schedule->command('discovery:bootstrap')->dailyAt('01:15')->withoutOverlapping(240);
         $schedule->command('technologies:sync --skip-discovery')->dailyAt('03:00')->withoutOverlapping(120);
+        // Job location matching (career explorer, job filters) reads this; rebuilding it takes about a minute.
+        $schedule->call(fn () => app(\App\Services\JobGeography::class)->refreshPlaces())->cron('*/45 * * * *')->name('job-geography-places')->withoutOverlapping(30);
         $schedule->command('jobs:role-counts')->everyThreeHours()->withoutOverlapping(30);
         $schedule->command('recommendations:build-skill-graph')->dailyAt('03:30')->withoutOverlapping(120);
         $schedule->command('premium:build-recommendations')

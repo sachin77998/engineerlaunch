@@ -50,7 +50,14 @@ class CareerOpportunitySearch
         app(JobGeography::class)->apply($jobs, array_intersect_key($filters, array_flip(['country', 'state', 'city'])));
         if ($sourceCompany !== null) $jobs->whereIn('company_id', $sourceCompany);
         if (isset($filters['company'])) $jobs->whereHas('company', fn($q) => $q->where('name', 'like', $this->like($filters['company'])));
-        if (isset($filters['industry'])) $jobs->whereHas('company', fn($q) => $this->industry($q, $filters['industry']));
+        // Company ids first: filtering jobs through whereHas made MariaDB walk every job by date (36s).
+        // MariaDB turns an IN list of 1,000+ values into a derived table and scans every job (40s for 2,500 companies with
+        // 2 jobs), so the job ids are looked up per chunk of companies on the company index.
+        if (isset($filters['industry'])) {
+            $companyIds = $this->industry(\App\Models\Company::query(), $filters['industry'])->pluck('id');
+            $jobIds = $companyIds->chunk(800)->flatMap(fn ($chunk) => \Illuminate\Support\Facades\DB::table('jobs')->whereIntegerInRaw('company_id', $chunk->all())->pluck('id'));
+            $jobs->whereIntegerInRaw('jobs.id', $jobIds->all());
+        }
         if (isset($filters['industrial_area'])) $jobs->where('location', 'like', $this->like($filters['industrial_area']));
         if (isset($filters['products']) || isset($filters['employee_min']) || isset($filters['employee_max'])) {
             if ($hasFacilities) $jobs->whereIn('company_id', (clone $facilities)->select('company_id'));

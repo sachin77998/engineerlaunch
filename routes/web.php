@@ -375,6 +375,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/state-approvals')->name('adm
 });
 
 Route::get("/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"index"])->name("career-explorer");
+Route::get("/career-explorer/places", [\App\Http\Controllers\CareerExplorerController::class,"places"])->middleware("throttle:60,1")->name("career-explorer.places");
 Route::get("/api/career-explorer", [\App\Http\Controllers\CareerExplorerController::class,"api"])->middleware("throttle:30,1")->name("career-explorer.api");
 
 Route::get('/admin/maintenance', [\App\Http\Controllers\AdminMaintenanceController::class, 'index'])->middleware(['auth','admin'])->name('admin.maintenance');

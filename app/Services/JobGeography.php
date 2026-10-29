@@ -106,11 +106,29 @@ class JobGeography
         foreach ($countries ?: ($result ? [] : ($fallbackCode ? [$fallbackCode] : [])) as $c) if (!collect($result)->contains('country',$c)) $result[]=['country'=>$c,'state'=>'','city'=>''];
         return $result;
     }
+    private const PLACES_KEY = 'job-geography.places.v2';
+
+    /**
+     * Every active job's place, resolved once: [location|country => [ids, text, places]]. Takes about a minute, so the
+     * scheduler rebuilds it every 45 minutes (cached for 2 hours) and visitors never wait for it.
+     */
+    public function refreshPlaces(): array
+    {
+        $map = [];
+        foreach (Job::active()->select('id','location','country')->toBase()->cursor() as $job) $map[$job->location . '|' . $job->country][] = (int) $job->id;
+        foreach ($map as $placeKey => $placeIds) {
+            [$location, $jobCountry] = explode('|', $placeKey, 2) + [1 => ''];
+            $map[$placeKey] = ['ids' => $placeIds, 'text' => $this->key($location), 'places' => $this->resolve($location, $jobCountry)];
+        }
+        Cache::put(self::PLACES_KEY, $map, now()->addHours(2));
+        return $map;
+    }
+
     public function apply($query, array $filters): void
     {
         if (!collect($filters)->only(['region','country','state','city','location'])->filter(fn($v)=>$v!==null && $v!=='')->count()) return;
         $parameters = array_intersect_key($filters, array_flip(['region','country','state','city','location']));
-        $ids = Cache::remember(DiscoveryCache::key('job-geography.matches.v3', $parameters), DiscoveryCache::ttl(), function () use ($filters) {
+        $ids = Cache::remember(DiscoveryCache::key('job-geography.matches.v4', $parameters), DiscoveryCache::ttl(), function () use ($filters) {
             $country = $this->country($filters['country'] ?? '');
             $state = $this->state($filters['state'] ?? '', $country);
             if ((!empty($filters['country']) && !$country) || (!empty($filters['state']) && !$state)) { return []; }
@@ -120,15 +138,13 @@ class JobGeography
             if ($cityKey) foreach ($this->catalog->places([$cityKey], 'city') as $c) $cityNames[]=$this->key($c['city']);
             $term=$this->key($filters['location'] ?? '');
             $termPlaces=$term ? $this->resolve($filters['location']) : [];
-            $ids=[];
-            $resolved = [];
-            foreach (Job::active()->select('id','location','country')->toBase()->lazyById(500) as $job) {
-                $locationKey = $job->location.'|'.$job->country;
-                if (!isset($resolved[$locationKey])) {
-                    if (count($resolved) >= 4096) array_shift($resolved);
-                    $resolved[$locationKey] = $this->resolve((string)$job->location, (string)$job->country);
-                }
-                $row = ['id'=>$job->id, 'text'=>$this->key((string)$job->location), 'places'=>$resolved[$locationKey]];
+            // Each distinct (location, country) is resolved once instead of once per job (about 12k places for 1.5 lakh
+            // jobs). Places and their job ids are read in one pass and shared by every filter combination for an hour.
+            // Resolving a location string is the slow part, and its result never changes, so it is stored with the ids.
+            $places = Cache::get(self::PLACES_KEY) ?? $this->refreshPlaces();
+            $ids = [];
+            foreach ($places as $row) {
+                $placeIds = $row['ids'];
 
                 $geographic = empty($filters['region']) && !$country && !$state && !$cityKey;
                 foreach ($row['places'] as $p) {
@@ -144,7 +160,7 @@ class JobGeography
                     foreach ($termPlaces as $t) foreach ($row['places'] as $p) if ($t['country']===$p['country'] && (!$t['state'] || $t['state']===$p['state']) && (!$t['city'] || $t['city']===$p['city'])) $matched=true;
                     if (!$matched) continue;
                 }
-                $ids[]=(int)$row['id'];
+                array_push($ids, ...$placeIds);
             }
             return $ids;
         });
