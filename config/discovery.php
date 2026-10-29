@@ -86,6 +86,16 @@ return [
         'NL' => ['qid' => 'Q55', 'name' => 'Netherlands'],
         'KR' => ['qid' => 'Q884', 'name' => 'South Korea'],
         'CN' => ['qid' => 'Q148', 'name' => 'China'],
+        'IT' => ['qid' => 'Q38', 'name' => 'Italy'],
+        'ES' => ['qid' => 'Q29', 'name' => 'Spain'],
+        'SE' => ['qid' => 'Q34', 'name' => 'Sweden'],
+        'BR' => ['qid' => 'Q155', 'name' => 'Brazil'],
+        'MX' => ['qid' => 'Q96', 'name' => 'Mexico'],
+        'QA' => ['qid' => 'Q846', 'name' => 'Qatar'],
+        'SA' => ['qid' => 'Q851', 'name' => 'Saudi Arabia'],
+        'IL' => ['qid' => 'Q801', 'name' => 'Israel'],
+        'TW' => ['qid' => 'Q865', 'name' => 'Taiwan'],
+        'ZA' => ['qid' => 'Q258', 'name' => 'South Africa'],
     ],
 
     // Industrial estates and tech parks scanned on OpenStreetMap. Coordinates are approximate centres.

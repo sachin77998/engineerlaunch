@@ -63,7 +63,7 @@ class Kernel extends ConsoleKernel
         // Re-reads the register monthly for new incorporations and status changes.
         $schedule->command('insights:import-mca')->monthlyOn(5, '00:30')->withoutOverlapping(60);
         $schedule->command('jobs:import-feeds')->everySixHours()->withoutOverlapping(120);
-        $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(720);
+        $schedule->command('companies:discover all --country=IN --country=US --country=GB --country=DE --country=FR --country=CH --country=JP --country=AE --country=SG --country=CA --country=AU --country=NL --country=KR --country=CN --country=IT --country=ES --country=SE --country=BR --country=MX --country=QA --country=SA --country=IL --country=TW --country=ZA --industrial-areas --sync')->weeklyOn(0, '01:00')->withoutOverlapping(1440);
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
         // Every registered company in the world whose name carries a trade word (gears, axles, forging, software, ...).
         $schedule->command('companies:discover gleif --gleif-trades --trade-country=WORLD')->monthlyOn(15, '01:30')->withoutOverlapping(1440);
@@ -76,7 +76,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('discovery:bootstrap')->dailyAt('01:15')->withoutOverlapping(240);
         $schedule->command('technologies:sync --skip-discovery')->dailyAt('03:00')->withoutOverlapping(120);
         // Job location matching (career explorer, job filters) reads this; rebuilding it takes about a minute.
-        $schedule->call(fn () => app(\App\Services\JobGeography::class)->refreshPlaces())->cron('*/45 * * * *')->name('job-geography-places')->withoutOverlapping(30);
+        $schedule->command('jobs:refresh-places')->cron('*/45 * * * *')->withoutOverlapping(30);
         $schedule->command('jobs:role-counts')->everyThreeHours()->withoutOverlapping(30);
         $schedule->command('recommendations:build-skill-graph')->dailyAt('03:30')->withoutOverlapping(120);
         $schedule->command('premium:build-recommendations')
