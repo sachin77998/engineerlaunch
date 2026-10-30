@@ -39,7 +39,7 @@ class MarketController extends Controller
             ->when($request->query('class'), fn ($w, $c) => $w->where('etf_class', $c))
             ->when($q !== '', fn ($w) => $w->where(fn ($x) => $x->where('symbol', 'like', strtoupper($q) . '%')->orWhere('name', 'like', '%' . $q . '%')))
             ->orderByRaw($sort . ' IS NULL')->orderBy($sort, $sort === 'symbol' ? ($request->query('dir') === 'desc' ? 'desc' : 'asc') : $dir)->paginate(50)->withQueryString();
-        $movers = Cache::remember('trading:movers:' . $type, 900, fn () => [
+        $movers = \App\Support\Stale::remember('trading:movers:' . $type, 900, fn () => [
             'gainers' => MarketInstrument::where('instrument_type', $type)->where('exchange', 'NSE')->where('is_active', true)->where('turnover_lakhs', '>', 100)->orderByDesc('change_pct')->limit(5)->get(),
             'losers' => MarketInstrument::where('instrument_type', $type)->where('exchange', 'NSE')->where('is_active', true)->where('turnover_lakhs', '>', 100)->orderBy('change_pct')->limit(5)->get(),
             'active' => MarketInstrument::where('instrument_type', $type)->where('exchange', 'NSE')->where('is_active', true)->orderByDesc('turnover_lakhs')->limit(5)->get(),

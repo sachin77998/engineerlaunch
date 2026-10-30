@@ -41,9 +41,12 @@ class CareerExplorerController extends Controller
     /** Values for the filter dropdowns, from the data the search runs on (cached). */
     private function options(): array
     {
-        return Cache::remember('career-explorer:options', now()->addHours(6), function () {
+        return \App\Support\Stale::remember('career-explorer:options', now()->addHours(6), function () {
             $facilityCountries = DB::table('company_facilities')->whereNotNull('country')->where('country', '!=', '')->distinct()->pluck('country');
-            $jobCountries = DB::table('jobs')->where('is_active', true)->whereNotNull('country')->where('country', '!=', '')->distinct()->pluck('country');
+            // Distinct values from the country index (0.1s), then one indexed check per country for an active job; filtering
+            // on is_active first read every job (14s).
+            $jobCountries = DB::table(DB::raw('`jobs` FORCE INDEX (jobs_country_index)'))->whereNotNull('country')->where('country', '!=', '')->distinct()->pluck('country')
+                ->filter(fn ($c) => DB::table('jobs')->where('country', $c)->where('is_active', true)->exists())->values();
             $countries = $facilityCountries->merge($jobCountries)->map(fn ($c) => trim($c))->filter(fn ($c) => mb_strlen($c) > 2)->unique()->sort()->values();
             if ($countries->contains('India')) $countries = $countries->reject(fn ($c) => $c === 'India')->prepend('India')->values();
             // States by country; region codes of two letters (e.g. "DU") are left out.

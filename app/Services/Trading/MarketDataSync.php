@@ -46,7 +46,7 @@ class MarketDataSync
         // Schemes missing from the file for two weeks are no longer offered.
         DB::table('mf_schemes')->where('nav_date', '<', now()->subDays(14)->toDateString())->update(['is_active' => false]);
         DB::table('mf_nav_history')->where('nav_date', '<', now()->subDays(400)->toDateString())->delete();
-        Cache::forget('trading:fund-facets');
+        \App\Support\Stale::forget('trading:fund-facets');
         return [count($schemes), count($history)];
     }
 

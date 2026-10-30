@@ -41,7 +41,7 @@ class JobAssistantController extends Controller
         } else {
             // Unknown words still search titles, descriptions and skills the normal way.
             $query = \App\Models\Job::active()->with('company:id,name,slug');
-            JobSkillVocabulary::apply($query, $data['text']);
+            $query->search($data['text']);
             if (filled($location)) $query->where('location', 'like', '%' . addcslashes(trim($location), '%_\\') . '%');
             $total = (clone $query)->count();
             $jobs = $query->latest('posted_at')->limit(8)->get();

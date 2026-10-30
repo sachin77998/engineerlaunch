@@ -77,6 +77,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('technologies:sync --skip-discovery')->dailyAt('03:00')->withoutOverlapping(120);
         // Job location matching (career explorer, job filters) reads this; rebuilding it takes about a minute.
         $schedule->command('jobs:refresh-places')->cron('*/45 * * * *')->withoutOverlapping(30);
+        // Job search reads job_search: imported and changed jobs every 5 minutes (jobs saved through the app at once), all nightly.
+        $schedule->command('jobs:search-index')->everyFiveMinutes()->withoutOverlapping(30);
+        $schedule->command('jobs:search-index --full')->dailyAt('04:45')->withoutOverlapping(60);
+        // Public pages' counts and lists are rebuilt here, not on a visitor's page view (also after every deploy).
+        $schedule->command('cache:warm')->everyFifteenMinutes()->withoutOverlapping(30);
         $schedule->command('jobs:role-counts')->everyThreeHours()->withoutOverlapping(30);
         $schedule->command('recommendations:build-skill-graph')->dailyAt('03:30')->withoutOverlapping(120);
         $schedule->command('premium:build-recommendations')

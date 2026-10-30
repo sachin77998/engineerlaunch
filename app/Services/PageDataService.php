@@ -12,7 +12,7 @@ class PageDataService
     {
         return [
             // Counted over every job row: cached like the homepage stats.
-            'stats' => \Illuminate\Support\Facades\Cache::remember('about:stats', now()->addMinutes(30), fn () => [
+            'stats' => \App\Support\Stale::remember('about:stats', now()->addMinutes(30), fn () => [
                 'jobs' => Job::active()->count(),
                 'companies' => Company::active()->whereHas('activeJobs')->count(),
             ]),

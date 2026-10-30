@@ -120,7 +120,8 @@ class JobGeography
             [$location, $jobCountry] = explode('|', $placeKey, 2) + [1 => ''];
             $map[$placeKey] = ['ids' => $placeIds, 'text' => $this->key($location), 'places' => $this->resolve($location, $jobCountry)];
         }
-        Cache::put(self::PLACES_KEY, $map, now()->addHours(2));
+        // Kept a day: if the scheduler stops, searches keep using the last map instead of rebuilding it on a page view.
+        Cache::put(self::PLACES_KEY, $map, now()->addDay());
         return $map;
     }
 
@@ -128,6 +129,14 @@ class JobGeography
     {
         if (!collect($filters)->only(['region','country','state','city','location'])->filter(fn($v)=>$v!==null && $v!=='')->count()) return;
         $parameters = array_intersect_key($filters, array_flip(['region','country','state','city','location']));
+        // No map yet (fresh deploy, cleared cache): a page view never builds it (about a minute). This search matches the
+        // location text, and the map is built after the response.
+        if (!app()->runningInConsole() && !Cache::has(self::PLACES_KEY) && !Cache::has(DiscoveryCache::key('job-geography.matches.v4', $parameters))) {
+            if (rescue(fn () => Cache::lock('job-geography:refresh', 600)->get(), true, false)) app()->terminating(fn () => rescue(fn () => $this->refreshPlaces(), null, false));
+            $words = array_values(array_filter([$filters['city'] ?? null, $filters['location'] ?? null, $filters['state'] ?? null, $filters['country'] ?? null], fn ($v) => trim((string) $v) !== ''));
+            if ($words) $query->where('location', 'like', '%' . addcslashes(trim((string) $words[0]), '%_\\') . '%');
+            return;
+        }
         $ids = Cache::remember(DiscoveryCache::key('job-geography.matches.v4', $parameters), DiscoveryCache::ttl(), function () use ($filters) {
             $country = $this->country($filters['country'] ?? '');
             $state = $this->state($filters['state'] ?? '', $country);

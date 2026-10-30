@@ -14,7 +14,7 @@ class FinalizeCompanyCatalogImport
     public function handle(CompanyCatalogImported $event): void
     {
         SectorDirectory::flush();
-        foreach (['company-discovery:facets:v3', 'company-discovery:countries:v3'] as $key) Cache::forget($key);
+        foreach (['company-discovery:facets:v3', 'company-discovery:countries:v3'] as $key) \App\Support\Stale::forget($key);
 
         $run = $event->batchRunId ? BatchRun::find($event->batchRunId) : null;
         $totals = $event->totals ?: ($run ? [

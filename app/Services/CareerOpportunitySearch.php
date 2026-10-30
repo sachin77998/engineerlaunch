@@ -51,8 +51,13 @@ class CareerOpportunitySearch
                 $facilities->whereIn('company_id', $sourceCompany);
             }
         }
-        $jobs = Job::active()->with(['company', 'technologies']);
-        $geo = array_intersect_key($filters, array_flip(['country', 'state', 'city']));
+        // Filters run on job_search (open jobs, compact rows); the page's rows are read from jobs by id. On the jobs table a
+        // country plus a skill took 15-20s. Business units live only in the jobs table's source data.
+        $indexed = !isset($filters['business_unit']) && app(\App\Services\JobSearchIndex::class)->ready();
+        $jobs = $indexed
+            ? Job::query()->from('job_search as jobs')->where(fn ($open) => $open->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            : Job::active()->with(['company', 'technologies']);
+        $geo =array_intersect_key($filters, array_flip(['country', 'state', 'city']));
         // The city's official name, so old names and typos ("Banagalore") still find the city's jobs.
         if (isset($geo['city'])) $geo['city'] = app(\App\Services\CityNames::class)->variants($geo['city'], $geo['state'] ?? '', $geo['country'] ?? '')[0];
         app(JobGeography::class)->apply($jobs, $geo);
@@ -106,13 +111,22 @@ class CareerOpportunitySearch
             ->when($filters['role'] ?? null, fn($q, $value) => $q->where('role_name', 'like', $this->like($value)))->limit(80)->get() : collect();
         return [
             'filters' => $filters,
-            'jobs' => $jobs->latest('posted_at')->paginate(20, ['*'], 'page', (int)($filters['page'] ?? 1))->withQueryString(),
+            'jobs' => $indexed ? $this->rowsFor($jobs->latest('posted_at')->paginate(20, ['jobs.id'], 'page', (int)($filters['page'] ?? 1))->withQueryString())
+                : $jobs->latest('posted_at')->paginate(20, ['*'], 'page', (int)($filters['page'] ?? 1))->withQueryString(),
             'industrialJobs' => $industrial->latest('id')->paginate(12, ['*'], 'industrial_page', (int)($filters['industrial_page'] ?? 1))->withQueryString(),
             'facilities' => $hasFacilities ? $facilities->with('company')->orderBy('name')->paginate(12, ['*'], 'companies_page', (int)($filters['companies_page'] ?? 1))->withQueryString() : new LengthAwarePaginator([], 0, 12, 1, ['path' => request()->url(), 'pageName' => 'companies_page']),
             'tracks' => $tracks,
             'benchmarks' => $benchmarks,
             'discovery_url' => 'https://www.google.com/search?' . http_build_query(['q' => implode(' ', array_intersect_key($filters, array_flip(['country', 'state', 'city', 'industrial_area', 'industry', 'company', 'products', 'role']))) . ' official careers']),
         ];
+    }
+
+    /** A page of ids from job_search with its full job rows (company, technologies) in the same order. */
+    private function rowsFor(\Illuminate\Pagination\LengthAwarePaginator $page): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        $ids = $page->getCollection()->pluck('id')->all();
+        $rows = $ids ? Job::with(['company', 'technologies'])->whereIntegerInRaw('id', $ids)->get()->keyBy('id') : collect();
+        return $page->setCollection(collect($ids)->map(fn ($id) => $rows->get($id))->filter()->values());
     }
 
     private function referenceTracks(array $filters)

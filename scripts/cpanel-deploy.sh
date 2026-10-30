@@ -48,6 +48,10 @@ fi
 
 echo "" >> "$LOG"
 echo "Background seeding started $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"
+# The deploy cleared the cache: the job search copy, job locations and the public pages' data first, so no visitor waits.
+run jobs:search-index --full
+run jobs:refresh-places
+run cache:warm
 run db:seed --class=TechnologySeeder --force
 run db:seed --class=OwnerAccountSeeder --force
 run db:seed --force
@@ -74,6 +78,8 @@ run mf:portfolios
 # State approvals, document checklists and policies (also refreshed on the 8th of each month).
 run approvals:fetch
 run optimize:clear
+run jobs:refresh-places
+run cache:warm
 
 echo "" >> "$LOG"
 echo "Background seeding finished $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG"

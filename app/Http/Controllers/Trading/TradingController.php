@@ -29,7 +29,7 @@ class TradingController extends Controller
     public function index(MarketCalendar $calendar)
     {
         $this->ensureData();
-        $data = Cache::remember('trading:catalogue', 900, fn () => [
+        $data = \App\Support\Stale::remember('trading:catalogue', 900, fn () => [
             'collections' => MfCollection::where('is_active', true)->orderBy('sort_order')->get(),
             'popular' => app(FundQuery::class)->build(['min_rating' => 4, 'sub_category' => ['Flexi Cap', 'Mid Cap', 'Small Cap', 'Large Cap'], 'sort' => 'return_3y'])->limit(40)->get()->unique('amc')->take(8)->values(),
             'amcs' => MfAmc::orderByDesc('scheme_count')->limit(18)->get(),
@@ -66,7 +66,7 @@ class TradingController extends Controller
     {
         $this->ensureData();
         $funds = app(FundQuery::class)->build($filters)->with('fundHouse:id,name,short_name,color,slug')->paginate(25)->withQueryString();
-        $facets = Cache::remember('trading:fund-facets', 3600, fn () => [
+        $facets = \App\Support\Stale::remember('trading:fund-facets', 3600, fn () => [
             'categories' => MfCategory::orderBy('sort_order')->orderByDesc('scheme_count')->get(['id', 'asset_class', 'sub_category', 'scheme_count'])->groupBy('asset_class'),
             'amcs' => MfAmc::orderBy('short_name')->get(['id', 'name', 'short_name', 'scheme_count']),
             'collections' => MfCollection::where('is_active', true)->orderBy('sort_order')->get(['slug', 'title']),
@@ -88,7 +88,7 @@ class TradingController extends Controller
             'variants' => MfScheme::where('is_active', true)->where('amc', $scheme->amc)->where('name', $scheme->name)->where('scheme_code', '!=', $scheme->scheme_code)->get(['scheme_code', 'plan', 'option', 'nav']),
             'peers' => MfScheme::where('is_active', true)->where('sub_category', $scheme->sub_category)->where('plan', $scheme->plan)->where('option', $scheme->option)->whereNotNull('return_3y')
                 ->selectRaw('count(*) n, avg(return_1y) r1, avg(return_3y) r3, avg(return_5y) r5')->first(),
-            'ranks' => \Illuminate\Support\Facades\Cache::remember('fund-ranks:' . $scheme->scheme_code . ':' . now()->toDateString(), now()->addHours(12), function () use ($scheme) {
+            'ranks' => \App\Support\Stale::remember('fund-ranks:' . $scheme->scheme_code . ':' . now()->toDateString(), now()->addHours(12), function () use ($scheme) {
                 $peers = fn () => MfScheme::where('is_active', true)->where('sub_category', $scheme->sub_category)->where('plan', $scheme->plan)->where('option', $scheme->option);
                 $out = [];
                 foreach (['return_6m', 'return_1y', 'return_3y', 'return_5y'] as $k) {

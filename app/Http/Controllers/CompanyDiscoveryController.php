@@ -7,6 +7,7 @@ use App\Models\CompanyCategory;
 use App\Models\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -34,27 +35,30 @@ class CompanyDiscoveryController extends Controller
             }))
             ->when($selected->isNotEmpty(), fn($q) => $q->whereHas('categories', fn($c) => $c->whereIn('company_categories.id', $selected)))
             ->when($filters['country'] ?? null, fn($q, $countries) => $q->whereIn('country', $countries))
-            ->when($selectedLocations->isNotEmpty(), function ($query) use ($selectedLocations, $locationMap) {
-                $query->whereHas('activeJobs', function ($jobs) use ($selectedLocations, $locationMap) {
-                    $jobs->where(function ($locations) use ($selectedLocations, $locationMap) {
-                        foreach ($selectedLocations as $name) {
-                            foreach ($locationMap[$name] as $alias) {
-                                $locations->orWhereRaw('LOWER(location) LIKE ?', ['%' . Str::lower($alias) . '%']);
-                            }
-                        }
-                    });
-                });
-            })
+            // Companies hiring in a location come from the cached (location -> company ids) map: matching every job's
+            // location with LIKE for each company took 45s for Pune.
+            ->when($selectedLocations->isNotEmpty(), fn ($query) => $query->whereIntegerInRaw('id', $selectedLocations->flatMap(fn ($name) => $this->companiesByLocation($locationMap)[$name] ?? [])->unique()->values()->all() ?: [0]))
             ->orderBy('name')->paginate(50)->withQueryString();
-        $taxonomies = Cache::remember('company-discovery:facets:v3', now()->addHour(), fn() => CompanyCategory::where('is_active', true)
-            ->withCount(['companies' => fn($q) => $q->active()])
-            ->orderBy('sort_order')->get()->groupBy('taxonomy'));
+        $taxonomies = \App\Support\Stale::remember('company-discovery:facets:v3', now()->addHour(), function () {
+            // One grouped pass over the pivot (0.6s); a counting subquery per category took 5.4s.
+            $counts = DB::table('company_category_company as ccc')->join('companies as c', 'c.id', '=', 'ccc.company_id')->where('c.is_active', true)
+                ->groupBy('ccc.company_category_id')->pluck(DB::raw('COUNT(*)'), 'ccc.company_category_id');
+            return CompanyCategory::where('is_active', true)->orderBy('sort_order')->get()
+                ->each(fn ($category) => $category->setAttribute('companies_count', (int) ($counts[$category->id] ?? 0)))->groupBy('taxonomy');
+        });
         $featuredOrder = collect(config('company_discovery.featured_collections', []))->flip();
         $featuredCategories = collect($taxonomies->get('collection', collect()))
             ->filter(fn($item) => $featuredOrder->has($item->name))
             ->sortBy(fn($item) => $featuredOrder[$item->name])->values();
-        $countries = Cache::remember('company-discovery:countries:v3', now()->addHour(), fn() => Company::active()->whereNotNull('country')->selectRaw('country,count(*) companies_count')->groupBy('country')->orderByDesc('companies_count')->limit(50)->get());
-        $locationFacets = Cache::remember('company-discovery:locations:v3', now()->addHour(), function () use ($locationMap) {
+        $countries = \App\Support\Stale::remember('company-discovery:countries:v3', now()->addHour(), fn() => Company::active()->whereNotNull('country')->selectRaw('country,count(*) companies_count')->groupBy('country')->orderByDesc('companies_count')->limit(50)->get());
+        $locationFacets = collect($this->companiesByLocation($locationMap))->map(fn($ids, $name) => (object)['name' => $name, 'companies_count' => count($ids)])->sortByDesc('companies_count')->values();
+        return view('companies.index', compact('companies', 'taxonomies', 'featuredCategories', 'countries', 'locationFacets', 'selectedLocations', 'selected', 'category', 'filters'));
+    }
+
+    /** Location name => ids of companies with an open job there, kept for an hour. */
+    private function companiesByLocation(array $locationMap): array
+    {
+        return \App\Support\Stale::remember('company-discovery:location-ids:v1', now()->addHour(), function () use ($locationMap) {
             // Distinct (location, company) pairs, and each distinct location string is matched once:
             // scanning every job row against every alias timed out on production (~30k jobs).
             $companiesByLocation = collect(array_keys($locationMap))->mapWithKeys(fn($name) => [$name => []])->all();
@@ -64,9 +68,8 @@ class CompanyDiscoveryController extends Controller
                 $matchedNames[$value] ??= array_keys(array_filter($locationMap, fn ($aliases) => Str::contains($value, $aliases)));
                 foreach ($matchedNames[$value] as $name) $companiesByLocation[$name][$pair->company_id] = true;
             }
-            return collect($companiesByLocation)->map(fn($ids, $name) => (object)['name' => $name, 'companies_count' => count($ids)])->sortByDesc('companies_count')->values();
+            return array_map(fn ($ids) => array_keys($ids), $companiesByLocation);
         });
-        return view('companies.index', compact('companies', 'taxonomies', 'featuredCategories', 'countries', 'locationFacets', 'selectedLocations', 'selected', 'category', 'filters'));
     }
 
     public function show(Request $request, Company $company): View

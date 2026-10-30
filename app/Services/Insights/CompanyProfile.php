@@ -29,7 +29,7 @@ class CompanyProfile
     /** Up to $limit companies sharing a sub-sector: ones with results or a market cap first. */
     public function competitors(Company $company, int $limit = 10): Collection
     {
-        return Cache::remember('profile:competitors:' . $company->id, now()->addHours(12), function () use ($company, $limit) {
+        return \App\Support\Stale::remember('profile:competitors:' . $company->id, now()->addHours(12), function () use ($company, $limit) {
             $categories = DB::table('company_category_company as cc')->join('company_categories as c', 'c.id', '=', 'cc.company_category_id')
                 ->where('cc.company_id', $company->id)->whereNotNull('c.parent_id')->where('c.taxonomy', 'sector')->where('c.name', '!=', 'Discovered Companies')->pluck('c.id');
             if ($categories->isEmpty()) return collect();

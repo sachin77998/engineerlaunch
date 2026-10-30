@@ -37,10 +37,10 @@ class InsightsExploreController extends Controller
             'us' => $this->usGrowth($items->pluck('cik')->filter()->all()),
             default => [],
         };
-        $sectors = Cache::remember('explore:sectors:' . $db, now()->addHours(6), fn () => $db === 'us'
+        $sectors = \App\Support\Stale::remember('explore:sectors:' . $db, now()->addHours(6), fn () => $db === 'us'
             ? DB::table('us_listed_companies')->whereNotNull('sector')->distinct()->orderBy('sector')->pluck('sector')
             : DB::table('companies')->whereNotNull('industry')->where('industry', '!=', 'Other Industries')->distinct()->orderBy('industry')->pluck('industry'));
-        $counts = Cache::remember('explore:counts', now()->addMinutes(30), fn () => [
+        $counts = \App\Support\Stale::remember('explore:counts', now()->addMinutes(30), fn () => [
             'listed' => DB::table('listed_companies')->whereNotNull('company_id')->count(), 'companies' => DB::table('companies')->where('is_active', true)->count(),
             'us' => DB::table('us_listed_companies')->count(), 'people' => DB::table('company_officers')->count(),
         ]);

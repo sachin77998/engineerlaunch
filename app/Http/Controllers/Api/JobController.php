@@ -50,7 +50,12 @@ class JobController extends Controller
             'sort_order' => ['nullable', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('search.max_results_per_page', 50)],
         ]);
-        $query = Job::active()->with($this->jobRelations());
+        // Filters run on job_search (open jobs only, short text): on the jobs table a keyword read every description (45-100s).
+        // The page's rows are then read from jobs by id.
+        $indexed = app(\App\Services\JobSearchIndex::class)->ready();
+        $query = $indexed
+            ? Job::query()->from('job_search as jobs')->where(fn ($open) => $open->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            : Job::active()->with($this->jobRelations());
         $geography->apply($query, $validated);
         if ($request->has('company_id')) {$query->company($request->get('company_id'));}
         if ($request->has('job_type')) {$query->jobType($request->get('job_type'));}
@@ -69,7 +74,7 @@ class JobController extends Controller
         if ($request->filled('posted_within_days')) {$query->where('posted_at', '>=', now()->subDays((int) $request->get('posted_within_days')));}
         if ($request->has('technology_id')) {$query->withTechnology($request->get('technology_id'));}
         if ($request->has('category_id')) {$query->withCategory($request->get('category_id'));}
-        if ($request->has('q')) {$query->search($request->get('q'));}
+        if ($request->has('q')) {$indexed ? \App\Services\JobSkillVocabulary::applyToIndex($query, (string) $request->get('q')) : $query->search($request->get('q'));}
         if ($request->filled('salary_min')) {$query->where('salary_max', '>=', $request->get('salary_min'));}
         if ($request->filled('salary_max')) {$query->where('salary_min', '<=', $request->get('salary_max'));}
         $sortBy = $validated['sort_by'] ?? 'posted_at';
@@ -78,7 +83,13 @@ class JobController extends Controller
         elseif ($sortBy === 'salary') {$query->orderBy('salary_max', $sortOrder);} 
         elseif ($sortBy === 'views') {$query->orderBy('views', $sortOrder);}
         $perPage = $validated['per_page'] ?? 50;
-        $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()), DiscoveryCache::ttl(), fn () => $query->paginate($perPage));
+        $jobs = Cache::remember(DiscoveryCache::key('jobs.index', $request->query()), DiscoveryCache::ttl(), function () use ($query, $perPage, $indexed) {
+            if (!$indexed) return $query->paginate($perPage);
+            $page = $query->select('jobs.id')->paginate($perPage);
+            $ids = $page->getCollection()->pluck('id')->all();
+            $rows = $ids ? Job::with($this->jobRelations())->whereIntegerInRaw('id', $ids)->get()->keyBy('id') : collect();
+            return $page->setCollection(collect($ids)->map(fn ($id) => $rows->get($id))->filter()->values());
+        });
         $syncing = [];
         if ($request->filled('q') && $jobs->currentPage() === 1) {
             // Searched a known company whose openings were never imported: fetch its careers feed now.

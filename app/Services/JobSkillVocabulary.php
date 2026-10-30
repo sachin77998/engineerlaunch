@@ -44,6 +44,25 @@ final class JobSkillVocabulary
             fn ($term) => $term !== '' && (strlen($term) > 1 || $term === 'c')))), 0, 8);
     }
 
+    /**
+     * The same search on the job_search copy: one pass over its short text with LIKE (REGEXP over it took ~10s).
+     * Skill names match as whole words (java, not javascript); other words anywhere, as on the jobs table.
+     */
+    public static function applyToIndex($query, string $input)
+    {
+        foreach (self::terms($input) as $term) {
+            $query->where(function ($nested) use ($term) {
+                if (isset(self::GROUPS[$term])) {
+                    // The copy carries the canonical name for every spelling (JobSearchIndex::text).
+                    $nested->where('search_text', 'like', '% ' . addcslashes($term, '%_\\') . ' %');
+                } else {
+                    $nested->where('search_text', 'like', '%' . addcslashes(JobSearchIndex::normalize($term), '%_\\') . '%');
+                }
+            });
+        }
+        return $query;
+    }
+
     public static function variants(string $name): array
     {
         foreach (self::GROUPS as $canonical => $variants) {

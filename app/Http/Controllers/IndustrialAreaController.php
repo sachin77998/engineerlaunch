@@ -315,7 +315,7 @@ class IndustrialAreaController extends Controller
         $hasFacilities = \Illuminate\Support\Facades\Schema::hasTable('company_facilities');
         $hasJobs = \Illuminate\Support\Facades\Schema::hasTable('jobs');
         // Open jobs per location, counted once: a LIKE '%city%' count per area scans the whole jobs table each time.
-        $jobsByLocation = $hasJobs ? \Illuminate\Support\Facades\Cache::remember('industrial-city-activity:jobs-by-location', now()->addHour(),
+        $jobsByLocation = $hasJobs ? \App\Support\Stale::remember('industrial-city-activity:jobs-by-location', now()->addHour(),
             function () {
                 $counts = [];
                 // Grouped on the raw column so MySQL reads only jobs_open_location_index; lower-cased here.
@@ -329,7 +329,7 @@ class IndustrialAreaController extends Controller
             $area->setAttribute('activity_city', $city);
             if ($city === '') { $area->setAttribute('catalog_companies_count', 0); $area->setAttribute('city_jobs_count', 0); continue; }
             $key = 'industrial-city-activity:v2:' . \Illuminate\Support\Str::slug($city);
-            [$companies, $jobs] = \Illuminate\Support\Facades\Cache::remember($key, now()->addHour(), function () use ($hasFacilities, $city, $jobsByLocation) {
+            [$companies, $jobs] = \App\Support\Stale::remember($key, now()->addHour(), function () use ($hasFacilities, $city, $jobsByLocation) {
                 $needle = mb_strtolower($city);
                 $jobs = 0;
                 foreach ($jobsByLocation as $place => $n) if (str_contains((string) $place, $needle)) $jobs += (int) $n;

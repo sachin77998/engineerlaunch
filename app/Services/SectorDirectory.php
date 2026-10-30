@@ -31,15 +31,22 @@ class SectorDirectory
     /** Sectors with subsectors, company counts and a few company names per subsector. */
     public function tree(): Collection
     {
-        return Cache::remember($this->key('tree'), now()->addHours(6), function () {
-            return CompanyCategory::where('taxonomy', SectorCatalogImporter::TAXONOMY)->whereNull('parent_id')->where('is_active', true)
-                ->withCount(['companies' => fn ($q) => $q->active()])
-                ->with(['children' => fn ($q) => $q->where('is_active', true)->withCount(['companies' => fn ($c) => $c->active()])])
-                ->orderBy('sort_order')->get()
-                ->map(function (CompanyCategory $sector) {
-                    $sector->children->each(fn ($child) => $child->setAttribute('preview', $child->companies()->active()->orderBy('name')->limit(8)->pluck('name')->all()));
-                    return $sector;
-                });
+        return \App\Support\Stale::remember($this->key('tree'), now()->addHours(6), function () {
+            $sectors = CompanyCategory::where('taxonomy', SectorCatalogImporter::TAXONOMY)->whereNull('parent_id')->where('is_active', true)
+                ->with(['children' => fn ($q) => $q->where('is_active', true)])->orderBy('sort_order')->get();
+            // Company counts in one grouped pass over the pivot: a counting subquery per category took ~3s per level.
+            $ids = $sectors->pluck('id')->merge($sectors->flatMap(fn ($sector) => $sector->children->pluck('id')))->all();
+            $counts = $ids ? \Illuminate\Support\Facades\DB::table('company_category_company as ccc')->join('companies as c', 'c.id', '=', 'ccc.company_id')
+                ->where('c.is_active', true)->whereIn('ccc.company_category_id', $ids)->groupBy('ccc.company_category_id')
+                ->pluck(\Illuminate\Support\Facades\DB::raw('COUNT(*)'), 'ccc.company_category_id') : collect();
+            return $sectors->each(function (CompanyCategory $sector) use ($counts) {
+                $sector->setAttribute('companies_count', (int) ($counts[$sector->id] ?? 0));
+                // A few names per subsector, read in catalog order on the pivot's primary key (sorting every company of a
+                // large subsector by name took seconds each), then shown alphabetically.
+                $sector->children->each(fn ($child) => $child->setAttribute('companies_count', (int) ($counts[$child->id] ?? 0))
+                    ->setAttribute('preview', \Illuminate\Support\Facades\DB::table('company_category_company as ccc')->join('companies as c', 'c.id', '=', 'ccc.company_id')
+                        ->where('ccc.company_category_id', $child->id)->where('c.is_active', true)->orderBy('ccc.company_id')->limit(8)->pluck('c.name')->sort()->values()->all()));
+            });
         });
     }
 
@@ -162,7 +169,7 @@ class SectorDirectory
     public function liveRoles(Collection $categoryIds, int $limit = 36): array
     {
         if ($categoryIds->isEmpty()) return [];
-        return Cache::remember($this->key('live-roles:' . md5($categoryIds->sort()->implode(','))), now()->addHours(3), function () use ($categoryIds, $limit) {
+        return \App\Support\Stale::remember($this->key('live-roles:' . md5($categoryIds->sort()->implode(','))), now()->addHours(3), function () use ($categoryIds, $limit) {
             // Company ids first: an IN (subquery) here is re-run per index entry and takes tens of seconds.
             $companyIds = \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $categoryIds)->distinct()->pluck('company_id');
             if ($companyIds->isEmpty()) return [];
@@ -200,7 +207,7 @@ class SectorDirectory
     /** One catalog sector presented like a category card (its sub-categories with counts and logos). */
     public function sectorCard(CompanyCategory $sector): object
     {
-        return Cache::remember($this->key('sector-card:' . $sector->id), now()->addHours(6), fn () => $this->groupCard(
+        return \App\Support\Stale::remember($this->key('sector-card:' . $sector->id), now()->addHours(6), fn () => $this->groupCard(
             $sector->slug, ['name' => $sector->name, 'symbol' => $sector->symbol], $sector->children,
             $this->openingsByCategory($sector->children->pluck('id')), $this->previewCompanies($sector->children->pluck('id'))));
     }
@@ -225,7 +232,7 @@ class SectorDirectory
     private function openingsByCategory(Collection $categoryIds): array
     {
         if ($categoryIds->isEmpty()) return [];
-        $perCompany = Cache::remember($this->key('jobs-per-company'), now()->addMinutes(30),
+        $perCompany = \App\Support\Stale::remember($this->key('jobs-per-company'), now()->addMinutes(30),
             fn () => Job::active()->whereNotNull('company_id')->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id')->all());
         $totals = [];
         \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $categoryIds)
@@ -239,8 +246,23 @@ class SectorDirectory
     {
         // One small indexed query per sub-category: production has hundreds of thousands of registry companies,
         // so loading every company of every category at once would exhaust memory.
-        $hiring = array_keys(Cache::remember($this->key('jobs-per-company'), now()->addMinutes(30),
-            fn () => Job::active()->whereNotNull('company_id')->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id')->all()));
+        $perCompany = \App\Support\Stale::remember($this->key('jobs-per-company'), now()->addMinutes(30),
+            fn () => Job::active()->whereNotNull('company_id')->selectRaw('company_id, COUNT(*) as n')->groupBy('company_id')->pluck('n', 'company_id')->all());
+        // Hiring companies of every sub-category in one pivot read, most openings first; checking 5,000 hiring ids per
+        // sub-category took about a second each.
+        $hiringByCategory = [];
+        if ($perCompany) {
+            \Illuminate\Support\Facades\DB::table('company_category_company')->whereIn('company_category_id', $categoryIds)
+                ->whereIntegerInRaw('company_id', array_keys($perCompany))->get(['company_category_id', 'company_id'])
+                ->each(function ($row) use (&$hiringByCategory) { $hiringByCategory[$row->company_category_id][] = $row->company_id; });
+        }
+        $picked = [];
+        foreach ($hiringByCategory as $id => $companyIds) {
+            usort($companyIds, fn ($a, $b) => $perCompany[$b] <=> $perCompany[$a]);
+            $picked[$id] = array_slice($companyIds, 0, 12);
+        }
+        $details = $picked ? \Illuminate\Support\Facades\DB::table('companies')->whereIntegerInRaw('id', array_merge(...array_values($picked)))->where('is_active', true)
+            ->get(['id', 'name', 'slug', 'website', 'logo_url'])->keyBy('id') : collect();
         $previews = [];
         foreach ($categoryIds as $id) {
             $query = fn () => \Illuminate\Support\Facades\DB::table('company_category_company as ccc')
@@ -248,7 +270,7 @@ class SectorDirectory
                 ->where('ccc.company_category_id', $id)->where('companies.is_active', true)
                 ->select('companies.id', 'companies.name', 'companies.slug', 'companies.website', 'companies.logo_url');
             // Companies with live openings first, then companies with a website (they have a logo).
-            $rows = $hiring ? $query()->whereIn('companies.id', array_slice($hiring, 0, 5000))->limit(4)->get() : collect();
+            $rows = collect($picked[$id] ?? [])->map(fn ($companyId) => $details->get($companyId))->filter()->take(4)->values();
             if ($rows->count() < 4) {
                 $rows = $rows->merge($query()->whereNotIn('companies.id', $rows->pluck('id')->all() ?: [0])
                     ->orderByRaw('companies.website IS NULL')->orderBy('companies.id')->limit(4 - $rows->count())->get());
@@ -270,7 +292,7 @@ class SectorDirectory
     public function locations(): array
     {
         if (!$this->hasFacilities()) return ['states' => [], 'cities' => [], 'areas' => []];
-        return Cache::remember($this->key('locations'), now()->addHours(6), fn () => [
+        return \App\Support\Stale::remember($this->key('locations'), now()->addHours(6), fn () => [
             'states' => CompanyFacility::whereNotNull('state')->distinct()->orderBy('state')->pluck('state')->all(),
             'cities' => CompanyFacility::whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
             'areas' => CompanyFacility::whereNotNull('industrial_area')->distinct()->orderBy('industrial_area')->pluck('industrial_area')->all(),
@@ -281,7 +303,7 @@ class SectorDirectory
     public function hubs(int $limit = 48): Collection
     {
         if (!$this->hasFacilities()) return collect();
-        return Cache::remember($this->key('hubs:' . $limit), now()->addHours(6), fn () => CompanyFacility::query()
+        return \App\Support\Stale::remember($this->key('hubs:' . $limit), now()->addHours(6), fn () => CompanyFacility::query()
             ->whereNotNull('industrial_area')->whereHas('company', fn ($q) => $q->active())
             ->selectRaw('industrial_area, MAX(city) as city, MAX(state) as state, COUNT(DISTINCT company_id) as companies_count')
             ->groupBy('industrial_area')->orderByDesc('companies_count')->limit($limit)->get());

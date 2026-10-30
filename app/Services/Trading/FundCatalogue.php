@@ -131,7 +131,7 @@ class FundCatalogue
             DB::table('mf_collections')->updateOrInsert(['slug' => $slug], ['title' => $title, 'description' => $description, 'icon' => $icon,
                 'rules' => json_encode($rules), 'sort_order' => ++$sort, 'is_active' => true, 'fund_count' => $count, 'updated_at' => $now, 'created_at' => $now]);
         }
-        foreach (['trading:fund-facets', 'trading:catalogue'] as $key) Cache::forget($key);
+        foreach (['trading:fund-facets', 'trading:catalogue'] as $key) \App\Support\Stale::forget($key);
         return ['schemes' => count($updates), 'amcs' => $amcs->count(), 'categories' => $cats->count(), 'rated' => $rated];
     }
 

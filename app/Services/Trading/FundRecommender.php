@@ -18,7 +18,7 @@ class FundRecommender
     public function for(MfScheme $scheme, int $limit = 6, array $excludeCodes = []): array
     {
         $key = 'trading:recommend:' . $scheme->scheme_code . ':' . md5(implode(',', $excludeCodes));
-        return Cache::remember($key, 3600, function () use ($scheme, $limit, $excludeCodes) {
+        return \App\Support\Stale::remember($key, 3600, function () use ($scheme, $limit, $excludeCodes) {
             $exclude = array_merge([$scheme->scheme_code], $excludeCodes);
             $base = fn () => MfScheme::where('is_active', true)->where('scheme_type', 'Open Ended')->where('asset_class', '!=', 'ETF')
                 ->whereNotIn('scheme_code', $exclude)

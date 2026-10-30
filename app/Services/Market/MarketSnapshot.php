@@ -16,7 +16,7 @@ class MarketSnapshot
     /** @return array<int, array{name:string, price:float, change:float, change_pct:float, time:?int}> */
     public function indices(array $symbols): array
     {
-        return Cache::remember('market-snapshot:indices:' . md5(implode(',', array_keys($symbols))), now()->addMinutes(15), function () use ($symbols) {
+        return \App\Support\Stale::remember('market-snapshot:indices:' . md5(implode(',', array_keys($symbols))), now()->addMinutes(15), function () use ($symbols) {
             $out = [];
             // All indices requested in parallel: one slow answer must not add up.
             try {
@@ -42,7 +42,7 @@ class MarketSnapshot
     /** NSE stocks: breadth, top gainers / losers (₹1,000 Cr+ turnover-ranked universe) and most active by value. */
     public function india(): array
     {
-        return Cache::remember('market-snapshot:india:' . DB::table('market_instruments')->max('updated_at'), now()->addMinutes(30), function () {
+        return \App\Support\Stale::remember('market-snapshot:india:' . DB::table('market_instruments')->max('updated_at'), now()->addMinutes(30), function () {
             $base = fn () => DB::table('market_instruments')->where('exchange', 'NSE')->where('instrument_type', 'STOCK')->where('is_active', true)->whereNotNull('change_pct');
             return [
                 'up' => $base()->where('change_pct', '>', 0)->count(), 'down' => $base()->where('change_pct', '<', 0)->count(),

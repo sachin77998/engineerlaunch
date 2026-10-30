@@ -9,11 +9,46 @@ use Illuminate\Support\Str;
 // The user picks a biller, enters the customer ID and continues to the biller's official payment page.
 class BillPaymentController extends Controller
 {
-    private const ORDER = ['mobile', 'dth', 'fastag', 'ncmc', 'prepaidmeter', 'ev', 'metro', 'tolltag', 'electricity', 'broadband', 'gas', 'water', 'loan', 'insurance', 'cabletv', 'municipal', 'creditcard', 'cylinder', 'challan'];
+    private const ORDER = [
+        'mobile',
+        'dth',
+        'fastag',
+        'ncmc',
+        'prepaidmeter',
+        'ev',
+        'metro',
+        'tolltag',
+        'electricity',
+        'broadband',
+        'gas',
+        'water',
+        'loan', 
+        'insurance',
+        'cabletv', 
+        'municipal',
+        'creditcard',
+        'cylinder', 
+        'challan'
+           ];
     // The icon row (as on bill-pay apps); everything else is in the More menu.
-    public const PRIMARY = ['mobile', 'fastag', 'dth', 'electricity', 'loan', 'insurance', 'gas', 'cylinder', 'water', 'broadband', 'challan'];
-    public const GROUPS = ['recharge' => 'Recharges', 'bills' => 'Bill Payments', 'more' => 'Book & Pay'];
-
+    public const PRIMARY = [
+        'mobile',
+        'fastag',
+        'dth',
+        'electricity',
+        'loan',
+        'insurance',
+        'gas',
+        'cylinder',
+        'water',
+        'broadband',
+        'challan'
+        ];
+    public const GROUPS = [
+        'recharge' => 'Recharges',
+        'bills' => 'Bill Payments',
+        'more' => 'Book & Pay'
+        ];
     public function index(Request $request)
     {
         $q = mb_strtolower(trim((string) $request->query('q')));
@@ -21,7 +56,6 @@ class BillPaymentController extends Controller
         $cityMatches = $q === '' ? collect() : $this->cities()->filter(fn ($c) => str_contains(mb_strtolower($c['name'] . ' ' . $c['body']), $q))->values();
         return view('bills.index', ['categories' => $this->categories(), 'cities' => $this->cities(), 'q' => $q, 'matches' => $matches, 'cityMatches' => $cityMatches]);
     }
-
     public function category(Request $request, string $category)
     {
         $cat = $this->categories()[$category] ?? abort(404);
@@ -32,15 +66,15 @@ class BillPaymentController extends Controller
         return view('bills.category', ['categories' => $this->categories(), 'key' => $category, 'cat' => $cat,
             'billers' => $state ? $billers->where('state', $state)->values() : $billers, 'states' => $states, 'state' => $state, 'selected' => $selected]);
     }
-
     public function city(string $slug)
     {
         $city = $this->cities()->firstWhere('slug', $slug) ?? abort(404);
-        return view('bills.city', ['categories' => $this->categories(), 'city' => $city,
+        return view('bills.city', [
+            'categories' => $this->categories(),
+            'city' => $city,
             'services' => config('bill_payments.state_services.' . $city['state'], []),
             'others' => $this->cities()->where('state', $city['state'])->where('slug', '!=', $slug)->values()]);
     }
-
     private function categories(): array
     {
         return collect(config('bill_payments.categories'))->map(fn ($c, $key) => array_merge($c, ['key' => $key,

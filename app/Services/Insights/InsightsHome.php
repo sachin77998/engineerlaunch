@@ -28,14 +28,14 @@ class InsightsHome
     /** Latest credit-rating actions (ICRA / CARE), for the dashboard's daily feed. */
     private function ratingActions()
     {
-        return Cache::remember('insights-home:ratings', now()->addMinutes(30), fn () => \App\Models\CreditRating::where('parse_status', 'parsed')
+        return \App\Support\Stale::remember('insights-home:ratings', now()->addMinutes(30), fn () => \App\Models\CreditRating::where('parse_status', 'parsed')
             ->whereNotNull('published_on')->with('company:id,name,slug')->orderByDesc('published_on')->orderByDesc('id')->limit(12)
             ->get(['id', 'company_id', 'agency', 'entity_name', 'published_on', 'action', 'rating_long', 'rating_short', 'outlook', 'previous_rating_long', 'source_url']));
     }
 
     private function snapshot(): array
     {
-        return Cache::remember('insights-home:snapshot', now()->addMinutes(30), function () {
+        return \App\Support\Stale::remember('insights-home:snapshot', now()->addMinutes(30), function () {
             $count = fn (string $table, ?callable $where = null) => rescue(fn () => ($where ? $where(DB::table($table)) : DB::table($table))->count(), 0, false);
             return [
                 ['Companies', $count('companies'), 'India & global', '🏢', route('insights.explore', 'companies')],
@@ -53,7 +53,7 @@ class InsightsHome
     /** Companies per top-level sector (for the trends chart). */
     private function sectors(): array
     {
-        return Cache::remember('insights-home:sectors', now()->addHours(6), fn () => rescue(fn () => DB::table('company_category_company as cc')
+        return \App\Support\Stale::remember('insights-home:sectors', now()->addHours(6), fn () => rescue(fn () => DB::table('company_category_company as cc')
             ->join('company_categories as c', 'c.id', '=', 'cc.company_category_id')->whereNull('c.parent_id')->where('c.taxonomy', 'sector')
             ->where('c.name', '!=', 'Other Industries')->groupBy('c.name')->orderByRaw('COUNT(*) DESC')->limit(10)
             ->selectRaw('c.name, COUNT(*) as n')->pluck('n', 'name')->all(), [], false));
