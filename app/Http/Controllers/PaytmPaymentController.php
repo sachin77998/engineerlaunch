@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-// Paytm checkout for premium orders. The amount always comes from the stored order, never from the browser, and an
+// Paytm checkout for premium orders and Home Building store orders (payable_type material_order). The amount always comes from the stored order, never from the browser, and an
 // order is marked paid only after Paytm's Transaction Status API confirms success (the callback alone is not trusted).
 class PaytmPaymentController extends Controller
 {
@@ -71,6 +71,11 @@ class PaytmPaymentController extends Controller
                 'gateway_response' => ['status' => $s['raw'], 'callback' => $callback ?: null]];
             if ($s['status'] === 'success' && $paidPaise === $payment->amount_paise) {
                 $payment->update($update + ['status' => 'success', 'verified_at' => now()]);
+                if ($payment->payable_type === 'material_order') {
+                    $order = \App\Models\MaterialOrder::lockForUpdate()->find($payment->payable_id);
+                    if ($order) app(\App\Services\Materials\MaterialStore::class)->markPaid($order, (string) $s['txn_id']);
+                    return;
+                }
                 $order = PremiumOrder::lockForUpdate()->find($payment->payable_id);
                 if ($order && $order->status === 'created') {
                     $order->update(['status' => 'paid', 'gateway' => 'paytm', 'gateway_order_id' => $payment->order_id, 'gateway_payment_id' => $s['txn_id'], 'paid_at' => now()]);
@@ -87,6 +92,16 @@ class PaytmPaymentController extends Controller
 
     private function finish(Payment $payment, ?string $error = null)
     {
+        if ($payment->payable_type === 'material_order') {
+            $order = \App\Models\MaterialOrder::find($payment->payable_id);
+            $route = $order ? route('materials.orders.show', $order) : route('materials.orders');
+            return match (true) {
+                $error !== null => redirect($route)->withErrors(['payment' => $error]),
+                $payment->status === 'success' => redirect($route)->with('success', 'Payment received. Your order is confirmed.'),
+                $payment->status === 'failed' => redirect($route)->withErrors(['payment' => 'The payment did not go through. You can try again or pay on delivery.']),
+                default => redirect($route)->with('warning', 'Your payment is being confirmed by the bank. This page will update once Paytm confirms it.'),
+            };
+        }
         $order = PremiumOrder::find($payment->payable_id);
         $route = $order ? route('premium.pay', $order->order_no) : route('premium.index');
         return match (true) {

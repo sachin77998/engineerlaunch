@@ -55,6 +55,8 @@ class RouteServiceProvider extends ServiceProvider
             RateLimiter::for($name, fn (Request $request) => Limit::perMinute($perMinute)->by($name . ':' . ($request->user()?->id ?: $request->ip())));
         }
 
+        // Home Building: PIN code checks and material-list changes, on their own counter.
+        RateLimiter::for('materials', fn (Request $request) => Limit::perMinute(120)->by('materials:' . ($request->user()?->id ?: $request->ip())));
         // Company report downloads build a PDF / workbook per request.
         RateLimiter::for('reports', fn (Request $request) => Limit::perMinute(10)->by('reports:' . ($request->user()?->id ?: $request->ip())));
         // Sign-in steps each have their own counter (unnamed throttle:N,1 limits share one per-IP counter across routes, so a

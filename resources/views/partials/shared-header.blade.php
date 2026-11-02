@@ -17,8 +17,8 @@
         'Resume Builder' => [['resume.*'], [
             ['resume.builder', 'Resume Builder'], ['resume.builder', 'ATS-Friendly Resume', [], 'ats-preview'],
         ]],
-        'Explore' => [['company.experiences.*', 'news.*'], [
-            ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'], ['market.index', 'Market Data (Sales & Prices)'], ['technologies.index', 'Jobs by Language & Technology'],
+        'Explore' => [['company.experiences.*', 'news.*', 'materials.*'], [
+            ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'], ['market.index', 'Market Data (Sales & Prices)'], ['technologies.index', 'Jobs by Language & Technology'], ['materials.index', 'Home Building: Materials & Cost'],
         ]],
         'About' => [['about', 'contact'], [['about', 'About Us'], ['contact', 'Contact']]],
     ];
@@ -123,7 +123,7 @@
             <div class="header-sub-links">
           @auth
             @if($isOwner)
-              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.approvals.index') }}">State approvals</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
+              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.materials.index') }}">Store orders (Home Building)</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.approvals.index') }}">State approvals</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
             @elseif($isEmployer)
               <a href="{{ route('employer.dashboard') }}">HR Dashboard</a><a href="{{ route('employer.assistant', 'job') }}">Post a Job (Assistant)</a><a href="{{ route('employer.assistant', 'company') }}">Company Profile (Assistant)</a><a href="{{ route('employer.jobs.create') }}">Detailed Job Form</a>
             @else

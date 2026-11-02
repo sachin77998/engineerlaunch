@@ -35,6 +35,48 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/bills', [\App\Http\Controllers\BillPaymentController::class, 'index'])->name('bills.index');
 Route::get('/bills/city/{slug}', [\App\Http\Controllers\BillPaymentController::class, 'city'])->where('slug', '[a-z0-9-]+')->name('bills.city');
 Route::get('/bills/{category}', [\App\Http\Controllers\BillPaymentController::class, 'category'])->where('category', '[a-z]+')->name('bills.category');
+// Home Building: construction materials with live store prices, price lists, build-cost calculator, estimators and a material list.
+Route::prefix('materials')->name('materials.')->controller(\App\Http\Controllers\MaterialsController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/search', 'search')->name('search');
+    Route::get('/category/{slug}', 'category')->where('slug', '[a-z0-9-]+')->name('category');
+    Route::get('/price-lists', 'priceLists')->name('price-lists');
+    Route::get('/price-list/{slug}', 'priceList')->where('slug', '[a-z0-9-]+')->name('price-list');
+    Route::get('/construction-cost-calculator', 'calculator')->name('calculator');
+    Route::get('/estimator/{type}', 'estimator')->where('type', '[a-z]+')->name('estimator');
+    Route::get('/pincode', 'pincode')->middleware('throttle:materials')->name('pincode');
+    Route::get('/list', 'list')->name('list');
+    Route::post('/list', 'listAdd')->middleware('throttle:materials')->name('list.add');
+    Route::post('/list/update', 'listUpdate')->middleware('throttle:materials')->name('list.update');
+    Route::post('/list/clear', 'listClear')->middleware('throttle:materials')->name('list.clear');
+    Route::get('/list/export', 'listExport')->name('list.export');
+    Route::get('/categories', 'categories')->name('categories');
+    Route::get('/suggest', 'suggest')->middleware('throttle:materials')->name('suggest');
+});
+// Home Building store: checkout, orders (Paytm or pay on delivery), reviews, feedback; owner's back office.
+Route::prefix('materials')->name('materials.')->controller(\App\Http\Controllers\MaterialShopController::class)->group(function () {
+    Route::post('/feedback', 'feedback')->middleware('throttle:materials')->name('feedback');
+    Route::middleware('auth')->group(function () {
+        Route::get('/checkout', 'checkout')->name('checkout');
+        Route::post('/checkout', 'place')->middleware('throttle:materials')->name('checkout.place');
+        Route::get('/orders', 'orders')->name('orders');
+        Route::get('/orders/{order:order_no}', 'order')->name('orders.show');
+        Route::post('/orders/{order:order_no}/pay', 'pay')->middleware('throttle:20,1')->name('orders.pay');
+        Route::post('/orders/{order:order_no}/cod', 'switchToCod')->middleware('throttle:materials')->name('orders.cod');
+        Route::post('/orders/{order:order_no}/cancel', 'cancel')->middleware('throttle:materials')->name('orders.cancel');
+        Route::post('/orders/{order:order_no}/reorder', 'reorder')->middleware('throttle:materials')->name('orders.reorder');
+        Route::post('/{material:handle}/reviews', 'review')->where('material', '[A-Za-z0-9._-]+')->middleware('throttle:materials')->name('reviews.store');
+    });
+});
+// Product pages last, so /materials/checkout, /materials/orders… reach their own routes.
+Route::get('/materials/{material:handle}', [\App\Http\Controllers\MaterialsController::class, 'show'])->where('material', '[A-Za-z0-9._-]+')->name('materials.show');
+Route::middleware(['auth', 'admin'])->prefix('admin/materials')->name('admin.materials.')->controller(\App\Http\Controllers\MaterialAdminController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/orders/{order:order_no}', 'updateOrder')->name('orders.update');
+    Route::post('/feedback/{feedback}', 'replyFeedback')->name('feedback.update');
+    Route::post('/reviews/{review}', 'moderateReview')->name('reviews.update');
+    Route::post('/products/{material:handle}', 'updateProduct')->where('material', '[A-Za-z0-9._-]+')->name('products.update');
+});
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/{part}.xml', [\App\Http\Controllers\SitemapController::class, 'part'])->name('sitemap.part');
 Route::get('/robots.txt', fn () => response(implode("

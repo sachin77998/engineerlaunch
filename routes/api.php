@@ -147,3 +147,18 @@ Route::middleware('auth:sanctum')->prefix('trading')->name('api.trading.')->grou
     Route::post('/orders/{order}/cancel', [\App\Http\Controllers\Trading\TradingApiController::class, 'cancel'])->middleware('throttle:trading-otp')->name('orders.cancel');
     Route::patch('/orders/{order}/status', [\App\Http\Controllers\Trading\TradingApiController::class, 'updateStatus'])->middleware('throttle:trading-read')->name('orders.status');
 });
+
+// Home Building store API: categories, products, reviews, feedback, price quotes, and the signed-in customer's orders.
+Route::prefix('materials')->name('api.materials.')->middleware('throttle:materials')->controller(\App\Http\Controllers\Api\MaterialApiController::class)->group(function () {
+    Route::get('/categories', 'categories')->name('categories');
+    Route::get('/products', 'products')->name('products');
+    Route::get('/products/{material:handle}', 'product')->where('material', '[A-Za-z0-9._-]+')->name('product');
+    Route::get('/products/{material:handle}/reviews', 'reviews')->where('material', '[A-Za-z0-9._-]+')->name('reviews');
+    Route::post('/feedback', 'feedback')->name('feedback');
+    Route::post('/quote', 'quote')->name('quote');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/products/{material:handle}/reviews', 'storeReview')->where('material', '[A-Za-z0-9._-]+')->name('reviews.store');
+        Route::get('/orders', 'orders')->name('orders');
+        Route::get('/orders/{order:order_no}', 'order')->name('order');
+    });
+});

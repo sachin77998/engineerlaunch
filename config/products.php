@@ -59,4 +59,14 @@ return [
             ['Workflows', 'employer.hiring.workflows'], ['Onboarding & documents', 'employer.hiring.onboarding'],
         ],
     ],
+    [
+        'key' => 'build', 'title' => 'Home Building', 'badge' => 'BUILD', 'color' => '#ea580c', 'icon' => '🏗️',
+        'summary' => 'Buy cement, plywood, paint, wires, plumbing and hardware online — bulk prices, pay online or on delivery, a construction cost calculator and estimators.',
+        'details' => 'materials.index',
+        'features' => [
+            ['Construction cost calculator', 'materials.calculator'], ['Paint estimator', ['materials.estimator', 'paint']], ['Tile estimator', ['materials.estimator', 'tiles']],
+            ['Waterproofing estimator', ['materials.estimator', 'waterproofing']], ['Cement prices', ['materials.category', 'cement']], ['Plywood, MDF & HDHMR', ['materials.category', 'plywood-mdf-hdhmr']],
+            ['Wires & cables', ['materials.category', 'wires']], ['All categories', 'materials.categories'], ['Price lists by brand', 'materials.price-lists'], ['Cart', 'materials.list'], ['My orders', 'materials.orders'],
+        ],
+    ],
 ];

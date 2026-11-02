@@ -36,6 +36,7 @@ class AdminMaintenanceController extends Controller
         'news' => ['Refresh Latest Intelligence news (all topics; queued, also runs every 6 hours)', 'news:fetch-industry', ['--industry' => 'all', '--limit' => 10, '--queue' => true]],
         'parks' => ['Queue every IT park, SEZ and industrial area in all states (OpenStreetMap)', 'companies:discover', ['source' => 'parks']],
         'technologies' => ['Discover every language, framework and tool and match jobs to them', 'technologies:sync', []],
+        'materials' => ['Home Building: construction material products, prices, stock and bulk prices (HomeRun, about 20 minutes; also daily)', 'materials:sync', []],
         'trading' => ['Do Trading: mutual fund NAVs and returns (AMFI), NSE holidays and margins, allot orders', 'trading:sync', []],
         'nse-link' => ['Give every NSE-listed company a company page and sector (minutes)', 'insights:import-nse', ['--link' => true]],
         'gleif-world' => ['Queue registered companies worldwide by trade word (gears, axles, forging, castings, machining, software… all countries)', 'companies:discover', ['source' => 'gleif', '--gleif-trades' => true, '--trade-country' => ['WORLD', 'IN']]],
@@ -94,6 +95,9 @@ class AdminMaintenanceController extends Controller
             'Refresh every language, framework and tool with live job counts' => ['technologies:sync', ['--skip-discovery' => true]],
             'Rebuild skill graph for recommendations' => ['recommendations:build-skill-graph', []],
             'Refresh learning pages' => ['view:clear', []],
+        ]],
+        'materials' => ['Home Building', [
+            'Construction material prices, stock and bulk prices (changed products)' => ['materials:sync', []],
         ]],
         'trading' => ['Do Trading', [
             'Mutual fund NAVs, NSE holidays and margins; allot orders' => ['trading:sync', ['--holidays' => true, '--navs' => true, '--margins' => true, '--allot' => true]],

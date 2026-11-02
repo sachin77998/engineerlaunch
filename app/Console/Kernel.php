@@ -67,6 +67,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('companies:discover gleif --gleif-cities --gleif-country=AE --gleif-pages=10')->monthlyOn(2, '02:30')->withoutOverlapping(1440);
         // Every registered company in the world whose name carries a trade word (gears, axles, forging, software, ...).
         $schedule->command('companies:discover gleif --gleif-trades --trade-country=WORLD')->monthlyOn(15, '01:30')->withoutOverlapping(1440);
+        $schedule->command('materials:sync')->dailyAt('06:00')->timezone('Asia/Kolkata')->withoutOverlapping(120);
+        $schedule->command('materials:sync --all')->weeklyOn(0, '05:00')->timezone('Asia/Kolkata')->withoutOverlapping(180);
         $schedule->command('market:data fetch-metals')->dailyAt('10:30')->timezone('Asia/Kolkata')->withoutOverlapping(30);
         // Insights dashboard: index levels, movers and database counts stay cached, so no visitor waits for them.
         $schedule->call(fn () => rescue(fn () => app(\App\Services\Insights\InsightsHome::class)->build()))->everyTenMinutes()->name('insights-home-warm')->withoutOverlapping(10);
