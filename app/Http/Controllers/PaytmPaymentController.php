@@ -71,6 +71,14 @@ class PaytmPaymentController extends Controller
                 'gateway_response' => ['status' => $s['raw'], 'callback' => $callback ?: null]];
             if ($s['status'] === 'success' && $paidPaise === $payment->amount_paise) {
                 $payment->update($update + ['status' => 'success', 'verified_at' => now()]);
+                if ($payment->payable_type === 'rent_transfer') {
+                    $t = \App\Models\RentTransfer::lockForUpdate()->find($payment->payable_id);
+                    if ($t && $t->status === 'awaiting_payment') {
+                        $t->update(['status' => 'paid', 'paid_at' => now(), 'payment_id' => $payment->id]);
+                        \App\Jobs\SendRentPayout::dispatch($t->id)->afterCommit();
+                    }
+                    return;
+                }
                 if ($payment->payable_type === 'material_order') {
                     $order = \App\Models\MaterialOrder::lockForUpdate()->find($payment->payable_id);
                     if ($order) app(\App\Services\Materials\MaterialStore::class)->markPaid($order, (string) $s['txn_id']);
@@ -83,6 +91,7 @@ class PaytmPaymentController extends Controller
                 }
             } elseif ($s['status'] === 'failed') {
                 $payment->update($update + ['status' => 'failed']);
+                if ($payment->payable_type === 'rent_transfer') \App\Models\RentTransfer::whereKey($payment->payable_id)->where('status', 'awaiting_payment')->update(['status' => 'payment_failed']);
             } else {
                 // Pending, unknown, or an amount that does not match: never mark paid.
                 $payment->update($update);
@@ -92,6 +101,16 @@ class PaytmPaymentController extends Controller
 
     private function finish(Payment $payment, ?string $error = null)
     {
+        if ($payment->payable_type === 'rent_transfer') {
+            $t = \App\Models\RentTransfer::find($payment->payable_id);
+            $route = $t ? route('pay-rent.show', $t) : route('pay-rent.mine');
+            return match (true) {
+                $error !== null => redirect($route)->withErrors(['payment' => $error]),
+                $payment->status === 'success' => redirect($route)->with('success', 'Card payment received. We are sending the money to ' . $t?->payee_name . '.'),
+                $payment->status === 'failed' => redirect($route)->withErrors(['payment' => 'The card payment did not go through. Nothing was sent; you can try again.']),
+                default => redirect($route)->with('warning', 'Your card payment is being confirmed by the bank. This page will update once Paytm confirms it.'),
+            };
+        }
         if ($payment->payable_type === 'material_order') {
             $order = \App\Models\MaterialOrder::find($payment->payable_id);
             $route = $order ? route('materials.orders.show', $order) : route('materials.orders');

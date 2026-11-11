@@ -77,6 +77,185 @@ Route::middleware(['auth', 'admin'])->prefix('admin/materials')->name('admin.mat
     Route::post('/reviews/{review}', 'moderateReview')->name('reviews.update');
     Route::post('/products/{material:handle}', 'updateProduct')->where('material', '[A-Za-z0-9._-]+')->name('products.update');
 });
+// Property marketplace: search (Buy / Rent / Commercial), listing pages, posting a free ad and My properties.
+Route::controller(\App\Http\Controllers\PropertyController::class)->group(function () {
+    Route::get('/properties', 'index')->name('properties.index');
+    Route::get('/properties/suggest', 'suggest')->middleware('throttle:property-lookup')->name('properties.suggest');
+    Route::get('/properties/geocode', 'geocode')->middleware(['auth', 'throttle:property-geo'])->name('properties.geocode');
+    Route::get('/properties/shortlist', 'shortlisted')->middleware('auth')->name('properties.shortlist');
+    Route::get('/properties/{mode}/{city?}', 'search')->where(['mode' => 'buy|rent|commercial-rent|commercial-buy', 'city' => '[a-z0-9-]+'])->name('properties.search');
+    Route::get('/property/{property:slug}', 'show')->name('properties.show');
+    Route::post('/property/{property:slug}/phone', 'phone')->middleware(['auth', 'throttle:property-contact'])->name('properties.phone');
+    Route::post('/property/{property:slug}/message', 'message')->middleware('throttle:property-contact')->name('properties.message');
+    Route::post('/property/{property:slug}/report', 'report')->middleware('throttle:property-contact')->name('properties.report');
+    Route::post('/property/{property:slug}/shortlist', 'shortlist')->middleware('auth')->name('properties.shortlist.toggle');
+});
+// Locality reviews by residents.
+Route::controller(\App\Http\Controllers\LocalityReviewController::class)->group(function () {
+    Route::get('/localities/{city}/{locality}', 'show')->where(['city' => '[a-z0-9-]+', 'locality' => '[a-z0-9-]+'])->name('localities.show');
+    Route::get('/localities/{city}/{locality}/review', 'create')->middleware('auth')->where(['city' => '[a-z0-9-]+', 'locality' => '[a-z0-9-]+'])->name('localities.review');
+    Route::post('/localities/{city}/{locality}/review', 'store')->middleware(['auth', 'throttle:property-contact'])->where(['city' => '[a-z0-9-]+', 'locality' => '[a-z0-9-]+'])->name('localities.review.store');
+    Route::post('/locality-reviews/{review}/vote', 'vote')->middleware(['auth', 'throttle:property-contact'])->name('localities.vote');
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/admin/locality-reviews', 'admin')->name('admin.localities.index');
+        Route::post('/admin/locality-reviews/{review}', 'toggle')->name('admin.localities.toggle');
+    });
+});
+Route::middleware('auth')->controller(\App\Http\Controllers\PropertyPostController::class)->group(function () {
+    Route::get('/post-property', 'start')->name('properties.post');
+    Route::post('/post-property/contact', 'saveOwner')->name('properties.owner');
+    Route::post('/post-property', 'create')->name('properties.create');
+    Route::get('/my-properties', 'mine')->name('properties.mine');
+    Route::get('/my-properties/{id}/{step}', 'step')->whereNumber('id')->whereIn('step', ['details', 'location', 'rental', 'sale', 'rooms', 'amenities', 'gallery', 'additional', 'schedule'])->name('properties.step');
+    Route::post('/my-properties/{id}/{step}', 'save')->whereNumber('id')->whereIn('step', ['details', 'location', 'rental', 'sale', 'rooms', 'amenities', 'gallery', 'additional', 'schedule'])->name('properties.save');
+    Route::post('/my-properties/{id}/media', 'upload')->whereNumber('id')->middleware('throttle:property-upload')->name('properties.upload');
+    Route::post('/my-properties/{id}/media/{media}', 'media')->whereNumber('id')->name('properties.media');
+    Route::post('/my-properties/{id}/status/{action}', 'status')->whereNumber('id')->whereIn('action', ['close', 'reopen', 'delete'])->name('properties.status');
+});
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/properties', [\App\Http\Controllers\PropertyAdminController::class, 'index'])->name('admin.properties.index');
+    Route::post('/admin/properties/owners/{owner}/feature', [\App\Http\Controllers\PropertyAdminController::class, 'feature'])->name('admin.properties.feature');
+    Route::post('/admin/properties/{property:id}/reports', [\App\Http\Controllers\PropertyAdminController::class, 'resolveReports'])->name('admin.properties.reports');
+    Route::post('/admin/properties/{property:id}/verify', [\App\Http\Controllers\PropertyAdminController::class, 'verify'])->name('admin.properties.verify');
+    Route::post('/admin/properties/{property:id}', [\App\Http\Controllers\PropertyAdminController::class, 'status'])->name('admin.properties.status');
+});
+// Home loans: compare lenders, EMI / eligibility calculators and the application (income → offers → property → documents).
+Route::controller(\App\Http\Controllers\HomeLoanController::class)->group(function () {
+    Route::get('/home-loan', 'index')->name('home-loan.index');
+    Route::post('/home-loan', 'start')->middleware('throttle:home-loan')->name('home-loan.start');
+    Route::get('/home-loan/apply/{application}/{step}', 'step')->whereNumber('application')->whereIn('step', ['income', 'offers', 'property', 'documents'])->name('home-loan.step');
+    Route::post('/home-loan/apply/{application}/{step}', 'save')->whereNumber('application')->whereIn('step', ['income', 'offers', 'property', 'documents'])->middleware('throttle:home-loan')->name('home-loan.save');
+    Route::post('/home-loan/apply/{application}/upload', 'upload')->whereNumber('application')->middleware('throttle:home-loan')->name('home-loan.upload');
+    Route::get('/home-loan/documents/{document}', 'document')->whereNumber('document')->name('home-loan.document');
+    Route::post('/home-loan/documents/{document}/remove', 'removeDocument')->whereNumber('document')->name('home-loan.document.remove');
+    Route::get('/my-home-loans', 'mine')->middleware('auth')->name('home-loan.mine');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\HomeLoanAdminController::class)->group(function () {
+    Route::get('/admin/home-loans', 'index')->name('admin.home-loans.index');
+    Route::post('/admin/home-loans/banks', 'saveBank')->name('admin.home-loans.bank.create');
+    Route::post('/admin/home-loans/banks/{bank}', 'saveBank')->whereNumber('bank')->name('admin.home-loans.bank.update');
+    Route::post('/admin/home-loans/{application}', 'update')->whereNumber('application')->name('admin.home-loans.update');
+    Route::post('/admin/home-loans/{application}/delete', 'destroy')->whereNumber('application')->name('admin.home-loans.destroy');
+});
+// Property legal services: agreements, verification, deeds, registration, CA and khata services with a cart and bookings.
+Route::controller(\App\Http\Controllers\LegalServiceController::class)->group(function () {
+    Route::get('/legal-services/cart', 'cart')->name('legal.cart');
+    Route::post('/legal-services/cart/{service}', 'add')->middleware('throttle:home-loan')->name('legal.cart.add');
+    Route::post('/legal-services/cart/{service}/remove', 'remove')->name('legal.cart.remove');
+    Route::post('/legal-services/checkout', 'checkout')->middleware(['auth', 'throttle:home-loan'])->name('legal.checkout');
+    Route::get('/legal-services/bookings', 'bookings')->middleware('auth')->name('legal.bookings');
+    Route::post('/legal-services/bookings/{booking}/review', 'review')->whereNumber('booking')->middleware(['auth', 'throttle:home-loan'])->name('legal.bookings.review');
+    Route::post('/legal-services/bookings/{booking}/cancel', 'cancel')->whereNumber('booking')->middleware('auth')->name('legal.bookings.cancel');
+    Route::get('/legal/{city?}', 'index')->where('city', '[a-z0-9-]+')->name('legal.index');
+    Route::get('/legal/{city}/{service}', 'show')->where('city', '[a-z0-9-]+')->name('legal.show');
+});
+// Pay rent / tuition / maintenance by credit card (Paytm card charge → Cashfree payout; off until PAY_RENT_LIVE and both keys are set).
+Route::get('/pay-rent', [\App\Http\Controllers\PayRentController::class, 'index'])->name('pay-rent.index');
+Route::middleware('auth')->controller(\App\Http\Controllers\PayRentController::class)->group(function () {
+    Route::get('/pay-rent/payments', 'mine')->name('pay-rent.mine');
+    Route::get('/pay-rent/payments/{transfer:reference}', 'show')->name('pay-rent.show');
+    Route::post('/pay-rent/payments/{transfer:reference}/pay', 'pay')->middleware('throttle:home-loan')->name('pay-rent.pay');
+    Route::post('/pay-rent/payments/{transfer:reference}/delete', 'destroy')->name('pay-rent.destroy');
+    Route::get('/pay-rent/{purpose}', 'purpose')->where('purpose', '[a-z]+')->name('pay-rent.purpose');
+    Route::get('/pay-rent/{purpose}/{method}', 'form')->where(['purpose' => '[a-z]+', 'method' => 'contact|upi|bank'])->name('pay-rent.form');
+    Route::post('/pay-rent/{purpose}', 'store')->where('purpose', '[a-z]+')->middleware('throttle:home-loan')->name('pay-rent.store');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\PayRentAdminController::class)->group(function () {
+    Route::get('/admin/pay-rent', 'index')->name('admin.pay-rent.index');
+    Route::post('/admin/pay-rent/{transfer}/retry', 'retry')->whereNumber('transfer')->name('admin.pay-rent.retry');
+    Route::post('/admin/pay-rent/{transfer}/refunded', 'refunded')->whereNumber('transfer')->name('admin.pay-rent.refunded');
+});
+// Home interiors: design ideas, projects, room-wise estimator, style quiz and free quotes.
+Route::controller(\App\Http\Controllers\InteriorController::class)->group(function () {
+    Route::get('/interiors', 'index')->name('interiors.index');
+    Route::get('/interiors/ideas', 'ideas')->name('interiors.ideas');
+    Route::get('/interiors/ideas/{idea}', 'idea')->name('interiors.idea');
+    Route::get('/interiors/projects/{project}', 'project')->name('interiors.project');
+    Route::get('/interiors/estimator', 'estimator')->name('interiors.estimator');
+    Route::get('/interiors/style-quiz', 'quiz')->name('interiors.quiz');
+    Route::get('/interiors/quote', 'quote')->name('interiors.quote');
+    Route::post('/interiors/quote', 'storeQuote')->middleware('throttle:home-loan')->name('interiors.quote.store');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\InteriorAdminController::class)->group(function () {
+    Route::get('/admin/interiors', 'index')->name('admin.interiors.index');
+    Route::post('/admin/interiors/leads/{lead}', 'updateLead')->whereNumber('lead')->name('admin.interiors.lead');
+    Route::post('/admin/interiors/ideas', 'storeIdeas')->name('admin.interiors.ideas.store');
+    Route::post('/admin/interiors/ideas/{idea:id}', 'updateIdea')->name('admin.interiors.ideas.update');
+    Route::post('/admin/interiors/projects', 'storeProject')->name('admin.interiors.projects.store');
+    Route::post('/admin/interiors/projects/{project:id}', 'storeProject')->name('admin.interiors.projects.update');
+    Route::post('/admin/interiors/projects/{project:id}/delete', 'destroyProject')->name('admin.interiors.projects.destroy');
+});
+// Refer & Earn: owner contacts / board photos → verified by the owner → rewards → UPI withdrawals.
+Route::get('/refer-and-earn', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referrals.index');
+Route::middleware('auth')->controller(\App\Http\Controllers\ReferralController::class)->group(function () {
+    Route::post('/refer-and-earn', 'store')->middleware('throttle:home-loan')->name('referrals.store');
+    Route::get('/refer-and-earn/mine', 'mine')->name('referrals.mine');
+    Route::post('/refer-and-earn/withdraw', 'withdraw')->middleware('throttle:home-loan')->name('referrals.withdraw');
+    Route::get('/refer-and-earn/photos/{referral}', 'photo')->whereNumber('referral')->name('referrals.photo');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\ReferralAdminController::class)->group(function () {
+    Route::get('/admin/referrals', 'index')->name('admin.referrals.index');
+    Route::post('/admin/referrals/{referral}', 'review')->whereNumber('referral')->name('admin.referrals.review');
+    Route::post('/admin/referrals/withdrawals/{withdrawal}', 'settle')->whereNumber('withdrawal')->name('admin.referrals.settle');
+});
+// Home services: cleaning, packers & movers, painting, repairs, appliances, pest control — booked by date / time slot.
+Route::controller(\App\Http\Controllers\HomeServiceController::class)->group(function () {
+    Route::get('/home-services', 'index')->name('home-services.index');
+    Route::get('/home-services/bookings', 'bookings')->middleware('auth')->name('home-services.bookings');
+    Route::post('/home-services/bookings/{booking}/review', 'review')->whereNumber('booking')->middleware(['auth', 'throttle:home-loan'])->name('home-services.review');
+    Route::post('/home-services/bookings/{booking}/cancel', 'cancel')->whereNumber('booking')->middleware('auth')->name('home-services.cancel');
+    Route::get('/home-services/{city}', 'city')->where('city', '[a-z0-9-]+')->name('home-services.city');
+    Route::get('/home-services/{city}/{category}', 'category')->where(['city' => '[a-z0-9-]+', 'category' => '[a-z]+'])->name('home-services.category');
+    Route::post('/home-services/{city}/{category}', 'store')->where(['city' => '[a-z0-9-]+', 'category' => '[a-z]+'])->middleware(['auth', 'throttle:home-loan'])->name('home-services.store');
+});
+Route::get('/home-services-in-{city}', fn (string $city) => redirect()->route('home-services.city', $city, 301))->where('city', '[a-z0-9-]+');
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\HomeServiceAdminController::class)->group(function () {
+    Route::get('/admin/home-services', 'index')->name('admin.home-services.index');
+    Route::post('/admin/home-services/bookings/{booking}', 'update')->whereNumber('booking')->name('admin.home-services.update');
+    Route::post('/admin/home-services/reviews/{review}', 'toggleReview')->whereNumber('review')->name('admin.home-services.review');
+    Route::post('/admin/home-services/services/{service}', 'saveService')->whereNumber('service')->name('admin.home-services.service');
+});
+// Property forum: questions and answers by category, upvotes, best answers, reports and top authors.
+Route::controller(\App\Http\Controllers\ForumController::class)->group(function () {
+    Route::get('/forum', 'index')->name('forum.index');
+    Route::get('/forum/users/{user}', 'author')->whereNumber('user')->name('forum.author');
+    Route::middleware('auth')->group(function () {
+        Route::post('/forum/ask', 'ask')->middleware('throttle:home-loan')->name('forum.ask');
+        Route::post('/forum/questions/{question}/answers', 'answer')->whereNumber('question')->middleware('throttle:home-loan')->name('forum.answer');
+        Route::post('/forum/answers/{answer}/vote', 'vote')->whereNumber('answer')->middleware('throttle:property-contact')->name('forum.vote');
+        Route::post('/forum/answers/{answer}/best', 'best')->whereNumber('answer')->name('forum.best');
+        Route::post('/forum/answers/{answer}/delete', 'destroyAnswer')->whereNumber('answer')->name('forum.answer.destroy');
+        Route::post('/forum/report/{type}/{id}', 'report')->whereIn('type', ['question', 'answer'])->whereNumber('id')->middleware('throttle:property-contact')->name('forum.report');
+    });
+    Route::get('/forum/{category}', 'category')->where('category', '[a-z-]+')->name('forum.category');
+    Route::get('/forum/{category}/{question}', 'show')->where(['category' => '[a-z-]+', 'question' => '[0-9]+(-[a-z0-9-]+)?'])->name('forum.question');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\ForumAdminController::class)->group(function () {
+    Route::get('/admin/forum', 'index')->name('admin.forum.index');
+    Route::post('/admin/forum/{type}/{id}', 'moderate')->whereIn('type', ['question', 'answer'])->whereNumber('id')->name('admin.forum.moderate');
+});
+// Online rent agreements: calculator, drafting steps, preview and order (becomes a legal services booking).
+Route::controller(\App\Http\Controllers\RentAgreementController::class)->group(function () {
+    Route::get('/rent-agreement/{city?}', 'index')->where('city', '[a-z0-9-]+')->name('rent-agreement.index');
+    Route::middleware('auth')->group(function () {
+        Route::post('/rent-agreements', 'start')->middleware('throttle:home-loan')->name('rent-agreement.start');
+        Route::get('/rent-agreements/{agreement}/preview', 'preview')->whereNumber('agreement')->name('rent-agreement.preview');
+        Route::get('/rent-agreements/{agreement}/draft', 'draft')->whereNumber('agreement')->name('rent-agreement.draft');
+        Route::post('/rent-agreements/{agreement}/upload', 'upload')->whereNumber('agreement')->middleware('throttle:home-loan')->name('rent-agreement.upload');
+        Route::post('/rent-agreements/{agreement}/options', 'options')->whereNumber('agreement')->name('rent-agreement.options');
+        Route::post('/rent-agreements/{agreement}/delete', 'destroy')->whereNumber('agreement')->name('rent-agreement.destroy');
+        Route::get('/rent-agreements/{agreement}/{step}', 'step')->whereNumber('agreement')->whereIn('step', ['parties', 'property', 'terms', 'review'])->name('rent-agreement.step');
+        Route::post('/rent-agreements/{agreement}/{step}', 'save')->whereNumber('agreement')->whereIn('step', ['parties', 'property', 'terms', 'review'])->middleware('throttle:home-loan')->name('rent-agreement.save');
+    });
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\LegalAdminController::class)->group(function () {
+    Route::get('/admin/legal', 'index')->name('admin.legal.index');
+    Route::post('/admin/legal/bookings/{booking}', 'update')->whereNumber('booking')->name('admin.legal.update');
+    Route::post('/admin/legal/services/{service:id}', 'saveService')->name('admin.legal.service');
+    Route::post('/admin/legal/partners', 'savePartner')->name('admin.legal.partner.create');
+    Route::post('/admin/legal/partners/{partner}', 'savePartner')->whereNumber('partner')->name('admin.legal.partner.update');
+    Route::post('/admin/legal/reviews/{review}', 'toggleReview')->whereNumber('review')->name('admin.legal.review');
+});
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemaps/{part}.xml', [\App\Http\Controllers\SitemapController::class, 'part'])->name('sitemap.part');
 Route::get('/robots.txt', fn () => response(implode("
@@ -96,6 +275,11 @@ Route::get('/companies/{company:slug}', [CompanyDiscoveryController::class, 'sho
 // Insights into Company: registry, financials and ratios from MCA filings.
 Route::get('/company-insights', [\App\Http\Controllers\CompanyInsightsController::class, 'index'])->name('insights.index');
 Route::get('/company-insights/explore/{db}', [\App\Http\Controllers\InsightsExploreController::class, 'show'])->where('db', 'listed|companies|us|people')->name('insights.explore');
+// Funding rounds and investors read from funding news; registered before /company-insights/{company:slug}.
+Route::get('/company-insights/funding', [\App\Http\Controllers\FundingController::class, 'rounds'])->name('funding.rounds');
+Route::get('/company-insights/investors', [\App\Http\Controllers\FundingController::class, 'investors'])->name('funding.investors');
+Route::get('/company-insights/investors/{investor:slug}', [\App\Http\Controllers\FundingController::class, 'investor'])->name('funding.investor');
+Route::get('/company-insights/people-flags', [\App\Http\Controllers\FundingController::class, 'people'])->name('funding.people');
 // Do Trading: mutual funds (AMFI data), calculators, onboarding/KYC, orders. API endpoints answer JSON.
 Route::prefix('trading')->name('trading.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Trading\TradingController::class, 'index'])->name('index');

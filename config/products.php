@@ -60,6 +60,16 @@ return [
         ],
     ],
     [
+        'key' => 'property', 'title' => 'Property: Buy, Rent & Commercial', 'badge' => 'PROPERTY', 'color' => '#4338ca', 'icon' => '🏠',
+        'summary' => 'Flats, houses, plots, PG and flatmates, offices, shops and warehouses for rent or sale, straight from owners — or post your own property ad free.',
+        'details' => 'properties.index',
+        'features' => [
+            ['Buy a home or plot', ['properties.search', 'buy']], ['Rent a home', ['properties.search', 'rent']], ['PG / hostel & flatmates', ['properties.search', ['rent', 'kind' => 'pg']]],
+            ['Commercial for rent', ['properties.search', 'commercial-rent']], ['Commercial for sale', ['properties.search', 'commercial-buy']], ['Post free property ad', 'properties.post'],
+            ['Home loan: compare banks & EMI', 'home-loan.index'], ['Property legal services', 'legal.index'], ['Online rent agreement', 'rent-agreement.index'], ['Pay rent by credit card', 'pay-rent.index'], ['Home interiors & cost estimator', 'interiors.index'], ['Refer & earn', 'referrals.index'], ['Home services: cleaning, movers, repairs', 'home-services.index'], ['Property forum: ask & answer', 'forum.index'], ['My properties', 'properties.mine'], ['Shortlist', 'properties.shortlist'],
+        ],
+    ],
+    [
         'key' => 'build', 'title' => 'Home Building', 'badge' => 'BUILD', 'color' => '#ea580c', 'icon' => '🏗️',
         'summary' => 'Buy cement, plywood, paint, wires, plumbing and hardware online — bulk prices, pay online or on delivery, a construction cost calculator and estimators.',
         'details' => 'materials.index',

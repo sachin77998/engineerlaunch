@@ -53,6 +53,17 @@ return [
             'queries' => ['Meta Facebook news', 'WhatsApp new feature', 'Apple news', 'Google news announcement', 'Microsoft news'],
             'skills' => ['Product Management', 'Mobile Development', 'Data Science'], 'audience' => 'tech professionals',
         ],
+        // Read by insights:funding-rounds into the investor and funding-round pages.
+        'funding' => [
+            'name' => 'Startup Funding Rounds', 'category' => 'funding', 'icon' => '💰',
+            'queries' => ['startup raises seed funding', 'raises Series A funding led by', 'raises Series B funding led by', 'Series C funding round led by', 'raises crore funding round led by', 'pre-Series A round led by', 'startup bags funding India'],
+            'skills' => ['Product Management', 'Growth Marketing', 'Full Stack Development'], 'audience' => 'people tracking startups and investors',
+        ],
+        'funding-global' => [
+            'name' => 'Global Venture Funding', 'category' => 'funding', 'icon' => '🌍', 'edition' => 'US',
+            'queries' => ['startup raises Series A led by', 'raises Series B led by', 'raises seed round led by', 'Series C funding led by', 'raises growth round led by'],
+            'skills' => ['Product Management', 'AI/ML', 'Software Engineering'], 'audience' => 'people tracking startups and investors',
+        ],
         'startups' => [
             'name' => 'Startups & E-commerce Investment', 'category' => 'startups-ecommerce', 'icon' => '🛒',
             'queries' => ['Flipkart investment', 'Zomato news', 'Navi fintech news', 'Myntra news', 'Swiggy news', 'startup funding India'],

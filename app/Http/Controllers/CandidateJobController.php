@@ -10,15 +10,16 @@ use Illuminate\Support\Facades\DB;
 
 class CandidateJobController extends Controller
 {
-    public function show(Job $job, SimilarJobRecommendationService $recommendationsService)
+    public function show(Job $job, SimilarJobRecommendationService $recommendationsService, \App\Services\CoApplicationRecommendationService $coApplied)
     {
         abort_unless($job->is_active && $job->status === 'published' && $job->job_visibility === 'public', 404);
         $job->load(['company' => fn($query) => $query->withAvg('publishedReviews', 'rating')->withCount('publishedReviews'), 'skills', 'locations', 'screeningQuestions']);
         $job->incrementViews();
         $recommendations = $recommendationsService->for($job, auth()->id(), 15)->filter(fn(Job $recommended) => filled($recommended->slug))->values();
+        $alsoApplied = $coApplied->for($job, auth()->id(), 10);
         $companyReviews = $job->company->publishedReviews()->with('reviewer:id,name')->latest()->limit(10)->get();
         $myCompanyReview = auth()->check() ? $job->company->reviews()->where('user_id', auth()->id())->first() : null;
-        return view('jobs.show', compact('job', 'recommendations', 'companyReviews', 'myCompanyReview'));
+        return view('jobs.show', compact('job', 'recommendations', 'alsoApplied', 'companyReviews', 'myCompanyReview'));
     }
     public function apply(Request $r, Job $job)
     {

@@ -269,6 +269,7 @@ class CompanyInsightsController extends Controller
             'careAssessment' => rescue(fn () => app(\App\Services\Insights\CareAssessment::class)->stored($company, $premium), null),
             'nseListing' => rescue(fn () => \Illuminate\Support\Facades\DB::table('listed_companies')->where('company_id', $company->id)->first(['symbol', 'last_price']), null, false),
             'funding' => rescue(fn () => app(\App\Services\Insights\FundingLifecycle::class)->build($company, $premium), null),
+            'equityRounds' => rescue(fn () => $company->fundingRounds()->with('investors:id,name,slug')->get(), collect(), false),
             'premium' => $premium, 'peers' => $premium ? $this->insights->peers($company) : collect(),
             'company' => $company, 'cin' => $cin, 'subsidiaries' => $subsidiaries, 'parent' => $parent, 'parentName' => $m[1] ?? null,
             'health' => $this->insights->health($ratios, $company->registryDetail, $company->charges),

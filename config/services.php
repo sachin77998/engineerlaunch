@@ -165,4 +165,12 @@ return [
         'website' => env('PAYTM_WEBSITE', 'WEBSTAGING'),
         'callback_url' => env('PAYTM_CALLBACK_URL'),
     ],
+
+    // Cashfree Payouts (your own account): sends rent / tuition money to the payee's bank account or UPI ID.
+    'cashfree_payouts' => [
+        'environment' => env('CASHFREE_PAYOUTS_ENV', 'sandbox'),
+        'client_id' => env('CASHFREE_PAYOUTS_CLIENT_ID'),
+        'client_secret' => env('CASHFREE_PAYOUTS_CLIENT_SECRET'),
+        'api_version' => env('CASHFREE_PAYOUTS_API_VERSION', '2024-01-01'),
+    ],
 ];

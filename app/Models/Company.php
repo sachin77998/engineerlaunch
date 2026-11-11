@@ -175,6 +175,11 @@ class Company extends Model
     {
         return $this->hasMany(CompanyCharge::class)->orderByDesc('created_on');
     }
+
+    public function fundingRounds(): HasMany
+    {
+        return $this->hasMany(FundingRound::class)->orderByDesc('announced_on');
+    }
     public function auditors(): HasMany
     {
         return $this->hasMany(CompanyAuditor::class)->orderByDesc('financial_year');

@@ -56,6 +56,12 @@ class RouteServiceProvider extends ServiceProvider
         }
 
         // Home Building: PIN code checks and material-list changes, on their own counter.
+        // Property marketplace: contacting owners, locality lookups, map search and photo uploads each keep their own counter.
+        RateLimiter::for('property-contact', fn (Request $request) => [Limit::perMinute(20)->by('property-contact:' . ($request->user()?->id ?: $request->ip())), Limit::perDay(300)->by('property-contact-d:' . ($request->user()?->id ?: $request->ip()))]);
+        RateLimiter::for('property-lookup', fn (Request $request) => Limit::perMinute(120)->by('property-lookup:' . ($request->user()?->id ?: $request->ip())));
+        RateLimiter::for('property-geo', fn (Request $request) => Limit::perMinute(10)->by('property-geo:' . $request->user()?->id));
+        RateLimiter::for('property-upload', fn (Request $request) => Limit::perMinute(20)->by('property-upload:' . $request->user()?->id));
+        RateLimiter::for('home-loan', fn (Request $request) => [Limit::perMinute(30)->by('home-loan:' . ($request->user()?->id ?: $request->ip())), Limit::perDay(200)->by('home-loan-d:' . ($request->user()?->id ?: $request->ip()))]);
         RateLimiter::for('materials', fn (Request $request) => Limit::perMinute(120)->by('materials:' . ($request->user()?->id ?: $request->ip())));
         // Company report downloads build a PDF / workbook per request.
         RateLimiter::for('reports', fn (Request $request) => Limit::perMinute(10)->by('reports:' . ($request->user()?->id ?: $request->ip())));

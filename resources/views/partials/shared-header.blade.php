@@ -17,6 +17,9 @@
         'Resume Builder' => [['resume.*'], [
             ['resume.builder', 'Resume Builder'], ['resume.builder', 'ATS-Friendly Resume', [], 'ats-preview'],
         ]],
+        'Property' => [['properties.*', 'home-loan.*', 'legal.*', 'rent-agreement.*', 'pay-rent.*', 'interiors.*', 'referrals.*', 'home-services.*', 'forum.*'], [
+            ['properties.search', 'Buy', ['buy']], ['properties.search', 'Rent', ['rent']], ['properties.search', 'Commercial', ['commercial-rent']], ['home-loan.index', 'Home loan'], ['legal.index', 'Legal services'], ['rent-agreement.index', 'Rent agreement'], ['pay-rent.index', 'Pay rent by card'], ['interiors.index', 'Home interiors'], ['referrals.index', 'Refer & earn'], ['home-services.index', 'Home services'], ['forum.index', 'Property forum'], ['properties.post', 'Post free property ad'],
+        ]],
         'Explore' => [['company.experiences.*', 'news.*', 'materials.*'], [
             ['company.experiences.index', 'Company Experiences'], ['news.index', 'Latest in Tech'], ['market.index', 'Market Data (Sales & Prices)'], ['technologies.index', 'Jobs by Language & Technology'], ['materials.index', 'Home Building: Materials & Cost'],
         ]],
@@ -123,7 +126,7 @@
             <div class="header-sub-links">
           @auth
             @if($isOwner)
-              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.materials.index') }}">Store orders (Home Building)</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.approvals.index') }}">State approvals</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
+              <a href="{{ route('admin.dashboard') }}">Owner Dashboard</a><a href="{{ route('admin.properties.index') }}">Property listings</a><a href="{{ route('admin.localities.index') }}">Locality reviews</a><a href="{{ route('admin.home-loans.index') }}">Home loan applications</a><a href="{{ route('admin.legal.index') }}">Legal service bookings</a><a href="{{ route('admin.pay-rent.index') }}">Card rent payments</a><a href="{{ route('admin.interiors.index') }}">Interiors leads &amp; gallery</a><a href="{{ route('admin.referrals.index') }}">Refer &amp; earn</a><a href="{{ route('admin.home-services.index') }}">Home service bookings</a><a href="{{ route('admin.forum.index') }}">Forum moderation</a><a href="{{ route('admin.visitors') }}">Visitor log</a><a href="{{ route('admin.methodology.index') }}">Credit methodology</a><a href="{{ route('admin.money-rules.index') }}">Money rules</a><a href="{{ route('admin.premium.orders') }}">Premium orders</a><a href="{{ route('admin.materials.index') }}">Store orders (Home Building)</a><a href="{{ route('admin.insurers') }}">Insurer figures</a><a href="{{ route('admin.industrial.index') }}">Industrial Manager</a><a href="{{ route('admin.approvals.index') }}">State approvals</a><a href="{{ route('admin.job-sources') }}">Job Sources</a><a href="{{ route('admin.maintenance') }}">Production Setup</a>
             @elseif($isEmployer)
               <a href="{{ route('employer.dashboard') }}">HR Dashboard</a><a href="{{ route('employer.assistant', 'job') }}">Post a Job (Assistant)</a><a href="{{ route('employer.assistant', 'company') }}">Company Profile (Assistant)</a><a href="{{ route('employer.jobs.create') }}">Detailed Job Form</a>
             @else

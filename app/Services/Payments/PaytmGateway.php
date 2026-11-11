@@ -34,7 +34,8 @@ class PaytmGateway
     }
 
     /** @return string txnToken */
-    public function initiate(string $orderId, int $amountPaise, string $customerId, ?string $email = null, ?string $mobile = null): string
+    /** @param string[] $modes Paytm payment modes to allow (e.g. ['CREDIT_CARD']); empty allows all. */
+    public function initiate(string $orderId, int $amountPaise, string $customerId, ?string $email = null, ?string $mobile = null, array $modes = []): string
     {
         $body = [
             'requestType' => 'Payment', 'mid' => $this->mid(), 'websiteName' => (string) config('services.paytm.website', 'WEBSTAGING'),
@@ -42,6 +43,7 @@ class PaytmGateway
             'txnAmount' => ['value' => number_format($amountPaise / 100, 2, '.', ''), 'currency' => 'INR'],
             'userInfo' => array_filter(['custId' => $customerId, 'email' => $email, 'mobile' => $mobile]),
         ];
+        if ($modes) $body['enablePaymentMode'] = array_map(fn ($m) => ['mode' => $m], $modes);
         $json = json_encode($body, JSON_UNESCAPED_SLASHES);
         $res = Http::timeout(20)->withBody(json_encode(['body' => $body, 'head' => ['signature' => $this->sign($json)]], JSON_UNESCAPED_SLASHES), 'application/json')
             ->post($this->host() . '/theia/api/v1/initiateTransaction?mid=' . rawurlencode($this->mid()) . '&orderId=' . rawurlencode($orderId));

@@ -15,6 +15,10 @@
         @foreach(\App\Http\Controllers\InsightsExploreController::DATABASES as $key => $label)
             <a href="{{ route('insights.explore', $key) }}" class="{{ request()->route('db') === $key ? 'on' : '' }}"><span>{{ ['listed' => '🇮🇳', 'companies' => '🏢', 'us' => '🇺🇸', 'people' => '👥'][$key] }} {{ $label }}</span><small>{{ $short($navCounts[$key] ?? null) }}</small></a>
         @endforeach
+        <span class="db-sep">Funding</span>
+        <a href="{{ route('funding.rounds') }}" class="{{ request()->routeIs('funding.rounds') ? 'on' : '' }}"><span>💰 Funding rounds</span></a>
+        <a href="{{ route('funding.investors') }}" class="{{ request()->routeIs('funding.investors', 'funding.investor') ? 'on' : '' }}"><span>🤝 Investors</span></a>
+        <a href="{{ route('funding.people') }}" class="{{ request()->routeIs('funding.people') ? 'on' : '' }}"><span>🚩 People flags</span></a>
         <span class="db-sep">Markets</span>
         <a href="{{ route('trading.stocks') }}"><span>📈 Indian markets</span></a>
         <a href="{{ route('markets.us') }}"><span>💵 US markets</span></a>

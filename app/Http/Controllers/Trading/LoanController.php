@@ -18,7 +18,7 @@ class LoanController extends Controller
     public function index(Request $request)
     {
         $loans = Loan::where('user_id', $request->user()->id)->latest('id')->paginate(20);
-        return view('trading.loans.index', ['loans' => $loans, 'frequencies' => LoanAmortization::FREQUENCIES, 'dayCounts' => LoanAmortization::DAY_COUNTS]);
+        return view('trading.loans.index', ['loans' => $loans,'frequencies' => LoanAmortization::FREQUENCIES,'dayCounts' => LoanAmortization::DAY_COUNTS]);
     }
     public function preview(Request $request)
     {
@@ -51,20 +51,8 @@ class LoanController extends Controller
         if ($format === 'pdf') {
             return Pdf::loadView('trading.loans.pdf', ['loan' => $loan, 'frequencies' => LoanAmortization::FREQUENCIES])->setPaper('a4', 'landscape')->download($loan->loan_no . '-schedule.pdf');
         }
-        $columns = [
-            'installment_no' => 'No',
-            'due_date' => 'Due date',
-            'days' => 'Days',
-            'opening_balance' => 'Opening balance',
-            'scheduled_payment' => 'Scheduled payment',
-            'principal' => 'Principal',
-            'interest' => 'Interest',
-            'total_payment' => 'Total payment',
-            'closing_balance' => 'Closing balance',
-            'is_moratorium' => 'Moratorium'
-            ];
-        $rows = $loan->schedule->map(fn ($r) => [
-            'installment_no' => $r->installment_no,
+        $columns = ['installment_no' => 'No','due_date' => 'Due date','days' => 'Days','opening_balance' => 'Opening balance','scheduled_payment' => 'Scheduled payment','principal' => 'Principal','interest' => 'Interest','total_payment' => 'Total payment','closing_balance' => 'Closing balance','is_moratorium' => 'Moratorium'];
+        $rows = $loan->schedule->map(fn ($r) => ['installment_no' => $r->installment_no,
             'due_date' => $r->due_date->format('d-m-Y'),
             'days' => $r->days,
             'opening_balance' => $r->opening_balance,

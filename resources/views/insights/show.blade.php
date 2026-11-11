@@ -175,6 +175,9 @@
     @if(!empty($careAssessment))
         @includeSafe('insights.partials.care-assessment')
     @endif
+    @if($equityRounds->isNotEmpty())
+        @includeSafe('insights.partials.equity-funding')
+    @endif
     @if(!empty($funding))
         @includeSafe('insights.partials.funding-lifecycle')
     @endif
