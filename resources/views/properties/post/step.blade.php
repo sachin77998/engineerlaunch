@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @php
     $o = config('properties');
-    $labels = \App\Http\Controllers\PropertyPostController::STEP_LABELS;
+    $labels = \App\Http\Controllers\PropertyPostController::labels();
     $i = array_search($step, $steps, true);
     $done = $p->steps_done ?? [];
     $pct = (int) round(count(array_intersect($steps, $done)) / count($steps) * 100);
@@ -37,7 +37,7 @@
         <nav class="pw-steps" aria-label="Steps">
             @foreach($steps as $n => $s)
                 <a href="{{ route('properties.step', [$p->id, $s]) }}" class="{{ $s === $step ? 'on' : '' }} {{ in_array($s, $done, true) ? 'done' : '' }} {{ $n > 0 && !in_array($steps[$n - 1], $done, true) && !in_array($s, $done, true) && $s !== $step ? 'locked' : '' }}">
-                    <i>{{ in_array($s, $done, true) ? '✓' : $icons[$s] }}</i>{{ $labels[$s] }}</a>
+                    <i>{{ in_array($s, $done, true) ? '✓' : ($icons[$s] ?? '•') }}</i>{{ $labels[$s] }}</a>
             @endforeach
         </nav>
         <div class="pr-card-box" style="padding:18px 18px">
@@ -49,7 +49,11 @@
                 </form>
             @else
                 <form method="post" action="{{ route('properties.save', [$p->id, $step]) }}" novalidate>@csrf
-                    @include('properties.post.steps.' . $step)
+                    @if($extension)
+                        @include($extension->view(), $extensionData)
+                    @else
+                        @include('properties.post.steps.' . $step)
+                    @endif
                     <div class="pw-foot">@if($i > 0)<a class="pr-btn grey" href="{{ route('properties.step', [$p->id, $steps[$i - 1]]) }}">Back</a>@endif
                         <button class="pr-btn" type="submit">{{ $last ? 'Finish posting' : 'Save & continue' }}</button>
                         @if(!$last && $p->status === 'active')<button class="pr-btn ghost" type="submit" name="finish" value="1">Save & publish</button>@endif</div>

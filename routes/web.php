@@ -77,6 +77,47 @@ Route::middleware(['auth', 'admin'])->prefix('admin/materials')->name('admin.mat
     Route::post('/reviews/{review}', 'moderateReview')->name('reviews.update');
     Route::post('/products/{material:handle}', 'updateProduct')->where('material', '[A-Za-z0-9._-]+')->name('products.update');
 });
+// Saved property searches with new-listing email alerts.
+Route::controller(\App\Http\Controllers\SavedSearchController::class)->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('/my-searches', 'index')->name('saved-searches.index');
+        Route::post('/my-searches', 'store')->middleware('throttle:property-contact')->name('saved-searches.store');
+        Route::post('/my-searches/{search}', 'update')->whereNumber('search')->name('saved-searches.update');
+        Route::post('/my-searches/{search}/delete', 'destroy')->whereNumber('search')->name('saved-searches.destroy');
+        Route::get('/my-searches/{search}/open', 'open')->whereNumber('search')->name('saved-searches.open');
+    });
+    Route::get('/my-searches/{search}/stop', 'unsubscribe')->whereNumber('search')->middleware('signed')->name('saved-searches.unsubscribe');
+});
+// Site visits (listings and projects) and the visitor's enquiries.
+Route::middleware('auth')->controller(\App\Http\Controllers\SiteVisitController::class)->group(function () {
+    Route::post('/visit/{type}/{slug}', 'book')->whereIn('type', ['property', 'project'])->middleware('throttle:property-contact')->name('site-visits.book');
+    Route::get('/my-visits', 'index')->name('site-visits.index');
+    Route::get('/my-visits/hosting', 'hosting')->name('site-visits.hosting');
+    Route::post('/my-visits/{visit}/reschedule', 'reschedule')->whereNumber('visit')->middleware('throttle:property-contact')->name('site-visits.reschedule');
+    Route::post('/my-visits/{visit}/cancel', 'cancel')->whereNumber('visit')->name('site-visits.cancel');
+    Route::post('/my-visits/{visit}/host', 'host')->whereNumber('visit')->name('site-visits.host');
+    Route::get('/my-enquiries', 'enquiries')->name('site-visits.enquiries');
+    Route::post('/admin/projects/{project:id}/visits/{visit}', 'adminHost')->whereNumber('visit')->middleware('admin')->name('admin.projects.visit');
+});
+// City landing pages, projects (buildings) and builders.
+Route::controller(\App\Http\Controllers\CityPageController::class)->group(function () {
+    Route::get('/real-estate', 'index')->name('real-estate.index');
+    Route::get('/real-estate/locate', 'locate')->middleware('throttle:property-lookup')->name('real-estate.locate');
+    Route::get('/real-estate/searches', 'searches')->name('real-estate.searches');
+    Route::post('/real-estate/searches/clear', 'clearSearches')->middleware('throttle:property-contact')->name('real-estate.searches.clear');
+    Route::get('/real-estate/{city}', 'show')->where('city', '[a-z0-9-]+')->name('real-estate.city');
+    Route::get('/real-estate/{city}/rate-locality', 'rate')->where('city', '[a-z0-9-]+')->name('real-estate.rate');
+});
+Route::controller(\App\Http\Controllers\ProjectController::class)->group(function () {
+    Route::get('/projects/{city?}', 'index')->where('city', '[a-z0-9-]+')->name('projects.index');
+    Route::get('/project/{project:slug}', 'show')->name('projects.show');
+    Route::post('/project/{project:slug}/phone', 'phone')->middleware(['auth', 'throttle:property-contact'])->name('projects.phone');
+    Route::post('/project/{project:slug}/enquire', 'enquire')->middleware('throttle:property-contact')->name('projects.enquire');
+    Route::get('/project/{project:slug}/brochure', 'brochure')->middleware(['auth', 'throttle:property-contact'])->name('projects.brochure');
+    Route::post('/project/{project:slug}/shortlist', 'shortlist')->middleware('auth')->name('projects.shortlist');
+    Route::get('/builders/{builder:slug}', 'builder')->name('builders.show');
+});
+
 // Property marketplace: search (Buy / Rent / Commercial), listing pages, posting a free ad and My properties.
 Route::controller(\App\Http\Controllers\PropertyController::class)->group(function () {
     Route::get('/properties', 'index')->name('properties.index');
@@ -106,8 +147,8 @@ Route::middleware('auth')->controller(\App\Http\Controllers\PropertyPostControll
     Route::post('/post-property/contact', 'saveOwner')->name('properties.owner');
     Route::post('/post-property', 'create')->name('properties.create');
     Route::get('/my-properties', 'mine')->name('properties.mine');
-    Route::get('/my-properties/{id}/{step}', 'step')->whereNumber('id')->whereIn('step', ['details', 'location', 'rental', 'sale', 'rooms', 'amenities', 'gallery', 'additional', 'schedule'])->name('properties.step');
-    Route::post('/my-properties/{id}/{step}', 'save')->whereNumber('id')->whereIn('step', ['details', 'location', 'rental', 'sale', 'rooms', 'amenities', 'gallery', 'additional', 'schedule'])->name('properties.save');
+    Route::get('/my-properties/{id}/{step}', 'step')->whereNumber('id')->where('step', '(?!media$)[a-z_]+')->name('properties.step');
+    Route::post('/my-properties/{id}/{step}', 'save')->whereNumber('id')->where('step', '(?!media$)[a-z_]+')->name('properties.save');
     Route::post('/my-properties/{id}/media', 'upload')->whereNumber('id')->middleware('throttle:property-upload')->name('properties.upload');
     Route::post('/my-properties/{id}/media/{media}', 'media')->whereNumber('id')->name('properties.media');
     Route::post('/my-properties/{id}/status/{action}', 'status')->whereNumber('id')->whereIn('action', ['close', 'reopen', 'delete'])->name('properties.status');
@@ -118,6 +159,29 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/properties/{property:id}/reports', [\App\Http\Controllers\PropertyAdminController::class, 'resolveReports'])->name('admin.properties.reports');
     Route::post('/admin/properties/{property:id}/verify', [\App\Http\Controllers\PropertyAdminController::class, 'verify'])->name('admin.properties.verify');
     Route::post('/admin/properties/{property:id}', [\App\Http\Controllers\PropertyAdminController::class, 'status'])->name('admin.properties.status');
+});
+Route::middleware(['auth', 'admin'])->controller(\App\Http\Controllers\PropertyCatalogAdminController::class)->group(function () {
+    Route::get('/admin/property-options', 'options')->name('admin.property-options.index');
+    Route::post('/admin/property-options/{group}', 'saveOptions')->where('group', '[a-z0-9_.-]+')->name('admin.property-options.save');
+    Route::get('/admin/property-cities', 'cities')->name('admin.property-cities.index');
+    Route::post('/admin/property-cities', 'saveCity')->name('admin.property-cities.store');
+    Route::post('/admin/property-cities/{city}', 'saveCity')->whereNumber('city')->name('admin.property-cities.update');
+    Route::post('/admin/property-cities/{city}/localities', 'saveLocalities')->whereNumber('city')->name('admin.property-cities.localities');
+    Route::get('/admin/builders', 'builders')->name('admin.builders.index');
+    Route::post('/admin/builders', 'saveBuilder')->name('admin.builders.store');
+    Route::post('/admin/builders/{builder:id}', 'saveBuilder')->name('admin.builders.update');
+    Route::get('/admin/projects', 'projects')->name('admin.projects.index');
+    Route::get('/admin/projects/new', 'editProject')->name('admin.projects.create');
+    Route::post('/admin/projects', 'saveProject')->name('admin.projects.store');
+    Route::get('/admin/projects/{project:id}', 'editProject')->name('admin.projects.edit');
+    Route::post('/admin/projects/{project:id}', 'saveProject')->name('admin.projects.update');
+    Route::post('/admin/projects/{project:id}/images', 'uploadImages')->middleware('throttle:property-upload')->name('admin.projects.images');
+    Route::post('/admin/projects/{project:id}/images/{image}', 'imageAction')->whereNumber('image')->name('admin.projects.image');
+    Route::post('/admin/projects/{project:id}/offers', 'saveOffer')->name('admin.projects.offers');
+    Route::post('/admin/projects/{project:id}/offers/{offer}', 'saveOffer')->whereNumber('offer')->name('admin.projects.offer');
+    Route::post('/admin/projects/{project:id}/units/{unit?}', 'saveUnit')->whereNumber('unit')->middleware('throttle:property-upload')->name('admin.projects.unit');
+    Route::post('/admin/projects/{project:id}/leads/{lead}', 'leadStatus')->whereNumber('lead')->name('admin.projects.lead');
+    Route::post('/admin/projects/{project:id}/{child}/{id?}', 'saveChild')->whereIn('child', ['highlights', 'videos', 'faqs', 'charges'])->whereNumber('id')->name('admin.projects.child');
 });
 // Home loans: compare lenders, EMI / eligibility calculators and the application (income → offers → property → documents).
 Route::controller(\App\Http\Controllers\HomeLoanController::class)->group(function () {

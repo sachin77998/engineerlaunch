@@ -4,7 +4,7 @@
 @include('properties._nav')
 @php
     $o = config('properties');
-    $val = fn ($k, $d = null) => old($k, $review?->{$k} ?? $d);
+    $val = fn ($k, $d = null) => old($k, $review?->{$k} ?? ($k === 'rating' && in_array((int) request('stars'), [1, 2, 3, 4, 5], true) ? (int) request('stars') : $d));
     $err = fn ($k) => $errors->has($k) ? '<div class="pr-err">' . e($errors->first($k)) . '</div>' : '';
 @endphp
 @push('styles')<style>

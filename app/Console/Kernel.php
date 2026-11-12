@@ -99,6 +99,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('news:publish')->everyThirtyMinutes()->withoutOverlapping(30);
         $schedule->command('insights:funding-rounds')->everyThirtyMinutes()->withoutOverlapping(30);
         $schedule->command('pay-rent:sync')->everyFiveMinutes()->withoutOverlapping(10);
+        $schedule->command('events:relay')->everyMinute()->withoutOverlapping(10);
+        $schedule->command('property-cities:images')->weeklyOn(1, '04:30')->withoutOverlapping(60);
+        $schedule->command('property-alerts:digest')->hourly()->withoutOverlapping(30);
         $schedule->command('news:notify')->dailyAt('08:00')->withoutOverlapping(30);
         $schedule->command('portal:send-daily-events --limit=100')->dailyAt('09:00')->withoutOverlapping(120);
     }

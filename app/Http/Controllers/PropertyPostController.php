@@ -21,8 +21,31 @@ class PropertyPostController extends Controller
 
     public static function steps(Property $p): array
     {
-        $pricing = $p->isPg() ? 'rooms' : ($p->listing === 'rent' ? 'rental' : 'sale');
-        return array_values(array_filter(['details', 'location', $pricing, $p->isLand() ? null : 'amenities', 'gallery', 'additional', 'schedule']));
+        $steps = array_values(array_filter(['details', 'location', self::pricingStep($p), $p->isLand() ? null : 'amenities', 'gallery', 'additional', 'schedule']));
+        // Extra steps from config/property_steps.php go right after the step they name.
+        foreach (self::extensions() as $key => $ext) {
+            if (!$ext->applies($p)) continue;
+            $at = array_search($ext->after(), $steps, true);
+            array_splice($steps, $at === false ? count($steps) - 1 : $at + 1, 0, [$key]);
+        }
+        return $steps;
+    }
+
+    public static function pricingStep(Property $p): string
+    {
+        return $p->isPg() ? 'rooms' : ($p->listing === 'rent' ? 'rental' : 'sale');
+    }
+
+    /** @return array<string, \App\Contracts\PropertyStep> */
+    public static function extensions(): array
+    {
+        return collect(config('property_steps.extra', []))->map(fn ($class) => app($class))->keyBy(fn ($ext) => $ext->key())->all();
+    }
+
+    /** Step key => label, built-in and extra. */
+    public static function labels(): array
+    {
+        return array_merge(self::STEP_LABELS, array_map(fn ($ext) => $ext->label(), self::extensions()));
     }
 
     public function start(Request $request)
@@ -56,7 +79,8 @@ class PropertyPostController extends Controller
         $p = $this->own($request, $id);
         abort_unless(in_array($step, self::steps($p), true), 404);
         $p->load(['rentTerms', 'saleTerms', 'pgTerms', 'media']);
-        return view('properties.post.step', ['p' => $p, 'step' => $step, 'steps' => self::steps($p)]);
+        $ext = self::extensions()[$step] ?? null;
+        return view('properties.post.step', ['p' => $p, 'step' => $step, 'steps' => self::steps($p), 'extension' => $ext, 'extensionData' => $ext ? $ext->viewData($p) : []]);
     }
 
     public function save(Request $request, int $id, string $step)
@@ -64,15 +88,17 @@ class PropertyPostController extends Controller
         $p = $this->own($request, $id);
         $steps = self::steps($p);
         abort_unless(in_array($step, $steps, true), 404);
-        $this->{'save' . ucfirst($step)}($request, $p);
+        if ($ext = self::extensions()[$step] ?? null) $ext->save($request, $p);
+        else $this->{'save' . ucfirst($step)}($request, $p);
+        $steps = self::steps($p); // saving can add or remove extra steps (e.g. the city now has projects)
         $p->steps_done = array_values(array_unique(array_merge($p->steps_done ?? [], [$step])));
         $p->save();
         $next = $steps[array_search($step, $steps, true) + 1] ?? null;
         if ($next && !$request->boolean('finish')) return redirect()->route('properties.step', [$p->id, $next]);
 
         // Last step (or "Finish posting"): every required step must be filled in before the listing goes live.
-        $missing = array_diff(array_merge(self::REQUIRED, [$steps[2]]), $p->steps_done);
-        if ($missing) return redirect()->route('properties.step', [$p->id, reset($missing)])->with('warning', 'Please complete ' . strtolower(self::STEP_LABELS[reset($missing)]) . ' to publish.');
+        $missing = array_diff(array_merge(self::REQUIRED, [self::pricingStep($p)]), $p->steps_done);
+        if ($missing) return redirect()->route('properties.step', [$p->id, reset($missing)])->with('warning', 'Please complete ' . strtolower(self::labels()[reset($missing)]) . ' to publish.');
         $p->load(['pgTerms']);
         $p->refreshTitleAndSlug();
         if ($p->status === 'draft') $p->fill(['status' => 'active', 'published_at' => now()]);

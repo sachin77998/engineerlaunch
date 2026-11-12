@@ -199,5 +199,26 @@ return [
             'queries' => ['Dubai business news', 'UAE jobs economy', 'Dubai real estate news', 'Saudi Arabia investment news'],
             'skills' => ['Sales', 'Engineering', 'Finance', 'Hospitality'], 'audience' => 'professionals targeting Gulf roles',
         ],
+        // Real estate — shown as tabs on the property city pages (config/property_city.php 'articles').
+        'real-estate' => [
+            'name' => 'Real Estate News', 'category' => 'real-estate', 'icon' => '🏘️',
+            'queries' => ['real estate news India', 'housing project launch', 'property prices India', 'Bengaluru real estate', 'Mumbai real estate', 'Pune real estate', 'Hyderabad real estate', 'Delhi NCR real estate', 'Chennai real estate', 'new airport metro real estate'],
+            'skills' => ['Real Estate Sales', 'Civil Engineering', 'Urban Planning'], 'audience' => 'home buyers and real-estate professionals',
+        ],
+        'property-tax-legal' => [
+            'name' => 'Property Tax & Legal', 'category' => 'property-tax-legal', 'icon' => '⚖️',
+            'queries' => ['stamp duty news', 'property registration rules', 'RERA order', 'property tax news India', 'capital gains property tax', 'land records digitisation'],
+            'skills' => ['Real Estate Law', 'Taxation', 'Compliance'], 'audience' => 'home buyers, owners and property lawyers',
+        ],
+        'home-buying-guides' => [
+            'name' => 'Home Buying Guides', 'category' => 'home-buying-guides', 'icon' => '🏠',
+            'queries' => ['home buying tips India', 'home loan interest rate news', 'first time home buyer India', 'rent agreement rules', 'housing society rules'],
+            'skills' => ['Home Loans', 'Real Estate Advisory'], 'audience' => 'home buyers and tenants',
+        ],
+        'real-estate-investment' => [
+            'name' => 'Real Estate Investment', 'category' => 'real-estate-investment', 'icon' => '📈',
+            'queries' => ['REIT India news', 'commercial real estate leasing India', 'office leasing India', 'real estate investment India', 'warehousing real estate India'],
+            'skills' => ['Investment Analysis', 'Commercial Leasing'], 'audience' => 'property investors',
+        ],
     ],
 ];

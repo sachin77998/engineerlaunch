@@ -231,6 +231,8 @@
             </section>
         @endif
 
+        @include('properties._listing_extras')
+
         @if($p->segment === 'residential' && !$p->isLand() && $p->furnishing !== 'none' && $furnish->isNotEmpty())
             <section class="pd-sec"><h2>Furnishing</h2>
                 <div class="pd-furn">@foreach($o['furnishings'] as $k => $label)<div class="{{ $furnish->has($k) ? '' : 'off' }}"><span>{{ $label }}</span>@if($furnish->has($k))<b>{{ $furnish[$k] }}</b>@endif</div>@endforeach</div>
@@ -284,13 +286,21 @@
                         <input type="tel" name="phone" required maxlength="20" placeholder="Mobile number" value="{{ old('phone') }}" aria-label="Mobile number" style="flex:1"></div>
                     <input type="email" name="email" maxlength="190" placeholder="Email (optional)" value="{{ old('email', auth()->user()?->email) }}" aria-label="Email">
                     <div><textarea name="message" rows="3" maxlength="400" placeholder="I am interested in this property." aria-label="Message" data-count-to="pdChars">{{ old('message') }}</textarea><small class="pr-mute" id="pdChars" style="float:right">400 chars</small></div>
-                    <label class="f" style="margin:0">Request a site visit <span class="pr-mute" style="font-weight:500">(optional)</span><input type="datetime-local" name="visit_at" value="{{ old('visit_at') }}" style="margin-top:6px"></label>
+                    @if(auth()->check() && $visitSlots)
+                        <a href="#book-visit" style="font-size:14px">📅 Want to see it? Pick a visit slot below →</a>
+                    @else
+                        <label class="f" style="margin:0">Request a site visit <span class="pr-mute" style="font-weight:500">(optional)</span><input type="datetime-local" name="visit_at" value="{{ old('visit_at') }}" style="margin-top:6px"></label>
+                    @endif
                     <label class="pr-check" style="margin:0"><input type="checkbox" name="agree" value="1" required @checked(old('agree'))> I agree to the <a href="{{ route('privacy') }}" target="_blank">Privacy Policy</a></label>
                     <button class="pr-btn" type="submit">Send enquiry</button>
                 </form>
             @endunless
         </div>
     </section>
+
+    @unless($mine)
+        <section class="pd-sec">@include('properties.visits._book', ['type' => 'property', 'slug' => $p->slug])</section>
+    @endunless
 
     @if($localityReviews)
         <section id="locality-reviews" class="pd-sec">

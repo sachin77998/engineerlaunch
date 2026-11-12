@@ -16,7 +16,7 @@
                     <div class="pr-mute" style="font-size:13.5px">{{ $p->headlinePrice() }} · {{ number_format($p->views) }} views · {{ $p->leads_count }} {{ $p->leads_count === 1 ? 'enquiry' : 'enquiries' }}</div>
                     <div style="margin-top:6px">
                         <span class="pr-tag {{ ['active' => 'ok', 'draft' => 'amber', 'closed' => '', 'inactive' => ''][$p->status] }}">{{ ['active' => 'Live', 'draft' => 'Draft', 'closed' => $p->listing === 'rent' ? 'Rented out' : 'Sold', 'inactive' => 'Taken down'][$p->status] }}</span>
-                        @if($p->status === 'draft' && $pending)<span class="pr-mute" style="font-size:13px">Next: {{ \App\Http\Controllers\PropertyPostController::STEP_LABELS[$pending] }}</span>@endif
+                        @if($p->status === 'draft' && $pending)<span class="pr-mute" style="font-size:13px">Next: {{ (\App\Http\Controllers\PropertyPostController::labels()[$pending] ?? $pending) }}</span>@endif
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">

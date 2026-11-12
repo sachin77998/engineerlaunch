@@ -459,6 +459,10 @@ class AgentRouter
             ],
         ];
 
+        foreach (config('ai_agents.extra', []) as $name => $extra) {
+            $patterns[$name] = $extra['keywords'] ?? [];
+        }
+
         $scores = [];
 
         foreach (
@@ -538,7 +542,9 @@ class AgentRouter
                 return app(\App\AI\Agents\FinanceAgent::class);
 
             default:
-                return null;
+                $class = config('ai_agents.extra.' . $this->normalizeAgent($agent) . '.class');
+
+                return $class ? app($class) : null;
         }
     }
 
@@ -597,6 +603,12 @@ class AgentRouter
                 return 'finance';
 
             default:
+                foreach (config('ai_agents.extra', []) as $name => $extra) {
+                    if (in_array($agent, $extra['aliases'] ?? [], true)) {
+                        return $name;
+                    }
+                }
+
                 return $agent !== ''
                     ? $agent
                     : 'career';
@@ -619,6 +631,7 @@ class AgentRouter
             'news',
             'hr',
             'finance',
+            ...array_keys(config('ai_agents.extra', [])),
         ];
     }
 

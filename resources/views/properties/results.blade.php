@@ -204,7 +204,10 @@
         </form>
 
         <main style="min-width:0">
-            <h1 class="pr-count"><b>{{ number_format($results->total()) }} {{ $results->total() === 1 ? 'result' : 'results' }}</b><span>|</span>{{ $heading }}@if($areas->isNotEmpty()) <small class="pr-mute" style="font-size:15px">· {{ $areas->implode(', ') }}</small>@endif</h1>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+                <h1 class="pr-count"><b>{{ number_format($results->total()) }} {{ $results->total() === 1 ? 'result' : 'results' }}</b><span>|</span>{{ $heading }}@if($areas->isNotEmpty()) <small class="pr-mute" style="font-size:15px">· {{ $areas->implode(', ') }}</small>@endif</h1>
+                @include('properties._save_search')
+            </div>
             <div class="pr-pills">
                 @foreach($pills as $label => [$on, $href])<a href="{{ $href }}" class="{{ $on ? 'on' : '' }}">{{ $on ? '✓ ' : '' }}{{ $label }}</a>@endforeach
                 <select aria-label="Sort by" onchange="var f=document.getElementById('prFilters');f.sort.value=this.value;f.submit()">

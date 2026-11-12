@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Property\PropertySearched;
+use App\Events\Property\PropertyViewed;
+use App\Models\Property\NearbyPlace;
 use App\Models\Property\Property;
 use App\Models\Property\PropertyLead;
+use App\Services\Property\PropertySearch;
+use App\Services\Property\Visitor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +18,7 @@ use Illuminate\Support\Str;
 // Property marketplace for visitors: search (Buy / Rent / Commercial), results, the listing page and contacting the owner.
 class PropertyController extends Controller
 {
-    public const SORTS = ['newest' => 'Newest first', 'price_asc' => 'Price: low to high', 'price_desc' => 'Price: high to low', 'area_desc' => 'Largest first'];
+    public const SORTS = PropertySearch::SORTS;
 
     public function index()
     {
@@ -28,79 +33,17 @@ class PropertyController extends Controller
     {
         abort_unless(isset(config('properties.modes')[$mode]), 404);
         $o = config('properties');
-        $f = $request->validate([
-            'q' => 'nullable|array|max:3', 'q.*' => 'nullable|string|max:100',
-            'kind' => 'nullable|string|max:24',
-            'type' => 'nullable|array', 'type.*' => 'in:' . implode(',', array_keys($o['home_types'])),
-            'bhk' => 'nullable|array', 'bhk.*' => 'in:' . implode(',', array_unique(array_merge(array_keys($o['bhk']), array_keys($o['bhk_groups'])))),
-            'possession' => 'nullable|array', 'possession.*' => 'in:new_launch,under_construction,ready', 'new_projects' => 'nullable|boolean',
-            'posted_by' => 'nullable|array', 'posted_by.*' => 'in:' . implode(',', array_keys($o['posted_by'])),
-            'furnishing' => 'nullable|array', 'furnishing.*' => 'in:' . implode(',', array_keys($o['furnishing'])),
-            'tenant' => 'nullable|in:' . implode(',', array_keys($o['preferred_tenants'])), 'gender' => 'nullable|in:male,female',
-            'min' => 'nullable|numeric|min:0', 'max' => 'nullable|numeric|min:0',
-            'area_min' => 'nullable|numeric|min:0', 'area_max' => 'nullable|numeric|min:0', 'area_unit' => 'nullable|in:' . implode(',', array_keys($o['area_units'])),
-            'loc' => 'nullable|array|max:30', 'loc.*' => 'string|max:150', 'project' => 'nullable|array|max:30', 'project.*' => 'string|max:160',
-            'amen' => 'nullable|array', 'amen.*' => 'in:' . implode(',', $o['amenity_filters']),
-            'verified' => 'nullable|boolean', 'photos' => 'nullable|boolean', 'videos' => 'nullable|boolean', 'rera' => 'nullable|boolean',
-            'sort' => 'nullable|in:' . implode(',', array_keys(self::SORTS)),
-        ]);
+        $f = $request->validate(PropertySearch::rules());
         $cityName = $city ? ($this->cities()->first(fn ($c) => Str::slug($c) === $city) ?? Property::where('city_slug', $city)->value('city')) : null;
         abort_if($city && !$cityName, 404);
-        $areas = collect($f['q'] ?? [])->map(fn ($v) => trim((string) $v))->filter()->take(3)->values();
-        $bhk = collect($f['bhk'] ?? [])->flatMap(fn ($b) => $o['bhk_groups'][$b] ?? [$b])->unique()->values()->all();
-        $unit = $f['area_unit'] ?? 'sqft';
-        $sqft = fn ($v) => \App\Services\Property\PropertyFormat::toSqft((float) $v, $unit);
+        $areas = PropertySearch::areas($f);
         $base = fn () => $this->modeQuery($mode)->when($city, fn ($q) => $q->where('city_slug', $city));
-
-        $query = $base()
-            ->when($areas->isNotEmpty(), fn ($q) => $q->where(fn ($w) => $areas->each(fn ($a) => $w->orWhere('locality', 'like', "%$a%")->orWhere('society', 'like', "%$a%")
-                ->orWhere('landmark', 'like', "%$a%")->orWhere('street', 'like', "%$a%"))))
-            ->when($f['kind'] ?? null, fn ($q, $v) => $q->where('kind', $v))
-            // Type of property: a plot is the land kind; the rest are building types of a house or flat.
-            ->when($f['type'] ?? null, fn ($q, $types) => $q->where(fn ($w) => collect($types)->each(fn ($t) => $o['home_types'][$t][2] === null
-                ? $w->orWhere('kind', 'land')
-                : $w->orWhere(fn ($x) => $x->where('kind', '!=', 'land')->whereIn('building_type', $o['home_types'][$t][2])))))
-            ->when($bhk, fn ($q, $v) => $q->whereIn('bhk', $v))
-            ->when($f['furnishing'] ?? null, fn ($q, $v) => $q->whereIn('furnishing', $v))
-            ->when($f['possession'] ?? null, fn ($q, $v) => $q->whereHas('saleTerms', fn ($s) => $s->where(function ($w) use ($v) {
-                $stages = array_values(array_diff($v, ['new_launch']));
-                if ($stages) $w->whereIn('possession', $stages);
-                if (in_array('new_launch', $v, true)) $w->orWhere('is_new_project', true);
-            })))
-            ->when($f['new_projects'] ?? null, fn ($q) => $q->whereHas('saleTerms', fn ($s) => $s->where('is_new_project', true)))
-            ->when($f['posted_by'] ?? null, fn ($q, $v) => $q->whereHas('owner', fn ($w) => $w->where(function ($x) use ($v) {
-                foreach ($v as $by) match ($by) {
-                    'owner' => $x->orWhere('owner_type', 'owner'), 'builder' => $x->orWhere('owner_type', 'builder'),
-                    'dealer' => $x->orWhere('owner_type', 'agent'), 'featured' => $x->orWhere(fn ($y) => $y->where('owner_type', 'agent')->where('is_featured', true)),
-                };
-            })))
-            ->when($f['tenant'] ?? null, fn ($q, $v) => $q->whereHas('rentTerms', fn ($r) => $r->where(fn ($w) => $w->whereJsonContains('preferred_tenants', $v)->orWhereJsonContains('preferred_tenants', 'any')->orWhereNull('preferred_tenants'))))
-            ->when($f['gender'] ?? null, fn ($q, $v) => $q->whereHas('pgTerms', fn ($p) => $p->whereIn('gender', [$v, 'any'])))
-            ->when(isset($f['min']), fn ($q) => $q->where('price_sort', '>=', $f['min']))
-            ->when(isset($f['max']), fn ($q) => $q->where('price_sort', '<=', $f['max']))
-            ->when(isset($f['area_min']), fn ($q) => $q->where('area_sqft', '>=', $sqft($f['area_min'])))
-            ->when(isset($f['area_max']), fn ($q) => $q->where('area_sqft', '<=', $sqft($f['area_max'])))
-            ->when($f['verified'] ?? null, fn ($q) => $q->where('is_verified', true))
-            ->when($f['photos'] ?? null, fn ($q) => $q->whereHas('media', fn ($m) => $m->where('type', 'photo')))
-            ->when($f['videos'] ?? null, fn ($q) => $q->whereHas('media', fn ($m) => $m->where('type', 'video')))
-            // RERA approved: posted by someone who gave a RERA registration number.
-            ->when($f['rera'] ?? null, fn ($q) => $q->whereHas('owner', fn ($w) => $w->whereNotNull('rera_number')->where('rera_number', '!=', '')))
-            ->when($f['loc'] ?? null, fn ($q, $v) => $q->whereIn('locality', $v))
-            ->when($f['project'] ?? null, fn ($q, $v) => $q->where(fn ($w) => $w->whereIn('society', $v)->orWhereHas('saleTerms', fn ($s) => $s->whereIn('project_name', $v))))
-            // Every ticked amenity must be present; "gated" also counts the gated-security detail and highlight, "parking" any parking count.
-            ->when($f['amen'] ?? null, function ($q, $v) {
-                foreach ($v as $a) $q->where(fn ($w) => $w->whereJsonContains('amenities', $a)
-                    ->when($a === 'gated', fn ($x) => $x->orWhereJsonContains('highlights', 'gated')->orWhere('details->gated', 'yes'))
-                    ->when($a === 'parking', fn ($x) => $x->orWhere('details->covered_parking', '>', 0)->orWhere('details->open_parking', '>', 0)));
-                return $q;
-            });
-        match ($f['sort'] ?? 'newest') {
-            'price_asc' => $query->orderByRaw('price_sort is null')->orderBy('price_sort'),
-            'price_desc' => $query->orderByDesc('price_sort'),
-            'area_desc' => $query->orderByDesc('area_sqft'),
-            default => $query->latest('published_at'),
-        };
+        $query = PropertySearch::sort(PropertySearch::query($mode, $city, $f), $f['sort'] ?? null);
         $results = $query->with(['media', 'rentTerms', 'saleTerms', 'pgTerms', 'owner:id,owner_type,is_featured'])->paginate(20)->withQueryString();
+        if (!$request->has('page')) {
+            $label = PropertySearch::label($mode, $f, $cityName);
+            event(new PropertySearched(Visitor::id(), auth()->id(), $mode, $city, $areas->first(), $f['type'][0] ?? null, $label, $request->fullUrl()));
+        }
         $shortlisted = auth()->check() ? DB::table('property_shortlists')->where('user_id', auth()->id())->whereIn('property_id', $results->pluck('id'))->pluck('property_id')->all() : [];
 
         // Sidebar lists: localities and projects / societies with live listings in this city and tab (plus the city's known localities).
@@ -123,13 +66,16 @@ class PropertyController extends Controller
         $mine = auth()->id() === $property->user_id || auth()->user()?->isOwner();
         abort_unless($property->status === 'active' || $mine, 404);
         if (!$mine) {
+            event(new PropertyViewed($property, Visitor::id(), auth()->id()));
             Property::whereKey($property->id)->increment('views');
             // One count per visitor per listing per day, for "N people viewed this property yesterday".
             if (cache()->add('property-view:' . $property->id . ':' . (auth()->id() ?: sha1(request()->ip() . request()->userAgent())) . ':' . today()->toDateString(), 1, now()->endOfDay())) {
                 DB::table('property_view_days')->upsert([['property_id' => $property->id, 'day' => today()->toDateString(), 'views' => 1]], ['property_id', 'day'], ['views' => DB::raw('views + 1')]);
             }
         }
-        $property->load(['media', 'rentTerms', 'saleTerms', 'pgTerms', 'owner']);
+        $property->load(['media', 'rentTerms', 'saleTerms', 'pgTerms', 'owner', 'commercialDetail', 'facilities', 'project.images', 'project.builder']);
+        $nearby = ($geo = NearbyPlace::geoKey($property->latitude, $property->longitude))
+            ? NearbyPlace::where('geo_key', $geo)->where('category', '!=', '_none')->orderBy('distance_m')->get()->groupBy('category') : collect();
         $similar = $this->modeQuery($property->mode())->where('id', '!=', $property->id)->where('city_slug', $property->city_slug)->where('kind', $property->kind)
             ->with(['media', 'rentTerms', 'saleTerms', 'pgTerms', 'owner:id,name,owner_type,company_name,is_featured'])->orderByRaw('locality = ? desc', [$property->locality])->latest('published_at')->limit(6)->get();
         $user = auth()->user();
@@ -139,7 +85,9 @@ class PropertyController extends Controller
             'localityKey' => $localityKey, 'voted' => auth()->check() ? DB::table('locality_review_votes')->where('user_id', auth()->id())->pluck('helpful', 'locality_review_id')->all() : []] : null;
         $saves = DB::table('property_shortlists')->where('property_id', $property->id)->selectRaw('count(*) as total, sum(created_at >= ?) as recent', [now()->subDay()])->first();
         return view('properties.show', [
-            'p' => $property, 'similar' => $similar, 'mine' => $mine, 'saves' => $saves, 'localityReviews' => $reviews,
+            'p' => $property, 'similar' => $similar, 'nearby' => $nearby, 'mine' => $mine,
+            'visitSlots' => $mine ? [] : app(\App\Services\Property\VisitSlots::class)->available($property),
+            'myVisit' => $user ? \App\Models\Property\SiteVisit::upcoming()->where(['user_id' => $user->id, 'visitable_type' => 'property', 'visitable_id' => $property->id])->first() : null, 'saves' => $saves, 'localityReviews' => $reviews,
             'viewedYesterday' => (int) DB::table('property_view_days')->where(['property_id' => $property->id, 'day' => today()->subDay()->toDateString()])->value('views'),
             'ownerListings' => Property::live()->where('owner_id', $property->owner_id)->get(['locality', 'city']),
             'revealed' => $user && ($mine || PropertyLead::where(['property_id' => $property->id, 'user_id' => $user->id, 'kind' => 'phone'])->exists()),
@@ -241,7 +189,6 @@ class PropertyController extends Controller
 
     private function modeQuery(string $mode)
     {
-        $m = config("properties.modes.$mode");
-        return Property::live()->where('listing', $m['listing'])->where('segment', $m['segment'])->when($m['kinds'] ?? null, fn ($q, $kinds) => $q->whereIn('kind', $kinds));
+        return PropertySearch::mode($mode);
     }
 }

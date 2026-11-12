@@ -5,6 +5,7 @@
 <div class="pr"><div class="pr-wrap">
     @if(session('success'))<div class="pr-flash ok">{{ session('success') }}</div>@endif
     <h1 style="margin:22px 0 12px">Property listings</h1>
+    <p style="display:flex;gap:8px;flex-wrap:wrap"><a class="pr-btn ghost sm" href="{{ route('admin.projects.index') }}">Projects</a><a class="pr-btn ghost sm" href="{{ route('admin.builders.index') }}">Builders</a><a class="pr-btn ghost sm" href="{{ route('admin.property-cities.index') }}">Cities &amp; localities</a><a class="pr-btn ghost sm" href="{{ route('admin.property-options.index') }}">Option lists</a></p>
     <form method="get" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
         <input type="search" name="q" value="{{ $f['q'] ?? '' }}" placeholder="Title, city, locality, owner name or phone" style="max-width:380px" aria-label="Search">
         <select name="status" style="width:auto" aria-label="Status"><option value="">All statuses</option>@foreach(['active' => 'Live', 'draft' => 'Draft', 'closed' => 'Rented / sold', 'inactive' => 'Taken down'] as $k => $label)<option value="{{ $k }}" @selected(($f['status'] ?? '') === $k)>{{ $label }}</option>@endforeach</select>

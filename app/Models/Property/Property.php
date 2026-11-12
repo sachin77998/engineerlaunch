@@ -58,6 +58,22 @@ class Property extends Model
         return $this->media()->where('type', 'photo');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function commercialDetail()
+    {
+        return $this->hasOne(PropertyCommercialDetail::class);
+    }
+
+    /** Facility keys (popt_facilities) ticked for a commercial listing. */
+    public function facilities()
+    {
+        return $this->hasMany(PropertyFacility::class);
+    }
+
     public function leads()
     {
         return $this->hasMany(PropertyLead::class)->latest();
